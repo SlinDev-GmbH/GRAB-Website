@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
-import { FirstPersonControls } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/controls/FirstPersonControls.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
 let clock, camera, scene, renderer, controls;
@@ -99,8 +99,7 @@ function init()
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
 
-	camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10000);
-	camera.position.z = 0;
+	camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 	const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
 	scene.add(ambientLight);
@@ -111,9 +110,9 @@ function init()
 	sunLight.position.z = 1.0;
 	scene.add(sunLight);
 
-	controls = new FirstPersonControls(camera, renderer.domElement);
-	controls.movementSpeed = 50;
-	controls.lookSpeed = 0.1;
+	controls = new OrbitControls(camera, renderer.domElement);
+	camera.position.set(0, 20, 100);
+	controls.update();
 
 	protobuf.load("level.proto", function(err, root) {
 		if(err) throw err;
@@ -218,6 +217,14 @@ function init()
 					sign.setRotationFromQuaternion(sign.quaternion.multiply(extraRotate));
 				}
 			}
+
+			let levelBounds = new THREE.Box3().setFromObject(scene);
+			let target = new THREE.Vector3();
+			levelBounds.getCenter(target)
+			controls.target.x = target.x;
+			controls.target.y = target.y;
+			controls.target.z = target.z;
+			controls.update();
 		})()
 	});
 }
@@ -236,7 +243,7 @@ function onWindowResize()
 function animation(time)
 {
 	const delta = clock.getDelta();
-	controls.update(delta);
+	controls.update();
 
 	renderer.render(scene, camera);
 }

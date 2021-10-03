@@ -4,11 +4,17 @@
 		<meta charset="utf-8">
 		<title>GRAB Level Browser</title>
 		<style>
-			body { margin: 0; }
+			.list-container {
+				width: 50%;
+				background: black;
+				overflow-y: auto;
+				margin-left: auto;
+  				margin-right: auto;
+			}
 		</style>
 	</head>
 	<body>
-		<script type="text/javascript" src="https://unpkg.com/mithril/mithril.js"></script>
 		<script type="module" src="level_browser.js"></script>
+		<div class="list-container" id="list-container"></div>
 	</body>
 </html>
