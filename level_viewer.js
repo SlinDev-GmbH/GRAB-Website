@@ -122,7 +122,12 @@ function init()
 		const LevelMessage = root.lookupType("COD.Level.Level");
 
 		(async () => {
-			let response = await fetch('https://api.slin.dev/grab/v1/download/290oi9o5ziqvg9cxbo2a4/1631392484/2');
+			const urlParams = new URLSearchParams(window.location.search);
+			const levelIdentifier = urlParams.get('level');
+			const levelIdentifierParts = levelIdentifier.split(':')
+
+			console.log(levelIdentifier);
+			let response = await fetch('https://api.slin.dev/grab/v1/download/' + levelIdentifierParts[1] + '/' + levelIdentifierParts[2] + '/' + levelIdentifierParts[3]);
 			//console.log(response);
 			let responseBody = await response.arrayBuffer();
 			let formattedBuffer = new Uint8Array(responseBody);
