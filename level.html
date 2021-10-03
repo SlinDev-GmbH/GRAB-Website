@@ -5,10 +5,20 @@
 		<title>GRAB Level Preview</title>
 		<style>
 			body { margin: 0; }
+
+			.info {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				width: 20%;
+				text-align: left;
+				z-index: 100;
+				display:block;
+			}
 		</style>
 	</head>
 	<body>
-		<script type="x-shader/x-vertex" id="vertexShader">
+		<script type="x-shader/x-vertex" id="level-vertexShader">
 			varying vec3 vWorldPosition;
 			varying vec3 vNormal;
 
@@ -24,7 +34,7 @@
 			}
 		</script>
 
-		<script type="x-shader/x-fragment" id="fragmentShader">
+		<script type="x-shader/x-fragment" id="level-fragmentShader">
 			varying vec3 vWorldPosition;
 			varying vec3 vNormal;
 
@@ -58,7 +68,76 @@
 			}
 		</script>
 
+		<script type="x-shader/x-vertex" id="startfinish-vertexShader">
+			varying vec2 vTexcoord;
+
+			void main()
+			{
+				vTexcoord = uv;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+		</script>
+
+		<script type="x-shader/x-fragment" id="startfinish-fragmentShader">
+			varying vec2 vTexcoord;
+
+			uniform vec4 diffuseColor;
+
+			void main()
+			{
+				vec4 color = diffuseColor;
+				float factor = vTexcoord.y;
+				factor *= factor * factor;
+				factor = clamp(factor, 0.0, 1.0);
+				color.a = factor;
+
+				gl_FragColor = color;
+			}
+		</script>
+
+		<script type="x-shader/x-vertex" id="sign-vertexShader">
+			varying vec2 vTexcoord;
+			varying vec3 vNormal;
+
+			void main()
+			{
+				vec4 worldNormal = modelMatrix * vec4(normal, 0.0);
+				vNormal = worldNormal.xyz;
+				vTexcoord = uv;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+			}
+		</script>
+
+		<script type="x-shader/x-fragment" id="sign-fragmentShader">
+			varying vec2 vTexcoord;
+			varying vec3 vNormal;
+			uniform sampler2D colorTexture;
+
+			void main()
+			{
+				vec3 lightDirection = vec3(1.0, 1.0, 1.0);
+				lightDirection = normalize(lightDirection);
+				float lightFactor = 0.5 + dot(normalize(vNormal), lightDirection) * 0.5 + 0.5;
+
+				gl_FragColor = texture2D(colorTexture, vTexcoord) * lightFactor;
+			}
+		</script>
+
 		<script type="text/javascript" src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.11.2/dist/protobuf.js"></script>
 		<script type="module" src="level_viewer.js"></script>
+
+		<div id="info" class="info">
+		<form>
+			<input type="button" value="BACK" onclick="history.back()">
+		</form>
+		<form>
+			<input type="button" value="Fullscreen" id="fullscreen">
+		</form>
+		<br>
+		<div id="title">title</div>
+		<div id="creators">creators</div>
+		<div id="description">description</div>
+		<div id="complexity">complexity</div>
+		</div>
 	</body>
 </html>

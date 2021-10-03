@@ -8,18 +8,17 @@ let gltfLoader;
 let shapes = [];
 let objects = []
 let materials = [];
+let objectMaterials = [];
 
 init();
 
-function getMaterialForTexture(name, tileFactor)
+function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 {
-	const vertexShader = document.getElementById('vertexShader').textContent;
-	const fragmentShader = document.getElementById('fragmentShader').textContent;
-
 	let material = new THREE.ShaderMaterial();
 	material.vertexShader = vertexShader;
 	material.fragmentShader = fragmentShader;
 	material.flatShading = true;
+
 	material.uniforms = {
 		"colorTexture": { value: null },
 		"tileFactor": { value: tileFactor }
@@ -58,6 +57,7 @@ function init()
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
 	renderer.setAnimationLoop(animation);
+	renderer.domElement.id = "canvas"
 	document.body.appendChild(renderer.domElement);
 	window.addEventListener( 'resize', onWindowResize );
 
@@ -87,14 +87,43 @@ function init()
 		}
 	});
 
-	materials.push(getMaterialForTexture('textures/default.png', 1.0));
-	materials.push(getMaterialForTexture('textures/grabbable.png', 1.0));
-	materials.push(getMaterialForTexture('textures/ice.png', 0.1));
-	materials.push(getMaterialForTexture('textures/lava.png', 0.1));
-	materials.push(getMaterialForTexture('textures/wood.png', 1.0));
-	materials.push(getMaterialForTexture('textures/grapplable.png', 0.1));
-	materials.push(getMaterialForTexture('textures/grapplable_lava.png', 0.1));
-	materials.push(getMaterialForTexture('textures/grabbable_crumbling.png', 1.0));
+	const levelVertexShader = document.getElementById('level-vertexShader').textContent;
+	const levelFragmentShader = document.getElementById('level-fragmentShader').textContent;
+
+	materials.push(getMaterialForTexture('textures/default.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/grabbable.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/ice.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/lava.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/wood.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/grapplable.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/grapplable_lava.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/grabbable_crumbling.png', 1.0, levelVertexShader, levelFragmentShader));
+
+	const vertexShader = document.getElementById('startfinish-vertexShader').textContent;
+	const fragmentShader = document.getElementById('startfinish-fragmentShader').textContent;
+
+	let startMaterial = new THREE.ShaderMaterial();
+	startMaterial.vertexShader = vertexShader;
+	startMaterial.fragmentShader = fragmentShader;
+	startMaterial.flatShading = true;
+	startMaterial.transparent = true;
+	startMaterial.depthWrite = false;
+	startMaterial.uniforms = { "diffuseColor": {value: [0.0, 1.0, 0.0, 1.0]}};
+	objectMaterials.push(startMaterial);
+
+	let finishMaterial = new THREE.ShaderMaterial();
+	finishMaterial.vertexShader = vertexShader;
+	finishMaterial.fragmentShader = fragmentShader;
+	finishMaterial.flatShading = true;
+	finishMaterial.transparent = true;
+	finishMaterial.depthWrite = false;
+	finishMaterial.uniforms = { "diffuseColor": {value: [1.0, 0.0, 0.0, 1.0]}};
+	objectMaterials.push(finishMaterial);
+
+	const signVertexShader = document.getElementById('sign-vertexShader').textContent;
+	const signFragmentShader = document.getElementById('sign-fragmentShader').textContent;
+	objectMaterials.push(getMaterialForTexture('textures/wood.png', 1.0, signVertexShader, signFragmentShader));
+
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -114,7 +143,7 @@ function init()
 	camera.position.set(0, 20, 100);
 	controls.update();
 
-	protobuf.load("level.proto", function(err, root) {
+	protobuf.load("proto/level.proto", function(err, root) {
 		if(err) throw err;
 
 		// example code
@@ -122,16 +151,27 @@ function init()
 
 		(async () => {
 			const urlParams = new URLSearchParams(window.location.search);
-			const levelIdentifier = urlParams.get('level');
-			const levelIdentifierParts = levelIdentifier.split(':')
-
-			console.log(levelIdentifier);
-			let response = await fetch('https://api.slin.dev/grab/v1/download/' + levelIdentifierParts[1] + '/' + levelIdentifierParts[2] + '/' + levelIdentifierParts[3]);
+			let levelIdentifier = urlParams.get('level');
+			levelIdentifier = levelIdentifier.split(':').join('/');
+			let response = await fetch('https://api.slin.dev/grab/v1/download/' + levelIdentifier);
 			//console.log(response);
 			let responseBody = await response.arrayBuffer();
 			let formattedBuffer = new Uint8Array(responseBody);
 			let decoded = LevelMessage.decode(formattedBuffer);
 			//console.log(`decoded = ${JSON.stringify(decoded)}`);
+
+			var fullscreenButton = document.getElementById("fullscreen");
+			fullscreenButton.onclick = openFullscreen;
+
+			var titleLabel = document.getElementById("title");
+			var creatorsLabel = document.getElementById("creators");
+			var descriptionLabel = document.getElementById("description");
+			var complexityLabel = document.getElementById("complexity");
+
+			titleLabel.innerHTML = 'title: <b>' + decoded.title + '</b>';
+			creatorsLabel.innerHTML = 'creators: <i>' + decoded.creators + '</i>';
+			descriptionLabel.innerHTML = 'description: ' + decoded.description;
+			complexityLabel.innerHTML = 'complexity: ' + decoded.complexity;
 
 			await shapePromise;
 			await objectPromise;
@@ -181,7 +221,7 @@ function init()
 				}
 				else if(node.levelNodeStart)
 				{
-					let start = new THREE.Mesh(objects[0], materials[4]);
+					let start = new THREE.Mesh(objects[0], objectMaterials[0]);
 					scene.add(start);
 					start.position.x = node.levelNodeStart.position.x
 					start.position.y = node.levelNodeStart.position.y
@@ -192,7 +232,7 @@ function init()
 				}
 				else if(node.levelNodeFinish)
 				{
-					let finish = new THREE.Mesh(objects[0], materials[4]);
+					let finish = new THREE.Mesh(objects[0], objectMaterials[1]);
 					scene.add(finish);
 					finish.position.x = node.levelNodeFinish.position.x
 					finish.position.y = node.levelNodeFinish.position.y
@@ -203,7 +243,7 @@ function init()
 				}
 				else if(node.levelNodeSign)
 				{
-					let sign = new THREE.Mesh(objects[1], materials[4]);
+					let sign = new THREE.Mesh(objects[1], objectMaterials[2]);
 					scene.add(sign);
 					sign.position.x = node.levelNodeSign.position.x
 					sign.position.y = node.levelNodeSign.position.y
@@ -246,4 +286,27 @@ function animation(time)
 	controls.update();
 
 	renderer.render(scene, camera);
+}
+
+function openFullscreen()
+{
+	let elem = document.getElementById("canvas");
+	if(elem.requestFullscreen)
+	{
+		elem.requestFullscreen();
+	}
+	else if(elem.mozRequestFullScreen)
+	{ /* Firefox */
+		elem.mozRequestFullScreen();
+	}
+	else if(elem.webkitRequestFullscreen)
+	{ /* Chrome, Safari & Opera */
+		elem.webkitRequestFullscreen();
+	}
+	else if(elem.msRequestFullscreen)
+	{ /* IE/Edge */
+		elem.msRequestFullscreen();
+	}
+	elem.style.width = '100%';
+	elem.style.height = '100%';
 }

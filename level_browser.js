@@ -8,10 +8,13 @@ function init()
 
 		for(let levelInfo of responseBody)
 		{
+			let levelIdentifierParts = levelInfo.data_key.split(":");
+			levelIdentifierParts = levelIdentifierParts.slice(1);
+
 			let btn = document.createElement("button");
 			btn.innerHTML = '<b>' + levelInfo.title + '</b><br><i>by ' + levelInfo.creators.join(", ") + '</i><br><br>' + levelInfo.description;
 			btn.onclick = function () {
-				window.location.href = 'level.html?level=' + levelInfo.data_key;
+				window.location.href = 'level.html?level=' + levelIdentifierParts.join(":");
 			};
 			btn.style = 'width: 50%; height: 150px; float: left;';
 
