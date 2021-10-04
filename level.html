@@ -2,19 +2,70 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>GRAB Level Preview</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com"> 
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 		<style>
-			body { margin: 0; }
+			html, body {
+				margin: 0;
+				height: 100%;
+				overflow: hidden;
+				touch-action: pan-x pan-y;
+				user-select: none;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				font-family: 'Roboto', sans-serif;
+			}
 
 			.info {
 				position: absolute;
-				top: 10px;
+				top: 50px;
 				left: 10px;
-				width: 20%;
+				width: 50%;
 				text-align: left;
 				z-index: 100;
 				display:block;
 			}
+
+			.buttons {
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				right: 10px;
+				text-align: left;
+				z-index: 100;
+				display:block;
+			}
+
+			.back-button {
+				width: 90px;
+				height:  30px;
+				font-weight: bold;
+				border-radius: 2em;
+				box-sizing: border-box;
+				text-decoration: none;
+				background-color: #FFAE00;
+				color: #FFFFFF;
+				text-align: center;
+				border: none;
+			}
+
+			.fullscreen-button {
+				width: 90px;
+				height:  30px;
+				font-weight: bold;
+				border-radius: 2em;
+				box-sizing: border-box;
+				text-decoration: none;
+				background-color: #00BC87;
+				color: #FFFFFF;
+				text-align: center;
+				border: none;
+				float: right;
+			}
+
 		</style>
 	</head>
 	<body>
@@ -126,13 +177,14 @@
 		<script type="text/javascript" src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.11.2/dist/protobuf.js"></script>
 		<script type="module" src="level_viewer.js"></script>
 
+		<div id="info" class="buttons">
+		<form>
+			<input type="button" class="back-button" value="BACK" onclick="window.location.href = 'index.html'">
+			<input type="button" value="FULLSCREEN" id="fullscreen" class="fullscreen-button">
+		</form>
+		</div>
+
 		<div id="info" class="info">
-		<form>
-			<input type="button" value="BACK" onclick="history.back()">
-		</form>
-		<form>
-			<input type="button" value="Fullscreen" id="fullscreen">
-		</form>
 		<br>
 		<div id="title">title</div>
 		<div id="creators">creators</div>

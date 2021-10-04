@@ -3,18 +3,72 @@
 	<head>
 		<meta charset="utf-8">
 		<title>GRAB Level Browser</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com"> 
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 		<style>
+			body {
+				background-color: #4BA0D6;
+				font-family: 'Roboto', sans-serif;
+			}
 			.list-container {
-				width: 50%;
+				width: 49%;
 				background: none;
 				overflow-y: auto;
 				margin-left: auto;
   				margin-right: auto;
 			}
+
+			.list-cell {
+				width: 49%;
+				height: 180px;
+				float: left;
+				background-color:#FFFFFF;
+				color:#000000;
+				border: none;
+				margin-left: 1%;
+				margin-top: 1%;
+				padding: 3%;
+				box-sizing: border-box;
+				position: relative;
+			}
+
+			.cell-title {
+				font-size: 20px;
+			}
+
+			.cell-button {
+				position: absolute;
+				left: 30%;
+				bottom: 5%;
+				width: 40%;
+				height: 30px;
+				border: none;
+				background-color:#00BC87;
+				color: #FFFFFF;
+				font-size: 15px;
+			}
+
+			.title-image {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				max-width: 50%;
+			}
+			.title-text {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				color: #FFFFFF;
+				max-width: 50%;
+				text-align: center;
+			}
 		</style>
 	</head>
 	<body>
 		<script type="module" src="level_browser.js"></script>
+		<img src="logo.png" alt="GRAB Logo" class="title-image">
+		<h1 class="title-text">Community Levels</h1>
 		<div class="list-container" id="list-container"></div>
 	</body>
 </html>

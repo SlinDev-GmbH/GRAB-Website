@@ -1,5 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/controls/OrbitControls.js';
+import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
 let clock, camera, scene, renderer, controls;
@@ -60,6 +60,12 @@ function init()
 	renderer.domElement.id = "canvas"
 	document.body.appendChild(renderer.domElement);
 	window.addEventListener( 'resize', onWindowResize );
+
+	document.addEventListener('pointerlockchange', pointerLockChanged, false);
+
+	renderer.domElement.onclick = function() {
+  		renderer.domElement.requestPointerLock();
+	}
 
 	textureLoader = new THREE.TextureLoader();
 	gltfLoader = new GLTFLoader();
@@ -139,9 +145,7 @@ function init()
 	sunLight.position.z = 1.0;
 	scene.add(sunLight);
 
-	controls = new OrbitControls(camera, renderer.domElement);
-	camera.position.set(0, 20, 100);
-	controls.update();
+	controls = new FreeControls(camera, renderer.domElement);
 
 	protobuf.load("proto/level.proto", function(err, root) {
 		if(err) throw err;
@@ -229,6 +233,8 @@ function init()
 
 					start.scale.x = node.levelNodeStart.radius;
 					start.scale.z = node.levelNodeStart.radius;
+
+					camera.position.set(start.position.x, start.position.y + 2, start.position.z);
 				}
 				else if(node.levelNodeFinish)
 				{
@@ -257,14 +263,6 @@ function init()
 					sign.setRotationFromQuaternion(sign.quaternion.multiply(extraRotate));
 				}
 			}
-
-			let levelBounds = new THREE.Box3().setFromObject(scene);
-			let target = new THREE.Vector3();
-			levelBounds.getCenter(target)
-			controls.target.x = target.x;
-			controls.target.y = target.y;
-			controls.target.z = target.z;
-			controls.update();
 		})()
 	});
 }
@@ -283,7 +281,7 @@ function onWindowResize()
 function animation(time)
 {
 	const delta = clock.getDelta();
-	controls.update();
+	controls.update(delta);
 
 	renderer.render(scene, camera);
 }
@@ -309,4 +307,13 @@ function openFullscreen()
 	}
 	elem.style.width = '100%';
 	elem.style.height = '100%';
+}
+
+function pointerLockChanged()
+{
+	if(document.pointerLockElement === canvas) {
+		controls.isMouseActive = true;
+	} else {
+		controls.isMouseActive = false;
+	}
 }
