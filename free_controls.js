@@ -24,8 +24,6 @@ class FreeControls extends THREE.EventDispatcher {
 		this.rollSpeed = 0.01;
 		this.isMouseActive = false;
 
-		this.autoForward = false;
-
 		// disable default target object behavior
 
 		// internals
@@ -37,7 +35,7 @@ class FreeControls extends THREE.EventDispatcher {
 		const lastQuaternion = new THREE.Quaternion();
 		const lastPosition = new THREE.Vector3();
 
-		this.moveState = { left: 0, right: 0, forward: 0, back: 0, pitchUp: 0, pitchDown: 0, yawLeft: 0, yawRight: 0};
+		this.moveState = { left: 0, right: 0, forward: 0, back: 0, up: 0, down: 0, pitchUp: 0, pitchDown: 0, yawLeft: 0, yawRight: 0};
 		this.moveVector = new THREE.Vector3( 0, 0, 0 );
 		this.rotationVector = new THREE.Vector3( 0, 0, 0 );
 		this.eulerVector = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -65,6 +63,9 @@ class FreeControls extends THREE.EventDispatcher {
 				case 'KeyA': this.moveState.left = 1; break;
 				case 'KeyD': this.moveState.right = 1; break;
 
+				case 'KeyE': this.moveState.up = 1; break;
+				case 'KeyQ': this.moveState.down = 1; break;
+
 				case 'ArrowUp': this.moveState.pitchUp = 1; break;
 				case 'ArrowDown': this.moveState.pitchDown = 1; break;
 
@@ -91,6 +92,9 @@ class FreeControls extends THREE.EventDispatcher {
 				case 'KeyA': this.moveState.left = 0; break;
 				case 'KeyD': this.moveState.right = 0; break;
 
+				case 'KeyE': this.moveState.up = 0; break;
+				case 'KeyQ': this.moveState.down = 0; break;
+
 				case 'ArrowUp': this.moveState.pitchUp = 0; break;
 				case 'ArrowDown': this.moveState.pitchDown = 0; break;
 
@@ -111,7 +115,6 @@ class FreeControls extends THREE.EventDispatcher {
 
 					case 0: this.moveState.forward = 1; break;
 					case 2: this.moveState.back = 1; break;
-
 				}
 
 				this.updateMovementVector();
@@ -137,7 +140,6 @@ class FreeControls extends THREE.EventDispatcher {
 
 					case 0: this.moveState.forward = 0; break;
 					case 2: this.moveState.back = 0; break;
-
 				}
 
 				this.updateMovementVector();
@@ -193,7 +195,7 @@ class FreeControls extends THREE.EventDispatcher {
 			const rotMult = scope.rollSpeed;
 
 			scope.object.translateX( scope.moveVector.x * moveMult );
-			scope.object.translateY( scope.moveVector.y * moveMult );
+			scope.object.position.y += ( scope.moveVector.y * moveMult );
 			scope.object.translateZ( scope.moveVector.z * moveMult );
 
 			scope.eulerVector.x += scope.rotationVector.x * rotMult;
@@ -220,14 +222,9 @@ class FreeControls extends THREE.EventDispatcher {
 		};
 
 		this.updateMovementVector = function () {
-
-			const forward = ( this.moveState.forward || ( this.autoForward && ! this.moveState.back ) ) ? 1 : 0;
-
 			this.moveVector.x = ( - this.moveState.left + this.moveState.right );
-			this.moveVector.z = ( - forward + this.moveState.back );
-
-			//console.log( 'move:', [ this.moveVector.x, this.moveVector.y, this.moveVector.z ] );
-
+			this.moveVector.y = ( - this.moveState.down + this.moveState.up );
+			this.moveVector.z = ( - this.moveState.forward + this.moveState.back );
 		};
 
 		this.updateRotationVector = function () {
