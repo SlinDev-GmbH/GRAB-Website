@@ -113,7 +113,10 @@ function init()
 						}
 					}
 				}
+
+				//console.log("ok");
 				tagsForm.onsubmit = function(event) {
+					console.log("blubb");
 					let tags = "";
 					for(const option of tagOptions)
 					{
@@ -131,7 +134,8 @@ function init()
 					return false;
 				};
 
-				cell.innerHTML += '<br>'
+				let linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
 
 				let hideButton = document.createElement("button");
 				cell.appendChild(hideButton);
@@ -146,8 +150,6 @@ function init()
 							console.log(responseBody);
 						})();
 					}
-					
-					return false;
 				};
 			}
 
