@@ -33,6 +33,20 @@
 				position: relative;
 			}
 
+			.list-cell-admin {
+				width: 49%;
+				height: 300px;
+				float: left;
+				background-color:#FFFFFF;
+				color:#000000;
+				border: none;
+				margin-left: 1%;
+				margin-top: 1%;
+				padding: 3%;
+				box-sizing: border-box;
+				position: relative;
+			}
+
 			.cell-title {
 				font-size: 20px;
 			}
@@ -63,10 +77,27 @@
 				max-width: 50%;
 				text-align: center;
 			}
+
+			.login-button {
+				width: 90px;
+				height:  30px;
+				font-weight: bold;
+				border-radius: 2em;
+				box-sizing: border-box;
+				text-decoration: none;
+				background-color: #00BC87;
+				color: #FFFFFF;
+				text-align: center;
+				border: none;
+				position: absolute;
+  				top: 20px;
+  				right: 20px;
+			}
 		</style>
 	</head>
 	<body>
 		<script type="module" src="level_browser.js"></script>
+		<button class="login-button" type="button" onclick="window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'">Login</button>
 		<img src="logo.png" alt="GRAB Logo" class="title-image">
 		<h1 class="title-text">Community Levels</h1>
 		<div class="list-container" id="list-container"></div>
