@@ -50,7 +50,7 @@ function init()
 			else
 			{
 				let responseBody = await response.json();
-				
+
 				var date = new Date(responseBody.expiry);
 				document.cookie = 'access_token=' + responseBody.access_token + '; expires=' + date.toUTCString();
 				document.cookie = 'is_admin=' + responseBody.info.is_admin + '; expires=' + date.toUTCString();
@@ -84,14 +84,6 @@ function init()
 				creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
 			}
 			cell.innerHTML = '<b class="cell-title">' + levelInfo.title + '</b><br>' + creators + '<br><br>' + levelInfo.description;
-
-			let button = document.createElement("button");
-			cell.appendChild(button);
-			button.innerHTML = "<b>OPEN</b>";
-			button.className = "cell-button";
-			button.onclick = function () {
-				window.location.href = 'level.html?level=' + levelIdentifierParts.join(":");
-			};
 
 
 			if(isAdmin === "true")
@@ -139,6 +131,14 @@ function init()
 					return false;
 				};
 			}
+
+			let button = document.createElement("button");
+			cell.appendChild(button);
+			button.innerHTML = "<b>OPEN</b>";
+			button.className = "cell-button";
+			button.onclick = function () {
+				window.location.href = 'level.html?level=' + levelIdentifierParts.join(":");
+			};
 		}
 	})();
 }
