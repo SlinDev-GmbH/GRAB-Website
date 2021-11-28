@@ -130,6 +130,25 @@ function init()
 					})();
 					return false;
 				};
+
+				cell.innerHTML += '<br>'
+
+				let hideButton = document.createElement("button");
+				cell.appendChild(hideButton);
+				hideButton.innerHTML = "<b>HIDE</b>";
+				//hideButton.className = "cell-button-hide";
+				hideButton.onclick = function () {
+					if(confirm("Do you really want to hide this level?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
+							let responseBody = await response.text();
+							console.log(responseBody);
+						})();
+					}
+					
+					return false;
+				};
 			}
 
 			let button = document.createElement("button");
