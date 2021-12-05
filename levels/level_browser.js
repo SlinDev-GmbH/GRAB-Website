@@ -127,6 +127,21 @@ async function loadMoreLevels()
 					})();
 				}
 			};
+
+			linebreak = document.createElement("br");
+			cell.appendChild(linebreak);
+
+			let creatorButton = document.createElement("button");
+			cell.appendChild(creatorButton);
+			creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
+			//hideButton.className = "cell-button-hide";
+			creatorButton.onclick = function () {
+			  	(async () => {
+					let response = await fetch(SERVER_URL + 'set_user_info/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
+					let responseBody = await response.text();
+					console.log(responseBody);
+				})();
+			};
 		}
 
 		let button = document.createElement("button");
