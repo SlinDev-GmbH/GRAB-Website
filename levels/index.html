@@ -11,12 +11,30 @@
 				background-color: #4BA0D6;
 				font-family: 'Roboto', sans-serif;
 			}
-			.list-container {
+			.list-container-wrapper {
 				width: 49%;
+				background: none;
+				margin-left: auto;
+  				margin-right: auto;
+			}
+
+			.list-container {
+				width: 100%;
 				background: none;
 				overflow-y: auto;
 				margin-left: auto;
   				margin-right: auto;
+			}
+
+			.level-counter {
+				width: 100%;
+				margin-left: auto;
+  				margin-right: auto;
+				margin-bottom: 2em;
+				font-size: 20px;
+				font-weight: lighter;
+				font-style: italic;
+				text-align: center;
 			}
 
 			.list-cell {
@@ -100,6 +118,8 @@
 		<button class="login-button" type="button" onclick="window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'">Login</button>
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
 		<h1 class="title-text">Community Levels</h1>
-		<div class="list-container" id="list-container"></div>
+		<div class="list-container-wrapper" id=list-container-wrapper>
+			<div class="list-container" id="list-container"></div>
+		</div>
 	</body>
 </html>

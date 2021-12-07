@@ -3,6 +3,7 @@ const SERVER_URL = "https://api.slin.dev/grab/v1/";
 var isLoading = false;
 var lastPageTimestamp = -1;
 var noMoreLevels = false;
+var numberOfLevels = 0;
 
 function getCookie(cname)
 {
@@ -40,9 +41,23 @@ async function loadMoreLevels()
 	let response = await fetch(requestURL);
 	let responseBody = await response.json();
 
+	var containerWrapper = document.getElementById("list-container-wrapper");
 	var container = document.getElementById("list-container");
 
-	if(responseBody.length == 0) noMoreLevels = true;
+	if(responseBody.length == 0)
+	{
+		noMoreLevels = true;
+
+		let linebreak = document.createElement("br");
+		containerWrapper.appendChild(linebreak);
+
+		let button = document.createElement("p");
+		containerWrapper.appendChild(button);
+		button.innerHTML = "Total number of levels: " + numberOfLevels;
+		button.className = "level-counter";
+	}
+
+	numberOfLevels += responseBody.length;
 
 	for(let levelInfo of responseBody)
 	{
