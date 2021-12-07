@@ -76,6 +76,30 @@ async function loadMoreLevels()
 		}
 		cell.innerHTML = '<b class="cell-title">' + levelInfo.title + '</b><br>' + creators + '<br><br>' + levelInfo.description;
 
+		//Show OK stamp on levels that have the tag
+		if("tags" in levelInfo && levelInfo.tags.length > 0)
+		{
+			for(const tag of levelInfo.tags)
+			{
+				if(tag === "ok")
+				{
+					let stamp = document.createElement("img");
+					stamp.className = "cell-stamp-ok";
+					stamp.src = "../images/stamp_ok.png";
+					cell.appendChild(stamp);
+					break;
+				}
+			}
+		}
+
+		let button = document.createElement("button");
+		cell.appendChild(button);
+		button.innerHTML = "<b>OPEN</b>";
+		button.className = "cell-button";
+		button.onclick = function () {
+			window.location.href = 'level.html?level=' + levelIdentifierParts.join(":");
+		};
+
 
 		if(isAdmin === "true")
 		{
@@ -158,14 +182,6 @@ async function loadMoreLevels()
 				})();
 			};
 		}
-
-		let button = document.createElement("button");
-		cell.appendChild(button);
-		button.innerHTML = "<b>OPEN</b>";
-		button.className = "cell-button";
-		button.onclick = function () {
-			window.location.href = 'level.html?level=' + levelIdentifierParts.join(":");
-		};
 	}
 
 	isLoading = false;
