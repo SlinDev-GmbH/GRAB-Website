@@ -6,11 +6,74 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com"> 
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
 		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+		<script type="text/javascript" src="level_browser.js"></script>
 		<style>
 			body {
 				background-color: #4BA0D6;
 				font-family: 'Roboto', sans-serif;
 			}
+
+			.title-image {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				max-width: 50%;
+			}
+
+			.login-button {
+				width: 90px;
+				height:  30px;
+				font-weight: bold;
+				border-radius: 2em;
+				box-sizing: border-box;
+				text-decoration: none;
+				background-color: #00BC87;
+				color: #FFFFFF;
+				text-align: center;
+				border: none;
+				position: absolute;
+  				top: 20px;
+  				right: 20px;
+			}
+
+			.tab {
+				width: 49%;
+				margin-left: auto;
+  				margin-right: auto;
+				overflow: hidden;
+				background-color: #ffffff;
+			}
+
+			/* Style the buttons that are used to open the tab content */
+			.tab button {
+				background-color: inherit;
+				float: left;
+				border: none;
+				outline: none;
+				cursor: pointer;
+				padding: 14px 16px;
+				transition: 0.3s;
+			}
+
+			/* Change background color of buttons on hover */
+			.tab button:hover {
+				background-color: #ddd;
+			}
+
+			/* Create an active/current tablink class */
+			.tab button.active {
+				background-color: #ccc;
+			}
+
+			.title-text {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				color: #FFFFFF;
+				max-width: 50%;
+				text-align: center;
+			}
+
 			.list-container-wrapper {
 				width: 49%;
 				background: none;
@@ -49,6 +112,9 @@
 				padding: 3%;
 				box-sizing: border-box;
 				position: relative;
+
+				overflow: hidden; 
+				text-overflow: ellipsis;
 			}
 
 			.list-cell-admin {
@@ -63,10 +129,15 @@
 				padding: 3%;
 				box-sizing: border-box;
 				position: relative;
+
+				overflow: hidden; 
+				text-overflow: ellipsis;
 			}
 
 			.cell-title {
+				width: 50%;
 				font-size: 20px;
+				white-space: nowrap;
 			}
 
 			.cell-button {
@@ -74,11 +145,14 @@
 				left: 30%;
 				bottom: 5%;
 				width: 40%;
-				height: 30px;
+				line-height: 30px;
 				border: none;
 				background-color:#00BC87;
 				color: #FFFFFF;
+				font-weight: bold;
 				font-size: 15px;
+				text-align:center;
+				text-decoration: none;
 			}
 
 			.cell-stamp-ok {
@@ -89,42 +163,24 @@
 				transform: rotate(20deg);
 			}
 
-			.title-image {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				max-width: 50%;
-			}
-			.title-text {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				color: #FFFFFF;
-				max-width: 50%;
-				text-align: center;
-			}
-
-			.login-button {
-				width: 90px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #00BC87;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				position: absolute;
-  				top: 20px;
-  				right: 20px;
+			.cell-description {
+				display: -webkit-box;   
+				-webkit-line-clamp: 3;   
+				-webkit-box-orient: vertical;     
+				overflow: hidden;
 			}
 		</style>
 	</head>
 	<body>
-		<script type="module" src="level_browser.js"></script>
 		<button class="login-button" type="button" onclick="window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'">Login</button>
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
+		<br>
+		<div class="tab">
+			<button class="tablinks active" onclick="tabChanged(event, 'community')">Community Levels</button>
+			<button class="tablinks" onclick="tabChanged(event, 'favorites')">My Favorites</button>
+		</div>
+		<br>
+
 		<h1 class="title-text">Community Levels</h1>
 		<div class="list-container-wrapper" id=list-container-wrapper>
 			<div class="list-container" id="list-container"></div>

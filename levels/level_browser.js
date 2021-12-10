@@ -4,6 +4,7 @@ var isLoading = false;
 var lastPageTimestamp = -1;
 var noMoreLevels = false;
 var numberOfLevels = 0;
+var currentTab = 0;
 
 function getCookie(cname)
 {
@@ -25,6 +26,21 @@ function getCookie(cname)
 	return "";
 }
 
+async function clearLevels()
+{
+	var containerWrapper = document.getElementById("list-container-wrapper");
+	var container = document.getElementById("list-container");
+	container.innerHTML = '';
+
+	for(let i = containerWrapper.children.length - 1; i >= 0; i -= 1)
+	{
+		if(containerWrapper.children[i] != container)
+		{
+			containerWrapper.removeChild(containerWrapper.children[i]);
+		}
+	}
+}
+
 async function loadMoreLevels()
 {
 	if(isLoading || noMoreLevels) return;
@@ -35,27 +51,30 @@ async function loadMoreLevels()
 	let accessToken = getCookie("access_token");
 	let isAdmin = getCookie("is_admin");
 
-	let requestURL = SERVER_URL + 'list?max_format_version=3';
-	if(lastPageTimestamp != -1) requestURL += '&page_timestamp=' + lastPageTimestamp;
+	let requestURL = "";
+	if(currentTab == 0)
+	{
+		requestURL = SERVER_URL + 'list?max_format_version=3';
+		if(lastPageTimestamp != -1) requestURL += '&page_timestamp=' + lastPageTimestamp;
+	}
+	else if(currentTab == 1 && accessToken && accessToken.length > 0)
+	{
+		userID = accessToken.split(":")[0];
+		requestURL = SERVER_URL + 'get_favorite_levels?access_token=' + accessToken;
+	}
+	else
+	{
+		return;
+	}
 
 	let response = await fetch(requestURL);
+	//let text = await response.text();
+	//console.log(text);
+	//let responseBody = JSON.parse(text);
 	let responseBody = await response.json();
 
 	var containerWrapper = document.getElementById("list-container-wrapper");
 	var container = document.getElementById("list-container");
-
-	if(responseBody.length == 0)
-	{
-		noMoreLevels = true;
-
-		let linebreak = document.createElement("br");
-		containerWrapper.appendChild(linebreak);
-
-		let button = document.createElement("p");
-		containerWrapper.appendChild(button);
-		button.innerHTML = "Total number of levels: " + numberOfLevels;
-		button.className = "level-counter";
-	}
 
 	numberOfLevels += responseBody.length;
 
@@ -68,13 +87,20 @@ async function loadMoreLevels()
 
 		let cell = document.createElement("div");
 		container.appendChild(cell);
-		cell.className = 'list-cell';
+		if(isAdmin === "true")
+		{
+			cell.className = 'list-cell-admin';
+		}
+		else
+		{
+			cell.className = 'list-cell';
+		}
 		let creators = "";
 		if(levelInfo.creators && levelInfo.creators.length > 0)
 		{
 			creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
 		}
-		cell.innerHTML = '<b class="cell-title">' + levelInfo.title + '</b><br>' + creators + '<br><br>' + levelInfo.description;
+		cell.innerHTML = '<b class="cell-title">' + levelInfo.title + '</b><br>' + creators + '<br><br><div class=cell-description>' + levelInfo.description + '</div>';
 
 		//Show OK stamp on levels that have the tag
 		if("tags" in levelInfo && levelInfo.tags.length > 0)
@@ -92,19 +118,39 @@ async function loadMoreLevels()
 			}
 		}
 
-		let button = document.createElement("button");
-		cell.appendChild(button);
-		button.innerHTML = "<b>OPEN</b>";
-		button.className = "cell-button";
-		button.onclick = function () {
-			window.location.href = 'level.html?level=' + levelIdentifierParts.join(":");
-		};
+		if(accessToken)
+		{
+			userID = accessToken.split(":")[0];
+
+			let favoriteButton = document.createElement("button");
+			cell.appendChild(favoriteButton);
+			if(currentTab == 0) favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
+			else favoriteButton.innerHTML = "<b>REMOVE FROM FAVORITES</b>";
+			favoriteButton.onclick = function () {
+			  	(async () => {
+			  		if(currentTab == 0)
+			  		{
+			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+						let responseBody = await response.text();
+						console.log(responseBody);
+			  		}
+			  		else if(currentTab == 1)
+			  		{
+			  			let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+						let responseBody = await response.text();
+						console.log(responseBody);
+			  		}
+				})();
+			};
+		}
 
 
 		if(isAdmin === "true")
 		{
-			cell.className = 'list-cell-admin'
-			cell.innerHTML += '<br><br>'
+			let linebreak = document.createElement("br");
+			cell.appendChild(linebreak);
+			linebreak = document.createElement("br");
+			cell.appendChild(linebreak);
 
 			let tagsForm = document.createElement("form");
 			cell.appendChild(tagsForm);
@@ -129,9 +175,7 @@ async function loadMoreLevels()
 				}
 			}
 
-			//console.log("ok");
 			tagsForm.onsubmit = function(event) {
-				console.log("blubb");
 				let tags = "";
 				for(const option of tagOptions)
 				{
@@ -149,7 +193,7 @@ async function loadMoreLevels()
 				return false;
 			};
 
-			let linebreak = document.createElement("br");
+			linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
 			let hideButton = document.createElement("button");
@@ -176,12 +220,32 @@ async function loadMoreLevels()
 			//hideButton.className = "cell-button-hide";
 			creatorButton.onclick = function () {
 			  	(async () => {
-					let response = await fetch(SERVER_URL + 'set_user_info/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
+					let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
 					let responseBody = await response.text();
 					console.log(responseBody);
 				})();
 			};
 		}
+
+		let button = document.createElement("a");
+		cell.appendChild(button);
+		button.innerHTML = "OPEN";
+		button.className = "cell-button";
+		button.href = 'level.html?level=' + levelIdentifierParts.join(":");
+	}
+
+	//Either reached end of list or is favorites tab that doesn't have pagination
+	if(responseBody.length == 0 || currentTab == 1)
+	{
+		noMoreLevels = true;
+
+		let linebreak = document.createElement("br");
+		containerWrapper.appendChild(linebreak);
+
+		let button = document.createElement("p");
+		containerWrapper.appendChild(button);
+		button.innerHTML = "Total number of levels: " + numberOfLevels;
+		button.className = "level-counter";
 	}
 
 	isLoading = false;
@@ -233,11 +297,9 @@ function init()
 	})();
 }
 
-var container = document.getElementById("list-container");
-var more = '<div style="height:1000px; background:#EEE;"></div>';
-
 function scroller() {
 	// add more contents if user scrolled down enough
+	var container = document.getElementById("list-container");
 	if(document.body.scrollTop + document.documentElement.scrollTop + window.innerHeight + 100 > container.offsetHeight + container.offsetTop)
 	{
 		(async () => {
@@ -248,3 +310,36 @@ function scroller() {
 
 init();
 window.onscroll = scroller;
+
+function tabChanged(event, tab)
+{
+	// Get all elements with class="tablinks" and remove the class "active"
+	tablinks = document.getElementsByClassName("tablinks");
+	for (i = 0; i < tablinks.length; i++) {
+		tablinks[i].className = tablinks[i].className.replace(" active", "");
+	}
+
+	// Show the current tab, and add an "active" class to the button that opened the tab
+	//document.getElementById(cityName).style.display = "block";
+	event.currentTarget.className += " active";
+
+	let newTab = 0;
+	if(tab === "community")
+	{
+		newTab = 0;
+	}
+	else if(tab === "favorites")
+	{
+		newTab = 1;
+	}
+
+	if(newTab != currentTab)
+	{
+		lastPageTimestamp = -1;
+		noMoreLevels = false;
+		numberOfLevels = 0;
+		currentTab = newTab;
+		clearLevels();
+		loadMoreLevels();
+	}
+}
