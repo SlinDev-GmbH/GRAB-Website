@@ -50,6 +50,7 @@ async function loadMoreLevels()
 
 	let accessToken = getCookie("access_token");
 	let isAdmin = getCookie("is_admin");
+	let isModerator = getCookie("is_moderator");
 
 	let requestURL = "";
 	if(currentTab == 0)
@@ -91,7 +92,7 @@ async function loadMoreLevels()
 
 		let cell = document.createElement("div");
 		container.appendChild(cell);
-		if(isAdmin === "true")
+		if(isAdmin === "true" || isModerator === "true")
 		{
 			cell.className = 'list-cell-admin';
 		}
@@ -149,7 +150,7 @@ async function loadMoreLevels()
 		}
 
 
-		if(isAdmin === "true")
+		if(isModerator === "true")
 		{
 			let linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
@@ -158,7 +159,7 @@ async function loadMoreLevels()
 
 			let tagsForm = document.createElement("form");
 			cell.appendChild(tagsForm);
-			tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="checkbox" value="nobby">nobby <input type="submit" value="Submit" /></fieldset>';
+			tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
 			let tagsParentObject = tagsForm.childNodes[0];
 			let tagOptions = []
 			for(const option of tagsParentObject.childNodes)
@@ -196,7 +197,10 @@ async function loadMoreLevels()
 				})();
 				return false;
 			};
+		}
 
+		if(isAdmin === "true")
+		{
 			linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
@@ -286,15 +290,22 @@ function init()
 				var date = new Date(responseBody.expiry);
 				document.cookie = 'access_token=' + responseBody.access_token + '; expires=' + date.toUTCString();
 				document.cookie = 'is_admin=' + responseBody.info.is_admin + '; expires=' + date.toUTCString();
+				document.cookie = 'is_moderator=' + responseBody.info.is_moderator + '; expires=' + date.toUTCString();
 			}
 		}
 
 		let accessToken = getCookie("access_token");
 		let isAdmin = getCookie("is_admin");
+		let isModerator = getCookie("is_moderator");
 
 		if(isAdmin === "true")
 		{
-			console.log("You are an admin with special powers! Current Access Token: " + accessToken);
+			console.log("You are an admin with super special powers! Current Access Token: " + accessToken);
+		}
+
+		if(isModerator === "true")
+		{
+			console.log("You are a moderator with special powers!");
 		}
 
 		if(accessToken)

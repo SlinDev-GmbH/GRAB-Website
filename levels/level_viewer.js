@@ -2,6 +2,9 @@ import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
+//const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/";
+const SERVER_URL = "https://api.slin.dev/grab/v1/";
+
 let clock, camera, scene, renderer, controls;
 let textureLoader;
 let gltfLoader;
@@ -157,7 +160,7 @@ function init()
 			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
 			levelIdentifier = levelIdentifier.split(':').join('/');
-			let response = await fetch('https://api.slin.dev/grab/v1/download/' + levelIdentifier);
+			let response = await fetch(SERVER_URL + 'download/' + levelIdentifier);
 			//console.log(response);
 			let responseBody = await response.arrayBuffer();
 			let formattedBuffer = new Uint8Array(responseBody);
