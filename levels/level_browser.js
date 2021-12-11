@@ -68,9 +68,13 @@ async function loadMoreLevels()
 	}
 
 	let response = await fetch(requestURL);
-	//let text = await response.text();
-	//console.log(text);
-	//let responseBody = JSON.parse(text);
+	if(response.status != 200)
+	{
+		let text = await response.text();
+		console.log(text);
+		return;
+	}
+
 	let responseBody = await response.json();
 
 	var containerWrapper = document.getElementById("list-container-wrapper");
@@ -293,6 +297,17 @@ function init()
 			console.log("You are an admin with special powers! Current Access Token: " + accessToken);
 		}
 
+		if(accessToken)
+		{
+			let tabBar = document.getElementById("tabbar");
+
+			let favoritesButton = document.createElement("button");
+			tabBar.appendChild(favoritesButton);
+			favoritesButton.innerHTML = "My Favorites";
+			favoritesButton.className = "tablinks";
+			favoritesButton.addEventListener("click", function(event) { tabChanged(event, 'favorites'); }, false);
+		}
+
 		loadMoreLevels();
 	})();
 }
@@ -308,7 +323,7 @@ function scroller() {
 	}
 }
 
-init();
+window.onload = init;
 window.onscroll = scroller;
 
 function tabChanged(event, tab)
@@ -326,10 +341,14 @@ function tabChanged(event, tab)
 	let newTab = 0;
 	if(tab === "community")
 	{
+		var title = document.getElementById("title-text");
+		title.innerHTML = "Community Levels";
 		newTab = 0;
 	}
 	else if(tab === "favorites")
 	{
+		var title = document.getElementById("title-text");
+		title.innerHTML = "My Favorites";
 		newTab = 1;
 	}
 

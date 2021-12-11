@@ -175,13 +175,12 @@
 		<button class="login-button" type="button" onclick="window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'">Login</button>
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
 		<br>
-		<div class="tab">
+		<div class="tab" id="tabbar">
 			<button class="tablinks active" onclick="tabChanged(event, 'community')">Community Levels</button>
-			<button class="tablinks" onclick="tabChanged(event, 'favorites')">My Favorites</button>
 		</div>
 		<br>
 
-		<h1 class="title-text">Community Levels</h1>
+		<h1 class="title-text" id="title-text">Community Levels</h1>
 		<div class="list-container-wrapper" id=list-container-wrapper>
 			<div class="list-container" id="list-container"></div>
 		</div>
