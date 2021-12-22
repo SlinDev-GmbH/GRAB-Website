@@ -52,6 +52,16 @@ async function loadMoreLevels()
 	let isAdmin = getCookie("is_admin");
 	let isModerator = getCookie("is_moderator");
 
+	if(currentTab === 0)
+	{
+		let totalLevelCountResponse = await fetch(SERVER_URL + 'total_level_count');
+		let totalLevelCount = await totalLevelCountResponse.text();
+
+		var title = document.getElementById("title-text");
+		title.innerHTML = "Community Levels (" + totalLevelCount + " Levels)";
+	}
+
+
 	let requestURL = "";
 	if(currentTab == 0)
 	{
