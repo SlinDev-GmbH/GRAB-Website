@@ -150,10 +150,45 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
+/*
+		<div id="players rated count">players rated count</div>
+		<div id="players liked count">players liked count</div>
+		<div id="average time">average time</div>*/
+
+	(async () => {
+		const urlParams = new URLSearchParams(window.location.search);
+		let levelIdentifier = urlParams.get('level');
+		levelIdentifier = levelIdentifier.split(':').join('/');
+		let response = await fetch(SERVER_URL + 'statistics/' + levelIdentifier);
+		console.log(response);
+		let responseBody = await response.json();
+		console.log(responseBody);
+
+		var totalPlayedLabel = document.getElementById("total played count");
+		totalPlayedLabel.innerHTML = "total played count: <b>" + responseBody.total_played_count + "</b>"
+
+		var totalFinishedLabel = document.getElementById("total finished count");
+		totalFinishedLabel.innerHTML = "total finished count: <b>" + responseBody.total_finished_count + "</b>"
+
+		var playersPlayedLabel = document.getElementById("players played count");
+		playersPlayedLabel.innerHTML = "players played count: <b>" + responseBody.played_count + "</b>"
+
+		var playersFinishedLabel = document.getElementById("players finished count");
+		playersFinishedLabel.innerHTML = "players finished count: <b>" + responseBody.finished_count + "</b>"
+
+		var playersRatedLabel = document.getElementById("players rated count");
+		playersRatedLabel.innerHTML = "players rated count: <b>" + responseBody.rated_count + "</b>"
+
+		var playersLikedLabel = document.getElementById("players liked count");
+		playersLikedLabel.innerHTML = "players liked count: <b>" + responseBody.liked_count + "</b>"
+
+		var timeLabel = document.getElementById("average time");
+		timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
+	})()
+
 	protobuf.load("proto/level.proto", function(err, root) {
 		if(err) throw err;
 
-		// example code
 		const LevelMessage = root.lookupType("COD.Level.Level");
 
 		(async () => {
