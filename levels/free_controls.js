@@ -55,7 +55,9 @@ class FreeControls extends THREE.EventDispatcher {
 			switch ( event.code ) {
 
 				case 'ShiftLeft':
-				case 'ShiftRight': this.movementSpeedMultiplier = 5.0; break;
+				case 'ShiftRight': this.movementSpeedMultiplier = 10.0; break;
+
+				case 'KeyC': this.movementSpeedMultiplier = 100.0; break;
 
 				case 'KeyW': this.moveState.forward = 1; break;
 				case 'KeyS': this.moveState.back = 1; break;
@@ -85,6 +87,8 @@ class FreeControls extends THREE.EventDispatcher {
 
 				case 'ShiftLeft':
 				case 'ShiftRight': this.movementSpeedMultiplier = 1; break;
+
+				case 'KeyC': this.movementSpeedMultiplier = 1; break;
 
 				case 'KeyW': this.moveState.forward = 0; break;
 				case 'KeyS': this.moveState.back = 0; break;
@@ -154,7 +158,7 @@ class FreeControls extends THREE.EventDispatcher {
 			console.log('start: ' + this.touchCount);
 
 			this.moveState.forward = this.touchCount > 1? 1.0 : 0.0;
-			this.movementSpeedMultiplier = this.touchCount > 2? 5.0 : 1.0;
+			this.movementSpeedMultiplier = this.touchCount > 2? 10.0 : 1.0;
 			this.updateMovementVector();
 		};
 
@@ -163,7 +167,7 @@ class FreeControls extends THREE.EventDispatcher {
 			console.log('end: ' + this.touchCount);
 
 			this.moveState.forward = this.touchCount > 1? 1.0 : 0.0;
-			this.movementSpeedMultiplier = this.touchCount > 2? 5.0 : 1.0;
+			this.movementSpeedMultiplier = this.touchCount > 2? 10.0 : 1.0;
 			this.updateMovementVector();
 		};
 
@@ -172,7 +176,7 @@ class FreeControls extends THREE.EventDispatcher {
 			console.log('cancel: ' + this.touchCount);
 
 			this.moveState.forward = this.touchCount > 1? 1.0 : 0.0;
-			this.movementSpeedMultiplier = this.touchCount > 2? 5.0 : 1.0;
+			this.movementSpeedMultiplier = this.touchCount > 2? 10.0 : 1.0;
 			this.updateMovementVector();
 		};
 
