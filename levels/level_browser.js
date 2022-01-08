@@ -5,6 +5,7 @@ var lastPageTimestamp = -1;
 var noMoreLevels = false;
 var numberOfLevels = 0;
 var currentTab = 0;
+var levelsUserID = ""
 
 function getCookie(cname)
 {
@@ -67,6 +68,18 @@ async function loadMoreLevels()
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=3';
 		if(lastPageTimestamp != -1) requestURL += '&page_timestamp=' + lastPageTimestamp;
+		if(levelsUserID && levelsUserID.length > 0)
+		{
+			//List only a specific users levels
+			requestURL += '&user_id=' + levelsUserID;
+
+			//Admins also get to see the hidden levels of that user
+			if(isAdmin && accessToken)
+			{
+				requestURL += '&type=all&access_token=' + accessToken
+				noMoreLevels = true //The endpoint for this currently does not support pagination
+			}
+		}
 	}
 	else if(currentTab == 1 && accessToken && accessToken.length > 0)
 	{
@@ -116,6 +129,15 @@ async function loadMoreLevels()
 			creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
 		}
 		cell.innerHTML = '<b class="cell-title">' + levelInfo.title + '</b><br>' + creators + '<br><br><div class=cell-description>' + levelInfo.description + '</div>';
+
+		if(!levelsUserID || levelsUserID.length == 0)
+		{
+			let moreLevelsButton = document.createElement("button");
+			moreLevelsButton.className = "cell-button-more-levels";
+			moreLevelsButton.innerHTML = "More Levels";
+			cell.appendChild(moreLevelsButton);
+			moreLevelsButton.onclick = function () { window.open('index.html?user_id=' + levelIdentifierParts[0]) };
+		}
 
 		//Show OK stamp on levels that have the tag
 		if("tags" in levelInfo && levelInfo.tags.length > 0)
@@ -278,6 +300,9 @@ function init()
 		let data = atob(hash);
 		authInfo = JSON.parse(data);
 	}
+
+	let params = (new URL(document.location)).searchParams;
+	levelsUserID = params.get('user_id');
 	
 
 	(async () => {
