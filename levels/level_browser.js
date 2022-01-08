@@ -132,16 +132,13 @@ async function loadMoreLevels()
 
 		if(!levelsUserID || levelsUserID.length == 0)
 		{
-			let moreLevelsButton = document.createElement("button");
+			let moreLevelsButton = document.createElement("a");
 			moreLevelsButton.className = "cell-button-more-levels";
 			moreLevelsButton.innerHTML = "More Levels";
+			let newURL = new URL(window.location);
+			newURL.searchParams.set("user_id", levelIdentifierParts[0]);
+			moreLevelsButton.href = newURL.href;
 			cell.appendChild(moreLevelsButton);
-			moreLevelsButton.onclick = function () {
-				//window.open('?user_id=' + levelIdentifierParts[0]);
-				let newURL = new URL(window.location);
-				newURL.searchParams.set("user_id", levelIdentifierParts[0]);
-				window.location.href = newURL.href;
-			};
 		}
 
 		//Show OK stamp on levels that have the tag
