@@ -52,12 +52,40 @@
   				right: 20px;
 			}
 
-			.tab {
-				width: 49%;
-				margin-left: auto;
-  				margin-right: auto;
-				overflow: hidden;
-				background-color: #ffffff;
+			@media (orientation: portrait)
+			{
+				.tab {
+					width: 80%;
+					margin-left: auto;
+					margin-right: auto;
+					overflow: hidden;
+					background-color: #ffffff;
+				}
+
+				.list-container-wrapper {
+					width: 80%;
+					background: none;
+					margin-left: auto;
+	  				margin-right: auto;
+				}
+			}
+
+			@media (orientation: landscape)
+			{
+				.tab {
+					width: 50%;
+					margin-left: auto;
+					margin-right: auto;
+					overflow: hidden;
+					background-color: #ffffff;
+				}
+
+				.list-container-wrapper {
+					width: 50%;
+					background: none;
+					margin-left: auto;
+	  				margin-right: auto;
+				}
 			}
 
 			/* Style the buttons that are used to open the tab content */
@@ -88,13 +116,6 @@
 				color: #FFFFFF;
 				max-width: 50%;
 				text-align: center;
-			}
-
-			.list-container-wrapper {
-				width: 49%;
-				background: none;
-				margin-left: auto;
-  				margin-right: auto;
 			}
 
 			.list-container {
@@ -171,7 +192,8 @@
 				position: absolute;
 				right: 5%;
 				top: 5%;
-				width: 25%;
+				padding-left: 10px;
+				padding-right: 10px;
 				line-height: 30px;
 				border: none;
 				background-color:#4642BE;
