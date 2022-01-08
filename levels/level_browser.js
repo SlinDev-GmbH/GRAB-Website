@@ -173,7 +173,7 @@ async function loadMoreLevels()
 			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
-						confirm("Added with response: " + responseBody);
+						confirm(response.status == 200? "Success" : "Error: Login and try again");
 						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
 						{
 							logout();
@@ -184,7 +184,7 @@ async function loadMoreLevels()
 			  			let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
-						confirm("Removed with response: " + responseBody);
+						confirm(response.status == 200? "Success" : "Error: Login and try again");
 						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
 						{
 							logout();
