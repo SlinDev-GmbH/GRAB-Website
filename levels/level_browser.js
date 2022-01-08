@@ -96,6 +96,7 @@ async function loadMoreLevels()
 	{
 		let text = await response.text();
 		console.log(text);
+		if(accessToken && text === "Invalid Access Token") logout();
 		return;
 	}
 
@@ -172,12 +173,22 @@ async function loadMoreLevels()
 			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
+						confirm("Added with response: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+						{
+							logout();
+						}
 			  		}
 			  		else if(currentTab == 1)
 			  		{
 			  			let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
 						console.log(responseBody);
+						confirm("Removed with response: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+						{
+							logout();
+						}
 			  		}
 				})();
 			};
@@ -228,13 +239,15 @@ async function loadMoreLevels()
 					let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
 					let responseBody = await response.text();
 					console.log(responseBody);
+					confirm("Result: " + responseBody);
+					if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+					{
+						logout();
+					}
 				})();
 				return false;
 			};
-		}
 
-		if(isAdmin === "true")
-		{
 			linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
@@ -249,10 +262,18 @@ async function loadMoreLevels()
 						let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
 						let responseBody = await response.text();
 						console.log(responseBody);
+						confirm("Result: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+						{
+							logout();
+						}
 					})();
 				}
 			};
+		}
 
+		if(isAdmin === "true")
+		{
 			linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
@@ -265,6 +286,11 @@ async function loadMoreLevels()
 					let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
 					let responseBody = await response.text();
 					console.log(responseBody);
+					confirm("Result: " + responseBody);
+					if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+					{
+						logout();
+					}
 				})();
 			};
 		}
