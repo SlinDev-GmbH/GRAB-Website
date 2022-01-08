@@ -36,6 +36,22 @@
   				right: 20px;
 			}
 
+			.logout-button {
+				width: 90px;
+				height:  30px;
+				font-weight: bold;
+				border-radius: 2em;
+				box-sizing: border-box;
+				text-decoration: none;
+				background-color: #FF0000;
+				color: #FFFFFF;
+				text-align: center;
+				border: none;
+				position: absolute;
+  				top: 20px;
+  				right: 20px;
+			}
+
 			.tab {
 				width: 49%;
 				margin-left: auto;
@@ -183,7 +199,7 @@
 		</style>
 	</head>
 	<body>
-		<button class="login-button" type="button" onclick="window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'">Login</button>
+		<button class="login-button" id="loginout-button" type="button" onclick="login();">Login</button>
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
 		<br>
 		<div class="tab" id="tabbar">

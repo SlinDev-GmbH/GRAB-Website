@@ -309,10 +309,11 @@ function init()
 	let currentTimestamp = params.get('timestamp');
 	if(currentTimestamp) nextPageTimestamp = currentTimestamp;
 
-	if(currentTimestamp && history.replaceState)
+	if(history.replaceState)
 	{
 		let newURL = new URL(window.location);
 		newURL.searchParams.delete("timestamp");
+		newURL.hash = "";
 		window.history.replaceState({path:newURL.href}, '', newURL.href);
 		isAtTop = false;
 	}
@@ -364,6 +365,11 @@ function init()
 			favoritesButton.innerHTML = "My Favorites";
 			favoritesButton.className = "tablinks";
 			favoritesButton.addEventListener("click", function(event) { tabChanged('favorites'); }, false);
+
+			let loginoutButton = document.getElementById("loginout-button");
+			loginoutButton.className = "logout-button";
+			loginoutButton.innerHTML = "Logout";
+			loginoutButton.addEventListener("click", logout);
 		}
 
 		if(currentTabName && currentTabName.length > 0) tabChanged(currentTabName);
@@ -442,4 +448,19 @@ function tabChanged(tab)
 		clearLevels();
 		loadMoreLevels();
 	}
+}
+
+function login()
+{
+	window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'
+}
+
+function logout()
+{
+	//Set cookies to be expired
+	document.cookie = 'access_token=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+	document.cookie = 'is_admin=false; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+	document.cookie = 'is_moderator=false; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+
+	window.location.href = window.location.href;
 }
