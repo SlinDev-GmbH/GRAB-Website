@@ -62,6 +62,12 @@ async function loadMoreLevels()
 		title.innerHTML = "Community Levels (" + totalLevelCount + " Levels)";
 	}
 
+	if(history.replaceState)
+	{
+		let newURL = new URL(window.location);
+		newURL.searchParams.set("timestamp", lastPageTimestamp);
+		window.history.replaceState({path:newURL.href}, '', newURL.href);
+	}
 
 	let requestURL = "";
 	if(currentTab == 0)
@@ -136,7 +142,7 @@ async function loadMoreLevels()
 			moreLevelsButton.className = "cell-button-more-levels";
 			moreLevelsButton.innerHTML = "More Levels";
 			cell.appendChild(moreLevelsButton);
-			moreLevelsButton.onclick = function () { window.open('index.html?user_id=' + levelIdentifierParts[0]) };
+			moreLevelsButton.onclick = function () { window.open('?user_id=' + levelIdentifierParts[0]) };
 		}
 
 		//Show OK stamp on levels that have the tag
@@ -275,7 +281,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab == 1)
+	if(responseBody.length == 0 || currentTab == 1 || levelsUserID)
 	{
 		noMoreLevels = true;
 
@@ -303,7 +309,9 @@ function init()
 
 	let params = (new URL(document.location)).searchParams;
 	levelsUserID = params.get('user_id');
-	
+	let currentTabName = params.get('tab');
+	let currentTimestamp = params.get('timestamp');
+	if(currentTimestamp) lastPageTimestamp = currentTimestamp;
 
 	(async () => {
 
@@ -351,9 +359,10 @@ function init()
 			tabBar.appendChild(favoritesButton);
 			favoritesButton.innerHTML = "My Favorites";
 			favoritesButton.className = "tablinks";
-			favoritesButton.addEventListener("click", function(event) { tabChanged(event, 'favorites'); }, false);
+			favoritesButton.addEventListener("click", function(event) { tabChanged('favorites'); }, false);
 		}
 
+		if(currentTabName && currentTabName.length > 0) tabChanged(currentTabName);
 		loadMoreLevels();
 	})();
 }
@@ -372,34 +381,45 @@ function scroller() {
 window.onload = init;
 window.onscroll = scroller;
 
-function tabChanged(event, tab)
+
+function tabChanged(tab)
 {
-	// Get all elements with class="tablinks" and remove the class "active"
-	tablinks = document.getElementsByClassName("tablinks");
-	for (i = 0; i < tablinks.length; i++) {
-		tablinks[i].className = tablinks[i].className.replace(" active", "");
-	}
-
-	// Show the current tab, and add an "active" class to the button that opened the tab
-	//document.getElementById(cityName).style.display = "block";
-	event.currentTarget.className += " active";
-
+	let titleString = "Levels"
 	let newTab = 0;
+	if(tab === "favorites")
+	{
+		titleString = "My Favorites";
+		newTab = 1;
+
+		//Fallback to community list if favorites tab doesn't exist
+		tablinks = document.getElementsByClassName("tablinks");
+		if(tablinks.length < newTab) tab = "community";
+	}
 	if(tab === "community")
 	{
-		var title = document.getElementById("title-text");
-		title.innerHTML = "Community Levels";
+		titleString = "Community Levels";
 		newTab = 0;
-	}
-	else if(tab === "favorites")
-	{
-		var title = document.getElementById("title-text");
-		title.innerHTML = "My Favorites";
-		newTab = 1;
 	}
 
 	if(newTab != currentTab)
 	{
+		if(history.pushState)
+		{
+			let newURL = new URL(window.location);
+			newURL.searchParams.set("tab", tab);
+			window.history.pushState({path:newURL.href}, '', newURL.href);
+		}
+
+		// Get all elements with class="tablinks" and remove the class "active"
+		tablinks = document.getElementsByClassName("tablinks");
+		for (i = 0; i < tablinks.length; i++) {
+			tablinks[i].className = tablinks[i].className.replace(" active", "");
+		}
+		tablinks[newTab].className += " active";
+
+		let title = document.getElementById("title-text");
+		title.innerHTML = titleString;
+
 		lastPageTimestamp = -1;
 		noMoreLevels = false;
 		numberOfLevels = 0;
