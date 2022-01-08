@@ -84,9 +84,13 @@
 			.list-container {
 				width: 100%;
 				background: none;
-				overflow-y: auto;
 				margin-left: auto;
   				margin-right: auto;
+
+  				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				grid-gap: 5px;
+				grid-auto-rows: minmax(100px, auto);
 			}
 
 			.level-counter {
@@ -101,14 +105,10 @@
 			}
 
 			.list-cell {
-				width: 49%;
 				height: 200px;
-				float: left;
 				background-color:#FFFFFF;
 				color:#000000;
 				border: none;
-				margin-left: 1%;
-				margin-top: 1%;
 				padding: 3%;
 				box-sizing: border-box;
 				position: relative;
@@ -118,14 +118,10 @@
 			}
 
 			.list-cell-admin {
-				width: 49%;
 				height: 400px;
-				float: left;
 				background-color:#FFFFFF;
 				color:#000000;
 				border: none;
-				margin-left: 1%;
-				margin-top: 1%;
 				padding: 3%;
 				box-sizing: border-box;
 				position: relative;
