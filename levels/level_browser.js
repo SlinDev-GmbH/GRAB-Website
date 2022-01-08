@@ -1,7 +1,7 @@
 //const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/";
 const SERVER_URL = "https://api.slin.dev/grab/v1/";
 var isLoading = false;
-var lastPageTimestamp = -1;
+var nextPageTimestamp = -1;
 var noMoreLevels = false;
 var numberOfLevels = 0;
 var currentTab = 0;
@@ -62,18 +62,11 @@ async function loadMoreLevels()
 		title.innerHTML = "Community Levels (" + totalLevelCount + " Levels)";
 	}
 
-	if(history.replaceState)
-	{
-		let newURL = new URL(window.location);
-		newURL.searchParams.set("timestamp", lastPageTimestamp);
-		window.history.replaceState({path:newURL.href}, '', newURL.href);
-	}
-
 	let requestURL = "";
 	if(currentTab == 0)
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=3';
-		if(lastPageTimestamp != -1) requestURL += '&page_timestamp=' + lastPageTimestamp;
+		if(nextPageTimestamp != -1) requestURL += '&page_timestamp=' + nextPageTimestamp;
 		if(levelsUserID && levelsUserID.length > 0)
 		{
 			//List only a specific users levels
@@ -117,7 +110,7 @@ async function loadMoreLevels()
 		let levelIdentifierParts = levelInfo.data_key.split(":");
 		levelIdentifierParts = levelIdentifierParts.slice(1);
 
-		lastPageTimestamp = levelInfo.creation_timestamp;
+		nextPageTimestamp = levelInfo.creation_timestamp;
 
 		let cell = document.createElement("div");
 		container.appendChild(cell);
@@ -277,7 +270,7 @@ async function loadMoreLevels()
 		cell.appendChild(button);
 		button.innerHTML = "OPEN";
 		button.className = "cell-button";
-		button.href = 'level.html?level=' + levelIdentifierParts.join(":");
+		button.href = 'viewer?level=' + levelIdentifierParts.join(":");
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
@@ -311,7 +304,14 @@ function init()
 	levelsUserID = params.get('user_id');
 	let currentTabName = params.get('tab');
 	let currentTimestamp = params.get('timestamp');
-	if(currentTimestamp) lastPageTimestamp = currentTimestamp;
+	if(currentTimestamp) nextPageTimestamp = currentTimestamp;
+
+	if(currentTimestamp && history.replaceState)
+	{
+		let newURL = new URL(window.location);
+		newURL.searchParams.delete("timestamp");
+		window.history.replaceState({path:newURL.href}, '', newURL.href);
+	}
 
 	(async () => {
 
@@ -420,7 +420,7 @@ function tabChanged(tab)
 		let title = document.getElementById("title-text");
 		title.innerHTML = titleString;
 
-		lastPageTimestamp = -1;
+		nextPageTimestamp = -1;
 		noMoreLevels = false;
 		numberOfLevels = 0;
 		currentTab = newTab;

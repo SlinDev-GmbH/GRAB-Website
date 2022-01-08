@@ -5,6 +5,8 @@ import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/
 //const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/";
 const SERVER_URL = "https://api.slin.dev/grab/v1/";
 
+let levelCreationTime = -1;
+
 let clock, camera, scene, renderer, controls;
 let textureLoader;
 let gltfLoader;
@@ -56,6 +58,8 @@ function getGeometryForModel(name)
 
 function init()
 {
+	document.getElementById('back-button').addEventListener('click', backButtonPressed);
+
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
@@ -159,6 +163,7 @@ function init()
 		const urlParams = new URLSearchParams(window.location.search);
 		let levelIdentifier = urlParams.get('level');
 		levelIdentifier = levelIdentifier.split(':').join('/');
+
 		let response = await fetch(SERVER_URL + 'statistics/' + levelIdentifier);
 		console.log(response);
 		let responseBody = await response.json();
@@ -184,6 +189,13 @@ function init()
 
 		var timeLabel = document.getElementById("average time");
 		timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
+
+
+		let detailResponse = await fetch(SERVER_URL + 'details/' + levelIdentifier);
+		console.log(detailResponse);
+		let detailResponseBody = await detailResponse.json();
+		console.log(detailResponseBody);
+		levelCreationTime = detailResponseBody.creation_timestamp+1;
 	})()
 
 	protobuf.load("proto/level.proto", function(err, root) {
@@ -354,4 +366,13 @@ function pointerLockChanged()
 	} else {
 		controls.isMouseActive = false;
 	}
+}
+
+export function backButtonPressed()
+{
+	let newURL = new URL(window.location);
+	newURL.pathname = "/levels";
+	if(levelCreationTime) newURL.search = "?timestamp=" + levelCreationTime;
+	else newURL.search = "";
+	window.location.href = newURL.href;
 }
