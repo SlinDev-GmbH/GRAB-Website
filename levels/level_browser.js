@@ -1,6 +1,7 @@
 //const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/";
 const SERVER_URL = "https://api.slin.dev/grab/v1/";
 var isLoading = false;
+var isAtTop = true;
 var nextPageTimestamp = -1;
 var noMoreLevels = false;
 var numberOfLevels = 0;
@@ -63,7 +64,7 @@ async function loadMoreLevels()
 	}
 
 	let requestURL = "";
-	if(currentTab == 0)
+	if(currentTab == 0 || currentTab == 2)
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=3';
 		if(nextPageTimestamp != -1) requestURL += '&page_timestamp=' + nextPageTimestamp;
@@ -135,7 +136,12 @@ async function loadMoreLevels()
 			moreLevelsButton.className = "cell-button-more-levels";
 			moreLevelsButton.innerHTML = "More Levels";
 			cell.appendChild(moreLevelsButton);
-			moreLevelsButton.onclick = function () { window.open('?user_id=' + levelIdentifierParts[0]) };
+			moreLevelsButton.onclick = function () {
+				//window.open('?user_id=' + levelIdentifierParts[0]);
+				let newURL = new URL(window.location);
+				newURL.searchParams.set("user_id", levelIdentifierParts[0]);
+				window.location.href = newURL.href;
+			};
 		}
 
 		//Show OK stamp on levels that have the tag
@@ -160,11 +166,11 @@ async function loadMoreLevels()
 
 			let favoriteButton = document.createElement("button");
 			cell.appendChild(favoriteButton);
-			if(currentTab == 0) favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
+			if(currentTab == 0 || currentTab == 2) favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
 			else favoriteButton.innerHTML = "<b>REMOVE FROM FAVORITES</b>";
 			favoriteButton.onclick = function () {
 			  	(async () => {
-			  		if(currentTab == 0)
+			  		if(currentTab == 0 || currentTab == 2)
 			  		{
 			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
@@ -274,7 +280,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab == 1 || levelsUserID)
+	if(responseBody.length == 0 || currentTab == 1)
 	{
 		noMoreLevels = true;
 
@@ -302,7 +308,7 @@ function init()
 
 	let params = (new URL(document.location)).searchParams;
 	levelsUserID = params.get('user_id');
-	let currentTabName = params.get('tab');
+	let currentTabName = levelsUserID? "user" : params.get('tab');
 	let currentTimestamp = params.get('timestamp');
 	if(currentTimestamp) nextPageTimestamp = currentTimestamp;
 
@@ -311,6 +317,7 @@ function init()
 		let newURL = new URL(window.location);
 		newURL.searchParams.delete("timestamp");
 		window.history.replaceState({path:newURL.href}, '', newURL.href);
+		isAtTop = false;
 	}
 
 	(async () => {
@@ -400,13 +407,23 @@ function tabChanged(tab)
 		titleString = "Community Levels";
 		newTab = 0;
 	}
+	if(tab === "user")
+	{
+		titleString = "User";
+		newTab = 2;
+	}
+	else
+	{
+		levelsUserID = "";
+	}
 
-	if(newTab != currentTab)
+	if(newTab != currentTab || !isAtTop)
 	{
 		if(history.pushState)
 		{
 			let newURL = new URL(window.location);
 			newURL.searchParams.set("tab", tab);
+			if(newTab != 2) newURL.searchParams.delete("user_id");
 			window.history.pushState({path:newURL.href}, '', newURL.href);
 		}
 
@@ -415,11 +432,12 @@ function tabChanged(tab)
 		for (i = 0; i < tablinks.length; i++) {
 			tablinks[i].className = tablinks[i].className.replace(" active", "");
 		}
-		tablinks[newTab].className += " active";
+		if(newTab < tablinks.length) tablinks[newTab].className += " active";
 
 		let title = document.getElementById("title-text");
 		title.innerHTML = titleString;
 
+		isAtTop = true;
 		nextPageTimestamp = -1;
 		noMoreLevels = false;
 		numberOfLevels = 0;
