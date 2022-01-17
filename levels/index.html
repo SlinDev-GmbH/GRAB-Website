@@ -109,6 +109,15 @@
 				background-color: #ccc;
 			}
 
+			.tab input[type=text] {
+				float: right;
+				padding: 6px;
+				border: none;
+				margin-top: 8px;
+				margin-right: 16px;
+				font-size: 17px;
+			}
+
 			.title-text {
 				display: block;
 				margin-left: auto;
@@ -214,7 +223,7 @@
 
 			.cell-description {
 				display: -webkit-box;   
-				-webkit-line-clamp: 3;   
+				-webkit-line-clamp: 3;
 				-webkit-box-orient: vertical;     
 				overflow: hidden;
 			}
@@ -225,11 +234,13 @@
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
 		<br>
 		<div class="tab" id="tabbar">
-			<button class="tablinks active" onclick="tabChanged('community')">Community Levels</button>
+			<button class="tablinks active" onclick="tabChanged('newest')">All Levels</button>
+			<button class="tablinks" onclick="tabChanged('verified')">Verified Levels</button>
+			<input type="text" placeholder="Search.." oninput="search(event)">
 		</div>
 		<br>
 
-		<h1 class="title-text" id="title-text">Community Levels</h1>
+		<h1 class="title-text" id="title-text">All Levels</h1>
 		<div class="list-container-wrapper" id=list-container-wrapper>
 			<div class="list-container" id="list-container"></div>
 		</div>

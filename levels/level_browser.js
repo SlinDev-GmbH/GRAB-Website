@@ -5,8 +5,11 @@ var isAtTop = true;
 var nextPageTimestamp = -1;
 var noMoreLevels = false;
 var numberOfLevels = 0;
-var currentTab = 0;
+var currentTab = "newest";
 var levelsUserID = ""
+var currentSearchTerm = ""
+
+const TAB_INDICES = {newest: 0, verified: 1, favorites: 2, user: 3}
 
 function getCookie(cname)
 {
@@ -54,21 +57,24 @@ async function loadMoreLevels()
 	let isAdmin = getCookie("is_admin");
 	let isModerator = getCookie("is_moderator");
 
-	if(currentTab === 0)
+	if(currentTab === "newest")
 	{
 		let totalLevelCountResponse = await fetch(SERVER_URL + 'total_level_count');
 		let totalLevelCount = await totalLevelCountResponse.text();
 
 		var title = document.getElementById("title-text");
-		title.innerHTML = "Community Levels (" + totalLevelCount + " Levels)";
+		title.innerHTML = "All Levels (" + totalLevelCount + " Levels)";
 	}
 
 	let requestURL = "";
-	if(currentTab == 0 || currentTab == 2)
+	if(currentTab !== "favorites" || currentSearchTerm.length > 0)
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=3';
+		if(currentTab === "verified" && currentSearchTerm.length == 0) requestURL += '&type=ok';
+		if(currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + currentSearchTerm;
+
 		if(nextPageTimestamp != -1) requestURL += '&page_timestamp=' + nextPageTimestamp;
-		if(levelsUserID && levelsUserID.length > 0)
+		if(levelsUserID && levelsUserID.length > 0 && currentSearchTerm.length == 0)
 		{
 			//List only a specific users levels
 			requestURL += '&user_id=' + levelsUserID;
@@ -81,7 +87,7 @@ async function loadMoreLevels()
 			}
 		}
 	}
-	else if(currentTab == 1 && accessToken && accessToken.length > 0)
+	else if(currentTab === "favorites" && accessToken && accessToken.length > 0)
 	{
 		userID = accessToken.split(":")[0];
 		requestURL = SERVER_URL + 'get_favorite_levels?access_token=' + accessToken;
@@ -112,7 +118,7 @@ async function loadMoreLevels()
 		let levelIdentifierParts = levelInfo.data_key.split(":");
 		levelIdentifierParts = levelIdentifierParts.slice(1);
 
-		nextPageTimestamp = levelInfo.creation_timestamp;
+		nextPageTimestamp = levelInfo.page_timestamp;
 
 		let cell = document.createElement("div");
 		container.appendChild(cell);
@@ -129,7 +135,17 @@ async function loadMoreLevels()
 		{
 			creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
 		}
-		cell.innerHTML = '<b class="cell-title">' + levelInfo.title + '</b><br>' + creators + '<br><br><div class=cell-description>' + levelInfo.description + '</div>';
+
+		cell.innerHTML = '<b class="cell-title">' + levelInfo.title
+		if(creators && creators.length > 0)
+		{
+			cell.innerHTML += '</b><br>' + creators
+		}
+		if(levelInfo.description && levelInfo.description.length > 0)
+		{
+			cell.innerHTML += '<br><br><div class=cell-description>' + levelInfo.description
+		}
+		cell.innerHTML += '</div>';
 
 		if(!levelsUserID || levelsUserID.length == 0)
 		{
@@ -164,11 +180,11 @@ async function loadMoreLevels()
 
 			let favoriteButton = document.createElement("button");
 			cell.appendChild(favoriteButton);
-			if(currentTab == 0 || currentTab == 2) favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
+			if(currentTab !== "favorites") favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
 			else favoriteButton.innerHTML = "<b>REMOVE FROM FAVORITES</b>";
 			favoriteButton.onclick = function () {
 			  	(async () => {
-			  		if(currentTab == 0 || currentTab == 2)
+			  		if(currentTab !== "favorites")
 			  		{
 			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
@@ -179,7 +195,7 @@ async function loadMoreLevels()
 							logout();
 						}
 			  		}
-			  		else if(currentTab == 1)
+			  		else if(currentTab === "favorites")
 			  		{
 			  			let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
 						let responseBody = await response.text();
@@ -303,7 +319,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab == 1)
+	if(responseBody.length == 0 || currentTab === "favorites")
 	{
 		noMoreLevels = true;
 
@@ -421,38 +437,38 @@ window.onscroll = scroller;
 function tabChanged(tab)
 {
 	let titleString = "Levels"
-	let newTab = 0;
 	if(tab === "favorites")
 	{
 		titleString = "My Favorites";
-		newTab = 1;
 
-		//Fallback to community list if favorites tab doesn't exist
+		//Fallback to newest list if favorites tab doesn't exist
 		tablinks = document.getElementsByClassName("tablinks");
-		if(tablinks.length < newTab) tab = "community";
+		if(tablinks.length <= TAB_INDICES.favorites) tab = "newest";
 	}
-	if(tab === "community")
+	if(tab === "newest")
 	{
-		titleString = "Community Levels";
-		newTab = 0;
+		titleString = "All Levels";
+	}
+	if(tab === "verified")
+	{
+		titleString = "Verified Levels";
 	}
 	if(tab === "user")
 	{
 		titleString = "User";
-		newTab = 2;
 	}
 	else
 	{
 		levelsUserID = "";
 	}
 
-	if(newTab != currentTab || !isAtTop)
+	if(tab != currentTab || !isAtTop)
 	{
 		if(history.pushState)
 		{
 			let newURL = new URL(window.location);
 			newURL.searchParams.set("tab", tab);
-			if(newTab != 2) newURL.searchParams.delete("user_id");
+			if(tab !== "user") newURL.searchParams.delete("user_id");
 			window.history.pushState({path:newURL.href}, '', newURL.href);
 		}
 
@@ -461,7 +477,7 @@ function tabChanged(tab)
 		for (i = 0; i < tablinks.length; i++) {
 			tablinks[i].className = tablinks[i].className.replace(" active", "");
 		}
-		if(newTab < tablinks.length) tablinks[newTab].className += " active";
+		if(TAB_INDICES[tab] < tablinks.length) tablinks[TAB_INDICES[tab]].className += " active";
 
 		let title = document.getElementById("title-text");
 		title.innerHTML = titleString;
@@ -470,10 +486,30 @@ function tabChanged(tab)
 		nextPageTimestamp = -1;
 		noMoreLevels = false;
 		numberOfLevels = 0;
-		currentTab = newTab;
+		currentTab = tab;
 		clearLevels();
 		loadMoreLevels();
 	}
+}
+
+function search(event)
+{
+	currentSearchTerm = event.target.value
+	if(!currentSearchTerm || currentSearchTerm.length == 0)
+	{
+		currentSearchTerm = ""
+	}
+	else
+	{
+		currentSearchTerm = currentSearchTerm.toLowerCase().replace(/[^a-z0-9]/g, '')
+	}
+
+	isAtTop = true;
+	nextPageTimestamp = -1;
+	noMoreLevels = false;
+	numberOfLevels = 0;
+	clearLevels();
+	loadMoreLevels();
 }
 
 function login()
