@@ -9,8 +9,6 @@ var currentTab = "newest";
 var levelsUserID = ""
 var currentSearchTerm = ""
 
-const TAB_INDICES = {newest: 0, verified: 1, favorites: 2, user: 3}
-
 function getCookie(cname)
 {
 	let name = cname + "=";
@@ -54,10 +52,11 @@ async function loadMoreLevels()
 	console.log("loading more levels");
 
 	let accessToken = getCookie("access_token");
+	let userID = getCookie("user_id");
 	let isAdmin = getCookie("is_admin");
 	let isModerator = getCookie("is_moderator");
 
-	if(currentTab === "newest")
+	if(currentTab === "newest" && currentSearchTerm.length === 0)
 	{
 		let totalLevelCountResponse = await fetch(SERVER_URL + 'total_level_count');
 		let totalLevelCount = await totalLevelCountResponse.text();
@@ -74,10 +73,13 @@ async function loadMoreLevels()
 		if(currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + currentSearchTerm;
 
 		if(nextPageTimestamp != -1) requestURL += '&page_timestamp=' + nextPageTimestamp;
-		if(levelsUserID && levelsUserID.length > 0 && currentSearchTerm.length == 0)
+		if(((levelsUserID && levelsUserID.length > 0) || (userID && userID.length > 0 && currentTab === "mylevels")) && currentSearchTerm.length == 0)
 		{
+			requestURL += '&user_id='
+
 			//List only a specific users levels
-			requestURL += '&user_id=' + levelsUserID;
+			if(currentTab === "mylevels") requestURL += userID
+			else requestURL += levelsUserID
 
 			//Admins also get to see the hidden levels of that user
 			if(isAdmin && accessToken)
@@ -177,6 +179,9 @@ async function loadMoreLevels()
 		if(accessToken)
 		{
 			userID = accessToken.split(":")[0];
+
+			let linebreak = document.createElement("br");
+			cell.appendChild(linebreak);
 
 			let favoriteButton = document.createElement("button");
 			cell.appendChild(favoriteButton);
@@ -379,6 +384,7 @@ function init()
 
 				var date = new Date(responseBody.expiry);
 				document.cookie = 'access_token=' + responseBody.access_token + '; expires=' + date.toUTCString();
+				document.cookie = 'user_id=' + responseBody.info.user_id + '; expires=' + date.toUTCString();
 				document.cookie = 'is_admin=' + responseBody.info.is_admin + '; expires=' + date.toUTCString();
 				document.cookie = 'is_moderator=' + responseBody.info.is_moderator + '; expires=' + date.toUTCString();
 			}
@@ -402,10 +408,18 @@ function init()
 		{
 			let tabBar = document.getElementById("tabbar");
 
+			let myLevelsButton = document.createElement("button");
+			tabBar.appendChild(myLevelsButton);
+			myLevelsButton.innerHTML = "My Levels";
+			myLevelsButton.className = "tablinks";
+			myLevelsButton.id = "tab_mylevels"
+			myLevelsButton.addEventListener("click", function(event) { tabChanged('mylevels'); }, false);
+
 			let favoritesButton = document.createElement("button");
 			tabBar.appendChild(favoritesButton);
 			favoritesButton.innerHTML = "My Favorites";
 			favoritesButton.className = "tablinks";
+			favoritesButton.id = "tab_favorites"
 			favoritesButton.addEventListener("click", function(event) { tabChanged('favorites'); }, false);
 
 			let loginoutButton = document.getElementById("loginout-button");
@@ -436,15 +450,12 @@ window.onscroll = scroller;
 
 function tabChanged(tab)
 {
-	let titleString = "Levels"
-	if(tab === "favorites")
-	{
-		titleString = "My Favorites";
+	//Fallback to newest list if the requested tab doesn't exist
+	let activeTabButton = document.getElementById("tab_" + tab)
+	console.log(activeTabButton)
+	if(!activeTabButton) tab = "newest";
 
-		//Fallback to newest list if favorites tab doesn't exist
-		tablinks = document.getElementsByClassName("tablinks");
-		if(tablinks.length <= TAB_INDICES.favorites) tab = "newest";
-	}
+	let titleString = "Levels"
 	if(tab === "newest")
 	{
 		titleString = "All Levels";
@@ -452,6 +463,14 @@ function tabChanged(tab)
 	if(tab === "verified")
 	{
 		titleString = "Verified Levels";
+	}
+	if(tab === "mylevels")
+	{
+		titleString = "My Levels";
+	}
+	if(tab === "favorites")
+	{
+		titleString = "My Favorites";
 	}
 	if(tab === "user")
 	{
@@ -477,7 +496,8 @@ function tabChanged(tab)
 		for (i = 0; i < tablinks.length; i++) {
 			tablinks[i].className = tablinks[i].className.replace(" active", "");
 		}
-		if(TAB_INDICES[tab] < tablinks.length) tablinks[TAB_INDICES[tab]].className += " active";
+		let activeTabButton = document.getElementById("tab_" + tab)
+		if(activeTabButton) activeTabButton.className += " active";
 
 		let title = document.getElementById("title-text");
 		title.innerHTML = titleString;
@@ -504,6 +524,9 @@ function search(event)
 		currentSearchTerm = currentSearchTerm.toLowerCase().replace(/[^a-z0-9]/g, '')
 	}
 
+	let title = document.getElementById("title-text");
+	title.innerHTML = "Search";
+
 	isAtTop = true;
 	nextPageTimestamp = -1;
 	noMoreLevels = false;
@@ -521,6 +544,7 @@ function logout()
 {
 	//Set cookies to be expired
 	document.cookie = 'access_token=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+	document.cookie = 'user_id=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 	document.cookie = 'is_admin=false; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 	document.cookie = 'is_moderator=false; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 

@@ -234,8 +234,8 @@
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
 		<br>
 		<div class="tab" id="tabbar">
-			<button class="tablinks active" onclick="tabChanged('newest')">All Levels</button>
-			<button class="tablinks" onclick="tabChanged('verified')">Verified Levels</button>
+			<button class="tablinks active" onclick="tabChanged('newest')" id="tab_newest">All Levels</button>
+			<button class="tablinks" onclick="tabChanged('verified')" id="tab_verified">Verified Levels</button>
 			<input type="text" placeholder="Search.." oninput="search(event)">
 		</div>
 		<br>
@@ -244,5 +244,7 @@
 		<div class="list-container-wrapper" id=list-container-wrapper>
 			<div class="list-container" id="list-container"></div>
 		</div>
+
+		<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a50a84f2a35413b953ceffc91acf421"}'></script><!-- End Cloudflare Web Analytics -->
 	</body>
 </html>
