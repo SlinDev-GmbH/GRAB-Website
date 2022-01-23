@@ -106,6 +106,8 @@ async function loadMoreLevels()
 	let response = await fetch(requestURL);
 	if(response.status != 200)
 	{
+		noMoreLevels = true
+		isLoading = false
 		let text = await response.text();
 		console.log(text);
 		if(accessToken && text === "Invalid Access Token") logout();
