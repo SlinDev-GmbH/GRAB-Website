@@ -52,9 +52,9 @@ async function loadMoreLevels()
 	console.log("loading more levels");
 
 	let accessToken = getCookie("access_token");
-	let userID = getCookie("user_id");
-	let isAdmin = getCookie("is_admin");
-	let isModerator = getCookie("is_moderator");
+	let userInfoString = getCookie("user_info")
+	let userInfo = undefined
+	if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
 
 	if(currentTab === "newest" && currentSearchTerm.length === 0)
 	{
@@ -74,16 +74,16 @@ async function loadMoreLevels()
 		if(currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + currentSearchTerm;
 
 		if(nextPageTimestamp != -1) requestURL += '&page_timestamp=' + nextPageTimestamp;
-		if(((levelsUserID && levelsUserID.length > 0) || (userID && userID.length > 0 && currentTab === "mylevels")) && currentSearchTerm.length == 0)
+		if(((levelsUserID && levelsUserID.length > 0) || (userInfo && userInfo.user_id && userInfo.user_id.length > 0 && currentTab === "mylevels")) && currentSearchTerm.length == 0)
 		{
 			requestURL += '&user_id='
 
 			//List only a specific users levels
-			if(currentTab === "mylevels") requestURL += userID
+			if(currentTab === "mylevels") requestURL += userInfo.user_id
 			else requestURL += levelsUserID
 
 			//Admins also get to see the hidden levels of that user
-			if(isAdmin && accessToken)
+			if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && accessToken)
 			{
 				requestURL += '&type=all&access_token=' + accessToken
 				noMoreLevels = true //The endpoint for this currently does not support pagination
@@ -128,7 +128,7 @@ async function loadMoreLevels()
 
 		let cell = document.createElement("div");
 		container.appendChild(cell);
-		if(isAdmin === "true" || isModerator === "true")
+		if(userInfo && (("is_admin" in userInfo && userInfo.is_admin === true) || ("is_moderator" in userInfo && userInfo.is_moderator === true)))
 		{
 			cell.className = 'list-cell-admin';
 		}
@@ -180,7 +180,7 @@ async function loadMoreLevels()
 			}
 		}
 
-		if(accessToken)
+		if(accessToken && userInfo)
 		{
 			let linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
@@ -215,131 +215,130 @@ async function loadMoreLevels()
 			  		}
 				})();
 			};
-		}
 
-
-		if(isModerator === "true")
-		{
-			let linebreak = document.createElement("br");
-			cell.appendChild(linebreak);
-			linebreak = document.createElement("br");
-			cell.appendChild(linebreak);
-
-			let tagsForm = document.createElement("form");
-			cell.appendChild(tagsForm);
-			tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
-			let tagsParentObject = tagsForm.childNodes[0];
-			let tagOptions = []
-			for(const option of tagsParentObject.childNodes)
+			if("is_moderator" in userInfo && userInfo.is_moderator === true)
 			{
-				if(option.type === "checkbox")
+				let linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				let tagsForm = document.createElement("form");
+				cell.appendChild(tagsForm);
+				tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
+				let tagsParentObject = tagsForm.childNodes[0];
+				let tagOptions = []
+				for(const option of tagsParentObject.childNodes)
 				{
-					tagOptions.push(option);
-					if("tags" in levelInfo && levelInfo.tags.length > 0)
+					if(option.type === "checkbox")
 					{
-						for(const tag of levelInfo.tags)
+						tagOptions.push(option);
+						if("tags" in levelInfo && levelInfo.tags.length > 0)
 						{
-							if(tag === option.value)
+							for(const tag of levelInfo.tags)
 							{
-								option.checked = true;
+								if(tag === option.value)
+								{
+									option.checked = true;
+								}
 							}
 						}
 					}
 				}
-			}
 
-			tagsForm.onsubmit = function(event) {
-				let tags = "";
-				for(const option of tagOptions)
+				tagsForm.onsubmit = function(event) {
+					let tags = "";
+					for(const option of tagOptions)
+					{
+						if(option.checked)
+						{
+							tags += option.value + ",";
+						}
+					}
+
+					(async () => {
+						let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
+						let responseBody = await response.text();
+						console.log(responseBody);
+						confirm("Result: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+						{
+							logout();
+						}
+					})();
+					return false;
+				};
+
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				if(("hidden" in levelInfo && levelInfo.hidden) || currentTab === "hidden")
 				{
-					if(option.checked)
-					{
-						tags += option.value + ",";
-					}
+					let showButton = document.createElement("button");
+					cell.appendChild(showButton);
+					showButton.innerHTML = "<b>SHOW</b>";
+					showButton.onclick = function () {
+						if(confirm("Do you really want to show this level?"))
+						{
+						  	(async () => {
+								let response = await fetch(SERVER_URL + 'show/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
+								let responseBody = await response.text();
+								console.log(responseBody);
+								confirm("Result: " + responseBody);
+								if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+								{
+									logout();
+								}
+							})();
+						}
+					};
 				}
-
-				(async () => {
-					let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
-					let responseBody = await response.text();
-					console.log(responseBody);
-					confirm("Result: " + responseBody);
-					if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-					{
-						logout();
-					}
-				})();
-				return false;
-			};
-
-			linebreak = document.createElement("br");
-			cell.appendChild(linebreak);
-
-			if(("hidden" in levelInfo && levelInfo.hidden) || currentTab === "hidden")
-			{
-				let showButton = document.createElement("button");
-				cell.appendChild(showButton);
-				showButton.innerHTML = "<b>SHOW</b>";
-				showButton.onclick = function () {
-					if(confirm("Do you really want to show this level?"))
-					{
-					  	(async () => {
-							let response = await fetch(SERVER_URL + 'show/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
-							let responseBody = await response.text();
-							console.log(responseBody);
-							confirm("Result: " + responseBody);
-							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-							{
-								logout();
-							}
-						})();
-					}
-				};
+				else
+				{
+					let hideButton = document.createElement("button");
+					cell.appendChild(hideButton);
+					hideButton.innerHTML = "<b>HIDE</b>";
+					//hideButton.className = "cell-button-hide";
+					hideButton.onclick = function () {
+						if(confirm("Do you really want to hide this level?"))
+						{
+						  	(async () => {
+								let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
+								let responseBody = await response.text();
+								console.log(responseBody);
+								confirm("Result: " + responseBody);
+								if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+								{
+									logout();
+								}
+							})();
+						}
+					};
+				}
 			}
-			else
+
+			if("is_admin" in userInfo && userInfo.is_admin === true)
 			{
-				let hideButton = document.createElement("button");
-				cell.appendChild(hideButton);
-				hideButton.innerHTML = "<b>HIDE</b>";
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				let creatorButton = document.createElement("button");
+				cell.appendChild(creatorButton);
+				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
 				//hideButton.className = "cell-button-hide";
-				hideButton.onclick = function () {
-					if(confirm("Do you really want to hide this level?"))
-					{
-					  	(async () => {
-							let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
-							let responseBody = await response.text();
-							console.log(responseBody);
-							confirm("Result: " + responseBody);
-							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-							{
-								logout();
-							}
-						})();
-					}
+				creatorButton.onclick = function () {
+				  	(async () => {
+						let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
+						let responseBody = await response.text();
+						console.log(responseBody);
+						confirm("Result: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+						{
+							logout();
+						}
+					})();
 				};
 			}
-		}
-
-		if(isAdmin === "true")
-		{
-			linebreak = document.createElement("br");
-			cell.appendChild(linebreak);
-
-			let creatorButton = document.createElement("button");
-			cell.appendChild(creatorButton);
-			creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
-			//hideButton.className = "cell-button-hide";
-			creatorButton.onclick = function () {
-			  	(async () => {
-					let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
-					let responseBody = await response.text();
-					console.log(responseBody);
-					confirm("Result: " + responseBody);
-					if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-					{
-						logout();
-					}
-				})();
-			};
 		}
 
 		let button = document.createElement("a");
@@ -410,36 +409,42 @@ function init()
 
 				var date = new Date(responseBody.expiry);
 				document.cookie = 'access_token=' + responseBody.access_token + '; expires=' + date.toUTCString();
-				document.cookie = 'user_id=' + responseBody.info.user_id + '; expires=' + date.toUTCString();
-				document.cookie = 'is_admin=' + responseBody.info.is_admin + '; expires=' + date.toUTCString();
-				document.cookie = 'is_moderator=' + responseBody.info.is_moderator + '; expires=' + date.toUTCString();
+				document.cookie = "user_info=" + JSON.stringify(responseBody.info) + "; expires=" + date.toUTCString();
 			}
 		}
 
 		let accessToken = getCookie("access_token");
-		let isAdmin = getCookie("is_admin");
-		let isModerator = getCookie("is_moderator");
+		let userInfoString = getCookie("user_info")
+		let userInfo = undefined
+		if(userInfoString && userInfoString.length > 0)
+			{
+				userInfo = JSON.parse(userInfoString);
+				console.log(userInfo)
+			}
 
-		if(isAdmin === "true")
+		if(accessToken && userInfo)
 		{
-			console.log("You are an admin with super special powers! Current Access Token: " + accessToken);
-		}
+			if("is_admin" in userInfo && userInfo.is_admin === true)
+			{
+				console.log("You are an admin with super special powers! Current Access Token: " + accessToken);
+			}
 
-		if(isModerator === "true")
-		{
-			console.log("You are a moderator with special powers!");
-		}
+			if("is_moderator" in userInfo && userInfo.is_moderator === true)
+			{
+				console.log("You are a moderator with special powers!");
+			}
 
-		if(accessToken)
-		{
 			let tabBar = document.getElementById("tabbar");
 
-			let myLevelsButton = document.createElement("button");
-			tabBar.appendChild(myLevelsButton);
-			myLevelsButton.innerHTML = "My Levels";
-			myLevelsButton.className = "tablinks";
-			myLevelsButton.id = "tab_mylevels"
-			myLevelsButton.addEventListener("click", function(event) { tabChanged('mylevels'); }, false);
+			if("user_level_count" in userInfo && userInfo.user_level_count > 0)
+			{
+				let myLevelsButton = document.createElement("button");
+				tabBar.appendChild(myLevelsButton);
+				myLevelsButton.innerHTML = "My Levels";
+				myLevelsButton.className = "tablinks";
+				myLevelsButton.id = "tab_mylevels"
+				myLevelsButton.addEventListener("click", function(event) { tabChanged('mylevels'); }, false);
+			}
 
 			let favoritesButton = document.createElement("button");
 			tabBar.appendChild(favoritesButton);
@@ -453,7 +458,7 @@ function init()
 			loginoutButton.innerHTML = "Logout";
 			loginoutButton.addEventListener("click", logout);
 
-			if(isAdmin)
+			if("is_admin" in userInfo && userInfo.is_admin === true)
 			{
 				let hiddenButton = document.createElement("button");
 				tabBar.appendChild(hiddenButton);
@@ -598,9 +603,7 @@ function logout()
 {
 	//Set cookies to be expired
 	document.cookie = 'access_token=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-	document.cookie = 'user_id=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-	document.cookie = 'is_admin=false; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-	document.cookie = 'is_moderator=false; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+	document.cookie = 'user_info=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 
 	window.location.href = window.location.href;
 }
