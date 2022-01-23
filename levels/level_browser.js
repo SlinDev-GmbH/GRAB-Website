@@ -66,10 +66,11 @@ async function loadMoreLevels()
 	}
 
 	let requestURL = "";
-	if(currentTab !== "favorites" || currentSearchTerm.length > 0)
+	if((currentTab !== "favorites" && currentTab !== "reports") || currentSearchTerm.length > 0)
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=3';
 		if(currentTab === "verified" && currentSearchTerm.length == 0) requestURL += '&type=ok';
+		if(currentTab === "hidden" && currentSearchTerm.length == 0) requestURL += '&type=hidden&access_token=' + accessToken;
 		if(currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + currentSearchTerm;
 
 		if(nextPageTimestamp != -1) requestURL += '&page_timestamp=' + nextPageTimestamp;
@@ -91,8 +92,11 @@ async function loadMoreLevels()
 	}
 	else if(currentTab === "favorites" && accessToken && accessToken.length > 0)
 	{
-		userID = accessToken.split(":")[0];
 		requestURL = SERVER_URL + 'get_favorite_levels?access_token=' + accessToken;
+	}
+	else if(currentTab === "reports" && accessToken && accessToken.length > 0)
+	{
+		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken;
 	}
 	else
 	{
@@ -178,8 +182,6 @@ async function loadMoreLevels()
 
 		if(accessToken)
 		{
-			userID = accessToken.split(":")[0];
-
 			let linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
@@ -272,25 +274,49 @@ async function loadMoreLevels()
 			linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
-			let hideButton = document.createElement("button");
-			cell.appendChild(hideButton);
-			hideButton.innerHTML = "<b>HIDE</b>";
-			//hideButton.className = "cell-button-hide";
-			hideButton.onclick = function () {
-				if(confirm("Do you really want to hide this level?"))
-				{
-				  	(async () => {
-						let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
-						let responseBody = await response.text();
-						console.log(responseBody);
-						confirm("Result: " + responseBody);
-						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-						{
-							logout();
-						}
-					})();
-				}
-			};
+			if(("hidden" in levelInfo && levelInfo.hidden) || currentTab === "hidden")
+			{
+				let showButton = document.createElement("button");
+				cell.appendChild(showButton);
+				showButton.innerHTML = "<b>SHOW</b>";
+				showButton.onclick = function () {
+					if(confirm("Do you really want to show this level?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'show/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
+							let responseBody = await response.text();
+							console.log(responseBody);
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+						})();
+					}
+				};
+			}
+			else
+			{
+				let hideButton = document.createElement("button");
+				cell.appendChild(hideButton);
+				hideButton.innerHTML = "<b>HIDE</b>";
+				//hideButton.className = "cell-button-hide";
+				hideButton.onclick = function () {
+					if(confirm("Do you really want to hide this level?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
+							let responseBody = await response.text();
+							console.log(responseBody);
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+						})();
+					}
+				};
+			}
 		}
 
 		if(isAdmin === "true")
@@ -426,6 +452,23 @@ function init()
 			loginoutButton.className = "logout-button";
 			loginoutButton.innerHTML = "Logout";
 			loginoutButton.addEventListener("click", logout);
+
+			if(isAdmin)
+			{
+				let hiddenButton = document.createElement("button");
+				tabBar.appendChild(hiddenButton);
+				hiddenButton.innerHTML = "Hidden Levels";
+				hiddenButton.className = "tablinks";
+				hiddenButton.id = "tab_hidden"
+				hiddenButton.addEventListener("click", function(event) { tabChanged('hidden'); }, false);
+
+				let reportsButton = document.createElement("button");
+				tabBar.appendChild(reportsButton);
+				reportsButton.innerHTML = "Reported Levels";
+				reportsButton.className = "tablinks";
+				reportsButton.id = "tab_reports"
+				reportsButton.addEventListener("click", function(event) { tabChanged('reports'); }, false);
+			}
 		}
 
 		if(currentTabName && currentTabName.length > 0) tabChanged(currentTabName);
@@ -450,10 +493,13 @@ window.onscroll = scroller;
 
 function tabChanged(tab)
 {
-	//Fallback to newest list if the requested tab doesn't exist
-	let activeTabButton = document.getElementById("tab_" + tab)
-	console.log(activeTabButton)
-	if(!activeTabButton) tab = "newest";
+	//user isn't a real tab, but still a valid value that is always available, so don't make it switch to newest in that case
+	if(tab !== "user")
+	{
+		//Fallback to newest list if the requested tab doesn't exist
+		let activeTabButton = document.getElementById("tab_" + tab)
+		if(!activeTabButton) tab = "newest";
+	}
 
 	let titleString = "Levels"
 	if(tab === "newest")
@@ -471,6 +517,14 @@ function tabChanged(tab)
 	if(tab === "favorites")
 	{
 		titleString = "My Favorites";
+	}
+	if(tab === "hidden")
+	{
+		titleString = "Hidden Levels";
+	}
+	if(tab === "reports")
+	{
+		titleString = "Reported Levels";
 	}
 	if(tab === "user")
 	{
