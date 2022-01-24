@@ -418,11 +418,7 @@ function init()
 		let accessToken = getCookie("access_token");
 		let userInfoString = getCookie("user_info")
 		let userInfo = undefined
-		if(userInfoString && userInfoString.length > 0)
-			{
-				userInfo = JSON.parse(userInfoString);
-				console.log(userInfo)
-			}
+		if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
 
 		if(accessToken && userInfo)
 		{
