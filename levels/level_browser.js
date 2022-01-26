@@ -130,6 +130,12 @@ async function loadMoreLevels()
 			levelInfo = listElement.object_info
 		}
 
+		if(!("page_timestamp" in levelInfo))
+		{
+			//User lists currently don't have a page_timestamp, so just use the creation timestamp instead
+			levelInfo["page_timestamp"] = levelInfo.creation_timestamp
+		}
+
 		let levelIdentifierParts = levelInfo.data_key.split(":");
 		levelIdentifierParts = levelIdentifierParts.slice(1);
 
