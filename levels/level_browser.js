@@ -1,5 +1,6 @@
-//const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/";
-const SERVER_URL = "https://api.slin.dev/grab/v1/";
+//const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/"
+const SERVER_URL = "https://api.slin.dev/grab/v1/"
+const MAX_FORMAT_VERSION = 3
 var isLoading = false;
 var isAtTop = true;
 var nextPageTimestamp = -1;
@@ -68,7 +69,7 @@ async function loadMoreLevels()
 	let requestURL = "";
 	if((currentTab !== "favorites" && currentTab !== "reports") || currentSearchTerm.length > 0)
 	{
-		requestURL = SERVER_URL + 'list?max_format_version=3';
+		requestURL = SERVER_URL + 'list?max_format_version=' + MAX_FORMAT_VERSION;
 		if(currentTab === "verified" && currentSearchTerm.length == 0) requestURL += '&type=ok';
 		if(currentTab === "hidden" && currentSearchTerm.length == 0) requestURL += '&type=hidden&access_token=' + accessToken;
 		if(currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + currentSearchTerm;
@@ -96,7 +97,7 @@ async function loadMoreLevels()
 	}
 	else if(currentTab === "reports" && accessToken && accessToken.length > 0)
 	{
-		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken;
+		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&max_format_version=' + MAX_FORMAT_VERSION;
 	}
 	else
 	{
@@ -121,8 +122,14 @@ async function loadMoreLevels()
 
 	numberOfLevels += responseBody.length;
 
-	for(let levelInfo of responseBody)
+	for(let listElement of responseBody)
 	{
+		let levelInfo = listElement
+		if(currentTab === "reports")
+		{
+			levelInfo = listElement.object_info
+		}
+
 		let levelIdentifierParts = levelInfo.data_key.split(":");
 		levelIdentifierParts = levelIdentifierParts.slice(1);
 
@@ -155,7 +162,7 @@ async function loadMoreLevels()
 		}
 		cell.innerHTML += '</div>';
 
-		if(!levelsUserID || levelsUserID.length == 0)
+		if((!levelsUserID || levelsUserID.length == 0) && currentTab !== "mylevels")
 		{
 			let moreLevelsButton = document.createElement("a");
 			moreLevelsButton.className = "cell-button-more-levels";
@@ -184,9 +191,61 @@ async function loadMoreLevels()
 
 		if(accessToken && userInfo)
 		{
+			if(currentTab !== "reports")
+			{
+				//Report button
+				let reportButton = document.createElement("button");
+				cell.appendChild(reportButton);
+				reportButton.className = "cell-button-report";
+				reportButton.onclick = function () {
+					let dialog = document.getElementById('popup')
+					let reasonSelector = document.getElementById('report-reason-level')
+					let closeButton = document.getElementById('popup-button-cancel')
+					let okButton = document.getElementById('popup-button-ok')
+							
+					if(!dialog.hasAttribute('open'))
+					{
+						// show the dialog 
+						dialog.setAttribute('open','open');
+
+						closeButton.onclick = function(event) { dialog.removeAttribute('open'); reasonSelector.selectedIndex = 0; }
+						okButton.onclick = function(event) {
+								if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
+
+								dialog.removeAttribute('open');
+								let value = reasonSelector.value
+								reasonSelector.selectedIndex = 0;
+								(async () => {
+									console.log(SERVER_URL + 'report/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + ": " + value)
+									let response = await fetch(SERVER_URL + 'report/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + '?access_token=' + accessToken + '&reason=' + value);
+									let responseBody = await response.text();
+									console.log(responseBody);
+									confirm(response.status == 200? "Success" : "Error: Need to login again?");
+									if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+									{
+										logout();
+									}
+								})()
+							}
+					}
+				};
+			}
+			else
+			{
+				console.log(listElement)
+				//Only admins get any levels at the reports tab, so anything happening in this if is admins only
+				//levelInfo = listElement.object_info
+				if("handled" in listElement && listElement.handled === true)
+				{
+					cell.setAttribute('handled','handled')
+					console.log("good!?")
+				}
+			}
+
 			let linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
+			//Setup a button favorite the level (or remove from favorites if on favorites page)
 			let favoriteButton = document.createElement("button");
 			cell.appendChild(favoriteButton);
 			if(currentTab !== "favorites") favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
@@ -316,6 +375,32 @@ async function loadMoreLevels()
 							})();
 						}
 					};
+
+					//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
+					if(currentTab === "reports")
+					{
+						//levelInfo = listElement.object_info
+
+						let approveButton = document.createElement("button");
+						cell.appendChild(approveButton);
+						approveButton.innerHTML = "<b>APPROVE</b>";
+						//hideButton.className = "cell-button-hide";
+						approveButton.onclick = function () {
+							if(confirm("Do you really want to approve this level and ignore future reports for this iteration?"))
+							{
+							  	(async () => {
+									let response = await fetch(SERVER_URL + 'ignore_reports/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + '?access_token=' + accessToken);
+									let responseBody = await response.text();
+									console.log(responseBody);
+									confirm("Result: " + responseBody);
+									if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+									{
+										logout();
+									}
+								})();
+							}
+						};
+					}
 				}
 			}
 
@@ -351,7 +436,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab === "favorites")
+	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "reports") //TODO: Support pagination for reported levels on the server side and here
 	{
 		noMoreLevels = true;
 

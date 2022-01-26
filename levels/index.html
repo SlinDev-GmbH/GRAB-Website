@@ -176,6 +176,11 @@
 				text-overflow: ellipsis;
 			}
 
+			.list-cell-admin[handled="handled"]
+			{
+				background-color:green;
+			}
+
 			.cell-title {
 				width: 50%;
 				font-size: 20px;
@@ -213,6 +218,19 @@
 				text-decoration: none;
 			}
 
+			.cell-button-report {
+				position: absolute;
+				left: 5%;
+				bottom: 5%;
+				width: 30px;
+				height: 30px;
+				border: none;
+				background-color: transparent;
+				background-image: url(../images/report.png);
+				background-repeat: no-repeat;
+  				background-size: cover;
+			}
+
 			.cell-stamp-ok {
 				position: absolute;
 				right: 1%;
@@ -227,9 +245,54 @@
 				-webkit-box-orient: vertical;     
 				overflow: hidden;
 			}
+
+			.popup
+			{
+				position: fixed;
+				display: none;
+				left: 40%;
+				width: 20%;
+				top: 30%;
+				height: 20%;
+				z-index:1002;
+				color: #000000;
+			}
+
+			.popup-inner
+			{
+				background-color: white;
+				border-radius: 10px;
+				border: 3px solid grey;
+				padding: 10px;
+			}
+
+			.popup[open="open"]
+			{
+				display: block;
+			}
 		</style>
 	</head>
 	<body>
+		<div class="popup" id="popup">
+			<div class="popup-inner">
+				<div class="cell-title">Report Level</div><br>
+				<div class="cell-description">Why should this level be removed?</div><br>
+				<form>
+					<select id="report-reason-level" style="width: 70%">
+						<option>- Select -</option>
+						<option value="sexual">Sexual Content / Genitals</option>
+						<option value="violence">Detailed Violence</option>
+						<option value="hatespeech">Hatespeech / Threats / Encouragement of self-harm</option>
+						<option value="loweffort">Very low effort level</option>
+						<option value="other">Other</option>
+					</select>
+				</form>
+				<br>
+				<button id="popup-button-cancel">Cancel</button>
+				<button id="popup-button-ok">OK</button>
+			</div>
+		</div>
+
 		<button class="login-button" id="loginout-button" type="button" onclick="login();">Login</button>
 		<img src="../images/logo.png" alt="GRAB Logo" class="title-image">
 		<br>
