@@ -601,6 +601,13 @@ function init()
 				reportUsersButton.className = "tablinks";
 				reportUsersButton.id = "tab_report_users"
 				reportUsersButton.addEventListener("click", function(event) { tabChanged('report_users'); }, false);
+
+				let bannedUsersButton = document.createElement("button");
+				tabBar.appendChild(bannedUsersButton);
+				bannedUsersButton.innerHTML = "Banned Users";
+				bannedUsersButton.className = "tablinks";
+				bannedUsersButton.id = "tab_banned_users"
+				bannedUsersButton.addEventListener("click", function(event) { tabChanged('banned_users'); }, false);
 			}
 		}
 
@@ -662,6 +669,10 @@ function tabChanged(tab)
 	if(tab === "report_users")
 	{
 		titleString = "Reported Users";
+	}
+	if(tab === "banned_users")
+	{
+		titleString = "Banned Users";
 	}
 	if(tab === "user")
 	{
