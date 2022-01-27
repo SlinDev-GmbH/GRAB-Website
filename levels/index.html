@@ -111,11 +111,12 @@
 
 			.tab input[type=text] {
 				float: right;
+				width: 10%;
 				padding: 6px;
 				border: none;
 				margin-top: 8px;
-				margin-right: 16px;
-				font-size: 17px;
+				margin-right: 8px;
+				font-size: 14px;
 			}
 
 			.title-text {
@@ -176,7 +177,25 @@
 				text-overflow: ellipsis;
 			}
 
-			.list-cell-admin[handled="handled"]
+			.list-cell-admin[bad="bad"]
+			{
+				background-color:red;
+			}
+
+			.list-cell-admin-reports {
+				height: 400px;
+				background-color:#FFFFFF;
+				color:#000000;
+				border: none;
+				padding: 3%;
+				box-sizing: border-box;
+				position: relative;
+
+				overflow: hidden; 
+				text-overflow: ellipsis;
+			}
+
+			.list-cell-admin-reports[handled="handled"]
 			{
 				background-color:green;
 			}
@@ -282,7 +301,7 @@
 						<option>- Select -</option>
 						<option value="sexual">Sexual Content / Genitals</option>
 						<option value="violence">Detailed Violence</option>
-						<option value="hatespeech">Hatespeech / Threats / Encouragement of self-harm</option>
+						<option value="hatespeech">Offensive Language</option>
 						<option value="loweffort">Very low effort level</option>
 						<option value="other">Other</option>
 					</select>

@@ -67,7 +67,7 @@ async function loadMoreLevels()
 	}
 
 	let requestURL = "";
-	if((currentTab !== "favorites" && currentTab !== "reports") || currentSearchTerm.length > 0)
+	if((currentTab !== "favorites" && currentTab !== "report_levels" && currentTab !== "report_users") || currentSearchTerm.length > 0)
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=' + MAX_FORMAT_VERSION;
 		if(currentTab === "verified" && currentSearchTerm.length == 0) requestURL += '&type=ok';
@@ -95,9 +95,13 @@ async function loadMoreLevels()
 	{
 		requestURL = SERVER_URL + 'get_favorite_levels?access_token=' + accessToken;
 	}
-	else if(currentTab === "reports" && accessToken && accessToken.length > 0)
+	else if(currentTab === "report_levels" && accessToken && accessToken.length > 0)
 	{
-		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&max_format_version=' + MAX_FORMAT_VERSION;
+		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&type=level&max_format_version=' + MAX_FORMAT_VERSION;
+	}
+	else if(currentTab === "report_users" && accessToken && accessToken.length > 0)
+	{
+		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&&type=user&max_format_version=' + MAX_FORMAT_VERSION;
 	}
 	else
 	{
@@ -125,7 +129,7 @@ async function loadMoreLevels()
 	for(let listElement of responseBody)
 	{
 		let levelInfo = listElement
-		if(currentTab === "reports")
+		if(currentTab === "report_levels")
 		{
 			levelInfo = listElement.object_info
 		}
@@ -145,7 +149,14 @@ async function loadMoreLevels()
 		container.appendChild(cell);
 		if(userInfo && (("is_admin" in userInfo && userInfo.is_admin === true) || ("is_moderator" in userInfo && userInfo.is_moderator === true)))
 		{
-			cell.className = 'list-cell-admin';
+			if(currentTab === "report_levels")
+			{
+				cell.className = 'list-cell-admin-reports';
+			}
+			else
+			{
+				cell.className = 'list-cell-admin';
+			}
 		}
 		else
 		{
@@ -197,7 +208,7 @@ async function loadMoreLevels()
 
 		if(accessToken && userInfo)
 		{
-			if(currentTab !== "reports")
+			if(currentTab !== "report_levels")
 			{
 				//Report button
 				let reportButton = document.createElement("button");
@@ -238,14 +249,25 @@ async function loadMoreLevels()
 			}
 			else
 			{
-				console.log(listElement)
-				//Only admins get any levels at the reports tab, so anything happening in this if is admins only
-				//levelInfo = listElement.object_info
+				//Only admins get any levels at the report_levels tab, so anything happening in this if is admins only
+
 				if("handled" in listElement && listElement.handled === true)
 				{
-					cell.setAttribute('handled','handled')
-					console.log("good!?")
+					cell.setAttribute('handled','handled') //reports that have already been handled are marked green and are ready to be removed completely.
 				}
+
+				let linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				//Show some stats about the reports
+				let reportsInfoText = document.createElement("div");
+				reportsInfoText.innerHTML = ""
+				for(var key in listElement)
+				{
+					if(key.startsWith("reported_")) reportsInfoText.innerHTML += key + ": " + listElement[key] + "<br>"
+				}
+
+				cell.appendChild(reportsInfoText);
 			}
 
 			let linebreak = document.createElement("br");
@@ -287,57 +309,61 @@ async function loadMoreLevels()
 			{
 				let linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
-				linebreak = document.createElement("br");
-				cell.appendChild(linebreak);
 
-				let tagsForm = document.createElement("form");
-				cell.appendChild(tagsForm);
-				tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
-				let tagsParentObject = tagsForm.childNodes[0];
-				let tagOptions = []
-				for(const option of tagsParentObject.childNodes)
+				if(currentTab !== "report_levels" && !("hidden" in levelInfo && levelInfo.hidden) && currentTab !== "hidden")
 				{
-					if(option.type === "checkbox")
+					linebreak = document.createElement("br");
+					cell.appendChild(linebreak);
+
+					let tagsForm = document.createElement("form");
+					cell.appendChild(tagsForm);
+					tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
+					let tagsParentObject = tagsForm.childNodes[0];
+					let tagOptions = []
+					for(const option of tagsParentObject.childNodes)
 					{
-						tagOptions.push(option);
-						if("tags" in levelInfo && levelInfo.tags.length > 0)
+						if(option.type === "checkbox")
 						{
-							for(const tag of levelInfo.tags)
+							tagOptions.push(option);
+							if("tags" in levelInfo && levelInfo.tags.length > 0)
 							{
-								if(tag === option.value)
+								for(const tag of levelInfo.tags)
 								{
-									option.checked = true;
+									if(tag === option.value)
+									{
+										option.checked = true;
+									}
 								}
 							}
 						}
 					}
+
+					tagsForm.onsubmit = function(event) {
+						let tags = "";
+						for(const option of tagOptions)
+						{
+							if(option.checked)
+							{
+								tags += option.value + ",";
+							}
+						}
+
+						(async () => {
+							let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
+							let responseBody = await response.text();
+							console.log(responseBody);
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+						})();
+						return false;
+					};
+
+					linebreak = document.createElement("br");
+					cell.appendChild(linebreak);
 				}
-
-				tagsForm.onsubmit = function(event) {
-					let tags = "";
-					for(const option of tagOptions)
-					{
-						if(option.checked)
-						{
-							tags += option.value + ",";
-						}
-					}
-
-					(async () => {
-						let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
-						let responseBody = await response.text();
-						console.log(responseBody);
-						confirm("Result: " + responseBody);
-						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-						{
-							logout();
-						}
-					})();
-					return false;
-				};
-
-				linebreak = document.createElement("br");
-				cell.appendChild(linebreak);
 
 				if(("hidden" in levelInfo && levelInfo.hidden) || currentTab === "hidden")
 				{
@@ -359,6 +385,11 @@ async function loadMoreLevels()
 							})();
 						}
 					};
+
+					if(currentTab !== "hidden")
+					{
+						cell.setAttribute('bad','bad')
+					}
 				}
 				else
 				{
@@ -370,7 +401,9 @@ async function loadMoreLevels()
 						if(confirm("Do you really want to hide this level?"))
 						{
 						  	(async () => {
-								let response = await fetch(SERVER_URL + 'hide/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?access_token=' + accessToken);
+						  		let identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+						  		if(currentTab === "report_levels") identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for!
+								let response = await fetch(SERVER_URL + 'hide/' + identifierPath + '?access_token=' + accessToken);
 								let responseBody = await response.text();
 								console.log(responseBody);
 								confirm("Result: " + responseBody);
@@ -383,7 +416,7 @@ async function loadMoreLevels()
 					};
 
 					//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
-					if(currentTab === "reports")
+					if(currentTab === "report_levels")
 					{
 						//levelInfo = listElement.object_info
 
@@ -410,7 +443,7 @@ async function loadMoreLevels()
 				}
 			}
 
-			if("is_admin" in userInfo && userInfo.is_admin === true)
+			if("is_admin" in userInfo && userInfo.is_admin === true && !levelInfo["hidden"] && currentTab !== "hidden" && currentTab !== "report_levels")
 			{
 				linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
@@ -418,7 +451,6 @@ async function loadMoreLevels()
 				let creatorButton = document.createElement("button");
 				cell.appendChild(creatorButton);
 				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
-				//hideButton.className = "cell-button-hide";
 				creatorButton.onclick = function () {
 				  	(async () => {
 						let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
@@ -442,7 +474,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "reports") //TODO: Support pagination for reported levels on the server side and here
+	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "report_levels" || currentTab === "report_users") //TODO: Support pagination for report listings on the server side and here
 	{
 		noMoreLevels = true;
 
@@ -556,12 +588,19 @@ function init()
 				hiddenButton.id = "tab_hidden"
 				hiddenButton.addEventListener("click", function(event) { tabChanged('hidden'); }, false);
 
-				let reportsButton = document.createElement("button");
-				tabBar.appendChild(reportsButton);
-				reportsButton.innerHTML = "Reported Levels";
-				reportsButton.className = "tablinks";
-				reportsButton.id = "tab_reports"
-				reportsButton.addEventListener("click", function(event) { tabChanged('reports'); }, false);
+				let reportLevelsButton = document.createElement("button");
+				tabBar.appendChild(reportLevelsButton);
+				reportLevelsButton.innerHTML = "Reported Levels";
+				reportLevelsButton.className = "tablinks";
+				reportLevelsButton.id = "tab_report_levels"
+				reportLevelsButton.addEventListener("click", function(event) { tabChanged('report_levels'); }, false);
+
+				let reportUsersButton = document.createElement("button");
+				tabBar.appendChild(reportUsersButton);
+				reportUsersButton.innerHTML = "Reported Users";
+				reportUsersButton.className = "tablinks";
+				reportUsersButton.id = "tab_report_users"
+				reportUsersButton.addEventListener("click", function(event) { tabChanged('report_users'); }, false);
 			}
 		}
 
@@ -616,9 +655,13 @@ function tabChanged(tab)
 	{
 		titleString = "Hidden Levels";
 	}
-	if(tab === "reports")
+	if(tab === "report_levels")
 	{
 		titleString = "Reported Levels";
+	}
+	if(tab === "report_users")
+	{
+		titleString = "Reported Users";
 	}
 	if(tab === "user")
 	{
