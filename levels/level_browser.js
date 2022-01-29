@@ -1,5 +1,3 @@
-//const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/"
-//const SERVER_URL = "https://api.slin.dev/grab/v1/"
 const MAX_FORMAT_VERSION = 3
 var isLoading = false;
 var isAtTop = true;
@@ -792,7 +790,7 @@ function search(event)
 
 function login()
 {
-	window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=https://grabvr.quest/levels&organization_id=1298096256894263'
+	window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=' + PAGE_URL '/levels&organization_id=1298096256894263'
 }
 
 function logout()
