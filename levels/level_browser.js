@@ -1,5 +1,5 @@
 //const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/"
-const SERVER_URL = process.env.SERVER_URL//"https://api.slin.dev/grab/v1/"
+//const SERVER_URL = "https://api.slin.dev/grab/v1/"
 const MAX_FORMAT_VERSION = 3
 var isLoading = false;
 var isAtTop = true;

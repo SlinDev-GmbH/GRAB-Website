@@ -2,9 +2,6 @@ import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
-//const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/";
-const SERVER_URL = "https://api.slin.dev/grab/v1/";
-
 let levelCreationTime = -1;
 
 let clock, camera, scene, renderer, controls;
