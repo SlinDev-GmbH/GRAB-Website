@@ -790,7 +790,7 @@ function search(event)
 
 function login()
 {
-	window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=' + PAGE_URL '/levels&organization_id=1298096256894263'
+	window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=' + PAGE_URL + '/levels&organization_id=1298096256894263'
 }
 
 function logout()
