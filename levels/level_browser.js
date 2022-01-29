@@ -1,5 +1,5 @@
 //const SERVER_URL = "https://grab-api-dev.slindev.workers.dev/grab/v1/"
-const SERVER_URL = "https://api.slin.dev/grab/v1/"
+const SERVER_URL = process.env.SERVER_URL//"https://api.slin.dev/grab/v1/"
 const MAX_FORMAT_VERSION = 3
 var isLoading = false;
 var isAtTop = true;
@@ -128,23 +128,6 @@ async function loadMoreLevels()
 
 	for(let listElement of responseBody)
 	{
-		let levelInfo = listElement
-		if(currentTab === "report_levels")
-		{
-			levelInfo = listElement.object_info
-		}
-
-		if(!("page_timestamp" in levelInfo))
-		{
-			//User lists currently don't have a page_timestamp, so just use the creation timestamp instead
-			levelInfo["page_timestamp"] = levelInfo.creation_timestamp
-		}
-
-		let levelIdentifierParts = levelInfo.data_key.split(":");
-		levelIdentifierParts = levelIdentifierParts.slice(1);
-
-		nextPageTimestamp = levelInfo.page_timestamp;
-
 		let cell = document.createElement("div");
 		container.appendChild(cell);
 		if(userInfo && (("is_admin" in userInfo && userInfo.is_admin === true) || ("is_moderator" in userInfo && userInfo.is_moderator === true)))
@@ -162,6 +145,78 @@ async function loadMoreLevels()
 		{
 			cell.className = 'list-cell';
 		}
+
+		//This is a cell with user info! add user specific content and then skip everything after this if
+		if(currentTab === "report_users" || currentTab === "banned_users")
+		{
+			console.log(listElement)
+			let userInfo = listElement
+			if(currentTab === "report_users")
+			{
+				userInfo = listElement.object_info
+			}
+
+			let moreLevelsButton = document.createElement("a");
+			moreLevelsButton.className = "cell-button-more-levels";
+			moreLevelsButton.innerHTML = "Levels";
+			let newURL = new URL(window.location);
+			newURL.searchParams.set("user_id", userInfo.user_id);
+			moreLevelsButton.href = newURL.href;
+			cell.appendChild(moreLevelsButton);
+
+			if("user_name" in userInfo)
+			{
+				let userNameElement = document.createElement("b");
+				userNameElement.className = "cell-title"
+				userNameElement.innerHTML = userInfo.user_name
+				cell.appendChild(userNameElement);
+			}
+
+			//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
+			if(currentTab === "report_users")
+			{
+				if("handled" in listElement && listElement.handled === true)
+				{
+					cell.setAttribute('handled','handled') //reports that have already been handled are marked green and are ready to be removed completely.
+				}
+
+				let linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				//Show some stats about the reports
+				let reportsInfoText = document.createElement("div");
+				reportsInfoText.innerHTML = ""
+				for(var key in listElement)
+				{
+					if(key.startsWith("reported_")) reportsInfoText.innerHTML += key + ": " + listElement[key] + "<br>"
+				}
+
+				cell.appendChild(reportsInfoText);
+			}
+
+			continue
+		}
+
+		let levelInfo = listElement
+		if(currentTab === "report_levels")
+		{
+			levelInfo = listElement.object_info
+		}
+
+		if(!("page_timestamp" in levelInfo))
+		{
+			//User lists currently don't have a page_timestamp, so just use the creation timestamp instead
+			levelInfo["page_timestamp"] = levelInfo.creation_timestamp
+		}
+
+		let levelIdentifierParts = levelInfo.data_key.split(":");
+		levelIdentifierParts = levelIdentifierParts.slice(1);
+
+		nextPageTimestamp = levelInfo.page_timestamp;
+
 		let creators = "";
 		if(levelInfo.creators && levelInfo.creators.length > 0)
 		{
@@ -365,7 +420,7 @@ async function loadMoreLevels()
 					cell.appendChild(linebreak);
 				}
 
-				if(("hidden" in levelInfo && levelInfo.hidden) || currentTab === "hidden")
+				if(("hidden" in levelInfo && levelInfo.hidden) || (currentTab === "hidden" && (!currentSearchTerm || currentSearchTerm.length === 0)))
 				{
 					let showButton = document.createElement("button");
 					cell.appendChild(showButton);
@@ -418,8 +473,6 @@ async function loadMoreLevels()
 					//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
 					if(currentTab === "report_levels")
 					{
-						//levelInfo = listElement.object_info
-
 						let approveButton = document.createElement("button");
 						cell.appendChild(approveButton);
 						approveButton.innerHTML = "<b>APPROVE</b>";
@@ -474,7 +527,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "report_levels" || currentTab === "report_users") //TODO: Support pagination for report listings on the server side and here
+	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "report_levels" || currentTab === "report_users" || currentTab === "banned_users") //TODO: Support pagination for report listings on the server side and here
 	{
 		noMoreLevels = true;
 
