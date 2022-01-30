@@ -65,7 +65,7 @@ async function loadMoreLevels()
 	}
 
 	let requestURL = "";
-	if((currentTab !== "favorites" && currentTab !== "report_levels" && currentTab !== "report_users") || currentSearchTerm.length > 0)
+	if((currentTab !== "favorites" && currentTab !== "report_levels" && currentTab !== "report_users" && currentTab !== "banned_users") || currentSearchTerm.length > 0)
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=' + MAX_FORMAT_VERSION;
 		if(currentTab === "verified" && currentSearchTerm.length == 0) requestURL += '&type=ok';
@@ -100,6 +100,10 @@ async function loadMoreLevels()
 	else if(currentTab === "report_users" && accessToken && accessToken.length > 0)
 	{
 		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&&type=user&max_format_version=' + MAX_FORMAT_VERSION;
+	}
+	else if(currentTab === "banned_users" && accessToken && accessToken.length > 0)
+	{
+		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&&type=banned_user&max_format_version=' + MAX_FORMAT_VERSION;
 	}
 	else
 	{
@@ -193,6 +197,46 @@ async function loadMoreLevels()
 				}
 
 				cell.appendChild(reportsInfoText);
+
+				let moderateButton = document.createElement("button");
+				cell.appendChild(moderateButton);
+				moderateButton.innerHTML = "<b>PUNISH</b>";
+				moderateButton.onclick = function () {
+					if(confirm("Do you really want to punish this user?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=user_hatespeech&duration=60&type=warning');
+							let responseBody = await response.text();
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+							else if(responseBody === "Success")
+							{
+								//await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+							}
+						})();
+					}
+				};
+
+				let resetButton = document.createElement("button");
+				cell.appendChild(resetButton);
+				resetButton.innerHTML = "<b>RESET</b>";
+				resetButton.onclick = function () {
+					if(confirm("Do you really want to reset this users reports?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken);
+							let responseBody = await response.text();
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+						})();
+					}
+				};
 			}
 
 			continue
@@ -261,7 +305,7 @@ async function loadMoreLevels()
 
 		if(accessToken && userInfo)
 		{
-			if(currentTab !== "report_levels")
+			if(currentTab !== "report_levels" || currentSearchTerm.length > 0)
 			{
 				//Report button
 				let reportButton = document.createElement("button");
@@ -363,7 +407,7 @@ async function loadMoreLevels()
 				let linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
 
-				if(currentTab !== "report_levels" && !("hidden" in levelInfo && levelInfo.hidden) && currentTab !== "hidden")
+				if((currentTab !== "report_levels" && !("hidden" in levelInfo && levelInfo.hidden) && currentTab !== "hidden") || currentSearchTerm.length > 0)
 				{
 					linebreak = document.createElement("br");
 					cell.appendChild(linebreak);
@@ -494,7 +538,7 @@ async function loadMoreLevels()
 				}
 			}
 
-			if("is_admin" in userInfo && userInfo.is_admin === true && !levelInfo["hidden"] && currentTab !== "hidden" && currentTab !== "report_levels")
+			if(("is_admin" in userInfo && userInfo.is_admin === true && !levelInfo["hidden"] && currentTab !== "hidden" && currentTab !== "report_levels") || currentSearchTerm.length > 0)
 			{
 				linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
@@ -534,7 +578,7 @@ async function loadMoreLevels()
 
 		let button = document.createElement("p");
 		containerWrapper.appendChild(button);
-		button.innerHTML = "Total number of levels: " + numberOfLevels;
+		button.innerHTML = "Count: " + numberOfLevels;
 		button.className = "level-counter";
 	}
 
