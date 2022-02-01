@@ -1,4 +1,5 @@
 const MAX_FORMAT_VERSION = 3
+const MODERATION_ACTION_EXTRA = "&duration=300"
 var isLoading = false;
 var isAtTop = true;
 var nextPageTimestamp = -1;
@@ -174,19 +175,69 @@ async function loadMoreLevels()
 				cell.appendChild(userNameElement);
 			}
 
-			//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
+			if("user_id" in userInfo)
+			{
+				let userNameElement = document.createElement("b");
+				userNameElement.className = "cell-description"
+				userNameElement.innerHTML = "<i>User ID: " + userInfo.user_id + "</i>"
+				cell.appendChild(userNameElement);
+			}
+
+			if("user_level_count" in userInfo)
+			{
+				let levelCountElement = document.createElement("b");
+				levelCountElement.className = "cell-description"
+				levelCountElement.innerHTML = "User Level Count: " + userInfo.user_level_count
+				cell.appendChild(levelCountElement);
+			}
+
+			if("moderation_strike_count" in userInfo)
+			{
+				let strikeCountElement = document.createElement("b");
+				strikeCountElement.className = "cell-description"
+				strikeCountElement.innerHTML = "Current Strike Count: " + userInfo.moderation_strike_count
+				cell.appendChild(strikeCountElement);
+			}
+
+			if("user_id" in userInfo || "user_name" in userInfo || "user_level_count" in userInfo)
+			{
+				let linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+			}
+
+			if("moderation_info" in userInfo)
+			{
+				//Show current (or previous) moderation info if it exists
+				let moderationInfoText = document.createElement("div");
+				moderationInfoText.innerHTML = "<b>Moderation Info:</b><br>"
+				for(var key in userInfo.moderation_info)
+				{
+					if(key.startsWith("date_"))
+					{
+						let date = new Date(userInfo.moderation_info[key])
+						moderationInfoText.innerHTML += key + ": " + date.toString() + "<br>"
+					}
+					else
+					{
+						moderationInfoText.innerHTML += key + ": " + userInfo.moderation_info[key] + "<br>"
+					}
+				}
+
+				cell.appendChild(moderationInfoText);
+
+				console.log(moderationInfoText)
+
+				let linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+			}
+
+			//This one only works for admins, but only admins can see the reports anyway, so doing it here is fine
 			if(currentTab === "report_users")
 			{
 				if("handled" in listElement && listElement.handled === true)
 				{
 					cell.setAttribute('handled','handled') //reports that have already been handled are marked green and are ready to be removed completely.
 				}
-
-				let linebreak = document.createElement("br");
-				cell.appendChild(linebreak);
-
-				linebreak = document.createElement("br");
-				cell.appendChild(linebreak);
 
 				//Show some stats about the reports
 				let reportsInfoText = document.createElement("div");
@@ -198,14 +249,25 @@ async function loadMoreLevels()
 
 				cell.appendChild(reportsInfoText);
 
-				let moderateButton = document.createElement("button");
-				cell.appendChild(moderateButton);
-				moderateButton.innerHTML = "<b>PUNISH</b>";
-				moderateButton.onclick = function () {
-					if(confirm("Do you really want to punish this user?"))
-					{
-					  	(async () => {
-							let response = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=user_hatespeech&duration=60&type=warning');
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				let banNowButton = document.createElement("button");
+				cell.appendChild(banNowButton);
+				banNowButton.innerHTML = "<b>BAN 7 DAYS</b>";
+				banNowButton.onclick = function () {
+
+					let reasonMapping = {
+						hatespeech: "Offensive Language",
+						griefing: "Griefing / Actively being annoying / Destroying someone elses level",
+						noise: "Loud music / Screeching / other weird noises",
+						imposter: "Pretending to be someone else",
+						other: "Other"
+					}
+
+					let onOk = function(value) {
+						(async () => {
+							let response = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&type=ban&duration=604800&reason=user_' + value);
 							let responseBody = await response.text();
 							confirm("Result: " + responseBody);
 							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
@@ -214,10 +276,47 @@ async function loadMoreLevels()
 							}
 							else if(responseBody === "Success")
 							{
-								//await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+								await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
 							}
-						})();
+						})()
 					}
+
+					showOptionsDialog("Ban User", "Why do you want to ban this user for 7 days?", reasonMapping, onOk)
+				};
+
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				let moderateButton = document.createElement("button");
+				cell.appendChild(moderateButton);
+				moderateButton.innerHTML = "<b>PUNISH</b>";
+				moderateButton.onclick = function () {
+
+					let reasonMapping = {
+						hatespeech: "Offensive Language",
+						griefing: "Griefing / Actively being annoying / Destroying someone elses level",
+						noise: "Loud music / Screeching / other weird noises",
+						imposter: "Pretending to be someone else",
+						other: "Other"
+					}
+
+					let onOk = function(value) {
+						(async () => {
+							let response = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=user_' + value + MODERATION_ACTION_EXTRA);
+							let responseBody = await response.text();
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+							else if(responseBody === "Success")
+							{
+								await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+							}
+						})()
+					}
+
+					showOptionsDialog("Punish User", "For what reason do you want to warn or ban the user?", reasonMapping, onOk)
 				};
 
 				let resetButton = document.createElement("button");
@@ -228,6 +327,47 @@ async function loadMoreLevels()
 					{
 					  	(async () => {
 							let response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken);
+							let responseBody = await response.text();
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+						})();
+					}
+				};
+			}
+			else if(currentTab === "banned_users")
+			{
+				linebreak = document.createElement("br");
+				cell.appendChild(linebreak);
+
+				let unbanButton = document.createElement("button");
+				cell.appendChild(unbanButton);
+				unbanButton.innerHTML = "<b>REMOVE BAN</b>";
+				unbanButton.onclick = function () {
+					if(confirm("Do you really want to remove the ban from this user?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'moderation_action_remove/' + userInfo.user_id + '?access_token=' + accessToken);
+							let responseBody = await response.text();
+							confirm("Result: " + responseBody);
+							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+							{
+								logout();
+							}
+						})();
+					}
+				};
+
+				let resetButton = document.createElement("button");
+				cell.appendChild(resetButton);
+				resetButton.innerHTML = "<b>RESET STRIKES</b>";
+				resetButton.onclick = function () {
+					if(confirm("Do you really want to reset this users strikes?"))
+					{
+					  	(async () => {
+							let response = await fetch(SERVER_URL + 'moderation_strikes_reset/' + userInfo.user_id + '?access_token=' + accessToken);
 							let responseBody = await response.text();
 							confirm("Result: " + responseBody);
 							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
@@ -312,36 +452,28 @@ async function loadMoreLevels()
 				cell.appendChild(reportButton);
 				reportButton.className = "cell-button-report";
 				reportButton.onclick = function () {
-					let dialog = document.getElementById('popup')
-					let reasonSelector = document.getElementById('report-reason-level')
-					let closeButton = document.getElementById('popup-button-cancel')
-					let okButton = document.getElementById('popup-button-ok')
-							
-					if(!dialog.hasAttribute('open'))
-					{
-						// show the dialog 
-						dialog.setAttribute('open','open');
-
-						closeButton.onclick = function(event) { dialog.removeAttribute('open'); reasonSelector.selectedIndex = 0; }
-						okButton.onclick = function(event) {
-								if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
-
-								dialog.removeAttribute('open');
-								let value = reasonSelector.value
-								reasonSelector.selectedIndex = 0;
-								(async () => {
-									console.log(SERVER_URL + 'report/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + ": " + value)
-									let response = await fetch(SERVER_URL + 'report/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + '?access_token=' + accessToken + '&reason=' + value);
-									let responseBody = await response.text();
-									console.log(responseBody);
-									confirm(response.status == 200? "Success" : "Error: Need to login again?");
-									if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
-									{
-										logout();
-									}
-								})()
-							}
+					let reasonMapping = {
+						sexual: "Sexual Content / Genitals",
+						violence: "Detailed Violence",
+						hatespeech: "Offensive Language",
+						loweffort: "Very low effort level",
+						other: "Other"
 					}
+
+					let onOk = function(value) {
+						(async () => {
+							let response = await fetch(SERVER_URL + 'report/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + '?access_token=' + accessToken + '&reason=' + value);
+							let responseBody = await response.text();
+							console.log(responseBody);
+							confirm(response.status == 200? "Success" : "Error: Need to login again?");
+							if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+							{
+								logout();
+							}
+						})()
+					}
+
+					showOptionsDialog("Report Level", "Why should this level be removed?", reasonMapping, onOk)
 				};
 			}
 			else
@@ -495,21 +627,43 @@ async function loadMoreLevels()
 					hideButton.innerHTML = "<b>HIDE</b>";
 					//hideButton.className = "cell-button-hide";
 					hideButton.onclick = function () {
-						if(confirm("Do you really want to hide this level?"))
-						{
-						  	(async () => {
-						  		let identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
-						  		if(currentTab === "report_levels") identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for!
-								let response = await fetch(SERVER_URL + 'hide/' + identifierPath + '?access_token=' + accessToken);
-								let responseBody = await response.text();
-								console.log(responseBody);
-								confirm("Result: " + responseBody);
-								if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-								{
-									logout();
-								}
-							})();
+
+						let reasonMapping = {
+							sexual: "Sexual Content / Genitals",
+							violence: "Detailed Violence",
+							hatespeech: "Offensive Language",
+							loweffort: "Very low effort level",
+							other: "Other"
 						}
+
+						if(userInfo.is_admin === true) reasonMapping["nopunish"] = "Don't punish"
+
+						let onOk = function(value) {
+							(async () => {
+									let identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+									if(currentTab === "report_levels") identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for!
+									let response = await fetch(SERVER_URL + 'hide/' + identifierPath + '?access_token=' + accessToken);
+									let responseBody = await response.text();
+									console.log(responseBody);
+									confirm("Result: " + responseBody);
+									if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+									{
+										logout();
+									}
+									else if(responseBody === "Success" && userInfo.is_admin === true && value !== "nopunish")
+									{
+										let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
+										let moderationResponseBody = await moderationResponse.text();
+										console.log(moderationResponseBody);
+										if(moderationResponse.status === 200 && moderationResponseBody === "Success")
+										{
+											await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+										}
+									}
+								})();
+						}
+
+						showOptionsDialog("Hide Level", "Why should this level be hidden?", reasonMapping, onOk)
 					};
 
 					//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
@@ -806,6 +960,46 @@ function tabChanged(tab)
 		currentTab = tab;
 		clearLevels();
 		loadMoreLevels();
+	}
+}
+
+function showOptionsDialog(title, subtitle, options, onOk)
+{
+	let dialog = document.getElementById('popup')
+	let titleElement = document.getElementById('popup-title')
+	let descriptionElement = document.getElementById('popup-description')
+	let reasonSelector = document.getElementById('popup-reason')
+	let closeButton = document.getElementById('popup-button-cancel')
+	let okButton = document.getElementById('popup-button-ok')
+
+	titleElement.innerHTML = title
+	descriptionElement.innerHTML = subtitle
+
+	reasonSelector.innerHTML = ""
+	let selectOption = document.createElement("option")
+	selectOption.innerHTML = "- Select -"
+	reasonSelector.appendChild(selectOption)
+
+	for(let key in options)
+	{
+		let option = document.createElement("option")
+		option.innerHTML = options[key]
+		option.value = key
+		reasonSelector.appendChild(option)
+	}
+			
+	if(!dialog.hasAttribute('open'))
+	{
+		// show the dialog 
+		dialog.setAttribute('open','open');
+
+		closeButton.onclick = function(event) { dialog.removeAttribute('open'); reasonSelector.selectedIndex = 0; }
+		okButton.onclick = function(event) {
+				if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
+				dialog.removeAttribute('open');
+				onOk(reasonSelector.value)
+				reasonSelector.selectedIndex = 0;
+			}
 	}
 }
 
