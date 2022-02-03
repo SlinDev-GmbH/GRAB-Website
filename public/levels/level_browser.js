@@ -1,5 +1,5 @@
 const MAX_FORMAT_VERSION = 3
-const MODERATION_ACTION_EXTRA = "&duration=300"
+const MODERATION_ACTION_EXTRA = "&duration=61"
 var isLoading = false;
 var isAtTop = true;
 var nextPageTimestamp = -1;
@@ -337,16 +337,18 @@ async function loadMoreLevels()
 					}
 				};
 			}
-			else if(currentTab === "banned_users")
+
+			if(currentTab === "banned_users")// || currentTab === "report_users")
 			{
 				linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
 
 				let unbanButton = document.createElement("button");
 				cell.appendChild(unbanButton);
-				unbanButton.innerHTML = "<b>REMOVE BAN</b>";
+				if(currentTab === "banned_users") unbanButton.innerHTML = "<b>REMOVE BAN</b>";
+				else unbanButton.innerHTML = "<b>REMOVE CURRENT ACTION</b>";
 				unbanButton.onclick = function () {
-					if(confirm("Do you really want to remove the ban from this user?"))
+					if(confirm("Do you really want to remove the current action from this user?"))
 					{
 					  	(async () => {
 							let response = await fetch(SERVER_URL + 'moderation_action_remove/' + userInfo.user_id + '?access_token=' + accessToken);
@@ -366,7 +368,7 @@ async function loadMoreLevels()
 				resetButton.onclick = function () {
 					if(confirm("Do you really want to reset this users strikes?"))
 					{
-					  	(async () => {
+						(async () => {
 							let response = await fetch(SERVER_URL + 'moderation_strikes_reset/' + userInfo.user_id + '?access_token=' + accessToken);
 							let responseBody = await response.text();
 							confirm("Result: " + responseBody);
