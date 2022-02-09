@@ -135,7 +135,7 @@ async function loadMoreLevels()
 		container.appendChild(cell);
 		if(userInfo && (("is_admin" in userInfo && userInfo.is_admin === true) || ("is_moderator" in userInfo && userInfo.is_moderator === true)))
 		{
-			if(currentTab === "report_levels")
+			if(currentTab === "report_levels" || currentTab === "report_users")
 			{
 				cell.className = 'list-cell-admin-reports';
 			}
@@ -258,10 +258,11 @@ async function loadMoreLevels()
 				banNowButton.onclick = function () {
 
 					let reasonMapping = {
-						hatespeech: "Offensive Language",
-						griefing: "Griefing / Actively being annoying / Destroying someone elses level",
+						hatespeech: "Inappropriate Language",
+						behavior: "Inappropriate Behavior",
 						noise: "Loud music / Screeching / other weird noises",
 						imposter: "Pretending to be someone else",
+						name: "Inappropriate user name",
 						other: "Other"
 					}
 
@@ -293,10 +294,11 @@ async function loadMoreLevels()
 				moderateButton.onclick = function () {
 
 					let reasonMapping = {
-						hatespeech: "Offensive Language",
-						griefing: "Griefing / Actively being annoying / Destroying someone elses level",
-						noise: "Loud music / Screeching / other weird noises",
+						hatespeech: "Inappropriate language",
+						behavior: "Inappropriate behavior",
+						noise: "Loud or unpleasant noises",
 						imposter: "Pretending to be someone else",
+						name: "Inappropriate user name",
 						other: "Other"
 					}
 
