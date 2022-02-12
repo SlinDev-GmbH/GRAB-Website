@@ -14,6 +14,26 @@ let objectMaterials = [];
 
 init();
 
+function getCookie(cname)
+{
+	let name = cname + "=";
+	let decodedCookie = decodeURIComponent(document.cookie);
+	let ca = decodedCookie.split(';');
+	for(let i = 0; i <ca.length; i++)
+	{
+		let c = ca[i];
+		while(c.charAt(0) == ' ')
+		{
+			c = c.substring(1);
+		}
+		if(c.indexOf(name) == 0)
+		{
+			return c.substring(name.length, c.length);
+		}
+	}
+	return "";
+}
+
 function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 {
 	let material = new THREE.ShaderMaterial();
@@ -201,6 +221,11 @@ function init()
 		const LevelMessage = root.lookupType("COD.Level.Level");
 
 		(async () => {
+			let accessToken = getCookie("access_token");
+			let userInfoString = getCookie("user_info")
+			let userInfo = undefined
+			if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
+
 			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
 			levelIdentifier = levelIdentifier.split(':').join('/');
@@ -230,6 +255,9 @@ function init()
 			let extraRotate = new THREE.Quaternion();
 			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
+			let signTextContainer = document.getElementById("signtextcontainer");
+
+			let signCounter = 0;
 			for(let node of decoded.levelNodes)
 			{
 				if(node.levelNodeStatic)
@@ -308,6 +336,16 @@ function init()
 					sign.quaternion.w = node.levelNodeSign.rotation.w
 
 					sign.setRotationFromQuaternion(sign.quaternion.multiply(extraRotate));
+
+					let signText = node.levelNodeSign.text
+					if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && signText && signText.length > 0)
+					{
+						let signTextElement = document.createElement("div");
+						signTextElement.innerHTML = "Sign " + signCounter + ": " + signText + "<br><br>"
+						signTextContainer.appendChild(signTextElement);
+					}
+
+					signCounter += 1;
 				}
 			}
 		})()

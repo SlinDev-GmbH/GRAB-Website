@@ -786,8 +786,8 @@ function init()
 				let responseBody = await response.json();
 
 				var date = new Date(responseBody.expiry);
-				document.cookie = 'access_token=' + responseBody.access_token + '; expires=' + date.toUTCString();
-				document.cookie = "user_info=" + JSON.stringify(responseBody.info) + "; expires=" + date.toUTCString();
+				document.cookie = 'access_token=' + responseBody.access_token + '; path=/; expires=' + date.toUTCString();
+				document.cookie = "user_info=" + JSON.stringify(responseBody.info) + "; path=/; expires=" + date.toUTCString();
 			}
 		}
 
@@ -1038,8 +1038,8 @@ function login()
 function logout()
 {
 	//Set cookies to be expired
-	document.cookie = 'access_token=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-	document.cookie = 'user_info=0; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+	document.cookie = 'access_token=0; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+	document.cookie = 'user_info=0; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
 
 	window.location.href = window.location.href;
 }
