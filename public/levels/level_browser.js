@@ -117,7 +117,7 @@ async function loadMoreLevels()
 		noMoreLevels = true
 		isLoading = false
 		let text = await response.text();
-		console.log(text);
+		//console.log(text);
 		if(accessToken && text === "Invalid Access Token") logout();
 		return;
 	}
@@ -152,7 +152,7 @@ async function loadMoreLevels()
 		//This is a cell with user info! add user specific content and then skip everything after this if
 		if(currentTab === "report_users" || currentTab === "banned_users")
 		{
-			console.log(listElement)
+			//console.log(listElement)
 			let userInfo = listElement
 			if(currentTab === "report_users")
 			{
@@ -314,7 +314,7 @@ async function loadMoreLevels()
 							else if(responseBody === "Success")
 							{
 								response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
-								responseBody = response.text();
+								responseBody = await response.text();
 								confirm("Result: " + responseBody);
 							}
 						})()
@@ -700,7 +700,8 @@ async function loadMoreLevels()
 											if(moderationResponse.status === 200 && moderationResponseBody === "Success")
 											{
 												response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
-												responseBody = response.text()
+												responseBody = await response.text()
+												confirm("Result: " + responseBody);
 											}
 											else
 											{
