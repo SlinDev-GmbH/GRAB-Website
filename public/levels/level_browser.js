@@ -694,12 +694,12 @@ async function loadMoreLevels()
 										}
 										else if(responseBody === "Scheduled level to be hidden" && value !== "nopunish")
 										{
-											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
+											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
 											let moderationResponseBody = await moderationResponse.text();
 											console.log(moderationResponseBody);
 											if(moderationResponse.status === 200 && moderationResponseBody === "Success")
 											{
-												response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+												response = await fetch(SERVER_URL + 'reports_reset/' + levelIdentifierParts[0] + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
 												responseBody = await response.text()
 												confirm("Result: " + responseBody);
 											}
