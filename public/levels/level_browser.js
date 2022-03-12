@@ -503,6 +503,39 @@ async function loadMoreLevels()
 				cell.appendChild(reportsInfoText);
 			}
 
+			if("is_admin" in userInfo && userInfo.is_admin === true)
+			{
+				//Report user button on level cells
+				let reportButton = document.createElement("button");
+				cell.appendChild(reportButton);
+				reportButton.className = "cell-button-report-user";
+				reportButton.onclick = function () {
+					let reasonMapping = {
+						hatespeech: "Inappropriate Language",
+						behavior: "Inappropriate Behavior",
+						noise: "Loud music / Screeching / other weird noises",
+						imposter: "Pretending to be someone else",
+						name: "Inappropriate user name",
+						other: "Other"
+					}
+
+					let onOk = function(value) {
+						(async () => {
+							let response = await fetch(SERVER_URL + 'report/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&reason=' + value);
+							let responseBody = await response.text();
+							console.log(responseBody);
+							confirm(response.status == 200? "Success" : "Error: Need to login again?");
+							if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+							{
+								logout();
+							}
+						})()
+					}
+
+					showOptionsDialog("Report User", "Why should this user be banned?", reasonMapping, onOk)
+				};
+			}
+
 			let linebreak = document.createElement("br");
 			cell.appendChild(linebreak);
 
