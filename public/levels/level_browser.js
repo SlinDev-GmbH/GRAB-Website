@@ -692,7 +692,7 @@ async function loadMoreLevels()
 											confirm("Result: " + responseBody);
 											logout();
 										}
-										else if(responseBody === "Success" && value !== "nopunish")
+										else if(responseBody === "Scheduled level to be hidden" && value !== "nopunish")
 										{
 											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
 											let moderationResponseBody = await moderationResponse.text();
