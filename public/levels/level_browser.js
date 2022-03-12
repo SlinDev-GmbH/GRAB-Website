@@ -306,14 +306,16 @@ async function loadMoreLevels()
 						(async () => {
 							let response = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=user_' + value + MODERATION_ACTION_EXTRA);
 							let responseBody = await response.text();
-							confirm("Result: " + responseBody);
 							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
 							{
+								confirm("Result: " + responseBody);
 								logout();
 							}
 							else if(responseBody === "Success")
 							{
-								await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+								response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+								responseBody = response.text();
+								confirm("Result: " + responseBody);
 							}
 						})()
 					}
@@ -659,49 +661,58 @@ async function loadMoreLevels()
 				}
 				else
 				{
-					let hideButton = document.createElement("button");
-					cell.appendChild(hideButton);
-					hideButton.innerHTML = "<b>HIDE</b>";
-					//hideButton.className = "cell-button-hide";
-					hideButton.onclick = function () {
+					//Only admins get to see the hide level button
+					if("is_admin" in userInfo && userInfo.is_admin === true)
+					{
+						let hideButton = document.createElement("button");
+						cell.appendChild(hideButton);
+						hideButton.innerHTML = "<b>HIDE</b>";
+						//hideButton.className = "cell-button-hide";
+						hideButton.onclick = function () {
 
-						let reasonMapping = {
-							sexual: "Sexual Content / Genitals",
-							violence: "Detailed Violence",
-							hatespeech: "Offensive Language",
-							loweffort: "Very low effort level",
-							other: "Other"
-						}
+							let reasonMapping = {
+								sexual: "Sexual Content / Genitals",
+								violence: "Detailed Violence",
+								hatespeech: "Offensive Language",
+								loweffort: "Very low effort level",
+								other: "Other"
+							}
 
-						if(userInfo.is_admin === true) reasonMapping["nopunish"] = "Don't punish"
+							if(userInfo.is_admin === true) reasonMapping["nopunish"] = "Don't punish"
 
-						let onOk = function(value) {
-							(async () => {
-									let identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
-									if(currentTab === "report_levels") identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for!
-									let response = await fetch(SERVER_URL + 'hide/' + identifierPath + '?access_token=' + accessToken);
-									let responseBody = await response.text();
-									console.log(responseBody);
-									confirm("Result: " + responseBody);
-									if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-									{
-										logout();
-									}
-									else if(responseBody === "Success" && userInfo.is_admin === true && value !== "nopunish")
-									{
-										let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
-										let moderationResponseBody = await moderationResponse.text();
-										console.log(moderationResponseBody);
-										if(moderationResponse.status === 200 && moderationResponseBody === "Success")
+							let onOk = function(value) {
+								(async () => {
+										let identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+										if(currentTab === "report_levels") identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for!
+										let response = await fetch(SERVER_URL + 'hide/' + identifierPath + '?access_token=' + accessToken);
+										let responseBody = await response.text();
+										console.log(responseBody);
+										if(response.status != 200 && accessToken && responseBody === "Not authorized!")
 										{
-											await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+											confirm("Result: " + responseBody);
+											logout();
 										}
-									}
-								})();
-						}
+										else if(responseBody === "Success" && value !== "nopunish")
+										{
+											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
+											let moderationResponseBody = await moderationResponse.text();
+											console.log(moderationResponseBody);
+											if(moderationResponse.status === 200 && moderationResponseBody === "Success")
+											{
+												response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
+												responseBody = response.text()
+											}
+											else
+											{
+												confirm("Result: " + moderationResponseBody);
+											}
+										}
+									})();
+							}
 
-						showOptionsDialog("Hide Level", "Why should this level be hidden?", reasonMapping, onOk)
-					};
+							showOptionsDialog("Hide Level", "Why should this level be hidden?", reasonMapping, onOk)
+						};
+					}
 
 					//This one only work for admins, but only admins can see the reports anyway, so doing it here is fine
 					if(currentTab === "report_levels")
