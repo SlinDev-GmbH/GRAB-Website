@@ -463,6 +463,7 @@ async function loadMoreLevels()
 						violence: "Detailed Violence",
 						hatespeech: "Offensive Language",
 						loweffort: "Very low effort level",
+						glitch: "Requires to use a Glitch to finish",
 						other: "Other"
 					}
 
@@ -675,6 +676,7 @@ async function loadMoreLevels()
 								violence: "Detailed Violence",
 								hatespeech: "Offensive Language",
 								loweffort: "Very low effort level",
+								glitch: "Requires to use a Glitch to finish",
 								other: "Other"
 							}
 
@@ -694,7 +696,12 @@ async function loadMoreLevels()
 										}
 										else if(responseBody === "Scheduled level to be hidden" && value !== "nopunish")
 										{
-											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&reason=level_' + value + MODERATION_ACTION_EXTRA);
+											let extra = MODERATION_ACTION_EXTRA
+											if(value === "glitch")
+											{
+												extra += "&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
+											}
+											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&reason=level_' + value + extra);
 											let moderationResponseBody = await moderationResponse.text();
 											console.log(moderationResponseBody);
 											if(moderationResponse.status === 200 && moderationResponseBody === "Success")
