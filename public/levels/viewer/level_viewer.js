@@ -47,43 +47,10 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 		"diffuseColor": { value: [1.0, 1.0, 1.0] }
 	};
 
-	textureLoader.load(name,
-		// onLoad callback
-		function(texture) {
-			material.uniforms.colorTexture.value = texture
-			material.uniforms.colorTexture.value.wrapS = material.uniforms.colorTexture.value.wrapT = THREE.RepeatWrapping;
-		},
-
-		// onProgress callback currently not supported
-		undefined,
-
-		// onError callback
-		function(err) {
-			console.error('An error happened.');
-	});
+	material.uniforms.colorTexture.value = textureLoader.load(name);
+	material.uniforms.colorTexture.value.wrapS = material.uniforms.colorTexture.value.wrapT = THREE.RepeatWrapping;
 
 	return material;
-}
-
-function getMaterialCopyForTexture(material, texturename)
-{
-	let newMaterial = material.clone()
-	textureLoader.load(texturename,
-		// onLoad callback
-		function(texture) {
-			newMaterial.uniforms.colorTexture.value = texture
-			newMaterial.uniforms.colorTexture.value.wrapS = material.uniforms.colorTexture.value.wrapT = THREE.RepeatWrapping;
-		},
-
-		// onProgress callback currently not supported
-		undefined,
-
-		// onError callback
-		function(err) {
-			console.error('An error happened.');
-	});
-
-	return newMaterial
 }
 
 function getGeometryForModel(name)
@@ -268,8 +235,11 @@ function init()
 					let material = materials[node.levelNodeStatic.material]
 					if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
 					{
-						material = getMaterialCopyForTexture(material, 'textures/default_colored.png')
-						material.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
+						let newMaterial = material.clone()
+						newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
+						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+
+						material = newMaterial
 					}
 					let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], material)
 					scene.add(cube);
