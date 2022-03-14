@@ -103,6 +103,7 @@
 
 			uniform sampler2D colorTexture;
 			uniform float tileFactor;
+			uniform vec3 diffuseColor;
 
 			void main()
 			{
@@ -126,6 +127,8 @@
 				{
 					color.rgb *= texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
 				}
+
+				color.rgb *= diffuseColor;
 
 				gl_FragColor = color;
 			}

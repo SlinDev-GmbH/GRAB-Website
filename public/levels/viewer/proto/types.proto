@@ -17,6 +17,26 @@ message Quaternion
 	float w = 4;
 }
 
+message Color
+{
+	float r = 1;
+	float g = 2;
+	float b = 3;
+	float a = 4;
+}
+
+message AmbienceSettings
+{
+	Color skyZenithColor = 1;
+	Color skyHorizonColor = 2;
+
+	float sunAltitude = 3;
+	float sunAzimuth = 4;
+	float sunSize = 5;
+
+	float fogDDensity = 6;
+}
+
 enum LevelNodeShape
 {
 	START = 0;
@@ -43,6 +63,7 @@ enum LevelNodeMaterial
 	GRAPPLABLE_LAVA = 6;
 
 	GRABBABLE_CRUMBLING= 7;
+	DEFAULT_COLORED = 8;
 }
 
 message LevelNodeStart
@@ -66,6 +87,8 @@ message LevelNodeStatic
 	Vector position = 3;
 	Vector scale = 4;
 	Quaternion rotation = 5;
+
+	Color color = 6;
 }
 
 message LevelNodeCrumbling

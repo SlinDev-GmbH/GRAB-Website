@@ -14,5 +14,7 @@ message Level
 	uint32 complexity = 5;
 	uint32 maxCheckpointCount = 7;
 
+	Types.AmbienceSettings ambienceSettings = 8;
+
 	repeated Types.LevelNode levelNodes = 6;
 }

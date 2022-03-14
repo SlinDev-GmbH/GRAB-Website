@@ -43,7 +43,8 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 
 	material.uniforms = {
 		"colorTexture": { value: null },
-		"tileFactor": { value: tileFactor }
+		"tileFactor": { value: tileFactor },
+		"diffuseColor": { value: [1.0, 1.0, 1.0] }
 	};
 
 	textureLoader.load(name,
@@ -62,6 +63,27 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 	});
 
 	return material;
+}
+
+function getMaterialCopyForTexture(material, texturename)
+{
+	let newMaterial = material.clone()
+	textureLoader.load(texturename,
+		// onLoad callback
+		function(texture) {
+			newMaterial.uniforms.colorTexture.value = texture
+			newMaterial.uniforms.colorTexture.value.wrapS = material.uniforms.colorTexture.value.wrapT = THREE.RepeatWrapping;
+		},
+
+		// onProgress callback currently not supported
+		undefined,
+
+		// onError callback
+		function(err) {
+			console.error('An error happened.');
+	});
+
+	return newMaterial
 }
 
 function getGeometryForModel(name)
@@ -128,6 +150,7 @@ function init()
 	materials.push(getMaterialForTexture('textures/grapplable.png', 0.1, levelVertexShader, levelFragmentShader));
 	materials.push(getMaterialForTexture('textures/grapplable_lava.png', 0.1, levelVertexShader, levelFragmentShader));
 	materials.push(getMaterialForTexture('textures/grabbable_crumbling.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShader));
 
 	const vertexShader = document.getElementById('startfinish-vertexShader').textContent;
 	const fragmentShader = document.getElementById('startfinish-fragmentShader').textContent;
@@ -171,50 +194,6 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
-/*
-		<div id="players rated count">players rated count</div>
-		<div id="players liked count">players liked count</div>
-		<div id="average time">average time</div>*/
-
-	(async () => {
-		const urlParams = new URLSearchParams(window.location.search);
-		let levelIdentifier = urlParams.get('level');
-		levelIdentifier = levelIdentifier.split(':').join('/');
-
-		let response = await fetch(SERVER_URL + 'statistics/' + levelIdentifier);
-		console.log(response);
-		let responseBody = await response.json();
-		console.log(responseBody);
-
-		var totalPlayedLabel = document.getElementById("total played count");
-		totalPlayedLabel.innerHTML = "total played count: <b>" + responseBody.total_played_count + "</b>"
-
-		var totalFinishedLabel = document.getElementById("total finished count");
-		totalFinishedLabel.innerHTML = "total finished count: <b>" + responseBody.total_finished_count + "</b>"
-
-		var playersPlayedLabel = document.getElementById("players played count");
-		playersPlayedLabel.innerHTML = "players played count: <b>" + responseBody.played_count + "</b>"
-
-		var playersFinishedLabel = document.getElementById("players finished count");
-		playersFinishedLabel.innerHTML = "players finished count: <b>" + responseBody.finished_count + "</b>"
-
-		var playersRatedLabel = document.getElementById("players rated count");
-		playersRatedLabel.innerHTML = "players rated count: <b>" + responseBody.rated_count + "</b>"
-
-		var playersLikedLabel = document.getElementById("players liked count");
-		playersLikedLabel.innerHTML = "players liked count: <b>" + responseBody.liked_count + "</b>"
-
-		var timeLabel = document.getElementById("average time");
-		timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
-
-
-		let detailResponse = await fetch(SERVER_URL + 'details/' + levelIdentifier);
-		console.log(detailResponse);
-		let detailResponseBody = await detailResponse.json();
-		console.log(detailResponseBody);
-		levelCreationTime = detailResponseBody.creation_timestamp+1;
-	})()
-
 	protobuf.load("proto/level.proto", function(err, root) {
 		if(err) throw err;
 
@@ -226,9 +205,38 @@ function init()
 			let userInfo = undefined
 			if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
 
+			var titleLabel = document.getElementById("title");
+			var creatorsLabel = document.getElementById("creators");
+			var descriptionLabel = document.getElementById("description");
+			var complexityLabel = document.getElementById("complexity");
+
 			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
-			levelIdentifier = levelIdentifier.split(':').join('/');
+			levelIdentifier = levelIdentifier.split(':')
+			let hasIteration = levelIdentifier.length === 3
+			levelIdentifier = levelIdentifier.join('/');
+
+			let detailResponse = await fetch(SERVER_URL + 'details/' + levelIdentifier);
+			let detailResponseBody = await detailResponse.json();
+			levelCreationTime = detailResponseBody.creation_timestamp+1;
+
+			if(detailResponseBody.hidden === true && (!userInfo || !("is_admin" in userInfo) || userInfo.is_admin === false))
+			{
+				//Don't load hidden levels unless this is an admin
+				titleLabel.innerHTML = '<b>NOT AVAILABLE</b>';
+				creatorsLabel.innerHTML = '';
+				descriptionLabel.innerHTML = '';
+				complexityLabel.innerHTML = '';
+				return;
+			}
+
+			if(!hasIteration)
+			{
+				levelIdentifier = detailResponseBody.data_key.split(':')
+				levelIdentifier.splice(0, 1)
+				levelIdentifier = levelIdentifier.join('/')
+			}
+
 			let response = await fetch(SERVER_URL + 'download/' + levelIdentifier);
 			//console.log(response);
 			let responseBody = await response.arrayBuffer();
@@ -238,11 +246,6 @@ function init()
 
 			var fullscreenButton = document.getElementById("fullscreen");
 			fullscreenButton.onclick = openFullscreen;
-
-			var titleLabel = document.getElementById("title");
-			var creatorsLabel = document.getElementById("creators");
-			var descriptionLabel = document.getElementById("description");
-			var complexityLabel = document.getElementById("complexity");
 
 			titleLabel.innerHTML = 'title: <b>' + decoded.title + '</b>';
 			creatorsLabel.innerHTML = 'creators: <i>' + decoded.creators + '</i>';
@@ -262,7 +265,13 @@ function init()
 			{
 				if(node.levelNodeStatic)
 				{
-					let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], materials[node.levelNodeStatic.material]);
+					let material = materials[node.levelNodeStatic.material]
+					if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
+					{
+						material = getMaterialCopyForTexture(material, 'textures/default_colored.png')
+						material.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
+					}
+					let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], material)
 					scene.add(cube);
 					cube.position.x = node.levelNodeStatic.position.x
 					cube.position.y = node.levelNodeStatic.position.y
@@ -348,6 +357,39 @@ function init()
 					signCounter += 1;
 				}
 			}
+
+			//Get level statistics
+			(async () => {
+				const urlParams = new URLSearchParams(window.location.search);
+				let levelIdentifier = urlParams.get('level');
+				levelIdentifier = levelIdentifier.split(':').join('/');
+
+				let response = await fetch(SERVER_URL + 'statistics/' + levelIdentifier);
+				console.log(response);
+				let responseBody = await response.json();
+				console.log(responseBody);
+
+				var totalPlayedLabel = document.getElementById("total played count");
+				totalPlayedLabel.innerHTML = "total played count: <b>" + responseBody.total_played_count + "</b>"
+
+				var totalFinishedLabel = document.getElementById("total finished count");
+				totalFinishedLabel.innerHTML = "total finished count: <b>" + responseBody.total_finished_count + "</b>"
+
+				var playersPlayedLabel = document.getElementById("players played count");
+				playersPlayedLabel.innerHTML = "players played count: <b>" + responseBody.played_count + "</b>"
+
+				var playersFinishedLabel = document.getElementById("players finished count");
+				playersFinishedLabel.innerHTML = "players finished count: <b>" + responseBody.finished_count + "</b>"
+
+				var playersRatedLabel = document.getElementById("players rated count");
+				playersRatedLabel.innerHTML = "players rated count: <b>" + responseBody.rated_count + "</b>"
+
+				var playersLikedLabel = document.getElementById("players liked count");
+				playersLikedLabel.innerHTML = "players liked count: <b>" + responseBody.liked_count + "</b>"
+
+				var timeLabel = document.getElementById("average time");
+				timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
+			})()
 		})()
 	});
 }

@@ -1,4 +1,4 @@
-const MAX_FORMAT_VERSION = 3
+const MAX_FORMAT_VERSION = 4
 const MODERATION_ACTION_EXTRA = ""//"&duration=61"
 var isLoading = false;
 var isAtTop = true;
