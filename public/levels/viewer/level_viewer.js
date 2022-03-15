@@ -44,7 +44,8 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 	material.uniforms = {
 		"colorTexture": { value: null },
 		"tileFactor": { value: tileFactor },
-		"diffuseColor": { value: [1.0, 1.0, 1.0] }
+		"diffuseColor": { value: [1.0, 1.0, 1.0] },
+		"worldNormalMatrix": { value: new THREE.Matrix3() }
 	};
 
 	material.uniforms.colorTexture.value = textureLoader.load(name);
@@ -233,15 +234,15 @@ function init()
 				if(node.levelNodeStatic)
 				{
 					let material = materials[node.levelNodeStatic.material]
+					let newMaterial = material.clone()
+					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+
 					if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
 					{
-						let newMaterial = material.clone()
 						newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
-						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-
-						material = newMaterial
 					}
-					let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], material)
+
+					let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
 					scene.add(cube);
 					cube.position.x = node.levelNodeStatic.position.x
 					cube.position.y = node.levelNodeStatic.position.y
@@ -256,7 +257,15 @@ function init()
 					cube.quaternion.z = node.levelNodeStatic.rotation.z
 					cube.quaternion.w = node.levelNodeStatic.rotation.w
 
-					cube.setRotationFromQuaternion(cube.quaternion.multiply(extraRotate));
+					let rotation = cube.quaternion.multiply(extraRotate)
+					cube.setRotationFromQuaternion(rotation)
+
+					let worldMatrix = new THREE.Matrix4();
+					worldMatrix.compose(cube.position, rotation, cube.scale)
+
+					let normalMatrix = new THREE.Matrix3()
+					normalMatrix.getNormalMatrix(worldMatrix)
+					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
 				}
 				else if(node.levelNodeCrumbling)
 				{

@@ -85,13 +85,14 @@
 			varying vec3 vWorldPosition;
 			varying vec3 vNormal;
 
+			uniform mat3 worldNormalMatrix;
+
 			void main()
 			{
 				vec4 worldPosition = modelMatrix * vec4(position, 1.0);
 				vWorldPosition = worldPosition.xyz;
 
-				vec4 worldNormal = modelMatrix * vec4(normal, 0.0);
-				vNormal = worldNormal.xyz;
+				vNormal = worldNormalMatrix * normal;
 
 				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 			}
