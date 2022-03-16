@@ -234,13 +234,25 @@ function init()
 			skyMaterial.depthWrite = false;
 			skyMaterial.side = THREE.BackSide;
 
-			const sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), 0.0);
+			let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(315), 0.0)
+			if(decoded.ambienceSettings)
+			{
+				sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), 0.0);
+
+				skyMaterial.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
+				skyMaterial.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
+				skyMaterial.uniforms["sunSize"] = { value: decoded.ambienceSettings.sunSize }
+			}
+			else
+			{
+				skyMaterial.uniforms["cameraFogColor0"] = { value: [0.916, 0.9574, 0.9574] }
+				skyMaterial.uniforms["cameraFogColor1"] = { value: [0.28, 0.476, 0.73] }
+				skyMaterial.uniforms["sunSize"] = { value: 1.0 }
+			}
+
 			const sunDirection = new THREE.Vector3( 0, 0, -1 );
 			sunDirection.applyEuler(sunAngle);
 
-			skyMaterial.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
-			skyMaterial.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
-			skyMaterial.uniforms["sunSize"] = { value: decoded.ambienceSettings.sunSize }
 			skyMaterial.uniforms["sunDirection"] = { value: sunDirection }
 			skyMaterial.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
 
