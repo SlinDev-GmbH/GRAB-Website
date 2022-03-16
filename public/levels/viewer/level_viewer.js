@@ -69,6 +69,8 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.gammaOutput = true;
+	renderer.gammaFactor = 2.2;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
 	renderer.setAnimationLoop(animation);
 	renderer.domElement.id = "canvas"
@@ -222,6 +224,30 @@ function init()
 
 			await shapePromise;
 			await objectPromise;
+
+			const skyVertexShader = document.getElementById('sky-vertexShader').textContent;
+			const skyFragmentShader = document.getElementById('sky-fragmentShader').textContent;
+			let skyMaterial = new THREE.ShaderMaterial();
+			skyMaterial.vertexShader = skyVertexShader;
+			skyMaterial.fragmentShader = skyFragmentShader;
+			skyMaterial.flatShading = false;
+			skyMaterial.depthWrite = false;
+			skyMaterial.side = THREE.BackSide;
+
+			const sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), 0.0);
+			const sunDirection = new THREE.Vector3( 0, 0, -1 );
+			sunDirection.applyEuler(sunAngle);
+
+			skyMaterial.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
+			skyMaterial.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
+			skyMaterial.uniforms["sunSize"] = { value: decoded.ambienceSettings.sunSize }
+			skyMaterial.uniforms["sunDirection"] = { value: sunDirection }
+			skyMaterial.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
+
+			const sky = new THREE.Mesh(shapes[1], skyMaterial)
+			sky.frustumCulled = false
+			sky.renderOrder = 1000 //sky should be rendered after opaque, before transparent
+			scene.add(sky);
 
 			let extraRotate = new THREE.Quaternion();
 			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
