@@ -330,6 +330,13 @@ function init()
 					cube.quaternion.w = node.levelNodeCrumbling.rotation.w
 
 					cube.setRotationFromQuaternion(cube.quaternion.multiply(extraRotate));
+
+					let worldMatrix = new THREE.Matrix4();
+					worldMatrix.compose(cube.position, rotation, cube.scale)
+
+					let normalMatrix = new THREE.Matrix3()
+					normalMatrix.getNormalMatrix(worldMatrix)
+					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
 				}
 				else if(node.levelNodeStart)
 				{
