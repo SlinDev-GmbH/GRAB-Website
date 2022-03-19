@@ -329,7 +329,8 @@ function init()
 					cube.quaternion.z = node.levelNodeCrumbling.rotation.z
 					cube.quaternion.w = node.levelNodeCrumbling.rotation.w
 
-					cube.setRotationFromQuaternion(cube.quaternion.multiply(extraRotate));
+					let rotation = cube.quaternion.multiply(extraRotate)
+					cube.setRotationFromQuaternion(rotation)
 
 					let worldMatrix = new THREE.Matrix4();
 					worldMatrix.compose(cube.position, rotation, cube.scale)
