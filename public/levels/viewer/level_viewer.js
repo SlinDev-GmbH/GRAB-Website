@@ -69,8 +69,7 @@ function init()
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.gammaOutput = true;
-	renderer.gammaFactor = 2.2;
+	renderer.outputEncoding = THREE.sRGBEncoding;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
 	renderer.setAnimationLoop(animation);
 	renderer.domElement.id = "canvas"
@@ -157,9 +156,6 @@ function init()
 	scene.add(ambientLight);
 
 	const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
-	sunLight.position.x = 1.0;
-	sunLight.position.y = 1.0;
-	sunLight.position.z = 1.0;
 	scene.add(sunLight);
 
 	controls = new FreeControls(camera, renderer.domElement);
@@ -234,10 +230,10 @@ function init()
 			skyMaterial.depthWrite = false;
 			skyMaterial.side = THREE.BackSide;
 
-			let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(315), 0.0)
+			let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(-45), THREE.MathUtils.degToRad(315), 0.0)
 			if(decoded.ambienceSettings)
 			{
-				sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), 0.0);
+				sunAngle = new THREE.Euler(-THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), 0.0);
 
 				skyMaterial.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
 				skyMaterial.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
@@ -250,10 +246,15 @@ function init()
 				skyMaterial.uniforms["sunSize"] = { value: 1.0 }
 			}
 
-			const sunDirection = new THREE.Vector3( 0, 0, -1 );
+			const sunDirection = new THREE.Vector3( 0, 0, 1 );
 			sunDirection.applyEuler(sunAngle);
 
-			skyMaterial.uniforms["sunDirection"] = { value: sunDirection }
+			const skySunDirection = sunDirection.clone()
+			skySunDirection.x = -skySunDirection.x;
+			skySunDirection.y = -skySunDirection.y;
+			skySunDirection.z = -skySunDirection.z;
+
+			skyMaterial.uniforms["sunDirection"] = { value: skySunDirection }
 			skyMaterial.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
 
 			const sky = new THREE.Mesh(shapes[1], skyMaterial)
@@ -274,6 +275,7 @@ function init()
 					let material = materials[node.levelNodeStatic.material]
 					let newMaterial = material.clone()
 					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+					newMaterial.uniforms["sunDirection"] = { value: sunDirection }
 
 					if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
 					{
@@ -307,7 +309,12 @@ function init()
 				}
 				else if(node.levelNodeCrumbling)
 				{
-					let cube = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], materials[node.levelNodeCrumbling.material]);
+					let material = materials[node.levelNodeCrumbling.material]
+					let newMaterial = material.clone()
+					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+					newMaterial.uniforms["sunDirection"] = { value: sunDirection }
+
+					let cube = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
 					scene.add(cube);
 					cube.position.x = node.levelNodeCrumbling.position.x
 					cube.position.y = node.levelNodeCrumbling.position.y
@@ -350,7 +357,12 @@ function init()
 				}
 				else if(node.levelNodeSign)
 				{
-					let sign = new THREE.Mesh(objects[1], objectMaterials[2]);
+					let material = objectMaterials[2]
+					let newMaterial = material.clone()
+					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+					newMaterial.uniforms["sunDirection"] = { value: sunDirection }
+
+					let sign = new THREE.Mesh(objects[1], newMaterial);
 					scene.add(sign);
 					sign.position.x = node.levelNodeSign.position.x
 					sign.position.y = node.levelNodeSign.position.y
