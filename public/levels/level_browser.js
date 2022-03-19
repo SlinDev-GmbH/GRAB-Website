@@ -699,9 +699,13 @@ async function loadMoreLevels()
 											let extra = MODERATION_ACTION_EXTRA
 											if(value === "glitch")
 											{
-												extra += "&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
+												extra += "&reason=message&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
 											}
-											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&reason=level_' + value + extra);
+											else
+											{
+												extra += '&reason=level_' + value
+											}
+											let moderationResponse = await fetch(SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + '?access_token=' + accessToken + extra);
 											let moderationResponseBody = await moderationResponse.text();
 											console.log(moderationResponseBody);
 											if(moderationResponse.status === 200 && moderationResponseBody === "Success")
