@@ -219,7 +219,7 @@ function init()
 				metaDescription += ' - by ' + decoded.creators;
 			}
 			document.getElementsByTagName('meta')["description"].content = metaDescription;
-			document.title = decoded.title;
+			document.title = "GRAB: " + decoded.title;
 
 			titleLabel.innerHTML = 'title: <b>' + decoded.title + '</b>';
 			creatorsLabel.innerHTML = 'creators: <i>' + decoded.creators + '</i>';
