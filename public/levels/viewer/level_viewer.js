@@ -150,7 +150,7 @@ function init()
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
 
-	camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+	camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 5000);
 
 	const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
 	scene.add(ambientLight);
