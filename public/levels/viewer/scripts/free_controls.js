@@ -234,6 +234,11 @@ class FreeControls extends THREE.EventDispatcher {
 		this.updateRotationVector = function () {
 			this.rotationVector.x = ( - this.moveState.pitchDown + this.moveState.pitchUp );
 			this.rotationVector.y = ( - this.moveState.yawRight + this.moveState.yawLeft );
+
+			this.moveState.pitchDown = 0;
+			this.moveState.pitchUp = 0;
+			this.moveState.yawRight = 0;
+			this.moveState.yawLeft = 0;
 		};
 
 		this.getContainerDimensions = function(){
