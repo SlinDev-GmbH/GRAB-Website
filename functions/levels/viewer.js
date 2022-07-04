@@ -10,22 +10,16 @@ export async function onRequest(context)
 		if(levelIDComponents.length >= 2)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
-			console.log(lookupString)
 			console.log(context.env.LEVEL_DB)
-			//const levelList = await context.env.LEVEL_DB.list()
-			//console.log(levelList)
-
+			console.log(lookupString)
 			const levelInfo = await context.env.LEVEL_DB.get(lookupString)
+			console.log(levelInfo)
 			if(levelInfo)
 			{
 				return new Response(levelInfo, {
 					status: 200
 				})
 			}
-
-			return new Response(lookupString, {
-					status: 404
-				})
 		}
 	}
 
