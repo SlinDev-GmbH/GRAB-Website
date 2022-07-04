@@ -28,7 +28,10 @@ export async function onRequest(context)
 				let metaDescription = levelInfo.description
 				if(levelInfo.creators && levelInfo.creators.length > 0)
 				{
-					metaDescription += ' - by ' + levelInfo.creators.join(",");
+					if(metaDescription && metaDescription.length > 0)
+						metaDescription += ' - by ' + levelInfo.creators.join(",")
+					else
+						metaDescription = 'by ' + levelInfo.creators.join(",")
 				}
 				if(!metaDescription)
 				{
