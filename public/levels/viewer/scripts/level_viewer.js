@@ -86,11 +86,11 @@ function init()
 	gltfLoader = new GLTFLoader();
 
 	let shapePromises = []
-	shapePromises.push(getGeometryForModel('models/cube.gltf'));
-	shapePromises.push(getGeometryForModel('models/sphere.gltf'));
-	shapePromises.push(getGeometryForModel('models/cylinder.gltf'));
-	shapePromises.push(getGeometryForModel('models/pyramid.gltf'));
-	shapePromises.push(getGeometryForModel('models/prism.gltf'));
+	shapePromises.push(getGeometryForModel('/levels/viewer/models/cube.gltf'));
+	shapePromises.push(getGeometryForModel('/levels/viewer/models/sphere.gltf'));
+	shapePromises.push(getGeometryForModel('/levels/viewer/models/cylinder.gltf'));
+	shapePromises.push(getGeometryForModel('/levels/viewer/models/pyramid.gltf'));
+	shapePromises.push(getGeometryForModel('/levels/viewer/models/prism.gltf'));
 	let shapePromise = Promise.all(shapePromises).then(function(result){
 		for(let shape of result)
 		{
@@ -99,8 +99,8 @@ function init()
 	});
 
 	let objectPromises = []
-	objectPromises.push(getGeometryForModel('models/start_end.gltf'));
-	objectPromises.push(getGeometryForModel('models/sign.gltf'));
+	objectPromises.push(getGeometryForModel('/levels/viewer/models/start_end.gltf'));
+	objectPromises.push(getGeometryForModel('/levels/viewer/models/sign.gltf'));
 	let objectPromise = Promise.all(objectPromises).then(function(result){
 		for(let object of result)
 		{
@@ -111,15 +111,15 @@ function init()
 	const levelVertexShader = document.getElementById('level-vertexShader').textContent;
 	const levelFragmentShader = document.getElementById('level-fragmentShader').textContent;
 
-	materials.push(getMaterialForTexture('textures/default.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/grabbable.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/ice.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/lava.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/wood.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/grapplable.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/grapplable_lava.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/grabbable_crumbling.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture('textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/default.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/grabbable.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/ice.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/lava.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/wood.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/grapplable.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/grapplable_lava.png', 0.1, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/grabbable_crumbling.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture('/levels/viewer/textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShader));
 
 	const vertexShader = document.getElementById('startfinish-vertexShader').textContent;
 	const fragmentShader = document.getElementById('startfinish-fragmentShader').textContent;
@@ -144,7 +144,7 @@ function init()
 
 	const signVertexShader = document.getElementById('sign-vertexShader').textContent;
 	const signFragmentShader = document.getElementById('sign-fragmentShader').textContent;
-	objectMaterials.push(getMaterialForTexture('textures/wood.png', 1.0, signVertexShader, signFragmentShader));
+	objectMaterials.push(getMaterialForTexture('/levels/viewer/textures/wood.png', 1.0, signVertexShader, signFragmentShader));
 
 
 	clock = new THREE.Clock();
@@ -160,7 +160,7 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
-	protobuf.load("proto/level.proto", function(err, root) {
+	protobuf.load("/levels/viewer/proto/level.proto", function(err, root) {
 		if(err) throw err;
 
 		const LevelMessage = root.lookupType("COD.Level.Level");
