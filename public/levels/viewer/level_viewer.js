@@ -213,13 +213,13 @@ function init()
 			var fullscreenButton = document.getElementById("fullscreen");
 			fullscreenButton.onclick = openFullscreen;
 
-			let metaDescription = decoded.description
+			/*let metaDescription = decoded.description
 			if(decoded.creators && decoded.creators.length > 0)
 			{
 				metaDescription += ' - by ' + decoded.creators;
 			}
 			document.getElementsByTagName('meta')["description"].content = metaDescription;
-			document.title = "GRAB: " + decoded.title;
+			document.title = "GRAB: " + decoded.title;*/
 
 			titleLabel.innerHTML = 'title: <b>' + decoded.title + '</b>';
 			creatorsLabel.innerHTML = 'creators: <i>' + decoded.creators + '</i>';
