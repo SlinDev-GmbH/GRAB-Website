@@ -929,15 +929,16 @@ function init()
 				bannedUsersButton.className = "tablinks";
 				bannedUsersButton.id = "tab_banned_users"
 				bannedUsersButton.addEventListener("click", function(event) { tabChanged('banned_users'); }, false);
+
+				//Should be public, but still pretty rough, so keeping it to admins for now
+				let searchUsersButton = document.createElement("button");
+				tabBar.appendChild(searchUsersButton);
+				searchUsersButton.innerHTML = "Players";
+				searchUsersButton.className = "tablinks";
+				searchUsersButton.id = "tab_search_users"
+				searchUsersButton.addEventListener("click", function(event) { tabChanged('search_users'); }, false);
 			}
 		}
-
-		let searchUsersButton = document.createElement("button");
-		tabBar.appendChild(searchUsersButton);
-		searchUsersButton.innerHTML = "Players";
-		searchUsersButton.className = "tablinks";
-		searchUsersButton.id = "tab_search_users"
-		searchUsersButton.addEventListener("click", function(event) { tabChanged('search_users'); }, false);
 
 		if(currentTabName && currentTabName.length > 0) tabChanged(currentTabName);
 		loadMoreLevels();
