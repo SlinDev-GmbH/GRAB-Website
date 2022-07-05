@@ -116,7 +116,7 @@ async function loadMoreLevels()
 	}
 	else if(currentTab === "search_users")
 	{
-		requestURL = SERVER_URL + 'list?type=user_name&search_term' + currentSearchTerm;
+		requestURL = SERVER_URL + 'list?type=user_name&search_term=' + currentSearchTerm;
 	}
 	else
 	{
