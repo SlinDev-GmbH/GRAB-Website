@@ -47,6 +47,13 @@ async function clearLevels()
 async function loadMoreLevels()
 {
 	if(isLoading || noMoreLevels) return;
+
+	if(currentTab === "search_users" && currentSearchTerm.length === 0)
+	{
+		//TODO: Should show a message to enter a search term
+		return
+	}
+
 	isLoading = true;
 
 	console.log("loading more levels");
@@ -66,7 +73,7 @@ async function loadMoreLevels()
 	}
 
 	let requestURL = "";
-	if((currentTab !== "favorites" && currentTab !== "report_levels" && currentTab !== "report_users" && currentTab !== "banned_users") || currentSearchTerm.length > 0)
+	if(((currentTab !== "favorites" && currentTab !== "report_levels" && currentTab !== "report_users" && currentTab !== "banned_users") || currentSearchTerm.length > 0) && currentTab !== "search_users")
 	{
 		requestURL = SERVER_URL + 'list?max_format_version=' + MAX_FORMAT_VERSION;
 		if(currentTab === "verified" && currentSearchTerm.length == 0) requestURL += '&type=ok';
@@ -104,7 +111,12 @@ async function loadMoreLevels()
 	}
 	else if(currentTab === "banned_users" && accessToken && accessToken.length > 0)
 	{
+		//TODO: Should probably remove max_format_version parameter here, and in above cases, but check if there is a case where it is used somehow first
 		requestURL = SERVER_URL + 'report_list?access_token=' + accessToken + '&&type=banned_user&max_format_version=' + MAX_FORMAT_VERSION;
+	}
+	else if(currentTab === "search_users")
+	{
+		requestURL = SERVER_URL + 'list?type=user_name&search_term' + currentSearchTerm;
 	}
 	else
 	{
@@ -150,7 +162,7 @@ async function loadMoreLevels()
 		}
 
 		//This is a cell with user info! add user specific content and then skip everything after this if
-		if(currentTab === "report_users" || currentTab === "banned_users")
+		if(currentTab === "report_users" || currentTab === "banned_users" || currentTab === "search_users")
 		{
 			//console.log(listElement)
 			let userInfo = listElement
@@ -451,7 +463,7 @@ async function loadMoreLevels()
 
 		if(accessToken && userInfo)
 		{
-			if(currentTab !== "report_levels" || currentSearchTerm.length > 0)
+			if((currentTab !== "report_levels" || currentSearchTerm.length > 0) && currentTab !== "search_users")
 			{
 				//Report button
 				let reportButton = document.createElement("button");
@@ -579,7 +591,7 @@ async function loadMoreLevels()
 				let linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
 
-				if((currentTab !== "report_levels" && !("hidden" in levelInfo && levelInfo.hidden) && currentTab !== "hidden") || currentSearchTerm.length > 0)
+				if(((currentTab !== "report_levels" && !("hidden" in levelInfo && levelInfo.hidden) && currentTab !== "hidden") || currentSearchTerm.length > 0) && currentTab !== "search_users")
 				{
 					linebreak = document.createElement("br");
 					cell.appendChild(linebreak);
@@ -783,7 +795,7 @@ async function loadMoreLevels()
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
-	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "report_levels" || currentTab === "report_users" || currentTab === "banned_users") //TODO: Support pagination for report listings on the server side and here
+	if(responseBody.length == 0 || currentTab === "favorites" || currentTab === "report_levels" || currentTab === "report_users" || currentTab === "banned_users" || currentTab === "search_users") //TODO: Support pagination for report listings on the server side and here
 	{
 		noMoreLevels = true;
 
@@ -852,6 +864,8 @@ function init()
 		let userInfo = undefined
 		if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
 
+		let tabBar = document.getElementById("tabbar");
+
 		if(accessToken && userInfo)
 		{
 			if("is_admin" in userInfo && userInfo.is_admin === true)
@@ -863,8 +877,6 @@ function init()
 			{
 				console.log("You are a moderator with special powers!");
 			}
-
-			let tabBar = document.getElementById("tabbar");
 
 			if("user_level_count" in userInfo && userInfo.user_level_count > 0)
 			{
@@ -919,6 +931,13 @@ function init()
 				bannedUsersButton.addEventListener("click", function(event) { tabChanged('banned_users'); }, false);
 			}
 		}
+
+		let searchUsersButton = document.createElement("button");
+		tabBar.appendChild(searchUsersButton);
+		searchUsersButton.innerHTML = "Players";
+		searchUsersButton.className = "tablinks";
+		searchUsersButton.id = "tab_search_users"
+		searchUsersButton.addEventListener("click", function(event) { tabChanged('search_users'); }, false);
 
 		if(currentTabName && currentTabName.length > 0) tabChanged(currentTabName);
 		loadMoreLevels();
@@ -982,6 +1001,10 @@ function tabChanged(tab)
 	if(tab === "banned_users")
 	{
 		titleString = "Banned Users";
+	}
+	if(tab === "search_users")
+	{
+		titleString = "User Search";
 	}
 	if(tab === "user")
 	{
