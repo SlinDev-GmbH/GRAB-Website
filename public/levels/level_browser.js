@@ -706,7 +706,7 @@ async function loadMoreLevels()
 											confirm("Result: " + responseBody);
 											logout();
 										}
-										else if(responseBody === "Scheduled level to be hidden" && value !== "nopunish")
+										else if(responseBody === "Success" && value !== "nopunish")
 										{
 											let extra = MODERATION_ACTION_EXTRA
 											if(value === "glitch")
