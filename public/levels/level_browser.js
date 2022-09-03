@@ -749,7 +749,10 @@ async function loadMoreLevels()
 							if(confirm("Do you really want to approve this level and ignore future reports for this iteration?"))
 							{
 							  	(async () => {
-									let response = await fetch(SERVER_URL + 'ignore_reports/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + levelInfo.iteration + '?access_token=' + accessToken);
+							  		let url = SERVER_URL + 'ignore_reports/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+							  		if("iteration" in levelInfo) url += '/' + levelInfo.iteration //Needed to work with old reports TODO: Remove very soon
+							  		url += '?access_token=' + accessToken
+
 									let responseBody = await response.text();
 									console.log(responseBody);
 									confirm("Result: " + responseBody);
