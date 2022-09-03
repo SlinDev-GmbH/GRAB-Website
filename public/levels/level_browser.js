@@ -185,6 +185,14 @@ async function loadMoreLevels()
 				userNameElement.className = "cell-title"
 				userNameElement.innerHTML = userInfo.user_name
 				cell.appendChild(userNameElement);
+
+				if("is_creator" in userInfo)
+				{
+					let stamp = document.createElement("img");
+					stamp.className = "cell-stamp-ok";
+					stamp.src = "../images/creator.png";
+					cell.appendChild(stamp);
+				}
 			}
 
 			if("user_id" in userInfo)
