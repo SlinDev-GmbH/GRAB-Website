@@ -753,6 +753,7 @@ async function loadMoreLevels()
 							  		if("iteration" in levelInfo) url += '/' + levelInfo.iteration //Needed to work with old reports TODO: Remove very soon
 							  		url += '?access_token=' + accessToken
 
+							  		let response = await fetch(url);
 									let responseBody = await response.text();
 									console.log(responseBody);
 									confirm("Result: " + responseBody);
