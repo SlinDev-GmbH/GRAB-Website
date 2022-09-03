@@ -411,9 +411,7 @@ function init()
 				levelIdentifier = levelIdentifier.split(':').join('/');
 
 				let response = await fetch(SERVER_URL + 'statistics/' + levelIdentifier);
-				console.log(response);
 				let responseBody = await response.json();
-				console.log(responseBody);
 
 				var totalPlayedLabel = document.getElementById("total played count");
 				totalPlayedLabel.innerHTML = "total played count: <b>" + responseBody.total_played_count + "</b>"
