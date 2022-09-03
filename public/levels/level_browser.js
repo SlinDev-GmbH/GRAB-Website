@@ -697,7 +697,7 @@ async function loadMoreLevels()
 							let onOk = function(value) {
 								(async () => {
 										let identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
-										if(currentTab === "report_levels") identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for!
+										if(currentTab === "report_levels" && "iteration" in levelInfo) identifierPath += '/' + levelInfo.iteration //This is the iteration for the reports object this is called for! Not used anymore for new reports! TODO: Remove
 										let response = await fetch(SERVER_URL + 'hide/' + identifierPath + '?access_token=' + accessToken);
 										let responseBody = await response.text();
 										console.log(responseBody);
