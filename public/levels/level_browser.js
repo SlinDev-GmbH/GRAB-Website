@@ -244,25 +244,23 @@ async function loadMoreLevels()
 			}
 
 			//This one only works for admins, but only admins can see the reports anyway, so doing it here is fine
-			if(currentTab === "report_users")
+			if(currentTab === "report_users" || currentTab === "search_users")
 			{
-				if("handled" in listElement && listElement.handled === true)
+				if(currentTab === "report_users")
 				{
-					cell.setAttribute('handled','handled') //reports that have already been handled are marked green and are ready to be removed completely.
+					//Show some stats about the reports
+					let reportsInfoText = document.createElement("div");
+					reportsInfoText.innerHTML = ""
+					for(var key in listElement)
+					{
+						if(key.startsWith("reported_")) reportsInfoText.innerHTML += key + ": " + listElement[key] + "<br>"
+					}
+
+					cell.appendChild(reportsInfoText);
+
+					linebreak = document.createElement("br");
+					cell.appendChild(linebreak);
 				}
-
-				//Show some stats about the reports
-				let reportsInfoText = document.createElement("div");
-				reportsInfoText.innerHTML = ""
-				for(var key in listElement)
-				{
-					if(key.startsWith("reported_")) reportsInfoText.innerHTML += key + ": " + listElement[key] + "<br>"
-				}
-
-				cell.appendChild(reportsInfoText);
-
-				linebreak = document.createElement("br");
-				cell.appendChild(linebreak);
 
 				let banNowButton = document.createElement("button");
 				cell.appendChild(banNowButton);
@@ -305,15 +303,6 @@ async function loadMoreLevels()
 				moderateButton.innerHTML = "<b>PUNISH</b>";
 				moderateButton.onclick = function () {
 
-					let reasonMapping = {
-						hatespeech: "Inappropriate language",
-						behavior: "Inappropriate behavior",
-						noise: "Loud or unpleasant noises",
-						imposter: "Pretending to be someone else",
-						name: "Inappropriate user name",
-						other: "Other"
-					}
-
 					let onOk = function(value) {
 						(async () => {
 							let response = await fetch(SERVER_URL + 'moderation_action/' + userInfo.user_id + '?access_token=' + accessToken + '&reason=user_' + value + MODERATION_ACTION_EXTRA);
@@ -332,7 +321,37 @@ async function loadMoreLevels()
 						})()
 					}
 
-					showOptionsDialog("Punish User", "For what reason do you want to warn or ban the user?", reasonMapping, onOk)
+					if(currentTab !== "report_users")
+					{
+						let reasonMapping = {
+							hatespeech: "Inappropriate language",
+							behavior: "Inappropriate behavior",
+							noise: "Loud or unpleasant noises",
+							imposter: "Pretending to be someone else",
+							name: "Inappropriate user name",
+							other: "Other"
+						}
+
+						showOptionsDialog("Punish User", "For what reason do you want to warn or ban the user?", reasonMapping, onOk)
+					}
+					else
+					{
+						let bestReason = ""
+						let bestReasonScore = 0
+						for(var key in listElement)
+						{
+							if(key.startsWith("reported_score_"))
+							{
+								if(listElement[key] > bestReasonScore)
+								{
+									bestReasonScore = listElement[key]
+									bestReason = key.slice(15)
+								}
+							}
+						}
+
+						onOk(bestReason)
+					}
 				};
 
 				let resetButton = document.createElement("button");
