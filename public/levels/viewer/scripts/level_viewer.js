@@ -2,7 +2,7 @@ import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
-let userID = -1;
+let userID = undefined;
 
 let clock, camera, scene, renderer, controls;
 let textureLoader;
@@ -185,6 +185,7 @@ function init()
 			let detailResponse = await fetch(SERVER_URL + 'details/' + levelIdentifier);
 			let detailResponseBody = await detailResponse.json();
 			userID = levelIdentifierParts[0];
+			console.log(userID);
 
 			if(detailResponseBody.hidden === true && (!userInfo || !("is_admin" in userInfo) || userInfo.is_admin === false))
 			{
@@ -494,7 +495,7 @@ export function backButtonPressed()
 {
 	let newURL = new URL(window.location);
 	newURL.pathname = "/levels";
-	if(userID) newURL.search = "?tab=user&user_id=" + userID;
+	if(userID !== undefined) newURL.search = "?tab=user&user_id=" + userID;
 	else newURL.search = "";
 	window.location.href = newURL.href;
 }
