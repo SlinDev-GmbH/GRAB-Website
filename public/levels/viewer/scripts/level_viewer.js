@@ -2,7 +2,7 @@ import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 
-let levelCreationTime = -1;
+let userID = -1;
 
 let clock, camera, scene, renderer, controls;
 let textureLoader;
@@ -178,13 +178,13 @@ function init()
 
 			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
-			levelIdentifier = levelIdentifier.split(':')
-			let hasIteration = levelIdentifier.length === 3
-			levelIdentifier = levelIdentifier.join('/');
+			let levelIdentifierParts = levelIdentifier.split(':')
+			let hasIteration = levelIdentifierParts.length === 3
+			levelIdentifier = levelIdentifierParts.join('/');
 
 			let detailResponse = await fetch(SERVER_URL + 'details/' + levelIdentifier);
 			let detailResponseBody = await detailResponse.json();
-			levelCreationTime = detailResponseBody.creation_timestamp+1;
+			userID = levelIdentifierParts[0];
 
 			if(detailResponseBody.hidden === true && (!userInfo || !("is_admin" in userInfo) || userInfo.is_admin === false))
 			{
@@ -494,7 +494,7 @@ export function backButtonPressed()
 {
 	let newURL = new URL(window.location);
 	newURL.pathname = "/levels";
-	if(levelCreationTime) newURL.search = "?timestamp=" + levelCreationTime;
+	if(userID) newURL.search = "?tab=user&user_id=" + userID;
 	else newURL.search = "";
 	window.location.href = newURL.href;
 }
