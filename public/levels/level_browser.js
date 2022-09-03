@@ -309,14 +309,18 @@ async function loadMoreLevels()
 							let responseBody = await response.text();
 							if(response.status != 200 && accessToken && responseBody === "Not authorized!")
 							{
-								confirm("Result: " + responseBody);
+								confirm("Error: " + responseBody);
 								logout();
 							}
 							else if(responseBody === "Success")
 							{
 								response = await fetch(SERVER_URL + 'reports_reset/' + userInfo.user_id + '?access_token=' + accessToken); //Also reset the users reports if the punishment was successful
-								responseBody = await response.text();
-								confirm("Result: " + responseBody);
+
+								if(response.status != 200)
+								{
+									responseBody = await response.text();
+									confirm("Error: " + responseBody);
+								}
 							}
 						})()
 					}
