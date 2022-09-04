@@ -463,6 +463,17 @@ async function loadMoreLevels()
 		{
 			cell.innerHTML += '<br><br><div class=cell-description>' + levelInfo.description
 		}
+		if("statistics" in levelInfo)
+		{
+			if("difficulty" in levelInfo.statistics)
+			{
+				cell.innerHTML += '<br>difficulty: '
+				if(levelInfo.statistics.difficulty < 0.6) cell.innerHTML += "Easy"
+				else if(levelInfo.statistics.difficulty < 0.9) cell.innerHTML += "Medium"
+				else if(levelInfo.statistics.difficulty < 0.99) cell.innerHTML += "Hard"
+				else cell.innerHTML += "Very Hard"
+			}
+		}
 		cell.innerHTML += '</div>';
 
 		if((!levelsUserID || levelsUserID.length == 0) && currentTab !== "mylevels")
