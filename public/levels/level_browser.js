@@ -952,8 +952,8 @@ function init()
 			loginoutButton.addEventListener("click", logout);
 
 			const copyAccessTokenButton = document.getElementById("copy-token-button")
-			copyAccessTokenButton.visibility = "hidden"
-			loginoutButton.addEventListener("click", (){
+			copyAccessTokenButton.style.display = "block"
+			loginoutButton.addEventListener("click", function(event) {
 				navigator.clipboard.writeText(accessToken);
 			});
 
