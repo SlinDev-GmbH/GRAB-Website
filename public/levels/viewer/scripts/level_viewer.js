@@ -356,10 +356,10 @@ function init()
 					start.position.y = node.levelNodeStart.position.y
 					start.position.z = node.levelNodeStart.position.z
 
-					start.scale.x = node.levelNodeStart.radius;
-					start.scale.z = node.levelNodeStart.radius;
+					start.scale.x = node.levelNodeStart.radius * 2.0;
+					start.scale.z = node.levelNodeStart.radius * 2.0;
 
-					camera.position.set(start.position.x, start.position.y + 2, start.position.z);
+					camera.position.set(start.position.x, start.position.y + 2.0, start.position.z);
 				}
 				else if(node.levelNodeFinish)
 				{
@@ -369,8 +369,18 @@ function init()
 					finish.position.y = node.levelNodeFinish.position.y
 					finish.position.z = node.levelNodeFinish.position.z
 
-					finish.scale.x = node.levelNodeFinish.radius;
-					finish.scale.z = node.levelNodeFinish.radius;
+					finish.scale.x = node.levelNodeFinish.radius * 2.0;
+					finish.scale.z = node.levelNodeFinish.radius * 2.0;
+
+					if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true)
+					{
+						let finishElement = document.createElement("div");
+						finishElement.innerHTML = "Go to Finish<br><br>"
+						finishElement.onclick = function() {
+					  		camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
+						}
+						signTextContainer.appendChild(finishElement);
+					}
 				}
 				else if(node.levelNodeSign)
 				{
