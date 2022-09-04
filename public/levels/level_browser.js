@@ -472,6 +472,7 @@ async function loadMoreLevels()
 				else if(levelInfo.statistics.difficulty < 0.9) cell.innerHTML += "Medium"
 				else if(levelInfo.statistics.difficulty < 0.99) cell.innerHTML += "Hard"
 				else cell.innerHTML += "Very Hard"
+				cell.innerHTML += '<br>Plays: ' + levelInfo.statistics.total_played
 			}
 		}
 		cell.innerHTML += '</div>';
