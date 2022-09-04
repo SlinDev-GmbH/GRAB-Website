@@ -377,7 +377,6 @@ function init()
 					goToFinishLabel.onclick = function() {
 						camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
 					}
-					signTextContainer.appendChild(goToFinishLabel);
 				}
 				else if(node.levelNodeSign)
 				{
