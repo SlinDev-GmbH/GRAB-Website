@@ -397,7 +397,7 @@ function init()
 					{
 						let signTextElement = document.createElement("div");
 						signTextElement.innerHTML = "Sign " + signCounter + ": " + signText + "<br><br>"
-						signTextElement.onclick =  = function() {
+						signTextElement.onclick = function() {
 					  		camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
 						}
 						signTextContainer.appendChild(signTextElement);
