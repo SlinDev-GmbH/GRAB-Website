@@ -372,15 +372,12 @@ function init()
 					finish.scale.x = node.levelNodeFinish.radius * 2.0;
 					finish.scale.z = node.levelNodeFinish.radius * 2.0;
 
-					if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true)
-					{
-						let finishElement = document.createElement("div");
-						finishElement.innerHTML = "Go to Finish<br><br>"
-						finishElement.onclick = function() {
-					  		camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
-						}
-						signTextContainer.appendChild(finishElement);
+					var goToFinishLabel = document.getElementById("go to finish");
+					goToFinishLabel.innerHTML = "Go to Finish"
+					goToFinishLabel.onclick = function() {
+						camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
 					}
+					signTextContainer.appendChild(goToFinishLabel);
 				}
 				else if(node.levelNodeSign)
 				{
@@ -408,7 +405,7 @@ function init()
 						let signTextElement = document.createElement("div");
 						signTextElement.innerHTML = "Sign " + signCounter + ": " + signText + "<br><br>"
 						signTextElement.onclick = function() {
-					  		camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
+							camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
 						}
 						signTextContainer.appendChild(signTextElement);
 					}
