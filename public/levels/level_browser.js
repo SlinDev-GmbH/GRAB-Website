@@ -953,7 +953,7 @@ function init()
 
 			const copyAccessTokenButton = document.getElementById("copy-token-button")
 			copyAccessTokenButton.style.display = "block"
-			loginoutButton.addEventListener("click", function(event) {
+			copyAccessTokenButton.addEventListener("click", function(event) {
 				navigator.clipboard.writeText(accessToken);
 			});
 
