@@ -468,10 +468,10 @@ async function loadMoreLevels()
 			if("difficulty" in levelInfo.statistics)
 			{
 				cell.innerHTML += '<br>Difficulty: '
-				if(levelInfo.statistics.difficulty < 0.6) cell.innerHTML += "Easy"
-				else if(levelInfo.statistics.difficulty < 0.9) cell.innerHTML += "Medium"
-				else if(levelInfo.statistics.difficulty < 0.99) cell.innerHTML += "Hard"
-				else cell.innerHTML += "Very Hard"
+				if(levelInfo.statistics.difficulty < 0.01) cell.innerHTML += "Very Hard"
+				else if(levelInfo.statistics.difficulty < 0.1) cell.innerHTML += "Hard"
+				else if(levelInfo.statistics.difficulty < 0.4) cell.innerHTML += "Medium"
+				else cell.innerHTML += "Easy"
 				if("total_played" in levelInfo.statistics) cell.innerHTML += '<br>Plays: ' + levelInfo.statistics.total_played
 				if("liked" in levelInfo.statistics) cell.innerHTML += '<br>Liked: ' + levelInfo.statistics.liked * 100 + '%'
 			}
