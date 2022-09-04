@@ -1,5 +1,5 @@
 const MAX_FORMAT_VERSION = 4
-const MODERATION_ACTION_EXTRA = ""//"&duration=61"
+const MODERATION_ACTION_EXTRA = "" //"&duration=61"
 var isLoading = false;
 var isAtTop = true;
 var nextPageTimestamp = -1;
@@ -950,6 +950,12 @@ function init()
 			loginoutButton.className = "logout-button";
 			loginoutButton.innerHTML = "Logout";
 			loginoutButton.addEventListener("click", logout);
+
+			const copyAccessTokenButton = document.getElementById("copy-token-button")
+			copyAccessTokenButton.visibility = "hidden"
+			loginoutButton.addEventListener("click", (){
+				navigator.clipboard.writeText(accessToken);
+			});
 
 			if("is_admin" in userInfo && userInfo.is_admin === true)
 			{
