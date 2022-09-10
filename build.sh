@@ -5,4 +5,4 @@ if [ -z ${GRAB_PAGE_URL+x} ]; then GRAB_PAGE_URL="https://develop.grab-website.p
 
 echo "const SERVER_URL = '${GRAB_SERVER_URL}'" > public/configuration.js
 echo "const PAGE_URL = '${GRAB_PAGE_URL}'" >> public/configuration.js
-echo "const VIEWER_PATH = '/levels/viewer/'"
+echo "const VIEWER_PATH = '/levels/viewer/'" >> public/configuration.js
