@@ -300,7 +300,7 @@ function init()
 						let rotation = cube.quaternion.multiply(extraRotate)
 						cube.setRotationFromQuaternion(rotation)
 
-						loadLevelNodes(node.levelNodeGroup.levelNodes, cube)
+						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
 					}
 					else if(node.levelNodeStatic)
 					{
@@ -333,7 +333,7 @@ function init()
 						cube.setRotationFromQuaternion(rotation)
 
 						let worldMatrix = new THREE.Matrix4();
-						worldMatrix.compose(cube.position, rotation, cube.scale)
+						worldMatrix.compose(cube.getWorldPosition(cube.position), cube.getWorldRotation(rotation), cube.getWorldScale(cube.scale))
 
 						let normalMatrix = new THREE.Matrix3()
 						normalMatrix.getNormalMatrix(worldMatrix)
@@ -365,7 +365,7 @@ function init()
 						cube.setRotationFromQuaternion(rotation)
 
 						let worldMatrix = new THREE.Matrix4();
-						worldMatrix.compose(cube.position, rotation, cube.scale)
+						worldMatrix.compose(cube.getWorldPosition(cube.position), cube.getWorldRotation(rotation), cube.getWorldScale(cube.scale))
 
 						let normalMatrix = new THREE.Matrix3()
 						normalMatrix.getNormalMatrix(worldMatrix)
