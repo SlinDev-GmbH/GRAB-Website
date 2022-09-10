@@ -434,8 +434,8 @@ function init()
 
 						//if(parentNode == scene)
 						{
-							let rotation = cube.quaternion.multiply(extraRotate)
-							cube.setRotationFromQuaternion(rotation)
+							let rotation = sign.quaternion.multiply(extraRotate)
+							sign.setRotationFromQuaternion(rotation)
 						}
 
 						let signText = node.levelNodeSign.text
