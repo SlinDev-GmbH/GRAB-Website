@@ -297,11 +297,11 @@ function init()
 						cube.quaternion.z = node.levelNodeGroup.rotation.z
 						cube.quaternion.w = node.levelNodeGroup.rotation.w
 
-						if(parentNode == scene)
+						/*if(parentNode == scene)
 						{
 							let rotation = cube.quaternion.multiply(extraRotate)
 							cube.setRotationFromQuaternion(rotation)
-						}
+						}*/
 
 						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
 					}
@@ -332,7 +332,7 @@ function init()
 						cube.quaternion.z = node.levelNodeStatic.rotation.z
 						cube.quaternion.w = node.levelNodeStatic.rotation.w
 
-						if(parentNode == scene)
+						//if(parentNode == scene)
 						{
 							let rotation = cube.quaternion.multiply(extraRotate)
 							cube.setRotationFromQuaternion(rotation)
@@ -369,7 +369,7 @@ function init()
 						cube.quaternion.z = node.levelNodeCrumbling.rotation.z
 						cube.quaternion.w = node.levelNodeCrumbling.rotation.w
 
-						if(parentNode == scene)
+						//if(parentNode == scene)
 						{
 							let rotation = cube.quaternion.multiply(extraRotate)
 							cube.setRotationFromQuaternion(rotation)
@@ -432,7 +432,7 @@ function init()
 						sign.quaternion.z = node.levelNodeSign.rotation.z
 						sign.quaternion.w = node.levelNodeSign.rotation.w
 
-						if(parentNode == scene)
+						//if(parentNode == scene)
 						{
 							let rotation = cube.quaternion.multiply(extraRotate)
 							cube.setRotationFromQuaternion(rotation)
