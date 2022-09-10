@@ -275,143 +275,171 @@ function init()
 			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
 			let signTextContainer = document.getElementById("signtextcontainer");
-
 			let signCounter = 0;
-			for(let node of decoded.levelNodes)
-			{
-				if(node.levelNodeStatic)
-				{
-					let material = materials[node.levelNodeStatic.material]
-					let newMaterial = material.clone()
-					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-					newMaterial.uniforms["sunDirection"] = { value: sunDirection }
 
-					if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
+			const loadLevelNodes = function(nodes, parentNode){
+				for(let node of nodes)
+				{
+					if(node.levelNodeGroup)
 					{
-						newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
+						let cube = new THREE.Object3D()
+						parentNode.add(cube);
+						cube.position.x = node.levelNodeGroup.position.x
+						cube.position.y = node.levelNodeGroup.position.y
+						cube.position.z = node.levelNodeGroup.position.z
+
+						cube.scale.x = node.levelNodeGroup.scale.x
+						cube.scale.y = node.levelNodeGroup.scale.y
+						cube.scale.z = node.levelNodeGroup.scale.z
+
+						cube.quaternion.x = node.levelNodeGroup.rotation.x
+						cube.quaternion.y = node.levelNodeGroup.rotation.y
+						cube.quaternion.z = node.levelNodeGroup.rotation.z
+						cube.quaternion.w = node.levelNodeGroup.rotation.w
+
+						let rotation = cube.quaternion.multiply(extraRotate)
+						cube.setRotationFromQuaternion(rotation)
+
+						loadLevelNodes(node.levelNodeGroup.levelNodes, cube)
 					}
-
-					let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
-					scene.add(cube);
-					cube.position.x = node.levelNodeStatic.position.x
-					cube.position.y = node.levelNodeStatic.position.y
-					cube.position.z = node.levelNodeStatic.position.z
-
-					cube.scale.x = node.levelNodeStatic.scale.x
-					cube.scale.y = node.levelNodeStatic.scale.y
-					cube.scale.z = node.levelNodeStatic.scale.z
-
-					cube.quaternion.x = node.levelNodeStatic.rotation.x
-					cube.quaternion.y = node.levelNodeStatic.rotation.y
-					cube.quaternion.z = node.levelNodeStatic.rotation.z
-					cube.quaternion.w = node.levelNodeStatic.rotation.w
-
-					let rotation = cube.quaternion.multiply(extraRotate)
-					cube.setRotationFromQuaternion(rotation)
-
-					let worldMatrix = new THREE.Matrix4();
-					worldMatrix.compose(cube.position, rotation, cube.scale)
-
-					let normalMatrix = new THREE.Matrix3()
-					normalMatrix.getNormalMatrix(worldMatrix)
-					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
-				}
-				else if(node.levelNodeCrumbling)
-				{
-					let material = materials[node.levelNodeCrumbling.material]
-					let newMaterial = material.clone()
-					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-					newMaterial.uniforms["sunDirection"] = { value: sunDirection }
-
-					let cube = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
-					scene.add(cube);
-					cube.position.x = node.levelNodeCrumbling.position.x
-					cube.position.y = node.levelNodeCrumbling.position.y
-					cube.position.z = node.levelNodeCrumbling.position.z
-
-					cube.scale.x = node.levelNodeCrumbling.scale.x
-					cube.scale.y = node.levelNodeCrumbling.scale.y
-					cube.scale.z = node.levelNodeCrumbling.scale.z
-
-					cube.quaternion.x = node.levelNodeCrumbling.rotation.x
-					cube.quaternion.y = node.levelNodeCrumbling.rotation.y
-					cube.quaternion.z = node.levelNodeCrumbling.rotation.z
-					cube.quaternion.w = node.levelNodeCrumbling.rotation.w
-
-					let rotation = cube.quaternion.multiply(extraRotate)
-					cube.setRotationFromQuaternion(rotation)
-
-					let worldMatrix = new THREE.Matrix4();
-					worldMatrix.compose(cube.position, rotation, cube.scale)
-
-					let normalMatrix = new THREE.Matrix3()
-					normalMatrix.getNormalMatrix(worldMatrix)
-					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
-				}
-				else if(node.levelNodeStart)
-				{
-					let start = new THREE.Mesh(objects[0], objectMaterials[0]);
-					scene.add(start);
-					start.position.x = node.levelNodeStart.position.x
-					start.position.y = node.levelNodeStart.position.y
-					start.position.z = node.levelNodeStart.position.z
-
-					start.scale.x = node.levelNodeStart.radius * 2.0;
-					start.scale.z = node.levelNodeStart.radius * 2.0;
-
-					camera.position.set(start.position.x, start.position.y + 2.0, start.position.z);
-				}
-				else if(node.levelNodeFinish)
-				{
-					let finish = new THREE.Mesh(objects[0], objectMaterials[1]);
-					scene.add(finish);
-					finish.position.x = node.levelNodeFinish.position.x
-					finish.position.y = node.levelNodeFinish.position.y
-					finish.position.z = node.levelNodeFinish.position.z
-
-					finish.scale.x = node.levelNodeFinish.radius * 2.0;
-					finish.scale.z = node.levelNodeFinish.radius * 2.0;
-
-					var goToFinishLabel = document.getElementById("go to finish");
-					goToFinishLabel.innerHTML = "Go to Finish"
-					goToFinishLabel.onclick = function() {
-						camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
-					}
-				}
-				else if(node.levelNodeSign)
-				{
-					let material = objectMaterials[2]
-					let newMaterial = material.clone()
-					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-					newMaterial.uniforms["sunDirection"] = { value: sunDirection }
-
-					let sign = new THREE.Mesh(objects[1], newMaterial);
-					scene.add(sign);
-					sign.position.x = node.levelNodeSign.position.x
-					sign.position.y = node.levelNodeSign.position.y
-					sign.position.z = node.levelNodeSign.position.z
-
-					sign.quaternion.x = node.levelNodeSign.rotation.x
-					sign.quaternion.y = node.levelNodeSign.rotation.y
-					sign.quaternion.z = node.levelNodeSign.rotation.z
-					sign.quaternion.w = node.levelNodeSign.rotation.w
-
-					sign.setRotationFromQuaternion(sign.quaternion.multiply(extraRotate));
-
-					let signText = node.levelNodeSign.text
-					if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && signText && signText.length > 0)
+					else if(node.levelNodeStatic)
 					{
-						let signTextElement = document.createElement("div");
-						signTextElement.innerHTML = "Sign " + signCounter + ": " + signText + "<br><br>"
-						signTextElement.onclick = function() {
-							camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
+						let material = materials[node.levelNodeStatic.material]
+						let newMaterial = material.clone()
+						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+						newMaterial.uniforms["sunDirection"] = { value: sunDirection }
+
+						if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
+						{
+							newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
 						}
-						signTextContainer.appendChild(signTextElement);
-					}
 
-					signCounter += 1;
+						let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
+						parentNode.add(cube);
+						cube.position.x = node.levelNodeStatic.position.x
+						cube.position.y = node.levelNodeStatic.position.y
+						cube.position.z = node.levelNodeStatic.position.z
+
+						cube.scale.x = node.levelNodeStatic.scale.x
+						cube.scale.y = node.levelNodeStatic.scale.y
+						cube.scale.z = node.levelNodeStatic.scale.z
+
+						cube.quaternion.x = node.levelNodeStatic.rotation.x
+						cube.quaternion.y = node.levelNodeStatic.rotation.y
+						cube.quaternion.z = node.levelNodeStatic.rotation.z
+						cube.quaternion.w = node.levelNodeStatic.rotation.w
+
+						let rotation = cube.quaternion.multiply(extraRotate)
+						cube.setRotationFromQuaternion(rotation)
+
+						let worldMatrix = new THREE.Matrix4();
+						worldMatrix.compose(cube.position, rotation, cube.scale)
+
+						let normalMatrix = new THREE.Matrix3()
+						normalMatrix.getNormalMatrix(worldMatrix)
+						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
+					}
+					else if(node.levelNodeCrumbling)
+					{
+						let material = materials[node.levelNodeCrumbling.material]
+						let newMaterial = material.clone()
+						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+						newMaterial.uniforms["sunDirection"] = { value: sunDirection }
+
+						let cube = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
+						parentNode.add(cube);
+						cube.position.x = node.levelNodeCrumbling.position.x
+						cube.position.y = node.levelNodeCrumbling.position.y
+						cube.position.z = node.levelNodeCrumbling.position.z
+
+						cube.scale.x = node.levelNodeCrumbling.scale.x
+						cube.scale.y = node.levelNodeCrumbling.scale.y
+						cube.scale.z = node.levelNodeCrumbling.scale.z
+
+						cube.quaternion.x = node.levelNodeCrumbling.rotation.x
+						cube.quaternion.y = node.levelNodeCrumbling.rotation.y
+						cube.quaternion.z = node.levelNodeCrumbling.rotation.z
+						cube.quaternion.w = node.levelNodeCrumbling.rotation.w
+
+						let rotation = cube.quaternion.multiply(extraRotate)
+						cube.setRotationFromQuaternion(rotation)
+
+						let worldMatrix = new THREE.Matrix4();
+						worldMatrix.compose(cube.position, rotation, cube.scale)
+
+						let normalMatrix = new THREE.Matrix3()
+						normalMatrix.getNormalMatrix(worldMatrix)
+						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
+					}
+					else if(node.levelNodeStart)
+					{
+						let start = new THREE.Mesh(objects[0], objectMaterials[0]);
+						parentNode.add(start);
+						start.position.x = node.levelNodeStart.position.x
+						start.position.y = node.levelNodeStart.position.y
+						start.position.z = node.levelNodeStart.position.z
+
+						start.scale.x = node.levelNodeStart.radius * 2.0;
+						start.scale.z = node.levelNodeStart.radius * 2.0;
+
+						camera.position.set(start.position.x, start.position.y + 2.0, start.position.z);
+					}
+					else if(node.levelNodeFinish)
+					{
+						let finish = new THREE.Mesh(objects[0], objectMaterials[1]);
+						parentNode.add(finish);
+						finish.position.x = node.levelNodeFinish.position.x
+						finish.position.y = node.levelNodeFinish.position.y
+						finish.position.z = node.levelNodeFinish.position.z
+
+						finish.scale.x = node.levelNodeFinish.radius * 2.0;
+						finish.scale.z = node.levelNodeFinish.radius * 2.0;
+
+						var goToFinishLabel = document.getElementById("go to finish");
+						goToFinishLabel.innerHTML = "Go to Finish"
+						goToFinishLabel.onclick = function() {
+							camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
+						}
+					}
+					else if(node.levelNodeSign)
+					{
+						let material = objectMaterials[2]
+						let newMaterial = material.clone()
+						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+						newMaterial.uniforms["sunDirection"] = { value: sunDirection }
+
+						let sign = new THREE.Mesh(objects[1], newMaterial);
+						parentNode.add(sign);
+						sign.position.x = node.levelNodeSign.position.x
+						sign.position.y = node.levelNodeSign.position.y
+						sign.position.z = node.levelNodeSign.position.z
+
+						sign.quaternion.x = node.levelNodeSign.rotation.x
+						sign.quaternion.y = node.levelNodeSign.rotation.y
+						sign.quaternion.z = node.levelNodeSign.rotation.z
+						sign.quaternion.w = node.levelNodeSign.rotation.w
+
+						sign.setRotationFromQuaternion(sign.quaternion.multiply(extraRotate));
+
+						let signText = node.levelNodeSign.text
+						if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && signText && signText.length > 0)
+						{
+							let signTextElement = document.createElement("div");
+							signTextElement.innerHTML = "Sign " + signCounter + ": " + signText + "<br><br>"
+							signTextElement.onclick = function() {
+								camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
+							}
+							signTextContainer.appendChild(signTextElement);
+						}
+
+						signCounter += 1;
+					}
 				}
-			}
+			};
+
+			loadLevelNodes(decoded.levelNodes, scene);
+
+			
 
 			//Get level statistics
 			(async () => {
