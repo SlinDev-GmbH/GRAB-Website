@@ -120,6 +120,7 @@ function init()
 	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, levelVertexShader, levelFragmentShader));
 	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, levelVertexShader, levelFragmentShader));
 	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShader));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, levelVertexShader, levelFragmentShader));
 
 	const vertexShader = document.getElementById('startfinish-vertexShader').textContent;
 	const fragmentShader = document.getElementById('startfinish-fragmentShader').textContent;
