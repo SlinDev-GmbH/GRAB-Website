@@ -297,8 +297,11 @@ function init()
 						cube.quaternion.z = node.levelNodeGroup.rotation.z
 						cube.quaternion.w = node.levelNodeGroup.rotation.w
 
-						let rotation = cube.quaternion.multiply(extraRotate)
-						cube.setRotationFromQuaternion(rotation)
+						if(parentNode == scene)
+						{
+							let rotation = cube.quaternion.multiply(extraRotate)
+							cube.setRotationFromQuaternion(rotation)
+						}
 
 						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
 					}
@@ -329,8 +332,11 @@ function init()
 						cube.quaternion.z = node.levelNodeStatic.rotation.z
 						cube.quaternion.w = node.levelNodeStatic.rotation.w
 
-						let rotation = cube.quaternion.multiply(extraRotate)
-						cube.setRotationFromQuaternion(rotation)
+						if(parentNode == scene)
+						{
+							let rotation = cube.quaternion.multiply(extraRotate)
+							cube.setRotationFromQuaternion(rotation)
+						}
 
 						let targetVector = new THREE.Vector3()
 						let targetQuaternion = new THREE.Quaternion()
@@ -363,8 +369,11 @@ function init()
 						cube.quaternion.z = node.levelNodeCrumbling.rotation.z
 						cube.quaternion.w = node.levelNodeCrumbling.rotation.w
 
-						let rotation = cube.quaternion.multiply(extraRotate)
-						cube.setRotationFromQuaternion(rotation)
+						if(parentNode == scene)
+						{
+							let rotation = cube.quaternion.multiply(extraRotate)
+							cube.setRotationFromQuaternion(rotation)
+						}
 
 						let targetVector = new THREE.Vector3()
 						let targetQuaternion = new THREE.Quaternion()
@@ -423,7 +432,11 @@ function init()
 						sign.quaternion.z = node.levelNodeSign.rotation.z
 						sign.quaternion.w = node.levelNodeSign.rotation.w
 
-						sign.setRotationFromQuaternion(sign.quaternion.multiply(extraRotate));
+						if(parentNode == scene)
+						{
+							let rotation = cube.quaternion.multiply(extraRotate)
+							cube.setRotationFromQuaternion(rotation)
+						}
 
 						let signText = node.levelNodeSign.text
 						if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && signText && signText.length > 0)
