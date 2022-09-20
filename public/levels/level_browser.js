@@ -470,7 +470,7 @@ async function loadMoreLevels()
 		}
 		cell.innerHTML = '<b class="cell-difficulty">' + difficulty + '</b><br>'
 
-		cell.innerHTML = '<b class="cell-title">' + levelInfo.title
+		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
 		{
 			cell.innerHTML += '</b><br>' + creators
