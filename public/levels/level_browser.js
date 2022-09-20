@@ -454,6 +454,22 @@ async function loadMoreLevels()
 			creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
 		}
 
+		let difficulty = "unrated"
+		if("statistics" in levelInfo)
+		{
+			if("difficulty" in levelInfo.statistics && "total_played" in levelInfo.statistics)
+			{
+				if(levelInfo.statistics.difficulty !== 1.0 && levelInfo.statistics.total_played > 0)
+				{
+					if(levelInfo.statistics.difficulty < 0.01) difficulty = "very hard"
+					else if(levelInfo.statistics.difficulty < 0.1) difficulty += "hard"
+					else if(levelInfo.statistics.difficulty < 0.4) difficulty += "medium"
+					else difficulty += "easy"
+				}
+			}
+		}
+		cell.innerHTML = '<b class="cell-difficulty">' + difficulty + '</b><br>'
+
 		cell.innerHTML = '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
 		{
@@ -465,17 +481,9 @@ async function loadMoreLevels()
 		}
 		if("statistics" in levelInfo)
 		{
-			if("difficulty" in levelInfo.statistics)
+			if("total_played" in levelInfo.statistics && levelInfo.statistics.total_played > 0)
 			{
-				if(levelInfo.statistics.difficulty !== 1.0)
-				{
-					cell.innerHTML += '<br>Difficulty: '
-					if(levelInfo.statistics.difficulty < 0.01) cell.innerHTML += "Very Hard"
-					else if(levelInfo.statistics.difficulty < 0.1) cell.innerHTML += "Hard"
-					else if(levelInfo.statistics.difficulty < 0.4) cell.innerHTML += "Medium"
-					else cell.innerHTML += "Easy"
-				}
-				if("total_played" in levelInfo.statistics) cell.innerHTML += '<br>Plays: ' + levelInfo.statistics.total_played
+				cell.innerHTML += '<br>Plays: ' + levelInfo.statistics.total_played
 				if("liked" in levelInfo.statistics) cell.innerHTML += '<br>Liked: ' + Math.round(levelInfo.statistics.liked * 100) + '%'
 			}
 		}
