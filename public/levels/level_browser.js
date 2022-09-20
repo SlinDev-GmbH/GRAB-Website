@@ -455,20 +455,37 @@ async function loadMoreLevels()
 		}
 
 		let difficulty = "unrated"
+		let difficultyColor = "color: #969696;"
 		if("statistics" in levelInfo)
 		{
 			if("difficulty" in levelInfo.statistics && "total_played" in levelInfo.statistics)
 			{
 				if(levelInfo.statistics.difficulty !== 1.0 && levelInfo.statistics.total_played > 0)
 				{
-					if(levelInfo.statistics.difficulty < 0.01) difficulty = "very hard"
-					else if(levelInfo.statistics.difficulty < 0.1) difficulty = "hard"
-					else if(levelInfo.statistics.difficulty < 0.4) difficulty = "medium"
-					else difficulty = "easy"
+					if(levelInfo.statistics.difficulty < 0.01)
+					{
+						difficulty = "very hard"
+						difficultyColor = "color: #EA0000;"
+					}
+					else if(levelInfo.statistics.difficulty < 0.1)
+					{
+						difficulty = "hard"
+						difficultyColor = "color: #F19400;"
+					}
+					else if(levelInfo.statistics.difficulty < 0.4)
+					{
+						difficulty = "medium"
+						difficultyColor = "color: #E1C800;"
+					}
+					else
+					{
+						difficulty = "easy"
+						difficultyColor = "color: #2BBA84;"
+					}
 				}
 			}
 		}
-		cell.innerHTML = '<b class="cell-difficulty" style="color: rgb(255, 0, 0);">' + difficulty + '</b><br>'
+		cell.innerHTML = '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b><br>'
 
 		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
