@@ -462,9 +462,9 @@ async function loadMoreLevels()
 				if(levelInfo.statistics.difficulty !== 1.0 && levelInfo.statistics.total_played > 0)
 				{
 					if(levelInfo.statistics.difficulty < 0.01) difficulty = "very hard"
-					else if(levelInfo.statistics.difficulty < 0.1) difficulty += "hard"
-					else if(levelInfo.statistics.difficulty < 0.4) difficulty += "medium"
-					else difficulty += "easy"
+					else if(levelInfo.statistics.difficulty < 0.1) difficulty = "hard"
+					else if(levelInfo.statistics.difficulty < 0.4) difficulty = "medium"
+					else difficulty = "easy"
 				}
 			}
 		}
