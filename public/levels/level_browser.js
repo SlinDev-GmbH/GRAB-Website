@@ -468,7 +468,7 @@ async function loadMoreLevels()
 				}
 			}
 		}
-		cell.innerHTML = '<b class="cell-difficulty">' + difficulty + '</b><br>'
+		cell.innerHTML = '<b class="cell-difficulty" style="color: rgb(255, 0, 0);">' + difficulty + '</b><br>'
 
 		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
