@@ -164,7 +164,7 @@
 				{
 					color.rgb *= texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
 				}
-				else if(blendNormals.y > blendNormals.x && blendNormals.y > blendNormals.z)
+				else if(blendNormals.y > blendNormals.z)
 				{
 					color.rgb *= texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
 				}
