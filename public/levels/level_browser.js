@@ -454,6 +454,8 @@ async function loadMoreLevels()
 			creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
 		}
 
+		cell.innerHTML = ''
+
 		let difficulty = "unrated"
 		let difficultyColor = "color: #969696;"
 		if("statistics" in levelInfo)
@@ -483,9 +485,11 @@ async function loadMoreLevels()
 						difficultyColor = "color: #2BBA84;"
 					}
 				}
+
+				cell.innerHTML += cell.innerHTML += '<b class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</b>'
 			}
 		}
-		cell.innerHTML = '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b><br>'
+		cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b><br>'
 
 		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
@@ -500,7 +504,6 @@ async function loadMoreLevels()
 		{
 			if("total_played" in levelInfo.statistics && levelInfo.statistics.total_played > 0)
 			{
-				cell.innerHTML += '<br>Plays: ' + levelInfo.statistics.total_played
 				if("liked" in levelInfo.statistics) cell.innerHTML += '<br>Liked: ' + Math.round(levelInfo.statistics.liked * 100) + '%'
 			}
 		}
