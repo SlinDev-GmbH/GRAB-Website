@@ -485,11 +485,15 @@ async function loadMoreLevels()
 						difficultyColor = "color: #2BBA84;"
 					}
 				}
-
-				cell.innerHTML += cell.innerHTML += '<b class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</b>'
 			}
 		}
-		cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b><br>'
+		cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b>'
+
+		if("statistics" in levelInfo && "total_played" in levelInfo.statistics)
+		{
+			cell.innerHTML += '<span class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</span>'
+		}
+		cell.innerHTML += '<br>'
 
 		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
