@@ -462,44 +462,47 @@ async function loadMoreLevels()
 
 		cell.innerHTML = ''
 
-		let difficulty = "unrated"
-		let difficultyColor = "color: #969696;"
-		if("statistics" in levelInfo)
+		if(currentTab !== "favorites") //Favorites don't get updated enough to show the rating or player count
 		{
-			if("difficulty" in levelInfo.statistics && "total_played" in levelInfo.statistics)
+			let difficulty = "unrated"
+			let difficultyColor = "color: #969696;"
+			if("statistics" in levelInfo)
 			{
-				if(levelInfo.statistics.difficulty !== 1.0 && levelInfo.statistics.total_played > 0)
+				if("difficulty" in levelInfo.statistics && "total_played" in levelInfo.statistics)
 				{
-					if(levelInfo.statistics.difficulty < 0.01)
+					if(levelInfo.statistics.difficulty !== 1.0 && levelInfo.statistics.total_played > 0)
 					{
-						difficulty = "very hard"
-						difficultyColor = "color: #EA0000;"
-					}
-					else if(levelInfo.statistics.difficulty < 0.1)
-					{
-						difficulty = "hard"
-						difficultyColor = "color: #F19400;"
-					}
-					else if(levelInfo.statistics.difficulty < 0.4)
-					{
-						difficulty = "medium"
-						difficultyColor = "color: #E1C800;"
-					}
-					else
-					{
-						difficulty = "easy"
-						difficultyColor = "color: #2BBA84;"
+						if(levelInfo.statistics.difficulty < 0.01)
+						{
+							difficulty = "very hard"
+							difficultyColor = "color: #EA0000;"
+						}
+						else if(levelInfo.statistics.difficulty < 0.1)
+						{
+							difficulty = "hard"
+							difficultyColor = "color: #F19400;"
+						}
+						else if(levelInfo.statistics.difficulty < 0.4)
+						{
+							difficulty = "medium"
+							difficultyColor = "color: #E1C800;"
+						}
+						else
+						{
+							difficulty = "easy"
+							difficultyColor = "color: #2BBA84;"
+						}
 					}
 				}
 			}
-		}
-		cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b>'
+			cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b>'
 
-		if("statistics" in levelInfo && "total_played" in levelInfo.statistics)
-		{
-			cell.innerHTML += '<span class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</span>'
+			if("statistics" in levelInfo && "total_played" in levelInfo.statistics)
+			{
+				cell.innerHTML += '<span class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</span>'
+			}
+			cell.innerHTML += '<br>'
 		}
-		cell.innerHTML += '<br>'
 
 		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
 		if(creators && creators.length > 0)
