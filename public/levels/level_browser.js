@@ -141,6 +141,12 @@ async function loadMoreLevels()
 
 	numberOfLevels += responseBody.length;
 
+	if(currentTab === "favorites")
+	{
+		//Reverse favorites list to show the newest addition at the top
+		responseBody.reverse()
+	}
+
 	for(let listElement of responseBody)
 	{
 		let cell = document.createElement("div");
