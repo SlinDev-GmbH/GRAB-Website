@@ -474,7 +474,7 @@ function init()
 
 			const descriptionNode = document.createTextNode('description: ' + decoded.description);
 			descriptionLabel.appendChild(descriptionNode);
-			const complexityNode = document.createTextNode('complexity: ' + decoded.complexity + '(real: ' + realComplexity + ')');
+			const complexityNode = document.createTextNode('complexity: ' + decoded.complexity + ' (real: ' + realComplexity + ')');
 			complexityLabel.appendChild(complexityNode);
 			
 
