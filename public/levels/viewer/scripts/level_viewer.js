@@ -215,18 +215,6 @@ function init()
 			var fullscreenButton = document.getElementById("fullscreen");
 			fullscreenButton.onclick = openFullscreen;
 
-			/*let metaDescription = decoded.description
-			if(decoded.creators && decoded.creators.length > 0)
-			{
-				metaDescription += ' - by ' + decoded.creators;
-			}
-			document.getElementsByTagName('meta')["description"].content = metaDescription;
-			document.title = "GRAB: " + decoded.title;*/
-
-			titleLabel.innerHTML = 'title: <b>' + decoded.title + '</b>';
-			creatorsLabel.innerHTML = 'creators: <i>' + decoded.creators + '</i>';
-			descriptionLabel.innerHTML = 'description: ' + decoded.description;
-			complexityLabel.innerHTML = 'complexity: ' + decoded.complexity;
 
 			await shapePromise;
 			await objectPromise;
@@ -277,6 +265,7 @@ function init()
 
 			let signTextContainer = document.getElementById("signtextcontainer");
 			let signCounter = 0;
+			let realComplexity = 0;
 
 			const loadLevelNodes = function(nodes, parentNode){
 				for(let node of nodes)
@@ -305,6 +294,8 @@ function init()
 						}*/
 
 						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
+
+						realComplexity += 1
 					}
 					else if(node.levelNodeStatic)
 					{
@@ -347,6 +338,8 @@ function init()
 						let normalMatrix = new THREE.Matrix3()
 						normalMatrix.getNormalMatrix(worldMatrix)
 						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
+
+						realComplexity += 2
 					}
 					else if(node.levelNodeCrumbling)
 					{
@@ -384,6 +377,8 @@ function init()
 						let normalMatrix = new THREE.Matrix3()
 						normalMatrix.getNormalMatrix(worldMatrix)
 						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
+
+						realComplexity += 3
 					}
 					else if(node.levelNodeStart)
 					{
@@ -443,7 +438,10 @@ function init()
 						if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && signText && signText.length > 0)
 						{
 							let signTextElement = document.createElement("div");
-							signTextElement.innerHTML = "Sign " + signCounter + ": " + signText + "<br><br>"
+							const signTextNode = document.createTextNode("Sign " + signCounter + ": " + signText);
+							signTextElement.appendChild(signTextNode);
+							signTextElement.appendChild(document.createElement("br"));
+							signTextElement.appendChild(document.createElement("br"));
 							signTextElement.onclick = function() {
 								camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
 							}
@@ -451,12 +449,33 @@ function init()
 						}
 
 						signCounter += 1;
+						realComplexity += 5
 					}
 				}
 			};
 
 			loadLevelNodes(decoded.levelNodes, scene);
 
+
+			//Creating these as text elements to prevent embeded html to be rendered by the browser
+			const titleTitleNode = document.createTextNode('title: ');
+			titleLabel.appendChild(titleTitleNode);
+			const titleFormattingNode = document.createElement('b');
+			titleLabel.appendChild(titleFormattingNode);
+			const titleNode = document.createTextNode(decoded.title);
+			titleFormattingNode.appendChild(titleNode);
+
+			const creatorsTitleNode = document.createTextNode('creators: ');
+			creatorsLabel.appendChild(creatorsTitleNode);
+			const creatorsFormattingNode = document.createElement('i');
+			creatorsLabel.appendChild(creatorsFormattingNode);
+			const creatorsNode = document.createTextNode(decoded.creators);
+			creatorsFormattingNode.appendChild(creatorsNode);
+
+			const descriptionNode = document.createTextNode('description: ' + decoded.description);
+			descriptionLabel.appendChild(descriptionNode);
+			const complexityNode = document.createTextNode('complexity: ' + decoded.complexity + '(real: ' + realComplexity + ')');
+			complexityLabel.appendChild(complexityNode);
 			
 
 			//Get level statistics
