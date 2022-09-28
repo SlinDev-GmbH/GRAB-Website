@@ -1,3 +1,8 @@
+function escapeHTML(unsafe)
+{
+	return unsafe.replace(/[\u0000-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u00FF]/g, c => '&#' + ('000' + c.charCodeAt(0)).slice(-4) + ';')
+}
+
 export async function onRequest(context)
 {
 	const { method, url } = context.request
@@ -38,8 +43,8 @@ export async function onRequest(context)
 					metaDescription = ""
 				}
 
-				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + levelInfo.title)
-				assetText = assetText.replace("__PAGE_DESCRIPTION__", metaDescription)
+				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + escapeHTML(levelInfo.title))
+				assetText = assetText.replace("__PAGE_DESCRIPTION__", escapeHTML(metaDescription))
 
 				let response = new Response(assetText, {
 					status: 200,

@@ -189,7 +189,7 @@ async function loadMoreLevels()
 			{
 				let userNameElement = document.createElement("b");
 				userNameElement.className = "cell-title"
-				userNameElement.innerHTML = userInfo.user_name
+				userNameElement.innerText = userInfo.user_name
 				cell.appendChild(userNameElement);
 
 				if("is_creator" in userInfo)
@@ -205,7 +205,7 @@ async function loadMoreLevels()
 			{
 				let userNameElement = document.createElement("b");
 				userNameElement.className = "cell-description"
-				userNameElement.innerHTML = "<i>User ID: " + userInfo.user_id + "</i>"
+				userNameElement.innerText = "<i>User ID: " + userInfo.user_id + "</i>"
 				cell.appendChild(userNameElement);
 			}
 
@@ -213,7 +213,7 @@ async function loadMoreLevels()
 			{
 				let levelCountElement = document.createElement("b");
 				levelCountElement.className = "cell-description"
-				levelCountElement.innerHTML = "User Level Count: " + userInfo.user_level_count
+				levelCountElement.innerText = "User Level Count: " + userInfo.user_level_count
 				cell.appendChild(levelCountElement);
 			}
 
@@ -221,7 +221,7 @@ async function loadMoreLevels()
 			{
 				let strikeCountElement = document.createElement("b");
 				strikeCountElement.className = "cell-description"
-				strikeCountElement.innerHTML = "Current Strike Count: " + userInfo.moderation_strike_count
+				strikeCountElement.innerText = "Current Strike Count: " + userInfo.moderation_strike_count
 				cell.appendChild(strikeCountElement);
 			}
 
@@ -457,7 +457,7 @@ async function loadMoreLevels()
 		let creators = "";
 		if(levelInfo.creators && levelInfo.creators.length > 0)
 		{
-			creators = '<i>by ' + levelInfo.creators.join(", ") + '</i>'
+			creators = 'by ' + levelInfo.creators.join(", ")
 		}
 
 		cell.innerHTML = ''
@@ -504,23 +504,38 @@ async function loadMoreLevels()
 			cell.innerHTML += '<br>'
 		}
 
-		cell.innerHTML += '<b class="cell-title">' + levelInfo.title
+
+		const titleFormattingNode = document.createElement('b')
+		titleFormattingNode.className = "cell-title"
+		titleFormattingNode.appendChild(document.createTextNode(levelInfo.title))
+		cell.appendChild(titleFormattingNode)
 		if(creators && creators.length > 0)
 		{
-			cell.innerHTML += '</b><br>' + creators
+			cell.appendChild(document.createElement('br'))
+			const creatorsFormattingNode = document.createElement('i')
+			creatorsFormattingNode.appendChild(document.createTextNode(creators))
+			cell.appendChild(creatorsFormattingNode)
 		}
 		if(levelInfo.description && levelInfo.description.length > 0)
 		{
-			cell.innerHTML += '<br><br><div class=cell-description>' + levelInfo.description
+			cell.appendChild(document.createElement('br'))
+			cell.appendChild(document.createElement('br'))
+			const descriptionFormattingNode = document.createElement('div')
+			descriptionFormattingNode.className = "cell-description"
+			descriptionFormattingNode.appendChild(document.createTextNode(levelInfo.description))
+			cell.appendChild(descriptionFormattingNode)
 		}
 		if("statistics" in levelInfo)
 		{
 			if("total_played" in levelInfo.statistics && levelInfo.statistics.total_played > 0)
 			{
-				if("liked" in levelInfo.statistics) cell.innerHTML += '<br>Liked: ' + Math.round(levelInfo.statistics.liked * 100) + '%'
+				if("liked" in levelInfo.statistics)
+				{
+					cell.appendChild(document.createElement('br'))
+					cell.appendChild(document.createTextNode('Liked: ' + Math.round(levelInfo.statistics.liked * 100) + '%'))
+				}
 			}
 		}
-		cell.innerHTML += '</div>';
 
 		if((!levelsUserID || levelsUserID.length == 0) && currentTab !== "mylevels")
 		{
@@ -1060,6 +1075,8 @@ window.onscroll = scroller;
 
 function tabChanged(tab)
 {
+	document.body.style.background = '#4BA0D6' //Reset background color to default
+
 	//user isn't a real tab, but still a valid value that is always available, so don't make it switch to newest in that case
 	if(tab !== "user")
 	{
@@ -1108,6 +1125,16 @@ function tabChanged(tab)
 	if(tab === "user")
 	{
 		titleString = "User";
+
+		//Add rick astley picture as background if this is the profile of .index / NSKC7
+		const params = (new URL(document.location)).searchParams;
+		const levelsUserID = params.get('user_id');
+		if(levelsUserID === "29sgp24f1uorbc6vq8d2k")
+		{
+			console.log("should show image")
+			document.body.style.background = 'url(../images/rick_astley.png) no-repeat center center fixed';
+			document.body.style.backgroundSize = 'cover';
+		}
 	}
 	else
 	{
