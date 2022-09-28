@@ -205,7 +205,7 @@ async function loadMoreLevels()
 			{
 				let userNameElement = document.createElement("b");
 				userNameElement.className = "cell-description"
-				userNameElement.innerText = "<i>User ID: " + userInfo.user_id + "</i>"
+				userNameElement.innerHTML = "<i>User ID: " + userInfo.user_id + "</i>"
 				cell.appendChild(userNameElement);
 			}
 
