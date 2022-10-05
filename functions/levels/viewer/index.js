@@ -15,9 +15,14 @@ export async function onRequest(context)
 		if(levelIDComponents.length >= 2)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
-			const { value: levelInfo, metadata: levelMetadata } = await context.env.LEVEL_DB.getWithMetadata(lookupString, { type: "json" });
+			const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
 
-			return new Response(JSON.stringify(levelMetadata), { status: 404 })
+			let levelStatsObjectID = env.LEVEL_STATISTICS.idFromName("level_stats:" + levelInfo.identifier)
+			let statsObject = await context.env.LEVEL_STATISTICS.get(levelStatsObjectID);
+
+			let statsInfoRequest = new Request("https://durableobject/get_info", {method: "GET"})
+			let statsInfoResponse = await statsObject.fetch(infoRequest)
+			let statsInfoResponseJson = await statsInfoResponse.json()
 			
 			if(levelInfo)
 			{
@@ -43,26 +48,27 @@ export async function onRequest(context)
 					metaDescription = ""
 				}
 
-				if(levelMetadata && "statistics" in levelMetadata)
+				if(statsInfoResponseJson)
 				{
-					if(levelMetadata.statistics.total_played > 0)
+					if("total_played_count" in statsInfoResponseJson && statsInfoResponseJson.total_played_count > 0)
 					{
 						if(metaDescription.length > 0) metaDescription += "\n"
-						metaDescription += "Plays: " + levelMetadata.statistics.total_played
+						metaDescription += "Plays: " + statsInfoResponseJson.total_played_count
 
-						if("difficulty" in levelMetadata.statistics)
+						if("played_count" in statsInfoResponseJson && "finished_count" in statsInfoResponseJson && statsInfoResponseJson.played_count > 0)
 						{
+							const difficulty = statsInfoResponseJson.finished_count / statsInfoResponseJson.played_count
 							if(metaDescription.length > 0) metaDescription += "\n"
 							metaDescription += "Difficulty: "
-							if(levelMetadata.statistics.difficulty < 0.01)
+							if(difficulty < 0.01)
 							{
 								metaDescription += "very hard"
 							}
-							else if(levelMetadata.statistics.difficulty < 0.1)
+							else if(difficulty < 0.1)
 							{
 								metaDescription += "hard"
 							}
-							else if(levelMetadata.statistics.difficulty < 0.4)
+							else if(difficulty < 0.4)
 							{
 								metaDescription += "medium"
 							}
@@ -70,12 +76,6 @@ export async function onRequest(context)
 							{
 								metaDescription += "easy"
 							}
-						}
-
-						if("liked" in levelMetadata.statistics)
-						{
-							if(metaDescription.length > 0) metaDescription += "\n"
-							metaDescription += "Liked: " + Math.round(levelMetadata.statistics.liked * 100)
 						}
 					}
 				}
