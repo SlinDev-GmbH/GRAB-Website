@@ -16,8 +16,7 @@ export async function onRequest(context)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
 			//const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
-			const { levelInfoString, levelMetadata } = await context.env.LEVEL_DB.getWithMetadata(lookupString);
-			const levelInfo = JSON.parse(levelInfoString)
+			const { levelInfo, levelMetadata } = await context.env.LEVEL_DB.getWithMetadata(lookupString, { type: "json" });
 			
 			if(levelInfo)
 			{
