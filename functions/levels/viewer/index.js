@@ -44,7 +44,7 @@ export async function onRequest(context)
 					metaDescription = ""
 				}
 
-				if(levelMetadata && levelMetadata.statistics)
+				/*if(levelMetadata && levelMetadata.statistics)
 				{
 					if(levelMetadata.statistics.total_played > 0)
 					{
@@ -79,7 +79,7 @@ export async function onRequest(context)
 							metaDescription += "Liked: " + Math.round(levelMetadata.statistics.liked * 100)
 						}
 					}
-				}
+				}*/
 
 				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + escapeHTML(levelInfo.title))
 				assetText = assetText.replace("__PAGE_DESCRIPTION__", escapeHTML(metaDescription))
