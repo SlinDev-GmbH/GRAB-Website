@@ -302,7 +302,7 @@ function init()
 					else if(node.levelNodeStatic)
 					{
 						let material = materials[node.levelNodeStatic.material]
-						if(node.levelNodeStatic.material === root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.isneon)
+						if(node.levelNodeStatic.material === root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.isNeon)
 						{
 							material = objectMaterials[3] //Use neon material if this is a neon colored block
 						}
