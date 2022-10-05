@@ -16,8 +16,7 @@ export async function onRequest(context)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
 			const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
-			//const levelInfo = JSON.parse('{"identifier":"291d931uxfl4ub4dfmvjs:1637879683","title":"blubb","complexity":8,"format_version":3,"iteration":3,"creation_timestamp":1640003463900,"update_timestamp":1640004818729,"data_key":"level_data:291d931uxfl4ub4dfmvjs:1637879683:3","levellist_ok_timestamp":1640003463900,"hidden":false,"levellist_search_title":"blubb_1640003463900","levellist_hidden_timestamp":1643117337869,"tags":["ok"]}')
-
+			
 			if(levelInfo)
 			{
 				const lookupFile = new URL(context.request.url)
@@ -42,6 +41,13 @@ export async function onRequest(context)
 				{
 					metaDescription = ""
 				}
+
+				if(levelInfo.statistics)
+				{
+					if(metaDescription.length > 0) metaDescription += "\n"
+					metaDescription += levelInfo
+				}
+
 
 				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + escapeHTML(levelInfo.title))
 				assetText = assetText.replace("__PAGE_DESCRIPTION__", escapeHTML(metaDescription))

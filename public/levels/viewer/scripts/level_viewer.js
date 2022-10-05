@@ -110,6 +110,7 @@ function init()
 
 	const levelVertexShader = document.getElementById('level-vertexShader').textContent;
 	const levelFragmentShader = document.getElementById('level-fragmentShader').textContent;
+	const levelFragmentShaderNeon = document.getElementById('level-fragmentShader-neon').textContent;
 
 	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default.png', 1.0, levelVertexShader, levelFragmentShader));
 	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable.png', 1.0, levelVertexShader, levelFragmentShader));
@@ -147,6 +148,7 @@ function init()
 	const signFragmentShader = document.getElementById('sign-fragmentShader').textContent;
 	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, signVertexShader, signFragmentShader));
 
+	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShaderNeon));
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -300,6 +302,11 @@ function init()
 					else if(node.levelNodeStatic)
 					{
 						let material = materials[node.levelNodeStatic.material]
+						if(node.levelNodeStatic.material === LevelMessage.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.isneon)
+						{
+							material = objectMaterials[3] //Use neon material if this is a neon colored block
+						}
+
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
 						newMaterial.uniforms["sunDirection"] = { value: sunDirection }

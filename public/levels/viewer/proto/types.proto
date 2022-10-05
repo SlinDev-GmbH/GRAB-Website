@@ -103,6 +103,7 @@ message LevelNodeStatic
 	Quaternion rotation = 5;
 
 	Color color = 6;
+	bool isNeon = 7;
 }
 
 message LevelNodeCrumbling

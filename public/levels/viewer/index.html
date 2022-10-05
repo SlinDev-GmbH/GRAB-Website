@@ -179,6 +179,39 @@
 			}
 		</script>
 
+		<script type="x-shader/x-fragment" id="level-fragmentShader-neon">
+			varying vec3 vWorldPosition;
+			varying vec3 vNormal;
+
+			uniform sampler2D colorTexture;
+			uniform float tileFactor;
+			uniform vec3 diffuseColor;
+			uniform vec3 sunDirection;
+
+			void main()
+			{
+				vec4 color;
+
+				vec3 blendNormals = abs(vNormal);
+				if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
+				{
+					color.rgb = texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
+				}
+				else if(blendNormals.y > blendNormals.z)
+				{
+					color.rgb = texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
+				}
+				else
+				{
+					color.rgb = texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
+				}
+
+				color.rgb *= diffuseColor;
+
+				gl_FragColor = color;
+			}
+		</script>
+
 		<script type="x-shader/x-vertex" id="startfinish-vertexShader">
 			varying vec2 vTexcoord;
 
