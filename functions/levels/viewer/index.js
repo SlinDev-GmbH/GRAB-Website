@@ -17,7 +17,7 @@ export async function onRequest(context)
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
 			const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
 
-			let levelStatsObjectID = env.LEVEL_STATISTICS.idFromName("level_stats:" + levelInfo.identifier)
+			let levelStatsObjectID = context.env.LEVEL_STATISTICS.idFromName("level_stats:" + levelInfo.identifier)
 			let statsObject = await context.env.LEVEL_STATISTICS.get(levelStatsObjectID);
 
 			let statsInfoRequest = new Request("https://durableobject/get_info", {method: "GET"})
