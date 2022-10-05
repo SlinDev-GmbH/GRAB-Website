@@ -15,8 +15,9 @@ export async function onRequest(context)
 		if(levelIDComponents.length >= 2)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
-			//const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
 			const { value: levelInfo, metadata: levelMetadata } = await context.env.LEVEL_DB.getWithMetadata(lookupString, { type: "json" });
+
+			return new Response(JSON.stringify(levelMetadata), { status: 404 })
 			
 			if(levelInfo)
 			{
@@ -27,7 +28,6 @@ export async function onRequest(context)
 				})
 
 				const asset = await context.env.ASSETS.fetch(lookupReq)
-				console.log(asset)
 				let assetText = await asset.text()
 
 				let metaDescription = levelInfo.description
