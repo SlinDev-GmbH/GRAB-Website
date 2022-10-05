@@ -45,10 +45,40 @@ export async function onRequest(context)
 
 				if(levelMetadata && levelMetadata.statistics)
 				{
-					if(metaDescription.length > 0) metaDescription += "\n"
-					metaDescription += levelMetadata.statistics
-				}
+					if(levelMetadata.statistics.total_played > 0)
+					{
+						if(metaDescription.length > 0) metaDescription += "\n"
+						metaDescription += "Plays: " + levelMetadata.statistics.total_played
 
+						if("difficulty" in levelMetadata.statistics)
+						{
+							if(metaDescription.length > 0) metaDescription += "\n"
+							metaDescription += "Difficulty: "
+							if(levelMetadata.statistics.difficulty < 0.01)
+							{
+								metaDescription += "very hard"
+							}
+							else if(levelMetadata.statistics.difficulty < 0.1)
+							{
+								metaDescription += "hard"
+							}
+							else if(levelMetadata.statistics.difficulty < 0.4)
+							{
+								metaDescription += "medium"
+							}
+							else
+							{
+								metaDescription += "easy"
+							}
+						}
+
+						if("liked" in levelMetadata.statistics)
+						{
+							if(metaDescription.length > 0) metaDescription += "\n"
+							metaDescription += "Liked: " + Math.round(levelMetadata.statistics.liked * 100)
+						}
+					}
+				}
 
 				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + escapeHTML(levelInfo.title))
 				assetText = assetText.replace("__PAGE_DESCRIPTION__", escapeHTML(metaDescription))
