@@ -21,7 +21,7 @@ export async function onRequest(context)
 			let statsObject = await context.env.LEVEL_STATISTICS.get(levelStatsObjectID);
 
 			let statsInfoRequest = new Request("https://durableobject/get_info", {method: "GET"})
-			let statsInfoResponse = await statsObject.fetch(infoRequest)
+			let statsInfoResponse = await statsObject.fetch(statsInfoRequest)
 			let statsInfoResponseJson = await statsInfoResponse.json()
 
 			return new Response(JSON.stringify(statsInfoResponseJson), { status: 404 })
