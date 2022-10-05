@@ -23,6 +23,8 @@ export async function onRequest(context)
 			let statsInfoRequest = new Request("https://durableobject/get_info", {method: "GET"})
 			let statsInfoResponse = await statsObject.fetch(infoRequest)
 			let statsInfoResponseJson = await statsInfoResponse.json()
+
+			return new Response(JSON.stringify(statsInfoResponseJson), { status: 404 })
 			
 			if(levelInfo)
 			{
