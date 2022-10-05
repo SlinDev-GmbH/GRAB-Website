@@ -15,8 +15,8 @@ export async function onRequest(context)
 		if(levelIDComponents.length >= 2)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
-			//const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
-			const { levelInfo, levelMetadata } = await context.env.LEVEL_DB.getWithMetadata(lookupString, { type: "json" });
+			const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
+			//const { levelInfo, levelMetadata } = await context.env.LEVEL_DB.getWithMetadata(lookupString, { type: "json" });
 			
 			if(levelInfo)
 			{
@@ -43,7 +43,7 @@ export async function onRequest(context)
 					metaDescription = ""
 				}
 
-				if(levelMetadata && levelMetadata.statistics)
+			/*	if(levelMetadata && "statistics" in levelMetadata)
 				{
 					if(levelMetadata.statistics.total_played > 0)
 					{
@@ -78,7 +78,7 @@ export async function onRequest(context)
 							metaDescription += "Liked: " + Math.round(levelMetadata.statistics.liked * 100)
 						}
 					}
-				}
+				}*/
 
 				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + escapeHTML(levelInfo.title))
 				assetText = assetText.replace("__PAGE_DESCRIPTION__", escapeHTML(metaDescription))
