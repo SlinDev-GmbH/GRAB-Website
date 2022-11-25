@@ -796,7 +796,7 @@ async function loadMoreLevels()
 
 								console.log("yey: " + listKey + " - " + levelKey)
 
-								if(!listKey || listKeylength === 0) return false
+								if(!listKey || listKey.length === 0) return false
 
 								let endpoint = "add_to_curated_list"
 								if(!levelKey || levelKey.length === 0)
