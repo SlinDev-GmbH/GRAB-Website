@@ -871,7 +871,7 @@ async function loadMoreLevels()
 				}
 			}
 
-			if(("is_admin" in userInfo && userInfo.is_admin === true && !levelInfo["hidden"] && currentTab !== "hidden" && currentTab !== "report_levels") || currentSearchTerm.length > 0)
+			if("is_admin" in userInfo && userInfo.is_admin === true && !levelInfo["hidden"] && ((currentTab !== "hidden" && currentTab !== "report_levels") || currentSearchTerm.length > 0))
 			{
 				linebreak = document.createElement("br");
 				cell.appendChild(linebreak);
@@ -1007,14 +1007,14 @@ function init()
 			loginoutButton.innerHTML = "Logout";
 			loginoutButton.addEventListener("click", logout);
 
-			const copyAccessTokenButton = document.getElementById("copy-token-button")
-			copyAccessTokenButton.style.display = "block"
-			copyAccessTokenButton.addEventListener("click", function(event) {
-				navigator.clipboard.writeText(accessToken);
-			});
-
 			if("is_admin" in userInfo && userInfo.is_admin === true)
 			{
+				const copyAccessTokenButton = document.getElementById("copy-token-button")
+					copyAccessTokenButton.style.display = "block"
+					copyAccessTokenButton.addEventListener("click", function(event) {
+						navigator.clipboard.writeText(accessToken);
+					});
+
 				let hiddenButton = document.createElement("button");
 				tabBar.appendChild(hiddenButton);
 				hiddenButton.innerHTML = "Hidden Levels";
