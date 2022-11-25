@@ -790,22 +790,23 @@ async function loadMoreLevels()
 							curatedForm.innerHTML = '<fieldset><legend>Curated:</legend><label for="curatedListKey">List Key:</label><input type="text" id="curatedListKey" name="curatedListKey"><label for="curatedListLevelKey"><br>Level Key:</label><input type="text" id="curatedListLevelKey" name="curatedListLevelKey"><input type="submit" value="Submit" /></fieldset>';
 
 							curatedForm.onsubmit = function(event) {
-								const listKeyField = document.getElementById("curatedListKey");
-								const listLevelKeyField = document.getElementById("curatedListLevelKey");
+								const data = new FormData(curatedForm);
+								const listKey = data.get(curatedListKey)
+								const levelKey = data.get(curatedListLevelKey)
 
-								console.log("yey: " + listKeyField.value + " - " + listLevelKeyField.value)
+								console.log("yey: " + listKey + " - " + levelKey)
 
-								if(!listKeyField.value || listKeyField.value.length === 0) return false
+								if(!listKey || listKeylength === 0) return false
 
 								let endpoint = "add_to_curated_list"
-								if(!listLevelKeyField.value || listLevelKeyField.value.length === 0)
+								if(!levelKey || levelKey.length === 0)
 								{
 									endpoint = "remove_from_curated_list"
 								}
 
 								(async () => {
-									let fullURL = SERVER_URL + endpoint + '?level_id=' + levelIdentifierParts[0] + ":" + levelIdentifierParts[1] + "&list_key=" + listKeyField.value + '&access_token=' + accessToken
-									if(listLevelKeyField.value && listLevelKeyField.value.length > 0) fullURL += "&level_key=" + listLevelKeyField.value
+									let fullURL = SERVER_URL + endpoint + '?level_id=' + levelIdentifierParts[0] + ":" + levelIdentifierParts[1] + "&list_key=" + listKey + '&access_token=' + accessToken
+									if(levelKey && levelKey.length > 0) fullURL += "&level_key=" + levelKey
 									let response = await fetch(fullURL);
 									let responseBody = await response.text();
 									console.log(responseBody);
