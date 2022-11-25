@@ -787,7 +787,7 @@ async function loadMoreLevels()
 
 							let curatedForm = document.createElement("form");
 							cell.appendChild(curatedForm);
-							curatedForm.innerHTML = '<fieldset><legend>Curated:</legend><label for="curatedListKey">List Key:</label><input type="text" id="curatedListKey" name="curatedListKey"><label for="curatedListLevelKey">Level Key:</label><input type="text" id="curatedListLevelKey" name="curatedListLevelKey"><input type="submit" value="Submit" /></fieldset>';
+							curatedForm.innerHTML = '<fieldset><legend>Curated:</legend><label for="curatedListKey">List Key:</label><input type="text" id="curatedListKey" name="curatedListKey"><label for="curatedListLevelKey"><br>Level Key:</label><input type="text" id="curatedListLevelKey" name="curatedListLevelKey"><input type="submit" value="Submit" /></fieldset>';
 
 							curatedForm.onsubmit = function(event) {
 								/*let tags = "";
