@@ -790,8 +790,8 @@ async function loadMoreLevels()
 							curatedForm.innerHTML = '<fieldset><legend>Curated:</legend><label for="curatedListKey">List Key:</label><input type="text" id="curatedListKey" name="curatedListKey"><label for="curatedListLevelKey"><br>Level Key:</label><input type="text" id="curatedListLevelKey" name="curatedListLevelKey"><input type="submit" value="Submit" /></fieldset>';
 
 							curatedForm.onsubmit = function(event) {
-								const listKeyField = curatedForm.getElementById("curatedListKey");
-								const listLevelKeyField = curatedForm.getElementById("curatedListLevelKey");
+								const listKeyField = document.getElementById("curatedListKey");
+								const listLevelKeyField = document.getElementById("curatedListLevelKey");
 
 								console.log("yey: " + listKeyField.value + " - " + listLevelKeyField.value)
 
