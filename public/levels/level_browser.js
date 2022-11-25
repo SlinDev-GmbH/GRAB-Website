@@ -791,8 +791,8 @@ async function loadMoreLevels()
 
 							curatedForm.onsubmit = function(event) {
 								const data = new FormData(curatedForm);
-								const listKey = data.get(curatedListKey)
-								const levelKey = data.get(curatedListLevelKey)
+								const listKey = data.get("curatedListKey")
+								const levelKey = data.get("curatedListLevelKey")
 
 								console.log("yey: " + listKey + " - " + levelKey)
 
