@@ -121,7 +121,7 @@ function init()
 	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
 
 	let startMaterial = new THREE.ShaderMaterial();
-	startMaterial.vertexShader = SHADERS.tartFinishVS;
+	startMaterial.vertexShader = SHADERS.startFinishVS;
 	startMaterial.fragmentShader = SHADERS.startFinishFS;
 	startMaterial.flatShading = true;
 	startMaterial.transparent = true;
