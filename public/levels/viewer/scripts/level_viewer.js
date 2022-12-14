@@ -1,7 +1,7 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
-import * from './shaders.js';
+import * as SHADERS from './shaders.js';
 
 let userID = undefined;
 
@@ -109,20 +109,20 @@ function init()
 		}
 	});
 
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default.png', 1.0, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable.png', 1.0, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/ice.png', 0.1, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/lava.png', 0.1, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable.png', 0.1, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, shaderLevelVS, shaderLevelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, shaderLevelVS, shaderLevelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/ice.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
 
 	let startMaterial = new THREE.ShaderMaterial();
-	startMaterial.vertexShader = shaderStartFinishVS;
-	startMaterial.fragmentShader = shaderStartFinishFS;
+	startMaterial.vertexShader = SHADERS.tartFinishVS;
+	startMaterial.fragmentShader = SHADERS.startFinishFS;
 	startMaterial.flatShading = true;
 	startMaterial.transparent = true;
 	startMaterial.depthWrite = false;
@@ -130,16 +130,16 @@ function init()
 	objectMaterials.push(startMaterial);
 
 	let finishMaterial = new THREE.ShaderMaterial();
-	finishMaterial.vertexShader = shaderStartFinishVS;
-	finishMaterial.fragmentShader = shaderStartFinishFS;
+	finishMaterial.vertexShader = SHADERS.startFinishVS;
+	finishMaterial.fragmentShader = SHADERS.startFinishFS;
 	finishMaterial.flatShading = true;
 	finishMaterial.transparent = true;
 	finishMaterial.depthWrite = false;
 	finishMaterial.uniforms = { "diffuseColor": {value: [1.0, 0.0, 0.0, 1.0]}};
 	objectMaterials.push(finishMaterial);
 
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, shaderSignVS, shaderSignFS));
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, shaderLevelVS, shaderLevelNeonFS));
+	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.signVS, SHADERS.signFS));
+	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelNeonFS));
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -213,8 +213,8 @@ function init()
 			await objectPromise;
 
 			let skyMaterial = new THREE.ShaderMaterial();
-			skyMaterial.vertexShader = shaderSkyVS;
-			skyMaterial.fragmentShader = shaderSkyFS;
+			skyMaterial.vertexShader = SHADERS.skyVS;
+			skyMaterial.fragmentShader = SHADERS.skyFS;
 			skyMaterial.flatShading = false;
 			skyMaterial.depthWrite = false;
 			skyMaterial.side = THREE.BackSide;

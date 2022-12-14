@@ -1,4 +1,4 @@
-export const shaderSkyVS = `
+export const skyVS = `
 	varying vec3 vWorldPosition;
 
 	void main()
@@ -10,7 +10,7 @@ export const shaderSkyVS = `
 		vWorldPosition = position;
 	}`
 
-export const shaderSkyFS = `
+export const skyFS = `
 	varying vec3 vWorldPosition;
 
 	uniform vec3 cameraFogColor0;
@@ -39,7 +39,7 @@ export const shaderSkyFS = `
 		gl_FragColor = LinearTosRGB(color);
 	}`
 
-export const shaderLevelVS = `
+export const levelVS = `
 	varying vec3 vWorldPosition;
 	varying vec3 vNormal;
 
@@ -55,7 +55,7 @@ export const shaderLevelVS = `
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 	}`
 
-export const shaderLevelFS = `
+export const levelFS = `
 	varying vec3 vWorldPosition;
 	varying vec3 vNormal;
 
@@ -91,7 +91,7 @@ export const shaderLevelFS = `
 		gl_FragColor = color;
 	}`
 
-export const shaderLevelNeonFS = `
+export const levelNeonFS = `
 	varying vec3 vWorldPosition;
 	varying vec3 vNormal;
 
@@ -122,7 +122,7 @@ export const shaderLevelNeonFS = `
 		gl_FragColor = color;
 	}`
 
-export const shaderStartFinishVS = `
+export const startFinishVS = `
 	varying vec2 vTexcoord;
 
 	void main()
@@ -131,7 +131,7 @@ export const shaderStartFinishVS = `
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 	}`
 
-export const shaderStartFinishFS = `
+export const startFinishFS = `
 	varying vec2 vTexcoord;
 
 	uniform vec4 diffuseColor;
@@ -147,7 +147,7 @@ export const shaderStartFinishFS = `
 		gl_FragColor = color;
 	}`
 
-export const shaderSignVS = `
+export const signVS = `
 	varying vec2 vTexcoord;
 	varying vec3 vNormal;
 
@@ -159,7 +159,7 @@ export const shaderSignVS = `
 		gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 	}`
 
-export const shaderSignFS = `
+export const signFS = `
 	varying vec2 vTexcoord;
 	varying vec3 vNormal;
 	uniform sampler2D colorTexture;
