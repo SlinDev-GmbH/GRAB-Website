@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
+import * as SHADERS from './shaders.js';
 
 let userID = undefined;
 
@@ -108,27 +109,20 @@ function init()
 		}
 	});
 
-	const levelVertexShader = document.getElementById('level-vertexShader').textContent;
-	const levelFragmentShader = document.getElementById('level-fragmentShader').textContent;
-	const levelFragmentShaderNeon = document.getElementById('level-fragmentShader-neon').textContent;
-
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/ice.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/lava.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShader));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, levelVertexShader, levelFragmentShader));
-
-	const vertexShader = document.getElementById('startfinish-vertexShader').textContent;
-	const fragmentShader = document.getElementById('startfinish-fragmentShader').textContent;
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/ice.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
 
 	let startMaterial = new THREE.ShaderMaterial();
-	startMaterial.vertexShader = vertexShader;
-	startMaterial.fragmentShader = fragmentShader;
+	startMaterial.vertexShader = SHADERS.startFinishVS;
+	startMaterial.fragmentShader = SHADERS.startFinishFS;
 	startMaterial.flatShading = true;
 	startMaterial.transparent = true;
 	startMaterial.depthWrite = false;
@@ -136,19 +130,16 @@ function init()
 	objectMaterials.push(startMaterial);
 
 	let finishMaterial = new THREE.ShaderMaterial();
-	finishMaterial.vertexShader = vertexShader;
-	finishMaterial.fragmentShader = fragmentShader;
+	finishMaterial.vertexShader = SHADERS.startFinishVS;
+	finishMaterial.fragmentShader = SHADERS.startFinishFS;
 	finishMaterial.flatShading = true;
 	finishMaterial.transparent = true;
 	finishMaterial.depthWrite = false;
 	finishMaterial.uniforms = { "diffuseColor": {value: [1.0, 0.0, 0.0, 1.0]}};
 	objectMaterials.push(finishMaterial);
 
-	const signVertexShader = document.getElementById('sign-vertexShader').textContent;
-	const signFragmentShader = document.getElementById('sign-fragmentShader').textContent;
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, signVertexShader, signFragmentShader));
-
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, levelVertexShader, levelFragmentShaderNeon));
+	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.signVS, SHADERS.signFS));
+	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelNeonFS));
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -221,11 +212,9 @@ function init()
 			await shapePromise;
 			await objectPromise;
 
-			const skyVertexShader = document.getElementById('sky-vertexShader').textContent;
-			const skyFragmentShader = document.getElementById('sky-fragmentShader').textContent;
 			let skyMaterial = new THREE.ShaderMaterial();
-			skyMaterial.vertexShader = skyVertexShader;
-			skyMaterial.fragmentShader = skyFragmentShader;
+			skyMaterial.vertexShader = SHADERS.skyVS;
+			skyMaterial.fragmentShader = SHADERS.skyFS;
 			skyMaterial.flatShading = false;
 			skyMaterial.depthWrite = false;
 			skyMaterial.side = THREE.BackSide;
@@ -297,7 +286,7 @@ function init()
 
 						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
 
-						realComplexity += 1
+						//realComplexity += 1
 					}
 					else if(node.levelNodeStatic)
 					{
