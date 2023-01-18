@@ -286,7 +286,7 @@ function init()
 
 						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
 
-						realComplexity += 1
+						//realComplexity += 1
 					}
 					else if(node.levelNodeStatic)
 					{
