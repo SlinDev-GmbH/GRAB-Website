@@ -169,6 +169,7 @@ function init()
 			var creatorsLabel = document.getElementById("creators");
 			var descriptionLabel = document.getElementById("description");
 			var complexityLabel = document.getElementById("complexity");
+			var checkpointsLabel = document.getElementById("checkpoints");
 
 			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
@@ -188,6 +189,7 @@ function init()
 				creatorsLabel.innerHTML = '';
 				descriptionLabel.innerHTML = '';
 				complexityLabel.innerHTML = '';
+				checkpointsLabel.innerHTML = '';
 				return;
 			}
 
@@ -472,6 +474,8 @@ function init()
 			descriptionLabel.appendChild(descriptionNode);
 			const complexityNode = document.createTextNode('complexity: ' + decoded.complexity + ' (real: ' + realComplexity + ')');
 			complexityLabel.appendChild(complexityNode);
+			const checkpointsNode = document.createTextNode('checkpoints: ' + decoded.maxCheckpointCount);
+			checkpointsLabel.appendChild(checkpointsNode);
 			
 
 			//Get level statistics
