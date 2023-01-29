@@ -51,8 +51,8 @@ export async function onRequest(context)
 				if(metaDescription.length > 0) metaDescription += "\n"
 				const creationDate = new Date(levelInfo.creation_timestamp);
 				const updatedDate = new Date(levelInfo.update_timestamp);
-				metaDescription += "Created: " + creationDate + "\n"
-				if(creationDate != updatedDate) metaDescription += "Last Updated: " + updatedDate + "\n"
+				metaDescription += "Created: " + creationDate.toUTCString() + "\n"
+				if(creationDate != updatedDate) metaDescription += "Last Updated: " + updatedDate.toUTCString() + "\n"
 
 				if(statsInfoResponseJson)
 				{
