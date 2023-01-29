@@ -48,11 +48,16 @@ export async function onRequest(context)
 					metaDescription = ""
 				}
 
+				if(metaDescription.length > 0) metaDescription += "\n"
+				const creationDate = new Date(levelInfo.creation_timestamp);
+				const updatedDate = new Date(levelInfo.update_timestamp);
+				metaDescription += "Created: " + creationDate + "\n"
+				if(creationDate != updatedDate) metaDescription += "Last Updated: " + updatedDate + "\n"
+
 				if(statsInfoResponseJson)
 				{
 					if("total_played_count" in statsInfoResponseJson && statsInfoResponseJson.total_played_count > 0)
 					{
-						if(metaDescription.length > 0) metaDescription += "\n"
 						metaDescription += "Plays: " + statsInfoResponseJson.total_played_count
 
 						if("played_count" in statsInfoResponseJson && "finished_count" in statsInfoResponseJson && statsInfoResponseJson.played_count > 0)
