@@ -35,20 +35,13 @@ export async function onRequest(context)
 				const asset = await context.env.ASSETS.fetch(lookupReq)
 				let assetText = await asset.text()
 
-				let metaDescription = levelInfo.description
+				let metaDescription = ''
 				if(levelInfo.creators && levelInfo.creators.length > 0)
 				{
-					if(metaDescription && metaDescription.length > 0)
-						metaDescription += ' - by ' + levelInfo.creators.join(",")
-					else
-						metaDescription = 'by ' + levelInfo.creators.join(",")
+					metaDescription = 'by ' + levelInfo.creators.join(",") + "\n"
 				}
-				if(!metaDescription)
-				{
-					metaDescription = ""
-				}
+				if(levelInfo.description) metaDescription += levelInfo.description += "\n\n"
 
-				if(metaDescription.length > 0) metaDescription += "\n"
 				const creationDate = new Date(levelInfo.creation_timestamp);
 				const updatedDate = new Date(levelInfo.update_timestamp);
 				metaDescription += "Created: " + creationDate.toDateString() + "\n"
@@ -85,7 +78,7 @@ export async function onRequest(context)
 					}
 				}
 
-				assetText = assetText.replace("__PAGE_TITLE__", "GRAB: " + escapeHTML(levelInfo.title))
+				assetText = assetText.replace("__PAGE_TITLE__", escapeHTML(levelInfo.title))
 				assetText = assetText.replace("__PAGE_DESCRIPTION__", escapeHTML(metaDescription))
 
 				let response = new Response(assetText, {
