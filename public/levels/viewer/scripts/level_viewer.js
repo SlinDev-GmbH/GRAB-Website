@@ -483,7 +483,7 @@ function init()
 			const creationDate = new Date(detailResponseBody.creation_timestamp);
 			const updatedDate = new Date(detailResponseBody.update_timestamp);
 			let dateString = "Created: " + creationDate.toDateString()
-			if(creationDate.toDateString() !== updatedDate.toDateString()) dateString += "<br>Last Updated: " + updatedDate.toDateString()
+			if(creationDate.toDateString() !== updatedDate.toDateString()) dateString += "\nLast Updated: " + updatedDate.toDateString()
 			const dateNode = document.createTextNode(dateString);
 			dateLabel.appendChild(dateNode);
 			
