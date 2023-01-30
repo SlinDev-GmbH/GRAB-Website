@@ -38,9 +38,9 @@ export async function onRequest(context)
 				let metaDescription = ''
 				if(levelInfo.creators && levelInfo.creators.length > 0)
 				{
-					metaDescription = 'by ' + levelInfo.creators.join(",") + "\n"
+					metaDescription = 'By: ' + levelInfo.creators.join(",") + "\n"
 				}
-				if(levelInfo.description) metaDescription += levelInfo.description += "\n\n"
+				if(levelInfo.description) metaDescription += 'Description: ' + levelInfo.description += "\n\n"
 
 				const creationDate = new Date(levelInfo.creation_timestamp);
 				const updatedDate = new Date(levelInfo.update_timestamp);
