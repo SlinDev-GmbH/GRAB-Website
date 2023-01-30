@@ -171,6 +171,8 @@ function init()
 			var complexityLabel = document.getElementById("complexity");
 			var checkpointsLabel = document.getElementById("checkpoints");
 
+			var dateLabel = document.getElementById("date");
+
 			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
 			let levelIdentifierParts = levelIdentifier.split(':')
@@ -190,6 +192,7 @@ function init()
 				descriptionLabel.innerHTML = '';
 				complexityLabel.innerHTML = '';
 				checkpointsLabel.innerHTML = '';
+				dateLabel.innerHTML = '';
 				return;
 			}
 
@@ -476,6 +479,13 @@ function init()
 			complexityLabel.appendChild(complexityNode);
 			const checkpointsNode = document.createTextNode('checkpoints: ' + decoded.maxCheckpointCount);
 			checkpointsLabel.appendChild(checkpointsNode);
+
+			const creationDate = new Date(detailResponseBody.creation_timestamp);
+			const updatedDate = new Date(detailResponseBody.update_timestamp);
+			let dateString = "Created: " + creationDate.toDateString() + "\n"
+			if(creationDate.toDateString() !== updatedDate.toDateString()) dateString += "Last Updated: " + updatedDate.toDateString()
+			const dateNode = document.createTextNode(dateString);
+			dateLabel.appendChild(dateNode);
 			
 
 			//Get level statistics
