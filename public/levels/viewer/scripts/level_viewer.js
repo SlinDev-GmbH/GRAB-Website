@@ -605,6 +605,6 @@ export function exportLevelAsGLTF()
 	        console.log( 'An error happened' );
 
 	    },
-	    options
+	    {}
 	);
 }
