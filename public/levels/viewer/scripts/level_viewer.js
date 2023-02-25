@@ -611,7 +611,7 @@ export function exportLevelAsGLTF()
 	    function ( gltf ) {
 
 	        console.log( gltf );
-	        saveDataAsFile( "test.gltf", gltf );
+	        saveDataAsFile( "test.gltf", JSON.stringify(gltf) );
 
 	    },
 	    // called when there is an error in the generation
