@@ -2,7 +2,7 @@ import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 import * as SHADERS from './shaders.js';
-import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/addons/exporters/GLTFExporter.js';
+import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
 
 let userID = undefined;
 
