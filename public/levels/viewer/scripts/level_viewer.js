@@ -584,6 +584,21 @@ export function backButtonPressed()
 	window.location.href = newURL.href;
 }
 
+function saveDataAsFile(filename, data) {
+    const blob = new Blob([data], {type: 'text/json'});
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        const elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;        
+        document.body.appendChild(elem);
+        elem.click();        
+        document.body.removeChild(elem);
+    }
+}
+
 export function exportLevelAsGLTF()
 {
     // Instantiate a exporter
@@ -596,7 +611,7 @@ export function exportLevelAsGLTF()
 	    function ( gltf ) {
 
 	        console.log( gltf );
-	        downloadJSON( gltf );
+	        saveDataAsFile( "test.gltf", gltf );
 
 	    },
 	    // called when there is an error in the generation
