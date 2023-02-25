@@ -2,6 +2,7 @@ import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 import * as SHADERS from './shaders.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 let userID = undefined;
 
@@ -67,6 +68,7 @@ function getGeometryForModel(name)
 function init()
 {
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
+	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -580,4 +582,29 @@ export function backButtonPressed()
 	if(userID !== undefined) newURL.search = "?tab=user&user_id=" + userID;
 	else newURL.search = "";
 	window.location.href = newURL.href;
+}
+
+export function exportLevelAsGLTF()
+{
+    // Instantiate a exporter
+	const exporter = new GLTFExporter();
+
+	// Parse the input and generate the glTF output
+	exporter.parse(
+	    scene,
+	    // called when the gltf has been generated
+	    function ( gltf ) {
+
+	        console.log( gltf );
+	        downloadJSON( gltf );
+
+	    },
+	    // called when there is an error in the generation
+	    function ( error ) {
+
+	        console.log( 'An error happened' );
+
+	    },
+	    options
+	);
 }
