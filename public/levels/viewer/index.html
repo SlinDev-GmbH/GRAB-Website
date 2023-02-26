@@ -37,7 +37,7 @@
 				display:block;
 			}
 
-			.signinfo {
+			.moderationinfo {
 				position: relative;
 				text-align: left;
 				z-index: 100;
@@ -68,7 +68,7 @@
 			}
 			
 			.download-button {
-				width: 90px;
+				width: 120px;
 				height:  30px;
 				font-weight: bold;
 				border-radius: 2em;
@@ -78,10 +78,11 @@
 				color: #FFFFFF;
 				text-align: center;
 				border: none;
+				float: right;
 			}
 
 			.fullscreen-button {
-				width: 90px;
+				width: 120px;
 				height:  30px;
 				font-weight: bold;
 				border-radius: 2em;
@@ -92,6 +93,14 @@
 				text-align: center;
 				border: none;
 				float: right;
+			}
+
+			.info-stamp-ok {
+				position: absolute;
+				right: 1%;
+				bottom: 5%;
+				width: 20%;
+				transform: rotate(-20deg);
 			}
 
 		</style>
@@ -129,7 +138,7 @@
 		<br>
 		<div id="go to finish"></div>
 		<br>
-		<div id="signtextcontainer" class="signinfo"></div>
+		<div id="moderationcontainer" class="moderationinfo"></div>
 		<br>
 		<br>
 		</div>

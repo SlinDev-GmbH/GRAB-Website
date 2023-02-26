@@ -205,15 +205,68 @@ function init()
 				levelIdentifier = levelIdentifier.join('/')
 			}
 
-			let response = await fetch(SERVER_URL + 'download/' + levelIdentifier);
-			//console.log(response);
-			let responseBody = await response.arrayBuffer();
-			let formattedBuffer = new Uint8Array(responseBody);
-			let decoded = LevelMessage.decode(formattedBuffer);
-			//console.log(`decoded = ${JSON.stringify(decoded)}`);
+			let response = await fetch(SERVER_URL + 'download/' + levelIdentifier)
+			//console.log(response)
+			let responseBody = await response.arrayBuffer()
+			let formattedBuffer = new Uint8Array(responseBody)
+			let decoded = LevelMessage.decode(formattedBuffer)
+			//console.log(`decoded = ${JSON.stringify(decoded)}`)
 
-			var fullscreenButton = document.getElementById("fullscreen");
-			fullscreenButton.onclick = openFullscreen;
+			var fullscreenButton = document.getElementById("fullscreen")
+			fullscreenButton.onclick = openFullscreen
+
+			let moderationContainer = document.getElementById("moderationcontainer")
+			if(userInfo && ("is_moderator" in userInfo) && userInfo.is_moderator === true)
+			{
+				let tagsForm = document.createElement("form");
+				moderationContainer.appendChild(tagsForm);
+				tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
+				let tagsParentObject = tagsForm.childNodes[0];
+				let tagOptions = []
+				for(const option of tagsParentObject.childNodes)
+				{
+					if(option.type === "checkbox")
+					{
+						tagOptions.push(option);
+						if("tags" in levelInfo && levelInfo.tags.length > 0)
+						{
+							for(const tag of levelInfo.tags)
+							{
+								if(tag === option.value)
+								{
+									option.checked = true;
+								}
+							}
+						}
+					}
+				}
+
+				tagsForm.onsubmit = function(event) {
+					let tags = "";
+					for(const option of tagOptions)
+					{
+						if(option.checked)
+						{
+							tags += option.value + ",";
+						}
+					}
+
+					(async () => {
+						let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
+						let responseBody = await response.text();
+						console.log(responseBody);
+						confirm("Result: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+						{
+							logout();
+						}
+					})();
+					return false;
+				};
+
+				linebreak = document.createElement("br");
+				moderationContainer.appendChild(linebreak);
+			}
 
 
 			await shapePromise;
@@ -261,7 +314,6 @@ function init()
 			let extraRotate = new THREE.Quaternion();
 			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
-			let signTextContainer = document.getElementById("signtextcontainer");
 			let signCounter = 0;
 			let realComplexity = 0;
 
@@ -448,7 +500,7 @@ function init()
 							signTextElement.onclick = function() {
 								camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
 							}
-							signTextContainer.appendChild(signTextElement);
+							moderationContainer.appendChild(signTextElement);
 						}
 
 						signCounter += 1;
@@ -488,6 +540,23 @@ function init()
 			if(creationDate.toDateString() !== updatedDate.toDateString()) dateString += " (updated: " + updatedDate.toDateString() + ")"
 			const dateNode = document.createTextNode(dateString);
 			dateLabel.appendChild(dateNode);
+
+			//Show OK stamp on levels that have the tag
+			if("tags" in levelInfo && levelInfo.tags.length > 0)
+			{
+				for(const tag of levelInfo.tags)
+				{
+					if(tag === "ok")
+					{
+						const infoNode = document.getElementById("info");
+						let stamp = document.createElement("img");
+						stamp.className = "info-stamp-ok";
+						stamp.src = "../../images/stamp_ok.png";
+						infoNode.appendChild(stamp);
+						break;
+					}
+				}
+			}
 			
 
 			//Get level statistics
