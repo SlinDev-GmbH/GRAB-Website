@@ -264,7 +264,7 @@ function init()
 					return false;
 				};
 
-				linebreak = document.createElement("br");
+				let linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
 			}
 
