@@ -268,6 +268,28 @@ function init()
 				moderationContainer.appendChild(linebreak);
 			}
 
+			if(userInfo && ("is_admin" in userInfo) && userInfo.is_admin === true)
+			{
+				let creatorButton = document.createElement("button");
+				moderationContainer.appendChild(creatorButton);
+				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
+				creatorButton.onclick = function () {
+				  	(async () => {
+						let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
+						let responseBody = await response.text();
+						console.log(responseBody);
+						confirm("Result: " + responseBody);
+						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
+						{
+							logout();
+						}
+					})();
+				};
+
+				let linebreak = document.createElement("br");
+				moderationContainer.appendChild(linebreak);
+			}
+
 
 			await shapePromise;
 			await objectPromise;
