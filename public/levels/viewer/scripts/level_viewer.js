@@ -228,9 +228,9 @@ function init()
 					if(option.type === "checkbox")
 					{
 						tagOptions.push(option);
-						if("tags" in levelInfo && levelInfo.tags.length > 0)
+						if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
 						{
-							for(const tag of levelInfo.tags)
+							for(const tag of detailResponseBody.tags)
 							{
 								if(tag === option.value)
 								{
@@ -542,9 +542,9 @@ function init()
 			dateLabel.appendChild(dateNode);
 
 			//Show OK stamp on levels that have the tag
-			if("tags" in levelInfo && levelInfo.tags.length > 0)
+			if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
 			{
-				for(const tag of levelInfo.tags)
+				for(const tag of detailResponseBody.tags)
 				{
 					if(tag === "ok")
 					{
