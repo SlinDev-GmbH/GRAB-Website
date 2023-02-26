@@ -288,6 +288,8 @@ function init()
 
 				let linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
+				linebreak = document.createElement("br");
+				moderationContainer.appendChild(linebreak);
 			}
 
 
