@@ -942,6 +942,7 @@ async function loadMoreLevels()
 		button.innerHTML = "OPEN";
 		button.className = "cell-button";
 		button.href = 'viewer?level=' + levelInfo.identifier;
+		button.target = "_blank";
 	}
 
 	//Either reached end of list or is favorites tab that doesn't have pagination
