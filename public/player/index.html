@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Customiser</title>
+    <script type="module" src="player.js" defer></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+        body {
+            font-family: 'Roboto';
+            font-weight: 600;
+            background-image: linear-gradient(#84c1f0, #e1f6ff, #84c1f0);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            height: 100vh;
+            flex-direction: row;
+            flex-wrap: wrap-reverse;
+            margin: 0;
+            gap: 30px;
+        }
+        #color-picker {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            width: 372px;
+            height: 372px;
+            padding: 3px;
+        }
+        #color-picker div, #color-picker div.selected:has(~ div:active), div.selected:is(#color-picker div:active ~ div.selected) {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            margin: 3px;
+            border: none;
+        }
+        #color-picker div:hover {
+            cursor: pointer;
+            margin: 0;
+            border: 3px solid #333;
+        }
+        #color-picker div.selected, #color-picker div:active {
+            margin: 0;
+            border: 3px solid #000;
+        }
+        #color-picker span{
+            color: #0f6db3;
+            font-size: 1.5em;
+            cursor: pointer;
+            text-align: center;
+        }
+        #color-picker div {
+            display: none;
+        }
+        .player-model {
+            width: 300px;
+            height: 300px;
+        }
+        #primary {
+            grid-column: 1 / 10;
+            grid-row: 3 / 6;
+        }
+        #secondary {
+            grid-column: 1 / 10;
+            grid-row: 4 / 6;
+        }
+    </style>
+</head>
+<body>
+    <canvas class="player-model"></canvas>
+    <div id="color-picker">
+        <span id="primary">Change Main Color</span>
+        <span id="secondary">Change Second Color</span>
+    </div>
+</body>
+</html>
