@@ -68,7 +68,8 @@ function getGeometryForModel(name)
 function init()
 {
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
-	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
+	document.getElementById('copy-button').addEventListener('click', copyLevelURLPressed);
+	//document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -675,6 +676,11 @@ export function backButtonPressed()
 	if(userID !== undefined) newURL.search = "?tab=user&user_id=" + userID;
 	else newURL.search = "";
 	window.location.href = newURL.href;
+}
+
+export async function copyLevelURLPressed()
+{
+	await navigator.clipboard.writeText(window.location.href);
 }
 
 function saveDataAsFile(filename, data) {

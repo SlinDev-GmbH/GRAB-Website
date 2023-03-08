@@ -8,6 +8,7 @@ var numberOfLevels = 0;
 var currentTab = "newest";
 var levelsUserID = ""
 var currentSearchTerm = ""
+var accessToken = ""
 
 function getCookie(cname)
 {
@@ -58,7 +59,7 @@ async function loadMoreLevels()
 
 	console.log("loading more levels");
 
-	let accessToken = getCookie("access_token");
+	accessToken = getCookie("access_token");
 	let userInfoString = getCookie("user_info")
 	let userInfo = undefined
 	if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
@@ -1055,9 +1056,7 @@ function init()
 			{
 				const copyAccessTokenButton = document.getElementById("copy-token-button")
 					copyAccessTokenButton.style.display = "block"
-					copyAccessTokenButton.addEventListener("click", function(event) {
-						navigator.clipboard.writeText(accessToken);
-					});
+					copyAccessTokenButton.addEventListener("click", copyAccessToken);
 
 				let hiddenButton = document.createElement("button");
 				tabBar.appendChild(hiddenButton);
@@ -1277,6 +1276,11 @@ function search(event)
 	numberOfLevels = 0;
 	clearLevels();
 	loadMoreLevels();
+}
+
+async function copyAccessToken(event)
+{
+	await navigator.clipboard.writeText(accessToken);
 }
 
 function login()
