@@ -1032,6 +1032,7 @@ function init()
 		if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
 
 		let tabBar = document.getElementById("tabbar");
+		let playerSearchTab = document.getElementById("tab_search_users");
 
 		if(accessToken && userInfo)
 		{
@@ -1048,7 +1049,7 @@ function init()
 			if("user_level_count" in userInfo && userInfo.user_level_count > 0)
 			{
 				let myLevelsButton = document.createElement("button");
-				tabBar.appendChild(myLevelsButton);
+				tabBar.insertBefore(myLevelsButton, playerSearchTab);
 				myLevelsButton.innerHTML = "My Levels";
 				myLevelsButton.className = "tablinks";
 				myLevelsButton.id = "tab_mylevels"
@@ -1056,7 +1057,7 @@ function init()
 			}
 
 			let favoritesButton = document.createElement("button");
-			tabBar.appendChild(favoritesButton);
+			tabBar.insertBefore(favoritesButton, playerSearchTab);
 			favoritesButton.innerHTML = "My Favorites";
 			favoritesButton.className = "tablinks";
 			favoritesButton.id = "tab_favorites"
@@ -1127,6 +1128,11 @@ function tabChanged(tab)
 {
 	document.body.style.background = '#4BA0D6' //Reset background color to default
 
+	var searchField = document.getElementById("search_field")
+	searchField.value = ""
+	searchField.style.display = "none"
+	tempSearchTerm = currentSearchTerm = ""
+
 	//user isn't a real tab, but still a valid value that is always available, so don't make it switch to newest in that case
 	if(tab !== "user")
 	{
@@ -1139,6 +1145,7 @@ function tabChanged(tab)
 	if(tab === "newest")
 	{
 		titleString = "All Levels";
+		searchField.style.display = "block"
 	}
 	if(tab === "verified")
 	{
@@ -1171,6 +1178,7 @@ function tabChanged(tab)
 	if(tab === "search_users")
 	{
 		titleString = "User Search";
+		searchField.style.display = "block"
 	}
 	if(tab === "user")
 	{
