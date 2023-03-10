@@ -7,7 +7,9 @@ var noMoreLevels = false;
 var numberOfLevels = 0;
 var currentTab = "newest";
 var levelsUserID = ""
+var searchTypingTimer = '';
 var currentSearchTerm = ""
+var tempSearchTerm = ""
 var accessToken = ""
 
 function getCookie(cname)
@@ -47,7 +49,7 @@ async function clearLevels()
 
 async function loadMoreLevels()
 {
-	if(isLoading || noMoreLevels) return;
+	if((isLoading || noMoreLevels) && (currentSearchTerm.length == 0 || tempSearchTerm === currentSearchTerm)) return;
 
 	if(currentTab === "search_users" && currentSearchTerm.length === 0)
 	{
@@ -56,6 +58,8 @@ async function loadMoreLevels()
 	}
 
 	isLoading = true;
+	const activeSearchTerm = currentSearchTerm
+	tempSearchTerm = currentSearchTerm;
 
 	console.log("loading more levels");
 
@@ -137,6 +141,12 @@ async function loadMoreLevels()
 
 	let responseBody = await response.json();
 
+	//Ignore search results if the search term changed!
+	if(activeSearchTerm !== currentSearchTerm)
+	{
+		return;
+	}
+
 	var containerWrapper = document.getElementById("list-container-wrapper");
 	var container = document.getElementById("list-container");
 
@@ -146,6 +156,12 @@ async function loadMoreLevels()
 	{
 		//Reverse favorites list to show the newest addition at the top
 		responseBody.reverse()
+	}
+
+	let isAdmin = false
+	if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true)
+	{
+		isAdmin = true
 	}
 
 	for(let listElement of responseBody)
@@ -202,7 +218,7 @@ async function loadMoreLevels()
 				}
 			}
 
-			if("user_id" in userInfo)
+			if(isAdmin && "user_id" in userInfo)
 			{
 				let userNameElement = document.createElement("b");
 				userNameElement.className = "cell-description"
@@ -218,7 +234,7 @@ async function loadMoreLevels()
 				cell.appendChild(levelCountElement);
 			}
 
-			if("moderation_strike_count" in userInfo)
+			if(isAdmin && "moderation_strike_count" in userInfo)
 			{
 				let strikeCountElement = document.createElement("b");
 				strikeCountElement.className = "cell-description"
@@ -232,7 +248,7 @@ async function loadMoreLevels()
 				cell.appendChild(linebreak);
 			}
 
-			if("moderation_info" in userInfo)
+			if(isAdmin && "moderation_info" in userInfo)
 			{
 				//Show current (or previous) moderation info if it exists
 				let moderationInfoText = document.createElement("div");
@@ -258,8 +274,7 @@ async function loadMoreLevels()
 				cell.appendChild(linebreak);
 			}
 
-			//This one only works for admins, but only admins can see the reports anyway, so doing it here is fine
-			if(currentTab === "report_users" || currentTab === "search_users")
+			if(isAdmin && (currentTab === "report_users" || currentTab === "search_users"))
 			{
 				if(currentTab === "report_users")
 				{
@@ -1085,14 +1100,6 @@ function init()
 				bannedUsersButton.className = "tablinks";
 				bannedUsersButton.id = "tab_banned_users"
 				bannedUsersButton.addEventListener("click", function(event) { tabChanged('banned_users'); }, false);
-
-				//Should be public, but still pretty rough, so keeping it to admins for now
-				let searchUsersButton = document.createElement("button");
-				tabBar.appendChild(searchUsersButton);
-				searchUsersButton.innerHTML = "Players";
-				searchUsersButton.className = "tablinks";
-				searchUsersButton.id = "tab_search_users"
-				searchUsersButton.addEventListener("click", function(event) { tabChanged('search_users'); }, false);
 			}
 		}
 
@@ -1257,25 +1264,28 @@ function showOptionsDialog(title, subtitle, options, onOk)
 
 function search(event)
 {
-	currentSearchTerm = event.target.value
-	if(!currentSearchTerm || currentSearchTerm.length == 0)
-	{
-		currentSearchTerm = ""
-	}
-	else
-	{
-		currentSearchTerm = currentSearchTerm.toLowerCase().replace(/[^a-z0-9]/g, '')
-	}
+	clearTimeout(searchTypingTimer);
+	searchTypingTimer = setTimeout(function() {
+		currentSearchTerm = event.target.value
+		if(!currentSearchTerm || currentSearchTerm.length == 0)
+		{
+			currentSearchTerm = ""
+		}
+		else
+		{
+			currentSearchTerm = currentSearchTerm.toLowerCase().replace(/[^a-z0-9]/g, '')
+		}
 
-	let title = document.getElementById("title-text");
-	title.innerHTML = "Search";
+		let title = document.getElementById("title-text");
+		title.innerHTML = "Search";
 
-	isAtTop = true;
-	nextPageTimestamp = -1;
-	noMoreLevels = false;
-	numberOfLevels = 0;
-	clearLevels();
-	loadMoreLevels();
+		isAtTop = true;
+		nextPageTimestamp = -1;
+		noMoreLevels = false;
+		numberOfLevels = 0;
+		clearLevels();
+		loadMoreLevels();
+	}, 500);
 }
 
 async function copyAccessToken(event)
