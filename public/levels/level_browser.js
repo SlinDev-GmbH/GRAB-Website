@@ -1189,9 +1189,10 @@ function tabChanged(tab)
 		const levelsUserID = params.get('user_id');
 		if(levelsUserID === "29sgp24f1uorbc6vq8d2k")
 		{
-			console.log("should show image")
-			document.body.style.background = 'url(../images/rick_astley.png) no-repeat center center fixed';
-			document.body.style.backgroundSize = 'cover';
+			var rick = document.createElement('img');
+			rick.src = '../images/rick_astley.png';
+			rick.className = 'rick';
+			document.body.appendChild(rick);
 		}
 	}
 	else
