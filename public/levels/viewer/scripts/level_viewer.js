@@ -612,7 +612,9 @@ function init()
 				playersLikedLabel.innerHTML = "players liked count: <b>" + responseBody.liked_count + "</b>"
 
 				var timeLabel = document.getElementById("average time");
-				timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
+				responseBody.average_time
+					? timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
+					: timeLabel.innerHTML = "average time: <b>N/a</b>"
 			})()
 		})()
 	});
