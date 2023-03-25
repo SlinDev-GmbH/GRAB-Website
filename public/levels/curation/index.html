@@ -1,13 +1,58 @@
 <html>
 <head>
-	<title>Game Level List</title>
-	<style>
+	<title>Curated Level Lists</title>
+	<style>		
+		body {
+			background-color: #e6e6e6;
+			margin: 0 auto;
+			max-width: 960px;
+		}
+		h1 {
+			text-align: center;
+			font-size: 32px;
+			padding-top: 15px;
+			padding-bottom: 15px;
+		}
+		#typeSelector {
+			font-size: 20px;
+			text-align: center;
+			display: block;
+			margin: 0 auto;
+			padding: 10px;
+			width: 100%;
+			border-radius: 10px;
+			border: 2px solid #ccc;
+		}
+		#container {
+			margin: 0 auto;
+			padding: 10px;
+			width: 100%;
+			display: block;
+		}
 		#levelList {
 			float: left;
+			font-size: 20px;
+			text-align: center;
+			border-radius: 10px;
+			border: 2px solid #ccc;
+			width: 70%;
 		}
 		#controls {
+			text-align: center;
 			clear: right;
 			float: left;
+			width: 27%;
+		}
+		#controls input {
+			font-size: 20px;
+			padding: 10px;
+			margin: 10px;
+			width: 100%;
+			border-radius: 10px;
+			border: 2px solid #ccc;
+			background-color: #555;
+			color: #fff;
+			cursor: pointer;
 		}
 	</style>
 	<script type="text/javascript">
@@ -155,7 +200,7 @@
 	</script>
 </head>
 <body>
-	<h1>Game Level List</h1>
+	<h1>Curated Level Lists</h1>
 	<select id="typeSelector">
 		<!--Awesome Series-->
 		<option value="factory_rebirth">Factory Rebirth</option>
@@ -186,13 +231,16 @@
 		<option value="test">Test</option>
 		
 	</select><br />
-	<select id="levelList"></select><br />
-	<div id="controls">
-		<input type="button" value="Add Levels" onclick="addLevels()" /><br />
-		<input type="button" value="Remove Level" onclick="removeLevel()" /><br />
-		<input type="button" value="Move Level Up" onclick="moveLevelUp()" /><br />
-		<input type="button" value="Move Level Down" onclick="moveLevelDown()" /><br />
-		<input type="button" value="Send" onclick="sendUpdates()" />
+	<div id="container">
+		<select id="levelList"></select><br />
+		<div id="controls">
+			<input type="button" value="Add Levels" onclick="addLevels()" /><br />
+			<input type="button" value="Remove Level" onclick="removeLevel()" /><br />
+			<input type="button" value="Move Level Up" onclick="moveLevelUp()" /><br />
+			<input type="button" value="Move Level Down" onclick="moveLevelDown()" /><br />
+			<br>
+			<input type="button" value="Send" onclick="sendUpdates()" />
+		</div>
 	</div>
 </body>
 </html>
