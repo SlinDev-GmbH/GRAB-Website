@@ -1,0 +1,198 @@
+<html>
+<head>
+	<title>Game Level List</title>
+	<style>
+		#levelList {
+			float: left;
+		}
+		#controls {
+			clear: right;
+			float: left;
+		}
+	</style>
+	<script type="text/javascript">
+		// Define the endpoint for fetching the existing list
+		let existingListEndpoint = 'https://api.slin.dev/grab/v1/list?max_format_version=8&type=curated_';
+
+		let levelDetailsEndpoint = 'https://api.slin.dev/grab/v1/details/';
+		
+		// Define the endpoint for updating each level
+		let updateLevelEndpoint = 'https://grab-api-dev.slindev.workers.dev/grab/v1/add_to_curated_list?';
+
+		// This stores the original level list as it is on the server
+		let oldLevelList = [];
+		
+		// This stores the current level list
+		let levelList = [];
+		
+		
+		// Get the list from the endpoint when the page loads
+		window.onload = (event) => {
+			let typeSelector = document.getElementById('typeSelector');
+			typeSelector.onchange = function() {
+				let type = typeSelector.options[typeSelector.selectedIndex].value;
+				fetch(existingListEndpoint + type).then(response => {
+					response.json().then(data => {
+						oldLevelList = data;
+						levelList = oldLevelList.slice();
+						displayList();
+					});
+				});
+			};
+			typeSelector.onchange();
+		};
+
+		function getCookie(cname)
+		{
+			let name = cname + "=";
+			let decodedCookie = decodeURIComponent(document.cookie);
+			let ca = decodedCookie.split(';');
+			for(let i = 0; i <ca.length; i++)
+			{
+				let c = ca[i];
+				while(c.charAt(0) == ' ')
+				{
+					c = c.substring(1);
+				}
+				if(c.indexOf(name) == 0)
+				{
+					return c.substring(name.length, c.length);
+				}
+			}
+			return "";
+		}
+		
+		// This function adds a new levels to the list
+		function addLevels() {
+		    let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
+		    if(levelIds !== null)
+			{
+				let ids = levelIds.split("\n");
+				ids.forEach(id => {
+					let parts = id.split("level=");
+					let levelId = parts[1];
+					fetch(levelDetailsEndpoint + levelId.split(":").join("/")).then(response => {
+						response.json().then(data => {
+							levelList.push(data);
+							displayList();
+						});
+					});
+				});
+			}
+		}
+		
+		// This function removes the selected level from the list
+		function removeLevel() {
+			let index = document.getElementById("levelList").selectedIndex;
+			let levelId = levelList[index];
+			levelList.splice(index, 1);
+			displayList();
+		}
+		
+		// This function moves the selected level up by one
+		function moveLevelUp() {
+			let index = document.getElementById("levelList").selectedIndex;
+			if (index > 0) {
+				let levelId = levelList[index];
+				let temp = levelList[index - 1];
+				levelList[index - 1] = levelId;
+				levelList[index] = temp;
+				displayList();
+				document.getElementById("levelList").selectedIndex = index - 1;
+			}
+		}
+		
+		// This function moves the selected level down by one
+		function moveLevelDown() {
+			let index = document.getElementById("levelList").selectedIndex;
+			if (index < levelList.length - 1) {
+				let levelId = levelList[index];
+				let temp = levelList[index + 1];
+				levelList[index + 1] = levelId;
+				levelList[index] = temp;
+				displayList();
+				document.getElementById("levelList").selectedIndex = index + 1;
+			}
+		}
+		
+		// This function sends all updates to the server
+		function sendUpdates() {
+			const accessToken = getCookie("access_token");
+			if(!accessToken) alert("No access token!");
+
+			let typeSelector = document.getElementById('typeSelector');
+			let type = typeSelector.options[typeSelector.selectedIndex].value;
+		  for (let i = 0; i < levelList.length; i++) {
+		    let levelId = levelList[i]["identifier"];
+		    let position = oldLevelList.findIndex(obj => obj.identifier === levelId);
+		    if(position !== i) {
+		      console.log(updateLevelEndpoint + 'level_id=' + levelId + '&list_key=' + type + '&level_key=' + i.toString().padStart(8, '0') + '&access_token=' + accessToken);
+		    }
+		  }
+		  for (let i = 0; i < oldLevelList.length; i++) {
+		    let levelId = oldLevelList[i]["identifier"];
+		    let position = levelList.findIndex(obj => obj.identifier === levelId);
+		    if (position === -1) {
+		      console.log(updateLevelEndpoint + '?level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
+		    }
+		  }
+		  oldLevelList = levelList.slice();
+		}
+		
+		// This function displays the list in the page
+		function displayList() {
+			let listElement = document.getElementById('levelList');
+			listElement.innerHTML = '';
+			listElement.size = levelList.length;
+			for (let i = 0; i < levelList.length; i++) {
+				let levelTitle = levelList[i]["title"];
+				let option = document.createElement('option');
+				option.value = levelTitle;
+				option.text = levelTitle;
+				listElement.appendChild(option);
+			}
+		}
+	</script>
+</head>
+<body>
+	<h1>Game Level List</h1>
+	<select id="typeSelector">
+		<!--Awesome Series-->
+		<option value="factory_rebirth">Factory Rebirth</option>
+		<option value="grab_adventure_1">GRAB Adventure</option>
+		<option value="spelunk">Spelunk</option>
+		<option value="smorgasbord">Smorgasbord</option>
+		<option value="famguy_industries">Famguy Industries</option>
+		<option value="afterlife">Afterlife</option>
+		<option value="speed">Speed</option>
+		<option value="skills_only">Skills Only</option>
+
+		<!--Other public lists-->
+		<option value="dev_picks">Dev Picks</option>
+		<option value="challenge">A Challenge</option>
+		<option value="ccc1">Creators Cup</option>
+
+		<!--Ideas for new lists-->
+		<option value="showcase">Showcase</option>
+
+		<!--Old lists, not public anymore-->
+		<option value="christmas_2022">Christmas 2022</option>
+		<option value="gorilla_wastelands_1">Gorilla Wastelands 1</option>
+		<option value="gorilla_wastelands_2">Gorilla Wastelands 2</option>
+		<option value="gorilla_wastelands_3">Gorilla Wastelands 3</option>
+		<option value="backrooms_coffee">Backrooms Coffee</option>
+
+		<!--Test list to mess around with, not public-->
+		<option value="test">Test</option>
+		
+	</select><br />
+	<select id="levelList"></select><br />
+	<div id="controls">
+		<input type="button" value="Add Levels" onclick="addLevels()" /><br />
+		<input type="button" value="Remove Level" onclick="removeLevel()" /><br />
+		<input type="button" value="Move Level Up" onclick="moveLevelUp()" /><br />
+		<input type="button" value="Move Level Down" onclick="moveLevelDown()" /><br />
+		<input type="button" value="Send" onclick="sendUpdates()" />
+	</div>
+</body>
+</html>
