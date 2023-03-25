@@ -126,14 +126,14 @@
 		    let levelId = levelList[i]["identifier"];
 		    let position = oldLevelList.findIndex(obj => obj.identifier === levelId);
 		    if(position !== i) {
-		      console.log(updateLevelEndpoint + 'level_id=' + levelId + '&list_key=' + type + '&level_key=' + i.toString().padStart(8, '0') + '&access_token=' + accessToken);
+		      fetch(updateLevelEndpoint + 'level_id=' + levelId + '&list_key=' + type + '&level_key=' + i.toString().padStart(8, '0') + '&access_token=' + accessToken);
 		    }
 		  }
 		  for (let i = 0; i < oldLevelList.length; i++) {
 		    let levelId = oldLevelList[i]["identifier"];
 		    let position = levelList.findIndex(obj => obj.identifier === levelId);
 		    if (position === -1) {
-		      console.log(updateLevelEndpoint + '?level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
+		      fetch(updateLevelEndpoint + '?level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
 		    }
 		  }
 		  oldLevelList = levelList.slice();
