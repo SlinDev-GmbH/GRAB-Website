@@ -172,7 +172,10 @@
 		// This function sends all updates to the server
 		function sendUpdates() {
 			const accessToken = getCookie("access_token");
-			if(!accessToken) alert("No access token!"); return;
+			if(!accessToken) {
+				alert("No access token!");
+				return;
+			}
 
 			let typeSelector = document.getElementById('typeSelector');
 			let type = typeSelector.options[typeSelector.selectedIndex].value;
@@ -222,7 +225,10 @@
 
 		function addNewList() {
 			const accessToken = getCookie("access_token");
-			if(!accessToken) alert("No access token!"); return;
+			if(!accessToken) {
+				alert("No access token!");
+				return;
+			}
 
 			const name = prompt("Please enter the name of the new list:");
 			if (name) {
@@ -237,7 +243,10 @@
 
 		function removeList() {
 			const accessToken = getCookie("access_token");
-			if(!accessToken) alert("No access token!"); return;
+			if(!accessToken) {
+				alert("No access token!");
+				return;
+			}
 
 			const name = prompt("Please enter the name of the list to remove:");
 			if (name) {
