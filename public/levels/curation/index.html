@@ -56,6 +56,18 @@
 			color: #fff;
 			cursor: pointer;
 		}
+
+		.button {
+			font-size: 20px;
+			padding: 10px;
+			margin: 10px;
+			width: 20%;
+			border-radius: 10px;
+			border: 2px solid #ccc;
+			background-color: #555;
+			color: #fff;
+			cursor: pointer;
+		}
 	</style>
 	<script type="text/javascript">
 		let existingListEndpoint = 'https://api.slin.dev/grab/v1/list?max_format_version=8&type=curated_';
@@ -263,8 +275,8 @@
 </head>
 <body>
 	<h1>Curated Level Lists</h1>
-	<button onclick="addNewList()">Add New List</button>
-	<button onclick="removeList()">Remove List</button>
+	<button onclick="addNewList()" class="button">Add New List</button>
+	<button onclick="removeList()" class="button">Remove List</button>
 	<select id="typeSelector">
 		<!--Awesome Series-->
 		<!--<option value="factory_rebirth">Factory Rebirth</option>
