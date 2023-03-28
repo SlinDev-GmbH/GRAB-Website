@@ -15,15 +15,38 @@
 			padding-top: 15px;
 			padding-bottom: 15px;
 		}
+		#typeSelectorWrapper {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			margin-bottom: 10px;
+		}
 		#typeSelector {
 			font-size: 20px;
 			text-align: center;
 			display: block;
-			margin: 0 auto;
+			margin-left: 10px;
 			padding: 10px;
-			width: 100%;
 			border-radius: 10px;
 			border: 2px solid #ccc;
+			flex: 1;
+		}
+		#buttonWrapper {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			margin-bottom: 10px;
+		}
+		.button {
+			font-size: 20px;
+			padding: 10px;
+			margin-left: 10px;
+			width: 20%;
+			border-radius: 10px;
+			border: 2px solid #ccc;
+			background-color: #555;
+			color: #fff;
+			cursor: pointer;
 		}
 		#container {
 			margin: 0 auto;
@@ -50,18 +73,6 @@
 			padding: 10px;
 			margin: 10px;
 			width: 100%;
-			border-radius: 10px;
-			border: 2px solid #ccc;
-			background-color: #555;
-			color: #fff;
-			cursor: pointer;
-		}
-
-		.button {
-			font-size: 20px;
-			padding: 10px;
-			margin: 10px;
-			width: 20%;
 			border-radius: 10px;
 			border: 2px solid #ccc;
 			background-color: #555;
@@ -270,43 +281,17 @@
 				});
 			}
 		}
-
 	</script>
 </head>
 <body>
 	<h1>Curated Level Lists</h1>
-	<button onclick="addNewList()" class="button">Add New List</button>
-	<button onclick="removeList()" class="button">Remove List</button>
-	<select id="typeSelector">
-		<!--Awesome Series-->
-		<!--<option value="factory_rebirth">Factory Rebirth</option>
-		<option value="grab_adventure_1">GRAB Adventure</option>
-		<option value="spelunk">Spelunk</option>
-		<option value="smorgasbord">Smorgasbord</option>
-		<option value="famguy_industries">Famguy Industries</option>
-		<option value="afterlife">Afterlife</option>
-		<option value="speed">Speed</option>
-		<option value="skills_only">Skills Only</option>-->
-
-		<!--Other public lists-->
-		<!--<option value="dev_picks">Dev Picks</option>
-		<option value="challenge">A Challenge</option>
-		<option value="ccc1">Creators Cup</option>-->
-
-		<!--Ideas for new lists-->
-		<!--<option value="showcase">Showcase</option>-->
-
-		<!--Old lists, not public anymore-->
-		<!--<option value="christmas_2022">Christmas 2022</option>
-		<option value="gorilla_wastelands_1">Gorilla Wastelands 1</option>
-		<option value="gorilla_wastelands_2">Gorilla Wastelands 2</option>
-		<option value="gorilla_wastelands_3">Gorilla Wastelands 3</option>
-		<option value="backrooms_coffee">Backrooms Coffee</option>-->
-
-		<!--Test list to mess around with, not public-->
-		<!--<option value="test">Test</option>-->
-		
-	</select><br />
+	<div id="buttonWrapper">
+		<button onclick="addNewList()" class="button">Add New List</button>
+		<button onclick="removeList()" class="button">Remove List</button>
+	</div>
+	<div id="typeSelectorWrapper">
+		<select id="typeSelector"></select>
+	</div>
 	<div id="container">
 		<select id="levelList"></select><br />
 		<div id="controls">
