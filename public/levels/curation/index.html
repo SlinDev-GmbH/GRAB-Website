@@ -3,23 +3,34 @@
 	<title>Curated Level Lists</title>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 	<style>		
+		::-webkit-scrollbar {
+		    display: none;
+		}
+		html {
+		    padding-bottom: 20px;
+		}
 		body {
 			background-color: #4BA0D6;
-			margin: 0 auto;
+			padding-inline: 10px;
+			margin-inline: auto;
 			max-width: 960px;
 			font-family: 'Roboto', sans-serif;
 		}
 		h1 {
+			margin-block: 40px;
 			text-align: center;
 			font-size: 32px;
 			padding-top: 15px;
 			padding-bottom: 15px;
 		}
+		select:focus-visible {
+		    outline: none;
+		}
 		#typeSelectorWrapper {
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-			margin-bottom: 10px;
+			margin-bottom: 20px;
 		}
 		#typeSelector {
 			font-size: 20px;
@@ -53,6 +64,8 @@
 			padding: 10px;
 			width: 100%;
 			display: block;
+			height: 0;
+    			padding-block: 0;
 		}
 		#levelList {
 			float: left;
@@ -61,6 +74,7 @@
 			border-radius: 10px;
 			border: 2px solid #ccc;
 			width: 70%;
+			margin-left: 0;
 		}
 		#controls {
 			text-align: center;
@@ -78,6 +92,11 @@
 			background-color: #555;
 			color: #fff;
 			cursor: pointer;
+			margin-right: 0;
+    			margin-left: 20px;
+		}
+		#controls input:nth-child(1) {
+		    margin-top: 0;
 		}
 	</style>
 	<script type="text/javascript">
@@ -293,7 +312,7 @@
 		<select id="typeSelector"></select>
 	</div>
 	<div id="container">
-		<select id="levelList"></select><br />
+		<select id="levelList"></select>
 		<div id="controls">
 			<input type="button" value="Add Levels" onclick="addLevels()" /><br />
 			<input type="button" value="Remove Level" onclick="removeLevel()" /><br />
