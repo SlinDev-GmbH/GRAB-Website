@@ -135,7 +135,7 @@
                 left: 50%;
                 transform: translate(-50%, -50%);
                 width: 80%;
-                max-height: 70%;
+                max-height: 80%;
                 max-width: 600px;
                 background-color: white;
                 border-radius: 20px;
@@ -144,7 +144,8 @@
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 z-index: 300;
                 display: none;
-                overflow-y: hidden;
+                display: flex;
+                flex-direction: column;
             }
 
             .leaderboard-header {
@@ -154,8 +155,8 @@
             }
 
             .leaderboard-content {
-                max-height: calc(100% - 60px);
-                overflow-y: scroll;
+                flex-grow: 1;
+                overflow-y: auto;
                 margin-bottom: 15px;
             }
 
