@@ -152,9 +152,9 @@
                 margin-bottom: 10px;
             }
 
-            #leaderboard-content {
+            .leaderboard-content {
                 max-height: calc(100% - 80px);
-                overflow-y: auto;
+                overflow-y: scroll;
                 margin-bottom: 15px;
             }
 
@@ -235,7 +235,7 @@
         <div id="overlay" class="overlay"></div>
         <div id="leaderboard" class="leaderboard">
             <div class="leaderboard-header">Leaderboard</div>
-            <div id="leaderboard-content"></div>
+            <div id="leaderboard-content" class="leaderboard-content"</div>
             <div class="leaderboard-close" onclick="closeLeaderboard()">&times;</div>
         </div>
 
