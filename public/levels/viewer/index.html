@@ -181,7 +181,7 @@
                 color: #FFFFFF;
                 text-align: center;
                 border: none;
-                float: right;
+                float: left;
             }
         </style>
     </head>
@@ -248,7 +248,12 @@
             }
 
             async function loadLeaderboardData() {
-                const endpointUrl = "__ENDPOINT_URL__";
+                const urlParams = new URLSearchParams(window.location.search);
+                let levelIdentifier = urlParams.get('level');
+                let levelIdentifierParts = levelIdentifier.split(':')
+                let hasIteration = levelIdentifierParts.length === 3
+                levelIdentifier = levelIdentifierParts.join('/');
+                const endpointUrl = SERVER_URL + 'statistics_top_leaderboard/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
                 try {
                     const response = await fetch(endpointUrl);
                     if (response.ok) {
