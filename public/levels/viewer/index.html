@@ -1,164 +1,295 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<title>__PAGE_TITLE__</title>
-		<link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-		<meta name="description" content="__PAGE_DESCRIPTION__">
-		<link rel="preconnect" href="https://fonts.googleapis.com"> 
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
-		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-		<script type="text/javascript" src="../../configuration.js"></script>
-		<style>
-			html, body {
-				margin: 0;
-				height: 100%;
-				overflow: hidden;
-				touch-action: pan-x pan-y;
-				user-select: none;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				font-family: 'Roboto', sans-serif;
-			}
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>__PAGE_TITLE__</title>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <meta name="description" content="__PAGE_DESCRIPTION__">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+        <script type="text/javascript" src="../../configuration.js"></script>
+        <style>
+            html, body {
+                margin: 0;
+                height: 100%;
+                overflow: hidden;
+                touch-action: pan-x pan-y;
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                font-family: 'Roboto', sans-serif;
+            }
 
-			.info {
-				position: absolute;
-				top: 50px;
-				left: 10px;
-				max-height: 100%;
-				background-color: #ffffff40;
-				border-radius: 20px;
-				padding: 0px 15px 0px 15px;
-				max-width: 30%;
-				text-align: left;
-				z-index: 100;
-				overflow-y: auto;
-				display:block;
-			}
+            .info {
+                position: absolute;
+                top: 50px;
+                left: 10px;
+                max-height: 100%;
+                background-color: #ffffff40;
+                border-radius: 20px;
+                padding: 0px 15px 0px 15px;
+                max-width: 30%;
+                text-align: left;
+                z-index: 100;
+                overflow-y: auto;
+                display:block;
+            }
 
-			.moderationinfo {
-				position: relative;
-				text-align: left;
-				z-index: 100;
-				display:block;
-			}
+            .moderationinfo {
+                position: relative;
+                text-align: left;
+                z-index: 100;
+                display:block;
+            }
 
-			.buttons {
-				position: absolute;
-				top: 10px;
-				left: 10px;
-				right: 10px;
-				text-align: left;
-				z-index: 100;
-				display:block;
-			}
+            .buttons {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                text-align: left;
+                z-index: 100;
+                display:block;
+            }
 
-			.back-button {
-				width: 90px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #FFAE00;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-			}
+            .back-button {
+                width: 90px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+            }
 
-			.copy-button {
-				width: 120px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #FFAE00;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				float: right;
-			}
-			
-			.download-button {
-				width: 120px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #FFAE00;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				float: right;
-			}
+            .copy-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
+            
+            .download-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
 
-			.fullscreen-button {
-				width: 120px;
-				height:  30px;
-				font-weight: bold;
-				border-radius: 2em;
-				box-sizing: border-box;
-				text-decoration: none;
-				background-color: #00BC87;
-				color: #FFFFFF;
-				text-align: center;
-				border: none;
-				float: right;
-			}
+            .fullscreen-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #00BC87;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
 
-			.info-stamp-ok {
+            .info-stamp-ok {
                 position: absolute;
                 top: 20%;
                 right: 5%;
                 width: 30%;
-				transform: rotate(-20deg);
+                transform: rotate(-20deg);
                 display:block;
-			}
+            }
 
-		</style>
-	</head>
-	<body>
-		<script type="text/javascript" src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.11.2/dist/protobuf.js"></script>
-		<script type="module" src="/levels/viewer/scripts/shaders.js"></script>
-		<script type="module" src="/levels/viewer/scripts/level_viewer.js"></script>
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 200;
+                display: none;
+            }
 
-		<div id="buttons" class="buttons">
-		<form>
-			<input type="button" id="back-button" class="back-button" value="User Levels">
-			<input type="button" value="FULLSCREEN" id="fullscreen" class="fullscreen-button">
-			<input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
-			<!--<input type="button" id="download-button" class="download-button" value="Download as GLTF">-->
-		</form>
-		</div>
+            .leaderboard {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 80%;
+                max-width: 600px;
+                background-color: white;
+                border-radius: 20px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 300;
+                display: none;
+            }
 
-		<div id="info" class="info">
-		<br>
-		<div id="title"></div>
-		<div id="creators"></div>
-		<div id="description"></div>
-		<div id="complexity"></div>
-		<div id="checkpoints"></div>
-		<br>
-		<div id="date"></div>
-		<br>
-		<div id="total played count">total played count</div>
-		<div id="total finished count">total finished count</div>
-		<div id="players played count">players played count</div>
-		<div id="players finished count">players finished count</div>
-		<div id="players rated count">players rated count</div>
-		<div id="players liked count">players liked count</div>
-		<div id="average time">average time</div>
-		<br>
-		<div id="go to finish"></div>
-		<br>
-		<div id="moderationcontainer" class="moderationinfo"></div>
-		<br>
-		<br>
-		</div>
+            .leaderboard-header {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
 
-		<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a50a84f2a35413b953ceffc91acf421"}'></script><!-- End Cloudflare Web Analytics -->
-	</body>
+            .leaderboard-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+            }
+
+            .leaderboard-position, .leaderboard-name, .leaderboard-time {
+                flex: 1;
+                text-align: center;
+            }
+
+            .leaderboard-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 18px;
+                cursor: pointer;
+            }
+
+            #leaderboard-button {
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript" src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.11.2/dist/protobuf.js"></script>
+        <script type="module" src="/levels/viewer/scripts/shaders.js"></script>
+        <script type="module" src="/levels/viewer/scripts/level_viewer.js"></script>
+
+        <div id="buttons" class="buttons">
+        <form>
+            <input type="button" id="back-button" class="back-button" value="User Levels">
+            <input type="button" value="FULLSCREEN" id="fullscreen" class="fullscreen-button">
+            <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
+            <!--<input type="button" id="download-button" class="download-button" value="Download as GLTF">-->
+        </form>
+        </div>
+
+        <div id="info" class="info">
+        <br>
+        <div id="title"></div>
+        <div id="creators"></div>
+        <div id="description"></div>
+        <div id="complexity"></div>
+        <div id="checkpoints"></div>
+        <br>
+        <div id="date"></div>
+        <br>
+        <div id="total played count">total played count</div>
+        <div id="total finished count">total finished count</div>
+        <div id="players played count">players played count</div>
+        <div id="players finished count">players finished count</div>
+        <div id="players rated count">players rated count</div>
+        <div id="players liked count">players liked count</div>
+        <div id="average time">average time</div>
+        <br>
+        <input type="button" id="leaderboard-button" value="Leaderboard">
+        <br>
+        <div id="go to finish"></div>
+        <br>
+        <div id="moderationcontainer" class="moderationinfo"></div>
+        <br>
+        <br>
+        </div>
+
+        <div id="overlay" class="overlay"></div>
+        <div id="leaderboard" class="leaderboard">
+            <div class="leaderboard-header">Leaderboard</div>
+            <div id="leaderboard-content"></div>
+            <div class="leaderboard-close" onclick="closeLeaderboard()">&times;</div>
+        </div>
+
+        <script>
+            document.getElementById("leaderboard-button").addEventListener("click", openLeaderboard);
+
+            function openLeaderboard() {
+                document.getElementById("overlay").style.display = "block";
+                document.getElementById("leaderboard").style.display = "block";
+                loadLeaderboardData();
+            }
+
+            function closeLeaderboard() {
+                document.getElementById("overlay").style.display = "none";
+                document.getElementById("leaderboard").style.display = "none";
+            }
+
+            async function loadLeaderboardData() {
+                const endpointUrl = "__ENDPOINT_URL__";
+                try {
+                    const response = await fetch(endpointUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        displayLeaderboardData(data);
+                    } else {
+                        console.error("Failed to fetch leaderboard data:", response.statusText);
+                    }
+                } catch (error) {
+                    console.error("Error fetching leaderboard data:", error);
+                }
+            }
+
+            function displayLeaderboardData(data) {
+                const leaderboardContent = document.getElementById("leaderboard-content");
+                leaderboardContent.innerHTML = "";
+
+                data.forEach((entry, index) => {
+                    const row = document.createElement("div");
+                    row.className = "leaderboard-row";
+
+                    const position = document.createElement("div");
+                    position.className = "leaderboard-position";
+                    position.textContent = index + 1;
+
+                    const name = document.createElement("div");
+                    name.className = "leaderboard-name";
+                    name.textContent = entry.name;
+
+                    const time = document.createElement("div");
+                    time.className = "leaderboard-time";
+                    time.textContent = entry.time;
+
+                    row.appendChild(position);
+                    row.appendChild(name);
+                    row.appendChild(time);
+                    leaderboardContent.appendChild(row);
+                });
+            }
+        </script>
+
+        <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6a50a84f2a35413b953ceffc91acf421"}'></script><!-- End Cloudflare Web Analytics -->
+    </body>
 </html>
