@@ -181,7 +181,7 @@
                 color: #FFFFFF;
                 text-align: center;
                 border: none;
-                float: left;
+                float: right;
             }
         </style>
     </head>
@@ -195,6 +195,7 @@
             <input type="button" id="back-button" class="back-button" value="User Levels">
             <input type="button" value="FULLSCREEN" id="fullscreen" class="fullscreen-button">
             <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
+            <input type="button" id="leaderboard-button" value="Leaderboard">
             <!--<input type="button" id="download-button" class="download-button" value="Download as GLTF">-->
         </form>
         </div>
@@ -216,8 +217,6 @@
         <div id="players rated count">players rated count</div>
         <div id="players liked count">players liked count</div>
         <div id="average time">average time</div>
-        <br>
-        <input type="button" id="leaderboard-button" value="Leaderboard">
         <br>
         <div id="go to finish"></div>
         <br>
@@ -277,15 +276,15 @@
 
                     const position = document.createElement("div");
                     position.className = "leaderboard-position";
-                    position.textContent = index + 1;
+                    position.textContent = entry.position + 1;
 
                     const name = document.createElement("div");
                     name.className = "leaderboard-name";
-                    name.textContent = entry.name;
+                    name.textContent = entry.user_name;
 
                     const time = document.createElement("div");
                     time.className = "leaderboard-time";
-                    time.textContent = entry.time;
+                    time.textContent = entry.best_time;
 
                     row.appendChild(position);
                     row.appendChild(name);
