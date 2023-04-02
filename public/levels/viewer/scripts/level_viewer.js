@@ -69,7 +69,7 @@ function init()
 {
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
 	document.getElementById('copy-button').addEventListener('click', copyLevelURLPressed);
-	//document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
+	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
