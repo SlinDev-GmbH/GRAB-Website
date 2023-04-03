@@ -277,27 +277,34 @@
                 const leaderboardContent = document.getElementById("leaderboard-content");
                 leaderboardContent.innerHTML = "";
 
-                data.forEach((entry, index) => {
-                    const row = document.createElement("div");
-                    row.className = "leaderboard-row";
+                if (data.length === 0) {
+                    const placeholder = document.createElement("div");
+                    placeholder.className = "leaderboard-placeholder";
+                    placeholder.innerHTML = "No data yet!<br>Be the first to set a record!";
+                    leaderboardContent.appendChild(placeholder);
+                } else {
+                    data.forEach((entry, index) => {
+                        const row = document.createElement("div");
+                        row.className = "leaderboard-row";
 
-                    const position = document.createElement("div");
-                    position.className = "leaderboard-position";
-                    position.textContent = entry.position + 1;
+                        const position = document.createElement("div");
+                        position.className = "leaderboard-position";
+                        position.textContent = entry.position + 1;
 
-                    const name = document.createElement("div");
-                    name.className = "leaderboard-name";
-                    name.textContent = entry.user_name;
+                        const name = document.createElement("div");
+                        name.className = "leaderboard-name";
+                        name.textContent = entry.user_name;
 
-                    const time = document.createElement("div");
-                    time.className = "leaderboard-time";
-                    time.textContent = entry.best_time;
+                        const time = document.createElement("div");
+                        time.className = "leaderboard-time";
+                        time.textContent = entry.best_time;
 
-                    row.appendChild(position);
-                    row.appendChild(name);
-                    row.appendChild(time);
-                    leaderboardContent.appendChild(row);
-                });
+                        row.appendChild(position);
+                        row.appendChild(name);
+                        row.appendChild(time);
+                        leaderboardContent.appendChild(row);
+                    });
+                }
             }
         </script>
 
