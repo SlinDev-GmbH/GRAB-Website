@@ -13,6 +13,7 @@ let shapes = [];
 let objects = []
 let materials = [];
 let objectMaterials = [];
+let isFogEnabled = true;
 
 init();
 
@@ -36,7 +37,7 @@ function getCookie(cname)
 	return "";
 }
 
-function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
+function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, neonEnabled=0.0)
 {
 	let material = new THREE.ShaderMaterial();
 	material.vertexShader = vertexShader;
@@ -47,7 +48,9 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader)
 		"colorTexture": { value: null },
 		"tileFactor": { value: tileFactor },
 		"diffuseColor": { value: [1.0, 1.0, 1.0] },
-		"worldNormalMatrix": { value: new THREE.Matrix3() }
+		"worldNormalMatrix": { value: new THREE.Matrix3() },
+		"neonEnabled": { value: neonEnabled },
+		"fogEnabled": { value: 1.0 }
 	};
 
 	material.uniforms.colorTexture.value = textureLoader.load(name);
@@ -70,6 +73,7 @@ function init()
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
 	document.getElementById('copy-button').addEventListener('click', copyLevelURLPressed);
 	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
+	document.getElementById("fog-button").addEventListener("click", toggleFog);
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
@@ -142,7 +146,8 @@ function init()
 	objectMaterials.push(finishMaterial);
 
 	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.signVS, SHADERS.signFS));
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelNeonFS));
+	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS, 1.0));
+
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -336,6 +341,33 @@ function init()
 			sky.renderOrder = 1000 //sky should be rendered after opaque, before transparent
 			scene.add(sky);
 
+			for(let material of materials)
+			{
+				let density = 0.0
+				if(decoded.ambienceSettings)
+				{
+					material.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
+					material.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
+					material.uniforms["sunSize"] = { value: decoded.ambienceSettings.sunSize }
+					density = decoded.ambienceSettings.fogDDensity
+				}
+				else
+				{
+					material.uniforms["cameraFogColor0"] = { value: [0.916, 0.9574, 0.9574] }
+					material.uniforms["cameraFogColor1"] = { value: [0.28, 0.476, 0.73] }
+					material.uniforms["sunSize"] = { value: 1.0 }
+				}
+
+				material.uniforms["sunDirection"] = { value: skySunDirection }
+				material.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
+
+				let densityFactor = density * density * density * density
+				let fogDensityX = 0.5 * densityFactor + 0.000001 * (1.0 - densityFactor)
+				let fogDensityY = 1.0/(1.0 - Math.exp(-1500.0 * fogDensityX))
+
+				material.uniforms["cameraFogDistance"] = { value: [fogDensityX, fogDensityY] }
+			}
+
 			let extraRotate = new THREE.Quaternion();
 			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
@@ -382,7 +414,6 @@ function init()
 
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-						newMaterial.uniforms["sunDirection"] = { value: sunDirection }
 
 						if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
 						{
@@ -426,7 +457,6 @@ function init()
 						let material = materials[node.levelNodeCrumbling.material]
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-						newMaterial.uniforms["sunDirection"] = { value: sunDirection }
 
 						let cube = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
 						parentNode.add(cube);
@@ -495,7 +525,6 @@ function init()
 						let material = objectMaterials[2]
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
-						newMaterial.uniforms["sunDirection"] = { value: sunDirection }
 
 						let sign = new THREE.Mesh(objects[1], newMaterial);
 						parentNode.add(sign);
@@ -637,6 +666,23 @@ function animation(time)
 	controls.update(delta);
 
 	renderer.render(scene, camera);
+}
+
+function toggleFog()
+{
+	isFogEnabled = !isFogEnabled
+	let fogValue = isFogEnabled? 1.0 : 0.0
+	
+	scene.traverse(function(node) {
+		if(node instanceof THREE.Mesh)
+		{
+			if("material" in node && "fogEnabled" in node.material.uniforms)
+			{
+				console.log(fogValue)
+				node.material.uniforms["fogEnabled"].value = fogValue
+			}
+		}
+	})
 }
 
 function openFullscreen()
