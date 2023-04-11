@@ -166,7 +166,7 @@ export const signFS = `
 	{
 		vec3 lightDirection = normalize(sunDirection);
 		lightDirection = normalize(lightDirection);
-		float lightFactor = 0.5 + dot(normalize(vNormal), lightDirection) * 0.5 + 0.5;
+		float lightFactor = 0.5 + dot(normalize(vNormal), -lightDirection) * 0.5 + 0.5;
 
 		gl_FragColor = texture2D(colorTexture, vTexcoord) * lightFactor;
 	}`

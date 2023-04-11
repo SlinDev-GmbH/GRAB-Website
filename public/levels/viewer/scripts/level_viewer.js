@@ -368,6 +368,11 @@ function init()
 				material.uniforms["cameraFogDistance"] = { value: [fogDensityX, fogDensityY] }
 			}
 
+			for(let material of objectMaterials)
+			{
+				material.uniforms["sunDirection"] = { value: skySunDirection }
+			}
+
 			let extraRotate = new THREE.Quaternion();
 			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
