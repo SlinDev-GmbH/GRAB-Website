@@ -678,7 +678,6 @@ function toggleFog()
 		{
 			if("material" in node && "fogEnabled" in node.material.uniforms)
 			{
-				console.log(fogValue)
 				node.material.uniforms["fogEnabled"].value = fogValue
 			}
 		}
