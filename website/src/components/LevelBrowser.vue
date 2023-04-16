@@ -1,11 +1,13 @@
 <script>
 import NavBar from './NavBar.vue'
 import ScrollList from './ScrollList.vue'
+import LoginButton from './LoginButton.vue'
 
 export default {
   components: {
     NavBar,
-    ScrollList
+    ScrollList,
+    LoginButton
   },
 
   data() {
@@ -29,6 +31,7 @@ export default {
 
 <template>
   <header>
+    <LoginButton />
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" width="453" height="180" />
     <NavBar @tab-changed="(value) => this.tabChanged(value)" @search-changed="(value) => this.searchChanged(value)" />
   </header>
