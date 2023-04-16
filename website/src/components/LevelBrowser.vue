@@ -10,13 +10,18 @@ export default {
 
   data() {
     return {
-      tabActive: 'tab_newest'
+      tabActive: 'tab_newest',
+      searchTerm: ''
     }
   },
 
   methods: {
     tabChanged(value) {
       this.tabActive = value
+    },
+
+    searchChanged(value) {
+      this.searchTerm = value
     }
   }
 }
@@ -25,10 +30,10 @@ export default {
 <template>
   <header>
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" width="453" height="180" />
-    <NavBar @tab-changed="(value) => this.tabChanged(value)" />
+    <NavBar @tab-changed="(value) => this.tabChanged(value)" @search-changed="(value) => this.searchChanged(value)" />
   </header>
   <main>
-    <ScrollList :list-type="tabActive" />
+    <ScrollList :list-type="tabActive" :search-term="searchTerm" />
   </main>
 </template>
 

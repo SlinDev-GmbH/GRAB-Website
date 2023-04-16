@@ -9,7 +9,8 @@ export default {
   },
 
   props: {
-    listType: String
+    listType: String,
+    searchTerm: String
   },
 
   data() {
@@ -34,22 +35,29 @@ export default {
       this.items = []
       this.nextPage = null
       await this.loadMore()
+    },
+
+    async searchTerm(type) {
+      this.items = []
+      this.nextPage = null
+      await this.loadMore()
     }
   },
 
   methods: {
     async loadLevels() {
       let requestURL = this.$api_server_url + 'list'
-      if(this.listType === 'tab_search_users') requestURL += '?type=user_name&search_term=slin'
+      if(this.listType === 'tab_search_users') requestURL += '?type=user_name&search_term=' + this.searchTerm
       else requestURL += '?max_format_version=' + this.$max_level_format_version
+      if(this.listType === 'tab_newest' && this.searchTerm && this.searchTerm.length > 0) requestURL += '&type=search&search_term=' + this.searchTerm
       if(this.listType === 'tab_verified') requestURL += '&type=ok'
       if(this.nextPage) requestURL += '&page_timestamp=' + this.nextPage
+
       let response = await fetch(requestURL)
       if(response.status == 200) {
         const result = await response.json()
         if(result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp
         else this.nextPage = null
-        console.log(result)
         return result
       }
       return []
@@ -57,7 +65,11 @@ export default {
 
     async loadMore() {
       this.loading = true
+
+      const activeSearchTerm = this.searchTerm
       const levels = await this.loadLevels()
+      if(activeSearchTerm !== this.searchTerm) return
+
       this.items = [...this.items, ...levels]
       this.loading = false
     },
