@@ -5,6 +5,8 @@ import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../src/configuration'
 
+import imageStampOk from '../../src/assets/stamp_ok.png'
+
 import modelCubeURL from '../models/cube.gltf'
 import modelSphereURL from '../models/sphere.gltf'
 import modelCylinderURL from '../models/cylinder.gltf'
@@ -630,7 +632,7 @@ function init()
 						const infoNode = document.getElementById("info");
 						let stamp = document.createElement("img");
 						stamp.className = "info-stamp-ok";
-						stamp.src = "/src/assets/stamp_ok.png";
+						stamp.src = imageStampOk;
 						infoNode.appendChild(stamp);
 						break;
 					}
