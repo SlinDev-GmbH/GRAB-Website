@@ -11,6 +11,7 @@ var searchTypingTimer = '';
 var currentSearchTerm = ""
 var tempSearchTerm = ""
 var accessToken = ""
+let favData;
 
 function getCookie(cname)
 {
@@ -31,7 +32,10 @@ function getCookie(cname)
 	}
 	return "";
 }
-
+function getFavoriteLevel(){
+	fetch(SERVER_URL + 'get_favorite_levels?access_token=' + accessToken).then(response => response.json())
+				.then(data => { favData = data;})
+ }
 async function clearLevels()
 {
 	var containerWrapper = document.getElementById("list-container-wrapper");
@@ -67,7 +71,7 @@ async function loadMoreLevels()
 	let userInfoString = getCookie("user_info")
 	let userInfo = undefined
 	if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
-
+	getFavoriteLevel();
 	if(currentTab === "newest" && currentSearchTerm.length === 0)
 	{
 		let totalLevelCountResponse = await fetch(SERVER_URL + 'total_level_count');
@@ -105,6 +109,8 @@ async function loadMoreLevels()
 	else if(currentTab === "favorites" && accessToken && accessToken.length > 0)
 	{
 		requestURL = SERVER_URL + 'get_favorite_levels?access_token=' + accessToken;
+
+		console.log(requestURL);
 	}
 	else if(currentTab === "report_levels" && accessToken && accessToken.length > 0)
 	{
@@ -156,6 +162,7 @@ async function loadMoreLevels()
 	{
 		//Reverse favorites list to show the newest addition at the top
 		responseBody.reverse()
+
 	}
 
 	let isAdmin = false
@@ -183,7 +190,6 @@ async function loadMoreLevels()
 		{
 			cell.className = 'list-cell';
 		}
-
 		//This is a cell with user info! add user specific content and then skip everything after this if
 		if(currentTab === "report_users" || currentTab === "banned_users" || currentTab === "search_users")
 		{
@@ -582,11 +588,14 @@ async function loadMoreLevels()
 
 		if(accessToken && userInfo)
 		{
+			let cell_bar = document.createElement("div");
+				cell.appendChild(cell_bar);
+				cell_bar.className = "cell-bar";
 			if((currentTab !== "report_levels" || currentSearchTerm.length > 0) && currentTab !== "search_users")
-			{
+			{	
 				//Report button
 				let reportButton = document.createElement("button");
-				cell.appendChild(reportButton);
+				cell_bar.appendChild(reportButton);
 				reportButton.className = "cell-button-report";
 				reportButton.onclick = function () {
 					let reasonMapping = {
@@ -641,7 +650,7 @@ async function loadMoreLevels()
 			{
 				//Report user button on level cells
 				let reportButton = document.createElement("button");
-				cell.appendChild(reportButton);
+				cell_bar.appendChild(reportButton);
 				reportButton.className = "cell-button-report-user";
 				reportButton.onclick = function () {
 					let reasonMapping = {
@@ -674,36 +683,101 @@ async function loadMoreLevels()
 			cell.appendChild(linebreak);
 
 			//Setup a button favorite the level (or remove from favorites if on favorites page)
-			let favoriteButton = document.createElement("button");
-			cell.appendChild(favoriteButton);
-			if(currentTab !== "favorites") favoriteButton.innerHTML = "<b>ADD TO FAVORITES</b>";
-			else favoriteButton.innerHTML = "<b>REMOVE FROM FAVORITES</b>";
+
+			let favoriteButton = document.createElement("span");
+			favoriteButton.setAttribute("class", "fa fa-star-o");
+			if (currentTab !== "favorites"){
+				if (favData){
+						for(let listFavorites of favData){
+							if ("identifier" in listFavorites){
+								if(listFavorites.identifier === listElement.identifier){
+									favoriteButton.classList.replace('fa-star-o', 'fa-star');
+									favoriteButton.classList.add('star_active');
+									}
+									if("is_admin" in userInfo && userInfo.is_admin === true){
+										favoriteButton.style.position = 'absolute';
+										favoriteButton.style.right = '21.5%';
+										favoriteButton.style.bottom= "5%";
+										cell.appendChild(favoriteButton);
+									}
+									else {
+										cell_bar.appendChild(favoriteButton);
+									}
+							}
+						}
+				}
+			}
+		if (currentTab === "favorites"){
+			favoriteButton.style.color="orange";
+					  	favoriteButton.classList.replace('fa-star-o', 'fa-star');
+					  	favoriteButton.classList.add('star_active');
+						  if("is_admin" in userInfo && userInfo.is_admin === true){
+							favoriteButton.style.position = 'absolute';
+							favoriteButton.style.right = '21.5%';
+							favoriteButton.style.bottom= "5%";
+							cell.appendChild(favoriteButton);
+						}
+						else {
+							cell_bar.appendChild(favoriteButton);
+						}
+			}
 			favoriteButton.onclick = function () {
-			  	(async () => {
-			  		if(currentTab !== "favorites")
-			  		{
-			  			let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
-						let responseBody = await response.text();
-						console.log(responseBody);
-						confirm(response.status == 200? "Success" : "Error: Already removed? Need to login again?");
-						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
-						{
-							logout();
-						}
-			  		}
-			  		else if(currentTab === "favorites")
-			  		{
-			  			let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
-						let responseBody = await response.text();
-						console.log(responseBody);
-						confirm(response.status == 200? "Success" : "Error: Already removed? Need to login again?");
-						if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
-						{
-							logout();
-						}
-			  		}
-				})();
-			};
+				(async () => {
+					if(currentTab !== "favorites")
+					{favoriteButton.classList.toggle('star_active');
+					  if (favoriteButton.classList.contains('fa-star-o')) {
+						  favoriteButton.classList.replace('fa-star-o', 'fa-star');
+						  let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+						  let responseBody = await response.text();
+						  console.log(responseBody);
+						  if (response.status == 200){
+							  getFavoriteLevel();
+						  }
+						  if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+						  {
+							  confirm("Error: Already removed? Need to login again?");
+							  logout();
+						  }
+					} else if (favoriteButton.classList.contains('fa-star')){//on click basically its going to check if it is a filled star and if it is then cahnge to a outlined one
+					  favoriteButton.classList.replace('fa-star', 'fa-star-o');
+					  let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+					  let responseBody = await response.text();
+					  console.log(responseBody);
+					  if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+					  {
+						  confirm("Error: Already Added? Need to login again?");
+						  logout();
+					  }
+					}
+					}
+					else if(currentTab == "favorites")
+					{
+					  if (favoriteButton.classList.contains('fa-star')) {
+						  favoriteButton.style.color='black';
+						  favoriteButton.classList.replace('fa-star', 'fa-star-o');
+							let response = await fetch(SERVER_URL + 'remove_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+						  let responseBody = await response.text();
+						  console.log(responseBody);
+						  confirm("Error: Already added? Need to login again?");
+						  if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+						  {
+							  logout();
+						  }
+					  }else if(favoriteButton.classList.contains('fa-star-o')){
+						  favoriteButton.style.color='orange';
+						  favoriteButton.classList.replace('fa-star-o', 'fa-star');
+						  let response = await fetch(SERVER_URL + 'add_favorite_level?access_token=' + accessToken + "&level_id=" + levelInfo.identifier);
+						  let responseBody = await response.text();
+						  console.log(responseBody);
+						  if(response.status != 200 && accessToken && responseBody === "Invalid Access Token")
+						  {
+							  confirm("Error: Already removed? Need to login again?");
+							  logout();
+						  }
+					  }
+					}
+			  })();
+		  };
 
 			if("is_moderator" in userInfo && userInfo.is_moderator === true)
 			{
@@ -1181,7 +1255,7 @@ function tabChanged(tab)
 		searchField.style.display = "block"
 	}
 	if(tab === "user")
-	{
+	 {
 		titleString = "User";
 
 		//Add rick astley picture as background if this is the profile of .index / NSKC7

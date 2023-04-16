@@ -7,6 +7,7 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com"> 
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
 		<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<script type="text/javascript" src="../configuration.js"></script>
 		<script type="text/javascript" src="level_browser.js"></script>
 		<style>
@@ -291,11 +292,17 @@
 				text-align:center;
 				text-decoration: none;
 			}
-
-			.cell-button-report {
+			.cell-bar{
 				position: absolute;
+				max-height: 30px;
 				left: 5%;
 				bottom: 5%;
+				display: flex;
+				background-color: transparent;
+			}
+
+			.cell-button-report {
+				margin-right: 10px;
 				width: 30px;
 				height: 30px;
 				border: none;
@@ -306,9 +313,7 @@
 			}
 
 			.cell-button-report-user {
-				position: absolute;
-				left: 15%;
-				bottom: 5%;
+				margin-right: 10px;
 				width: 30px;
 				height: 30px;
 				border: none;
@@ -365,7 +370,38 @@
 				top: 0;
 				left: 0;
 				z-index: -1;
+			}.fa-star-o{color:black;
+				padding-right: 1.075px;
+				padding-left: 3.065px;
+				font-size: 30px;}
+			.fa.fa-star{
+				padding-right: 1.075px;
+				padding-left: 3.065px;
+				font-size: 30px;
+			} 
+			.star_active{
+  animation: shake 0.825s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  color: orange;
 			}
+			
+@keyframes shake {
+	10%, 90% {
+	  transform: translate3d(0,-0.35px, 0);
+	}
+	
+	20%, 80% {
+	  transform: translate3d(0,0.75px, 0);
+	}
+  
+	30%, 50%, 70% {
+	  transform: translate3d(0,-1.5px,0);
+	}
+  
+	40%, 60% {
+	  transform: translate3d(0,1.5px, 0);
+	}
+  }
 		</style>
 	</head>
 	<body>

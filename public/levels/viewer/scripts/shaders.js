@@ -40,87 +40,84 @@ export const skyFS = `
 	}`
 
 export const levelVS = `
-	varying vec3 vWorldPosition;
-	varying vec3 vNormal;
+    varying vec3 vWorldPosition;
+    varying vec3 vNormal;
 
-	uniform mat3 worldNormalMatrix;
+    uniform mat3 worldNormalMatrix;
 
-	void main()
-	{
-		vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-		vWorldPosition = worldPosition.xyz;
+    void main()
+    {
+        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vWorldPosition = worldPosition.xyz;
 
-		vNormal = worldNormalMatrix * normal;
+        vNormal = worldNormalMatrix * normal;
 
-		gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-	}`
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }`
 
 export const levelFS = `
-	varying vec3 vWorldPosition;
-	varying vec3 vNormal;
+    varying vec3 vWorldPosition;
+    varying vec3 vNormal;
 
-	uniform sampler2D colorTexture;
-	uniform float tileFactor;
-	uniform vec3 diffuseColor;
+    uniform sampler2D colorTexture;
+    uniform float tileFactor;
+    uniform vec3 diffuseColor;
+    uniform float neonEnabled;
+    uniform float fogEnabled;
+
+    uniform vec2 cameraFogDistance;
+    uniform vec3 cameraFogColor0;
+	uniform vec3 cameraFogColor1;
+	uniform float sunSize;
+	uniform vec3 sunColor;
 	uniform vec3 sunDirection;
 
-	void main()
-	{
-		vec3 lightDirection = normalize(sunDirection);
+    void main()
+    {
+        vec3 lightDirection = normalize(-sunDirection);
 
-		float lightFactor = 0.5 + dot(normalize(vNormal), lightDirection) * 0.5 + 0.5;
+        float lightFactor = neonEnabled > 0.5 ? 1.0 : 0.5 + dot(normalize(vNormal), lightDirection) * 0.5 + 0.5;
+        vec4 color = vec4(lightFactor, lightFactor, lightFactor, 1.0);
 
-		vec4 color = vec4(lightFactor, lightFactor, lightFactor, 1.0);
+        vec3 blendNormals = abs(vNormal);
+        if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
+        {
+            color.rgb *= sRGBToLinear(texture2D(colorTexture, vWorldPosition.zy * tileFactor)).rgb;
+        }
+        else if(blendNormals.y > blendNormals.z)
+        {
+            color.rgb *= sRGBToLinear(texture2D(colorTexture, vWorldPosition.xz * tileFactor)).rgb;
+        }
+        else
+        {
+            color.rgb *= sRGBToLinear(texture2D(colorTexture, vWorldPosition.xy * tileFactor)).rgb;
+        }
 
-		vec3 blendNormals = abs(vNormal);
-		if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
-		{
-			color.rgb *= texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
-		}
-		else if(blendNormals.y > blendNormals.z)
-		{
-			color.rgb *= texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
-		}
-		else
-		{
-			color.rgb *= texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
-		}
+        color.rgb *= diffuseColor;
 
-		color.rgb *= diffuseColor;
+        if(fogEnabled > 0.5)
+        {
+            vec3 cameraToVertex = vWorldPosition - cameraPosition;
+            float distanceToCamera = length(cameraToVertex);
+            cameraToVertex = normalize(cameraToVertex);
 
-		gl_FragColor = color;
-	}`
+            float horizonFactor = 1.0 - clamp(abs(cameraToVertex.y) / 0.8, 0.0, 1.0);
+            vec3 fogColor = mix(cameraFogColor1.rgb, cameraFogColor0.rgb, horizonFactor * horizonFactor);
 
-export const levelNeonFS = `
-	varying vec3 vWorldPosition;
-	varying vec3 vNormal;
+            float sunAngle = acos(dot(sunDirection, -cameraToVertex));
+            float sunSize_ = 0.05 * sunSize;
+            float sunGlowSize = sunSize;
+            float sunFactor = clamp((sunGlowSize - sunAngle) / sunGlowSize, 0.0, 1.0);
+            sunFactor *= sunFactor;
+            fogColor = mix(fogColor, sunColor, sunFactor);
 
-	uniform sampler2D colorTexture;
-	uniform float tileFactor;
-	uniform vec3 diffuseColor;
+            float fogAmount = clamp((1.0 - exp(-distanceToCamera * cameraFogDistance.x)) * cameraFogDistance.y, 0.0, 1.0);
+            color.rgb = mix(color.rgb, fogColor, fogAmount * fogAmount);
+        }
 
-	void main()
-	{
-		vec4 color;
+        gl_FragColor = LinearTosRGB(color);
+    }`
 
-		vec3 blendNormals = abs(vNormal);
-		if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
-		{
-			color.rgb = texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
-		}
-		else if(blendNormals.y > blendNormals.z)
-		{
-			color.rgb = texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
-		}
-		else
-		{
-			color.rgb = texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
-		}
-
-		color.rgb *= diffuseColor;
-
-		gl_FragColor = color;
-	}`
 
 export const startFinishVS = `
 	varying vec2 vTexcoord;
@@ -169,9 +166,7 @@ export const signFS = `
 	{
 		vec3 lightDirection = normalize(sunDirection);
 		lightDirection = normalize(lightDirection);
-		float lightFactor = 0.5 + dot(normalize(vNormal), lightDirection) * 0.5 + 0.5;
+		float lightFactor = 0.5 + dot(normalize(vNormal), -lightDirection) * 0.5 + 0.5;
 
 		gl_FragColor = texture2D(colorTexture, vTexcoord) * lightFactor;
 	}`
-
-

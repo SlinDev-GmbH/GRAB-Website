@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preload" type="text/css" href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"/>
     <title>Player Customiser</title>
     <script type="module" src="player.js" defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
         body {
             font-family: 'Roboto';
             font-weight: 600;
@@ -34,17 +34,14 @@
             width: 30px;
             height: 30px;
             display: inline-block;
-            margin: 3px;
-            border: none;
+            outline: none;
         }
         #color-picker div:hover {
             cursor: pointer;
-            margin: 0;
-            border: 3px solid #333;
+            outline: 3px solid #333;
         }
         #color-picker div.selected, #color-picker div:active {
-            margin: 0;
-            border: 3px solid #000;
+            outline: 3px solid #000;
         }
         #color-picker span{
             color: #0f6db3;
@@ -54,6 +51,7 @@
         }
         #color-picker div {
             display: none;
+            margin:10%;
         }
         .player-model {
             width: 300px;
