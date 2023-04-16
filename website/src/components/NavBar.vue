@@ -9,22 +9,7 @@ export default {
     return {
       tabActive: 'tab_newest',
       searchTypingTimer: '',
-      searchTerm: '',
-
-      tabs: [
-        {
-          id: 'tab_newest',
-          title: 'All Levels'
-        },
-        {
-          id: 'tab_verified',
-          title: 'Verified Levels'
-        },
-        {
-          id: 'tab_search_users',
-          title: 'Players'
-        }
-      ]
+      searchTerm: ''
     }
   },
 
@@ -64,7 +49,8 @@ export default {
   <div class="tab" id="tabbar">
     <button :class="tabActive==='tab_newest'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_newest')" id="tab_newest">All Levels</button>
     <button :class="tabActive==='tab_verified'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_verified')" id="tab_verified">Verified Levels</button>
-    <button v-if="isLoggedIn" :class="tabActive==='tab_mylevels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_mylevels')" id="tab_mylevels">My Levels</button>
+    <button v-if="isLoggedIn" :class="tabActive==='tab_my_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_my_levels')" id="tab_my_levels">My Levels</button>
+    <button v-if="isLoggedIn" :class="tabActive==='tab_favorite_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_favorite_levels')" id="tab_favorite_levels">My Favorites</button>
     <button :class="tabActive==='tab_search_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_search_users')" id="tab_search_users">Players</button>
     <input v-if="wantsSearch" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)" :value="searchTerm">
     <br v-if="isAdmin"><br v-if="isAdmin">

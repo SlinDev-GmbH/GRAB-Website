@@ -23,6 +23,10 @@ export const useUserStore = defineStore('user', {
     isAdmin(state) {
       if(!this.isLoggedIn) return false
       return state.user.info.is_admin === true
+    },
+    userID(state) {
+      if(!this.isLoggedIn) return undefined
+      return state.user.info?.user_id ?? undefined
     }
   },
 

@@ -1,7 +1,14 @@
 <script>
+import ModerationTools from './ModerationTools.vue'
+
 export default {
+  components: {
+    ModerationTools
+  },
+
   props: {
-    item: Object
+    item: Object,
+    moderationItem : Object
   },
 
   computed: {
@@ -10,6 +17,10 @@ export default {
         return 'by ' + this.item.creators.join(', ')
 
       return ''
+    },
+
+    hasStatistics() {
+      return this.moderationItem? false : true
     },
 
     difficulty() {
@@ -60,25 +71,30 @@ export default {
 
     hasOKStamp() {
       return this.item.tags?.includes('ok') ?? false;
+    },
+
+    isModerationCell() {
+      return this.moderationItem !== null
     }
   }
 }
 </script>
 
 <template>
-  <div class="card">
-    <div :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br>
+  <div class="level-card">
+    <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
     <div class="more-button">More Levels</div>
     <div class="description">{{ item.description }}</div>
+    <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem"/>
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>
 </template>
 
 <style>
-.card {
+.level-card {
   width: 100%;
   height: 100%;
   background-color: #ffffff;

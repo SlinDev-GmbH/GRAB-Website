@@ -1,7 +1,14 @@
 <script>
+import ModerationTools from './ModerationTools.vue'
+
 export default {
+  components: {
+    ModerationTools
+  },
+
   props: {
-    item: Object
+    item: Object,
+    moderationItem : Object
   },
 
   computed: {
@@ -14,23 +21,28 @@ export default {
 
     viewerURL() {
       return 'viewer/?level=' + this.item.identifier
+    },
+
+    isModerationCell() {
+      return this.moderationItem !== null
     }
   }
 }
 </script>
 
 <template>
-  <div class="card">
+  <div class="user-card">
     <div class="user-name">{{ item.user_name }}</div>
     <img v-if="item.is_creator" alt="OK Stamp" class="creator-icon" src="./../assets/creator.png" />
     <div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
     <div class="user-id">User ID: {{ item.user_id }}</div>
+    <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem"/>
     <a target="_blank" :href="viewerURL" class="profile-button">PROFILE</a>
   </div>
 </template>
 
 <style>
-.card {
+.user-card {
   width: 100%;
   height: 100%;
   background-color: #ffffff;
