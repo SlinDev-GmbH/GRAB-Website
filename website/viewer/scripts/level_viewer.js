@@ -5,8 +5,6 @@ import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../src/configuration'
 
-import levelProtoURL from '../proto/level.proto?url'
-
 import modelCubeURL from '../models/cube.gltf'
 import modelSphereURL from '../models/sphere.gltf'
 import modelCylinderURL from '../models/cylinder.gltf'
@@ -184,7 +182,7 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
-	protobuf.load(levelProtoURL, function(err, root) {
+	protobuf.load('/proto/level.proto', function(err, root) {
 		if(err) throw err;
 
 		const LevelMessage = root.lookupType("COD.Level.Level");
