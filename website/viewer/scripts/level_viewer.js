@@ -5,6 +5,27 @@ import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../src/configuration'
 
+import levelProtoURL from '../proto/level.proto'
+
+import modelCubeURL from '../models/cube.gltf'
+import modelSphereURL from '../models/sphere.gltf'
+import modelCylinderURL from '../models/cylinder.gltf'
+import modelPyramidURL from '../models/pyramid.gltf'
+import modelPrismURL from '../models/prism.gltf'
+import modelStartEndURL from '../models/start_end.gltf'
+import modelSignURL from '../models/sign.gltf'
+
+import textureDefaultURL from '../textures/default.png'
+import textureGrabbableURL from '../textures/grabbable.png'
+import textureIceURL from '../textures/ice.png'
+import textureLaveURL from '../textures/lava.png'
+import textureWoodURL from '../textures/wood.png'
+import textureGrapplableURL from '../textures/grapplable.png'
+import textureGrapplableLavaURL from '../textures/grapplable_lava.png'
+import textureGrabbableCrumblingURL from '../textures/grabbable_crumbling.png'
+import textureDefaultColoredURL from '../textures/default_colored.png'
+import textureBouncingURL from '../textures/bouncing.png'
+
 let userID = undefined;
 
 let clock, camera, scene, renderer, controls;
@@ -95,11 +116,11 @@ function init()
 	gltfLoader = new GLTFLoader();
 
 	let shapePromises = []
-	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/cube.gltf'));
-	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/sphere.gltf'));
-	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/cylinder.gltf'));
-	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/pyramid.gltf'));
-	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/prism.gltf'));
+	shapePromises.push(getGeometryForModel(modelCubeURL));
+	shapePromises.push(getGeometryForModel(modelSphereURL));
+	shapePromises.push(getGeometryForModel(modelCylinderURL));
+	shapePromises.push(getGeometryForModel(modelPyramidURL));
+	shapePromises.push(getGeometryForModel(modelPrismURL));
 	let shapePromise = Promise.all(shapePromises).then(function(result){
 		for(let shape of result)
 		{
@@ -108,8 +129,8 @@ function init()
 	});
 
 	let objectPromises = []
-	objectPromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/start_end.gltf'));
-	objectPromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/sign.gltf'));
+	objectPromises.push(getGeometryForModel(modelStartEndURL));
+	objectPromises.push(getGeometryForModel(modelSignURL));
 	let objectPromise = Promise.all(objectPromises).then(function(result){
 		for(let object of result)
 		{
@@ -117,16 +138,16 @@ function init()
 		}
 	});
 
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/default.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grabbable.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/ice.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grapplable.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/bouncing.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureDefaultURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureGrabbableURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureIceURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureLaveURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureGrapplableURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureGrapplableLavaURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureGrabbableCrumblingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureBouncingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
 
 	let startMaterial = new THREE.ShaderMaterial();
 	startMaterial.vertexShader = SHADERS.startFinishVS;
@@ -146,8 +167,8 @@ function init()
 	finishMaterial.uniforms = { "diffuseColor": {value: [1.0, 0.0, 0.0, 1.0]}};
 	objectMaterials.push(finishMaterial);
 
-	objectMaterials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.signVS, SHADERS.signFS));
-	objectMaterials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS, 1.0));
+	objectMaterials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.signVS, SHADERS.signFS));
+	objectMaterials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, 1.0));
 
 
 	clock = new THREE.Clock();
@@ -163,7 +184,7 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
-	protobuf.load(config.VIEWER_PATH + "proto/level.proto", function(err, root) {
+	protobuf.load(levelProtoURL, function(err, root) {
 		if(err) throw err;
 
 		const LevelMessage = root.lookupType("COD.Level.Level");
