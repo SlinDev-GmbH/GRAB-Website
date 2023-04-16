@@ -8,9 +8,21 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
-    accessToken: (state) => {
+    accessToken(state) {
       if(state.expires - Date.now() > 0) return state.user?.access_token ?? undefined
       else return undefined
+    },
+    isLoggedIn(state) {
+      if(!this.accessToken || this.accessToken.length == 0) return false
+      return true
+    },
+    isModerator(state) {
+      if(!this.isLoggedIn) return false
+      return state.user.info.is_moderator === true
+    },
+    isAdmin(state) {
+      if(!this.isLoggedIn) return false
+      return state.user.info.is_admin === true
     }
   },
 
@@ -21,13 +33,14 @@ export const useUserStore = defineStore('user', {
         let response = await fetch(serverURL + 'get_access_token?service_type=oculus_web_demo&service_user_token=' + authInfo.org_scoped_id + ':' + authInfo.code)
         if(response.status != 200)
         {
-          let responseBody = await response.text()
+          const responseBody = await response.text()
           console.log(responseBody)
         }
         else
         {
-          let responseBody = await response.json()
+          const responseBody = await response.json()
           this.user = responseBody;
+          console.log(responseBody)
 
           this.expires = Date.now() + 2*60*60*1000 //valid for 2 hours
         }

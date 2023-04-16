@@ -1,4 +1,7 @@
 <script>
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
+
 export default {
   emits: ['tabChanged', 'searchChanged'],
 
@@ -6,14 +9,32 @@ export default {
     return {
       tabActive: 'tab_newest',
       searchTypingTimer: '',
-      searchTerm: ''
+      searchTerm: '',
+
+      tabs: [
+        {
+          id: 'tab_newest',
+          title: 'All Levels'
+        },
+        {
+          id: 'tab_verified',
+          title: 'Verified Levels'
+        },
+        {
+          id: 'tab_search_users',
+          title: 'Players'
+        }
+      ]
     }
   },
 
   computed: {
     wantsSearch() {
       return this.tabActive === 'tab_newest' || this.tabActive === 'tab_search_users'
-    }
+    },
+    ...mapState(useUserStore, ['isLoggedIn']),
+    ...mapState(useUserStore, ['isModerator']),
+    ...mapState(useUserStore, ['isAdmin'])
   },
 
   methods: {
@@ -43,8 +64,14 @@ export default {
   <div class="tab" id="tabbar">
     <button :class="tabActive==='tab_newest'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_newest')" id="tab_newest">All Levels</button>
     <button :class="tabActive==='tab_verified'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_verified')" id="tab_verified">Verified Levels</button>
+    <button v-if="isLoggedIn" :class="tabActive==='tab_mylevels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_mylevels')" id="tab_mylevels">My Levels</button>
     <button :class="tabActive==='tab_search_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_search_users')" id="tab_search_users">Players</button>
     <input v-if="wantsSearch" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)" :value="searchTerm">
+    <br v-if="isAdmin"><br v-if="isAdmin">
+    <button v-if="isAdmin" :class="tabActive==='tab_hidden'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_hidden')" id="tab_hidden">Hidden Levels</button>
+    <button v-if="isAdmin" :class="tabActive==='tab_reported_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_levels')" id="tab_reported_levels">Reported Levels</button>
+    <button v-if="isAdmin" :class="tabActive==='tab_reported_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_users')" id="tab_reported_users">Reported Users</button>
+    <button v-if="isAdmin" :class="tabActive==='tab_banned_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_banned_users')" id="tab_banned_users">Banned Users</button>
   </div>
 </template>
 
