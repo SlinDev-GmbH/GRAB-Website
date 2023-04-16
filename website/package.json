@@ -10,12 +10,12 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vite": "^4.1.4",
     "pinia": "^2.0.32",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
+    "vite": "^4.1.4",
     "@rushstack/eslint-patch": "^1.2.0",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-prettier": "^7.1.0",

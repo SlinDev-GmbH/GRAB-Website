@@ -9,4 +9,4 @@ echo "export const VIEWER_PATH = '/levels/viewer/'" >> website/src/configuration
 echo "export const MAX_FORMAT_VERSION = 7" >> website/src/configuration.js
 
 cd website
-npm run build
+vite build
