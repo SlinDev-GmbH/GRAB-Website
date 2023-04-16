@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>GRAB</title>
+		<meta name="description" content="A level made in GRAB">
+		<link rel="icon" type="image/x-icon" href="../../images/favicon.ico">
+		<script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+		<script type="text/javascript" src="../../configuration.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript" src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.11.2/dist/protobuf.js"></script>
+		<script type="module" src="../viewer/scripts/shaders.js"></script>
+		<script type="module" src="scripts/level_viewer.js"></script>
+		<script>
+			AFRAME.registerComponent('grab-block-material', {
+				dependencies: ['mesh'],
+				init: function () {
+					this.el.addEventListener('model-loaded', () => {
+						const mesh = this.el.getObject3D('mesh');
+						const textureName = this.el.materialTexture
+						mesh.traverse(function (node) {
+							if(node.material){// && 'src' in node.material) {
+								console.log(textureName)
+								node.material.src = textureName;
+								node.material.needsUpdate = true;
+							}
+						});
+					});
+				}
+			});
+
+		</script>
+		<a-scene>
+			<a-assets>
+				<img id="defaultTexture" src="../viewer/textures/default.png">
+				<img id="grabbableTexture" src="../viewer/textures/grabbable.png">
+				<img id="iceTexture" src="../viewer/textures/ice.png">
+				<img id="lavaTexture" src="../viewer/textures/lava.png">
+				<img id="woodTexture" src="../viewer/textures/wood.png">
+				<img id="grapplableTexture" src="../viewer/textures/grapplable.png">
+				<img id="grapplableLavaTexture" src="../viewer/textures/grapplable_lava.png">
+				<img id="grabbableCrumblingTexture" src="../viewer/textures/grabbable_crumbling.png">
+				<img id="defaultColoredTexture" src="../viewer/textures/default_colored.png">
+				<img id="bouncingTexture" src="../viewer/textures/bouncing.png">
+
+				<a-asset-item id="cubeModel" src="../viewer/models/cube.gltf"></a-asset-item>
+				<a-asset-item id="sphereModel" src="../viewer/models/sphere.gltf"></a-asset-item>
+				<a-asset-item id="cylinderModel" src="../viewer/models/cylinder.gltf"></a-asset-item>
+				<a-asset-item id="pyramidModel" src="../viewer/models/pyramid.gltf"></a-asset-item>
+				<a-asset-item id="prismModel" src="../viewer/models/prism.gltf"></a-asset-item>
+
+				<a-asset-item id="startEndModel" src="../viewer/models/start_end.gltf"></a-asset-item>
+				<a-asset-item id="signModel" src="../viewer/models/sign.gltf"></a-asset-item>
+
+				<a-mixin id="cubeDefault" gltf-model="#cubeModel" material="shader: standard" grab-block-material></a-mixin>
+				<a-mixin id="sphereDefault" gltf-model="#sphereModel" material="shader: standard" grab-block-material></a-mixin>
+				<a-mixin id="cylinderDefault" gltf-model="#cylinderModel" material="shader: standard" grab-block-material></a-mixin>
+				<a-mixin id="pyramidDefault" gltf-model="#pyramidModel" material="shader: standard" grab-block-material></a-mixin>
+				<a-mixin id="prismDefault" gltf-model="#prismModel" material="shader: standard" grab-block-material></a-mixin>
+				<a-mixin id="startEnd" gltf-model="#startEndModel" material="shader: standard"></a-mixin>
+				<a-mixin id="sign" gltf-model="#signModel" material="shader: standard"></a-mixin>
+			</a-assets>
+
+			<a-light color="grey" position="-1 1 0"></a-light>
+			<a-light type="ambient" color="#222"></a-light>
+
+			<!-- <a-sky color="#ECECEC"></a-sky> -->
+		</a-scene>
+	</body>
+</html>

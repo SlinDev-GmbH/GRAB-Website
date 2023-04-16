@@ -610,7 +610,7 @@ function init()
 						const infoNode = document.getElementById("info");
 						let stamp = document.createElement("img");
 						stamp.className = "info-stamp-ok";
-						stamp.src = "../../images/stamp_ok.png";
+						stamp.src = "/src/assets/stamp_ok.png";
 						infoNode.appendChild(stamp);
 						break;
 					}
