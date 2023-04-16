@@ -12,6 +12,48 @@ export default {
       return ''
     },
 
+    difficulty() {
+      let difficulty = "unrated"
+      let difficultyColor = "#969696"
+      if("statistics" in this.item)
+      {
+        if("difficulty" in this.item.statistics && "total_played" in this.item.statistics)
+        {
+          if(this.item.statistics.difficulty !== 1.0 && this.item.statistics.total_played > 0)
+          {
+            if(this.item.statistics.difficulty < 0.01)
+            {
+              difficulty = "very hard"
+              difficultyColor = "#EA0000"
+            }
+            else if(this.item.statistics.difficulty < 0.1)
+            {
+              difficulty = "hard"
+              difficultyColor = "#F19400"
+            }
+            else if(this.item.statistics.difficulty < 0.4)
+            {
+              difficulty = "medium"
+              difficultyColor = "#E1C800"
+            }
+            else
+            {
+              difficulty = "easy"
+              difficultyColor = "#2BBA84"
+            }
+          }
+        }
+      }
+      return {difficulty: difficulty, color: difficultyColor}
+      /*cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b>'
+
+      if("statistics" in levelInfo && "total_played" in levelInfo.statistics)
+      {
+        cell.innerHTML += '<span class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</span>'
+      }
+      cell.innerHTML += '<br>'*/
+    },
+
     viewerURL() {
       return 'levels/viewer/?level=' + this.item.identifier
     },
@@ -25,6 +67,7 @@ export default {
 
 <template>
   <div class="card">
+    <div :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br>
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
     <div class="more-button">More Levels</div>
@@ -44,7 +87,24 @@ export default {
   padding-bottom: 60px;
 }
 
+.difficulty {
+  width: 30%;
+  font-size: 15px;
+  white-space: nowrap;
+  text-align: left;
+  float: left;
+}
+
+.plays {
+  width: 45%;
+  font-size: 15px;
+  white-space: nowrap;
+  text-align: right;
+  float: right;
+}
+
 .title {
+  padding-top: 5px;
   font-size: 20px;
   font-style: bold;
   line-height: 0.9;

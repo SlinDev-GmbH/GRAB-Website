@@ -16,7 +16,8 @@ export default {
   data() {
     return {
       items: [],
-      loading: false
+      loading: false,
+      currentSearchTerm: ''
     }
   },
 
@@ -32,12 +33,14 @@ export default {
 
   watch: {
     async listType(type) {
+      this.currentSearchTerm = ''
       this.items = []
       this.nextPage = null
       await this.loadMore()
     },
 
     async searchTerm(type) {
+      this.currentSearchTerm = type
       this.items = []
       this.nextPage = null
       await this.loadMore()
@@ -47,9 +50,9 @@ export default {
   methods: {
     async loadLevels() {
       let requestURL = this.$api_server_url + 'list'
-      if(this.listType === 'tab_search_users') requestURL += '?type=user_name&search_term=' + this.searchTerm
+      if(this.listType === 'tab_search_users') requestURL += '?type=user_name&search_term=' + this.currentSearchTerm
       else requestURL += '?max_format_version=' + this.$max_level_format_version
-      if(this.listType === 'tab_newest' && this.searchTerm && this.searchTerm.length > 0) requestURL += '&type=search&search_term=' + this.searchTerm
+      if(this.listType === 'tab_newest' && this.currentSearchTerm && this.currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + this.currentSearchTerm
       if(this.listType === 'tab_verified') requestURL += '&type=ok'
       if(this.nextPage) requestURL += '&page_timestamp=' + this.nextPage
 
@@ -66,9 +69,11 @@ export default {
     async loadMore() {
       this.loading = true
 
-      const activeSearchTerm = this.searchTerm
+      const activeListType = this.listType
+      const activeSearchTerm = this.currentSearchTerm
+
       const levels = await this.loadLevels()
-      if(activeSearchTerm !== this.searchTerm) return
+      if(activeSearchTerm !== this.currentSearchTerm || activeListType !== this.listType) return
 
       this.items = [...this.items, ...levels]
       this.loading = false
