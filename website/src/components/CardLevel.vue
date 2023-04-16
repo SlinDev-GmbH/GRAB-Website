@@ -11,6 +11,12 @@ export default {
     moderationItem : Object
   },
 
+  data() {
+    return {
+      cardColor: 'white'
+    }
+  },
+
   computed: {
     creators() {
       if(this.item.creators && this.item.creators.length > 0)
@@ -56,13 +62,6 @@ export default {
         }
       }
       return {difficulty: difficulty, color: difficultyColor}
-      /*cell.innerHTML += '<b class="cell-difficulty" style="' + difficultyColor + '">' + difficulty + '</b>'
-
-      if("statistics" in levelInfo && "total_played" in levelInfo.statistics)
-      {
-        cell.innerHTML += '<span class="cell-plays">plays: ' + levelInfo.statistics.total_played + '</span>'
-      }
-      cell.innerHTML += '<br>'*/
     },
 
     viewerURL() {
@@ -76,18 +75,31 @@ export default {
     isModerationCell() {
       return this.moderationItem !== null
     }
+  },
+
+  methods: {
+    didHandleCell(bad) {
+      if(bad === true)
+      {
+        this.cardColor = 'lightcoral'
+      }
+      else
+      {
+        this.cardColor = 'lightgreen'
+      }
+    }
   }
 }
 </script>
 
 <template>
-  <div class="level-card">
+  <div class="level-card" :style="{'background-color': cardColor}">
     <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
     <div class="more-button">More Levels</div>
     <div class="description">{{ item.description }}</div>
-    <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem"/>
+    <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>

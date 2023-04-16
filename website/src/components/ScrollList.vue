@@ -1,6 +1,7 @@
 <script>
 import CardLevel from './CardLevel.vue'
 import CardUser from './CardUser.vue'
+import { listRequest } from '../requests/ListRequest.js'
 
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
@@ -64,51 +65,8 @@ export default {
 
   methods: {
     async loadLevels() {
-      let requestURL = this.$api_server_url + 'list?max_format_version=' + this.$max_level_format_version
-      if(this.listType === 'tab_newest')
-      {
-        if(this.currentSearchTerm && this.currentSearchTerm.length > 0) requestURL += '&type=search&search_term=' + this.currentSearchTerm
-      }
-      else if(this.listType === 'tab_verified')
-      {
-        requestURL += '&type=ok'
-      }
-      else if(this.listType === 'tab_my_levels')
-      {
-        requestURL += '&user_id=' + this.userID
-      }
-      else if(this.listType === 'tab_favorite_levels')
-      {
-        requestURL = this.$api_server_url + 'get_favorite_levels'
-      }
-      else if(this.listType === 'tab_search_users')
-      {
-        requestURL += '&type=user_name&search_term=' + this.currentSearchTerm
-      }
-      else if(this.listType === 'tab_hidden')
-      {
-        requestURL += '&type=hidden'
-      }
-      else if(this.listType === 'tab_reported_levels')
-      {
-        requestURL = this.$api_server_url + 'report_list?type=level&max_format_version=' + this.$max_level_format_version;
-      }
-      else if(this.listType === 'tab_reported_users')
-      {
-        requestURL = this.$api_server_url + 'report_list?type=user';
-      }
-      else if(this.listType === 'tab_banned_users')
-      {
-        requestURL = this.$api_server_url + 'report_list?type=banned_user';
-      }
-
-      if(this.nextPage) requestURL += '&page_timestamp=' + this.nextPage
-
-      let headers = {}
-      if(this.isLoggedIn) headers['Authorization'] = 'Bearer ' + this.accessToken
-      const response = await fetch(requestURL, { headers: headers })
-      if(response.status == 200) {
-        const result = await response.json()
+      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.currentSearchTerm, this.$max_level_format_version, this.userID, this.nextPage)
+      if(result !== false) {
         if(result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp
         else this.nextPage = null
         if(this.listType === 'tab_favorite_levels') return result.reverse()
