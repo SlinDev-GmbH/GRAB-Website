@@ -17,7 +17,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        viewer: resolve(__dirname, 'viewer/index.html'),
+        'levels/viewer': resolve(__dirname, 'levels/viewer/index.html'),
       },
     },
     outDir: resolve(__dirname, "../public"),

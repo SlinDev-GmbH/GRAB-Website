@@ -3,9 +3,9 @@ import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
-import * as config from '../../src/configuration'
+import * as config from '../../../src/configuration'
 
-import imageStampOk from '../../src/assets/stamp_ok.png'
+import imageStampOk from '../../../src/assets/stamp_ok.png'
 
 import modelCubeURL from '../models/cube.gltf'
 import modelSphereURL from '../models/sphere.gltf'
