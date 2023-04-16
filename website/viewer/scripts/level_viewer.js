@@ -3,6 +3,7 @@ import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
 import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
+import * as config from '../../src/configuration'
 
 let userID = undefined;
 
@@ -94,11 +95,11 @@ function init()
 	gltfLoader = new GLTFLoader();
 
 	let shapePromises = []
-	shapePromises.push(getGeometryForModel(VIEWER_PATH + 'models/cube.gltf'));
-	shapePromises.push(getGeometryForModel(VIEWER_PATH + 'models/sphere.gltf'));
-	shapePromises.push(getGeometryForModel(VIEWER_PATH + 'models/cylinder.gltf'));
-	shapePromises.push(getGeometryForModel(VIEWER_PATH + 'models/pyramid.gltf'));
-	shapePromises.push(getGeometryForModel(VIEWER_PATH + 'models/prism.gltf'));
+	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/cube.gltf'));
+	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/sphere.gltf'));
+	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/cylinder.gltf'));
+	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/pyramid.gltf'));
+	shapePromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/prism.gltf'));
 	let shapePromise = Promise.all(shapePromises).then(function(result){
 		for(let shape of result)
 		{
@@ -107,8 +108,8 @@ function init()
 	});
 
 	let objectPromises = []
-	objectPromises.push(getGeometryForModel(VIEWER_PATH + 'models/start_end.gltf'));
-	objectPromises.push(getGeometryForModel(VIEWER_PATH + 'models/sign.gltf'));
+	objectPromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/start_end.gltf'));
+	objectPromises.push(getGeometryForModel(config.VIEWER_PATH + 'models/sign.gltf'));
 	let objectPromise = Promise.all(objectPromises).then(function(result){
 		for(let object of result)
 		{
@@ -116,16 +117,16 @@ function init()
 		}
 	});
 
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/ice.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(VIEWER_PATH + 'textures/bouncing.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/default.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grabbable.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/ice.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grapplable.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grapplable_lava.png', 0.1, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/grabbable_crumbling.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/bouncing.png', 1.0, SHADERS.levelVS, SHADERS.levelFS));
 
 	let startMaterial = new THREE.ShaderMaterial();
 	startMaterial.vertexShader = SHADERS.startFinishVS;
@@ -145,8 +146,8 @@ function init()
 	finishMaterial.uniforms = { "diffuseColor": {value: [1.0, 0.0, 0.0, 1.0]}};
 	objectMaterials.push(finishMaterial);
 
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.signVS, SHADERS.signFS));
-	objectMaterials.push(getMaterialForTexture(VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS, 1.0));
+	objectMaterials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/wood.png', 1.0, SHADERS.signVS, SHADERS.signFS));
+	objectMaterials.push(getMaterialForTexture(config.VIEWER_PATH + 'textures/default_colored.png', 1.0, SHADERS.levelVS, SHADERS.levelFS, 1.0));
 
 
 	clock = new THREE.Clock();
@@ -162,7 +163,7 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
-	protobuf.load(VIEWER_PATH + "proto/level.proto", function(err, root) {
+	protobuf.load(config.VIEWER_PATH + "proto/level.proto", function(err, root) {
 		if(err) throw err;
 
 		const LevelMessage = root.lookupType("COD.Level.Level");
@@ -187,7 +188,7 @@ function init()
 			let hasIteration = levelIdentifierParts.length === 3
 			levelIdentifier = levelIdentifierParts.join('/');
 
-			let detailResponse = await fetch(SERVER_URL + 'details/' + levelIdentifier);
+			let detailResponse = await fetch(config.SERVER_URL + 'details/' + levelIdentifier);
 			let detailResponseBody = await detailResponse.json();
 			userID = levelIdentifierParts[0];
 			console.log(userID);
@@ -211,7 +212,7 @@ function init()
 				levelIdentifier = levelIdentifier.join('/')
 			}
 
-			let response = await fetch(SERVER_URL + 'download/' + levelIdentifier)
+			let response = await fetch(config.SERVER_URL + 'download/' + levelIdentifier)
 			//console.log(response)
 			let responseBody = await response.arrayBuffer()
 			let formattedBuffer = new Uint8Array(responseBody)
@@ -258,7 +259,7 @@ function init()
 					}
 
 					(async () => {
-						let response = await fetch(SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
 						let responseBody = await response.text();
 						console.log(responseBody);
 						confirm("Result: " + responseBody);
@@ -281,7 +282,7 @@ function init()
 				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
 				creatorButton.onclick = function () {
 				  	(async () => {
-						let response = await fetch(SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
+						let response = await fetch(config.SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
 						let responseBody = await response.text();
 						console.log(responseBody);
 						confirm("Result: " + responseBody);
@@ -624,7 +625,7 @@ function init()
 				let levelIdentifier = urlParams.get('level');
 				levelIdentifier = levelIdentifier.split(':').join('/');
 
-				let response = await fetch(SERVER_URL + 'statistics/' + levelIdentifier);
+				let response = await fetch(config.SERVER_URL + 'statistics/' + levelIdentifier);
 				let responseBody = await response.json();
 
 				var totalPlayedLabel = document.getElementById("total played count");
