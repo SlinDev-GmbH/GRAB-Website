@@ -99,14 +99,23 @@
 		    margin-top: 0;
 		}
 	</style>
-	<script type="text/javascript">
-		let existingListEndpoint = 'https://api.slin.dev/grab/v1/list?max_format_version=8&type=curated_';
-		let levelDetailsEndpoint = 'https://api.slin.dev/grab/v1/details/';
-		let updateLevelEndpoint = 'https://api.slin.dev/grab/v1/add_to_curated_list?';
 
-		let getListsEndpoint = 'https://api.slin.dev/grab/v1/get_curated_lists';
-		let addListEndpoint = 'https://api.slin.dev/grab/v1/add_curated_list?';
-		let removeListEndpoint = 'https://api.slin.dev/grab/v1/remove_curated_list?';
+	<script type="module">
+		import { createApp } from 'vue'
+		import App from '@/App.vue'
+		import { useUserStore } from '@/stores/user'
+		import { createPinia } from 'pinia';
+		import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
+		import * as config from '../src/configuration'
+
+		let existingListEndpoint = config.SERVER_URL + 'list?max_format_version=8&type=curated_';
+		let levelDetailsEndpoint = config.SERVER_URL + 'details/';
+		let updateLevelEndpoint = config.SERVER_URL + 'add_to_curated_list?';
+
+		let getListsEndpoint = config.SERVER_URL + 'get_curated_lists';
+		let addListEndpoint = config.SERVER_URL + 'add_curated_list?';
+		let removeListEndpoint = config.SERVER_URL + 'remove_curated_list?';
 
 		// This stores the original level list as it is on the server
 		let oldLevelList = [];
@@ -114,26 +123,12 @@
 		let levelList = [];
 		let typesList = [];
 
-
-		function getCookie(cname)
-		{
-			let name = cname + "=";
-			let decodedCookie = decodeURIComponent(document.cookie);
-			let ca = decodedCookie.split(';');
-			for(let i = 0; i <ca.length; i++)
-			{
-				let c = ca[i];
-				while(c.charAt(0) == ' ')
-				{
-					c = c.substring(1);
-				}
-				if(c.indexOf(name) == 0)
-				{
-					return c.substring(name.length, c.length);
-				}
-			}
-			return "";
-		}
+		//Need to setup everything to be able to access the storage through pinia...
+		const pinia = createPinia()
+		pinia.use(piniaPluginPersistedstate)
+		const app = createApp(App)
+		app.use(pinia)
+		const userStore = useUserStore(pinia)
 		
 		// Get the list from the endpoint when the page loads
 		window.onload = (event) => {
@@ -213,7 +208,7 @@
 		
 		// This function sends all updates to the server
 		function sendUpdates() {
-			const accessToken = getCookie("access_token");
+			let accessToken = userStore.accessToken
 			if(!accessToken) {
 				alert("No access token!");
 				return;
@@ -266,7 +261,7 @@
 		}
 
 		function addNewList() {
-			const accessToken = getCookie("access_token");
+			let accessToken = userStore.accessToken
 			if(!accessToken) {
 				alert("No access token!");
 				return;
@@ -284,7 +279,7 @@
 		}
 
 		function removeList() {
-			const accessToken = getCookie("access_token");
+			let accessToken = userStore.accessToken
 			if(!accessToken) {
 				alert("No access token!");
 				return;
@@ -300,13 +295,23 @@
 				});
 			}
 		}
+
+		document.getElementById("add-new-list-button").addEventListener("click", addNewList);
+		document.getElementById("remove-list-button").addEventListener("click", removeList);
+
+		document.getElementById("add-levels-button").addEventListener("click", addLevels);
+		document.getElementById("remove-levels-button").addEventListener("click", removeLevel);
+		document.getElementById("move-up-button").addEventListener("click", moveLevelUp);
+		document.getElementById("move-down-button").addEventListener("click", moveLevelDown);
+		
+		document.getElementById("send-button").addEventListener("click", sendUpdates);
 	</script>
 </head>
 <body>
 	<h1>Curated Level Lists</h1>
 	<div id="buttonWrapper">
-		<button onclick="addNewList()" class="button">Add New List</button>
-		<button onclick="removeList()" class="button">Remove List</button>
+		<button class="button" id="add-new-list-button">Add New List</button>
+		<button class="button" id="remove-list-button">Remove List</button>
 	</div>
 	<div id="typeSelectorWrapper">
 		<select id="typeSelector"></select>
@@ -314,12 +319,12 @@
 	<div id="container">
 		<select id="levelList"></select>
 		<div id="controls">
-			<input type="button" value="Add Levels" onclick="addLevels()" /><br />
-			<input type="button" value="Remove Level" onclick="removeLevel()" /><br />
-			<input type="button" value="Move Level Up" onclick="moveLevelUp()" /><br />
-			<input type="button" value="Move Level Down" onclick="moveLevelDown()" /><br />
+			<input type="button" value="Add Levels" id="add-levels-button" /><br />
+			<input type="button" value="Remove Level" id="remove-levels-button" /><br />
+			<input type="button" value="Move Level Up" id="move-up-button" /><br />
+			<input type="button" value="Move Level Down" id="move-down-button" /><br />
 			<br>
-			<input type="button" value="Send" onclick="sendUpdates()" />
+			<input type="button" value="Send" id="send-button" />
 		</div>
 	</div>
 </body>
