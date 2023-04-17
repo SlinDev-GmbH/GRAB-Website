@@ -68,6 +68,7 @@ export default {
   border-radius: 10px;
   padding: 3%;
   padding-bottom: 60px;
+  overflow-wrap: break-word;
 }
 
 .user-name {
