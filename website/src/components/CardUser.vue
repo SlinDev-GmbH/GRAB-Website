@@ -6,6 +6,8 @@ export default {
     ModerationTools
   },
 
+  emit: ['profile'],
+
   props: {
     item: Object,
     moderationItem : Object
@@ -25,10 +27,6 @@ export default {
       return ''
     },
 
-    viewerURL() {
-      return 'viewer/?level=' + this.item.identifier
-    },
-
     isModerationCell() {
       return this.moderationItem !== null
     }
@@ -44,6 +42,11 @@ export default {
       {
         this.cardColor = 'lightgreen'
       }
+    },
+
+    showProfile() {
+      console.log(this.item.user_id)
+      this.$emit('profile', this.item.user_id)
     }
   }
 }
@@ -56,7 +59,7 @@ export default {
     <div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
     <div class="user-id">User ID: {{ item.user_id }}</div>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
-    <a target="_blank" :href="viewerURL" class="profile-button">PROFILE</a>
+    <div class="profile-button" @click="showProfile">PROFILE</div>
   </div>
 </template>
 
