@@ -12,6 +12,8 @@ export default {
     CardUser
   },
 
+  emits: ['tabChanged'],
+
   props: {
     listType: String,
     searchTerm: String
@@ -21,7 +23,8 @@ export default {
     return {
       items: [],
       loading: false,
-      currentSearchTerm: ''
+      currentSearchTerm: '',
+      otherUserID: null
     }
   },
 
@@ -50,6 +53,7 @@ export default {
   watch: {
     async listType(type) {
       this.currentSearchTerm = ''
+      if(type !== 'tab_other_user') this.otherUserID = null
       this.items = []
       this.nextPage = null
       await this.loadMore()
@@ -65,7 +69,7 @@ export default {
 
   methods: {
     async loadLevels() {
-      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.currentSearchTerm, this.$max_level_format_version, this.userID, this.nextPage)
+      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.currentSearchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
       if(result !== false) {
         if(result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp
         else this.nextPage = null
@@ -84,8 +88,6 @@ export default {
       const levels = await this.loadLevels()
       if(activeSearchTerm !== this.currentSearchTerm || activeListType !== this.listType) return
 
-      console.log(levels)
-
       this.items = [...this.items, ...levels]
       this.loading = false
     },
@@ -98,6 +100,11 @@ export default {
         this.loadMore();
       }
     },
+
+    async showOtherUserLevels(userID) {
+      this.otherUserID = userID
+      this.$emit('tabChanged', 'tab_other_user')
+    }
   },
 
   mounted() {
@@ -115,7 +122,7 @@ export default {
   <div class="grid-container">
     <div v-for="(item, index) in items" :key="index" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" />
-      <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" />
+      <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @more="showOtherUserLevels" />
     </div>
   </div>
   <div v-if="loading" class="loading">Loading more items...</div>

@@ -5,9 +5,12 @@ import { useUserStore } from '@/stores/user'
 export default {
   emits: ['tabChanged', 'searchChanged'],
 
+  props: {
+    tabActive: String
+  },
+
   data() {
     return {
-      tabActive: 'tab_newest',
       searchTypingTimer: '',
       searchTerm: ''
     }
@@ -25,7 +28,6 @@ export default {
   methods: {
    setTabActive(tabName) {
     this.searchTerm = ''
-    this.tabActive = tabName
     this.$emit('tabChanged', tabName)
    },
 

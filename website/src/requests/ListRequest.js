@@ -8,7 +8,7 @@ export async function listRequest(server, accessToken, listType, searchTerm, max
   {
     requestURL += '&type=ok'
   }
-  else if(listType === 'tab_my_levels')
+  else if(listType === 'tab_my_levels' || listType === 'tab_other_user')
   {
     requestURL += '&user_id=' + userID
   }

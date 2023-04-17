@@ -11,6 +11,8 @@ export default {
     VerifyLevelButton
   },
 
+  emit: ['more'],
+
   props: {
     item: Object,
     moderationItem : Object
@@ -94,6 +96,10 @@ export default {
       {
         this.cardColor = 'lightgreen'
       }
+    },
+
+    showMoreLevels(userID) {
+      this.$emit('more', this.item.identifier.split(':')[0])
     }
   }
 }
@@ -104,7 +110,7 @@ export default {
     <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
-    <div class="more-button">More Levels</div>
+    <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>

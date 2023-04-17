@@ -33,10 +33,10 @@ export default {
   <header>
     <LoginButton />
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" width="453" height="180" />
-    <NavBar @tab-changed="(value) => this.tabChanged(value)" @search-changed="(value) => this.searchChanged(value)" />
+    <NavBar :tab-active="tabActive" @tab-changed="(value) => this.tabChanged(value)" @search-changed="(value) => this.searchChanged(value)" />
   </header>
   <main>
-    <ScrollList :list-type="tabActive" :search-term="searchTerm" />
+    <ScrollList :list-type="tabActive" :search-term="searchTerm" @tab-changed="(value) => this.tabChanged(value)"/>
   </main>
 </template>
 
