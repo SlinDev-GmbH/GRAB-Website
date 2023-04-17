@@ -47,7 +47,6 @@ export default {
   width: 90px;
   height:  30px;
   font-size: 15px;
-  display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
@@ -58,14 +57,15 @@ export default {
   color: #FFFFFF;
   text-align: center;
   border: none;
-  float: right;
+  top: 0px;
+  right: 0px;
+  position: absolute;
 }
 
 .logout-button {
   width: 90px;
   height:  30px;
   font-size: 15px;
-  display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
@@ -76,6 +76,8 @@ export default {
   color: #FFFFFF;
   text-align: center;
   border: none;
-  float: right;
+  top: 0px;
+  right: 0px;
+  position: absolute;
 }
 </style>

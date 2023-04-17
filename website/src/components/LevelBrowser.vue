@@ -31,8 +31,8 @@ export default {
 
 <template>
   <header>
-    <LoginButton />
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" width="453" height="180" />
+    <LoginButton />
     <NavBar :tab-active="tabActive" @tab-changed="(value) => this.tabChanged(value)" @search-changed="(value) => this.searchChanged(value)" />
   </header>
   <main>
@@ -46,9 +46,9 @@ header {
 }
 
 .logo {
-  display: flex;
-  margin: 0 auto auto auto;
+  margin: 0 auto;
   padding-bottom: 30px;
   height: auto;
+  display: block;
 }
 </style>
