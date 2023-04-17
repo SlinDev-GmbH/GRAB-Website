@@ -47,7 +47,12 @@ export default {
   },
 
   created() {
-    this.loadMore();
+    const userID = this.$route.query['user_id']
+    if(userID) {
+      this.otherUserID = userID
+      this.$emit('tabChanged', 'tab_other_user')
+    }
+    else this.loadMore();
   },
 
   watch: {
