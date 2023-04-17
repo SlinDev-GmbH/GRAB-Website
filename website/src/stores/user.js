@@ -27,6 +27,10 @@ export const useUserStore = defineStore('user', {
     userID(state) {
       if(!this.isLoggedIn) return undefined
       return state.user.info?.user_id ?? undefined
+    },
+    userInfo(state) {
+      if(!this.isLoggedIn) return undefined
+      return state.user.info ?? undefined
     }
   },
 

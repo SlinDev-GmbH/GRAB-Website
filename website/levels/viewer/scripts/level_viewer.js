@@ -5,6 +5,12 @@ import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
 
+import { createApp } from 'vue'
+import App from '@/App.vue'
+import { useUserStore } from '@/stores/user'
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+
 import imageStampOk from '../../../src/assets/stamp_ok.png'
 
 import modelCubeURL from '../models/cube.gltf'
@@ -38,26 +44,6 @@ let objectMaterials = [];
 let isFogEnabled = true;
 
 init();
-
-function getCookie(cname)
-{
-	let name = cname + "=";
-	let decodedCookie = decodeURIComponent(document.cookie);
-	let ca = decodedCookie.split(';');
-	for(let i = 0; i <ca.length; i++)
-	{
-		let c = ca[i];
-		while(c.charAt(0) == ' ')
-		{
-			c = c.substring(1);
-		}
-		if(c.indexOf(name) == 0)
-		{
-			return c.substring(name.length, c.length);
-		}
-	}
-	return "";
-}
 
 function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, neonEnabled=0.0)
 {
@@ -190,10 +176,13 @@ function init()
 		const LevelMessage = root.lookupType("COD.Level.Level");
 
 		(async () => {
-			let accessToken = getCookie("access_token");
-			let userInfoString = getCookie("user_info")
-			let userInfo = undefined
-			if(userInfoString && userInfoString.length > 0) userInfo = JSON.parse(userInfoString);
+			//Need to setup everything to be able to access the storage through pinia...
+			const pinia = createPinia()
+			pinia.use(piniaPluginPersistedstate)
+			const app = createApp(App)
+			app.use(pinia)
+			const userStore = useUserStore(pinia)
+			let accessToken = userStore.accessToken
 
 			var titleLabel = document.getElementById("title");
 			var creatorsLabel = document.getElementById("creators");
@@ -214,7 +203,7 @@ function init()
 			userID = levelIdentifierParts[0];
 			console.log(userID);
 
-			if(detailResponseBody.hidden === true && (!userInfo || !("is_admin" in userInfo) || userInfo.is_admin === false))
+			if(detailResponseBody.hidden === true && !userStore.is_admin)
 			{
 				//Don't load hidden levels unless this is an admin
 				titleLabel.innerHTML = '<b>NOT AVAILABLE</b>';
@@ -244,7 +233,7 @@ function init()
 			fullscreenButton.onclick = openFullscreen
 
 			let moderationContainer = document.getElementById("moderationcontainer")
-			if(userInfo && ("is_moderator" in userInfo) && userInfo.is_moderator === true)
+			if(userStore.isModerator === true)
 			{
 				let tagsForm = document.createElement("form");
 				moderationContainer.appendChild(tagsForm);
@@ -296,7 +285,7 @@ function init()
 				moderationContainer.appendChild(linebreak);
 			}
 
-			if(userInfo && ("is_admin" in userInfo) && userInfo.is_admin === true)
+			if(userStore.isAdmin)
 			{
 				let creatorButton = document.createElement("button");
 				moderationContainer.appendChild(creatorButton);
@@ -571,7 +560,7 @@ function init()
 						}
 
 						let signText = node.levelNodeSign.text
-						if(userInfo && "is_admin" in userInfo && userInfo.is_admin === true && signText && signText.length > 0)
+						if(userStore.isAdmin && signText && signText.length > 0)
 						{
 							let signTextElement = document.createElement("div");
 							const signTextNode = document.createTextNode("Sign " + signCounter + ": " + signText);
