@@ -1,9 +1,14 @@
 <script>
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
+
 import ModerationTools from './ModerationTools.vue'
+import VerifyLevelButton from './VerifyLevelButton.vue'
 
 export default {
   components: {
-    ModerationTools
+    ModerationTools,
+    VerifyLevelButton
   },
 
   props: {
@@ -74,7 +79,9 @@ export default {
 
     isModerationCell() {
       return this.moderationItem !== null
-    }
+    },
+
+    ...mapState(useUserStore, ['isModerator'])
   },
 
   methods: {
@@ -99,6 +106,7 @@ export default {
     <div class="creators">{{ creators }}</div>
     <div class="more-button">More Levels</div>
     <div class="description">{{ item.description }}</div>
+    <VerifyLevelButton v-if="isModerator" :level-info="item"/>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
