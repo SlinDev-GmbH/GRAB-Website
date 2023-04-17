@@ -48,7 +48,7 @@ export default {
 
 <template>
   <header>
-    <img alt="GRAB logo" class="logo" src="../assets/logo.png" width="453" height="180" />
+    <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
     <LoginButton />
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Acces Token</button>
     <button v-if="isAdmin" class="curation-button" type="button" @click="openCuration">Curation</button>
@@ -68,6 +68,7 @@ header {
   margin: 0 auto;
   padding-bottom: 30px;
   height: auto;
+  max-width: 50%;
   display: block;
 }
 
