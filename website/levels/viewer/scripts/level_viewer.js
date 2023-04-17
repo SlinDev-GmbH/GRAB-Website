@@ -785,3 +785,70 @@ export function exportLevelAsGLTF()
 	    {}
 	);
 }
+
+document.getElementById("leaderboard-button").addEventListener("click", openLeaderboard);
+document.getElementById("leaderboard-close").addEventListener("click", closeLeaderboard);
+
+function openLeaderboard() {
+	document.getElementById("overlay").style.display = "block";
+	document.getElementById("leaderboard").style.display = "block";
+	loadLeaderboardData();
+}
+
+function closeLeaderboard() {
+	document.getElementById("overlay").style.display = "none";
+	document.getElementById("leaderboard").style.display = "none";
+}
+
+async function loadLeaderboardData() {
+	const urlParams = new URLSearchParams(window.location.search);
+	let levelIdentifier = urlParams.get('level');
+	let levelIdentifierParts = levelIdentifier.split(':')
+	let hasIteration = levelIdentifierParts.length === 3
+	const endpointUrl = config.SERVER_URL + 'statistics_top_leaderboard/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
+	try {
+		const response = await fetch(endpointUrl);
+		if (response.ok) {
+			const data = await response.json();
+			displayLeaderboardData(data);
+		} else {
+			console.error("Failed to fetch leaderboard data:", response.statusText);
+		}
+	} catch (error) {
+		console.error("Error fetching leaderboard data:", error);
+	}
+}
+
+function displayLeaderboardData(data) {
+	const leaderboardContent = document.getElementById("leaderboard-content");
+	leaderboardContent.innerHTML = "";
+
+	if (data.length === 0) {
+		const placeholder = document.createElement("div");
+		placeholder.className = "leaderboard-placeholder";
+		placeholder.innerHTML = "No data yet!<br>Be the first to set a record!";
+		leaderboardContent.appendChild(placeholder);
+	} else {
+		data.forEach((entry, index) => {
+			const row = document.createElement("div");
+			row.className = "leaderboard-row";
+
+			const position = document.createElement("div");
+			position.className = "leaderboard-position";
+			position.textContent = entry.position + 1;
+
+			const name = document.createElement("div");
+			name.className = "leaderboard-name";
+			name.textContent = entry.user_name;
+
+			const time = document.createElement("div");
+			time.className = "leaderboard-time";
+			time.textContent = entry.best_time;
+
+			row.appendChild(position);
+			row.appendChild(name);
+			row.appendChild(time);
+			leaderboardContent.appendChild(row);
+		});
+	}
+}
