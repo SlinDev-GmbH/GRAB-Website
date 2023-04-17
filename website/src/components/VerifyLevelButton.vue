@@ -51,7 +51,7 @@ export default {
 
 <style>
 .moderation-verify-button {
-  width:30%;
+  min-width:30%;
   height: 30px;
   font-weight: bold;
   background-color: green;
@@ -61,7 +61,7 @@ export default {
 }
 
 .moderation-unverify-button {
-  width:30%;
+  min-width:30%;
   height: 30px;
   font-weight: bold;
   background-color: red;

@@ -98,12 +98,12 @@ export default {
 
 .tab input[type=text] {
   float: right;
-  width: 15%;
+  min-width: 15%;
   padding: 6px;
   border: none;
   margin-top: 8px;
-        margin-bottom: 8px;
-        border-radius: 5px;
+  margin-bottom: 8px;
+  border-radius: 5px;
   margin-right: 8px;
   font-size: 14px;
 }
