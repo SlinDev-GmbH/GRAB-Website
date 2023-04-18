@@ -48,9 +48,14 @@ export default {
 
   created() {
     const userID = this.$route.query['user_id']
+    const currentTab = this.$route.query['tab']
     if(userID) {
       this.otherUserID = userID
-      this.$emit('tabChanged', 'tab_other_user')
+      this.$emit('tabChanged', 'tab_other_user', userID)
+    }
+    else if(currentTab && currentTab != 'tab_newest')
+    {
+      this.$emit('tabChanged', currentTab)
     }
     else this.loadMore();
   },
@@ -108,7 +113,7 @@ export default {
 
     async showOtherUserLevels(userID) {
       this.otherUserID = userID
-      this.$emit('tabChanged', 'tab_other_user')
+      this.$emit('tabChanged', 'tab_other_user', userID)
     }
   },
 

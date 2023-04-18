@@ -26,12 +26,20 @@ export default {
   },
 
   methods: {
-    tabChanged(value) {
+    tabChanged(value, userID) {
       this.tabActive = value
+      let query = { tab: value }
+      if(userID) query.user_id = userID
+      this.$router.push({ query: query})
     },
 
     searchChanged(value) {
       this.searchTerm = value
+      let query = {
+        tab: this.tabActive
+      }
+      if(value && value.length > 0) query['search'] = value
+      this.$router.push({ query: query })
     },
 
     openCuration() {
@@ -52,10 +60,10 @@ export default {
     <LoginButton />
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Acces Token</button>
     <button v-if="isAdmin" class="curation-button" type="button" @click="openCuration">Curation</button>
-    <NavBar :tab-active="tabActive" @tab-changed="(value) => this.tabChanged(value)" @search-changed="(value) => this.searchChanged(value)" />
+    <NavBar :tab-active="tabActive" @tab-changed="(value, userID) => this.tabChanged(value, userID)" @search-changed="(value) => this.searchChanged(value)" />
   </header>
   <main>
-    <ScrollList :list-type="tabActive" :search-term="searchTerm" @tab-changed="(value) => this.tabChanged(value)"/>
+    <ScrollList :list-type="tabActive" :search-term="searchTerm" @tab-changed="(value, userID) => this.tabChanged(value, userID)"/>
   </main>
 </template>
 
