@@ -54,12 +54,12 @@ export default {
     <button v-if="isLoggedIn" :class="tabActive==='tab_my_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_my_levels')" id="tab_my_levels">My Levels</button>
     <button v-if="isLoggedIn" :class="tabActive==='tab_favorite_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_favorite_levels')" id="tab_favorite_levels">My Favorites</button>
     <button :class="tabActive==='tab_search_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_search_users')" id="tab_search_users">Players</button>
-    <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)" :value="searchTerm">
     <br v-if="isAdmin"><br v-if="isAdmin">
     <button v-if="isAdmin" :class="tabActive==='tab_hidden'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_hidden')" id="tab_hidden">Hidden Levels</button>
     <button v-if="isAdmin" :class="tabActive==='tab_reported_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_levels')" id="tab_reported_levels">Reported Levels</button>
     <button v-if="isAdmin" :class="tabActive==='tab_reported_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_users')" id="tab_reported_users">Reported Users</button>
     <button v-if="isAdmin" :class="tabActive==='tab_banned_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_banned_users')" id="tab_banned_users">Banned Users</button>
+    <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)" :value="searchTerm">
   </div>
 </template>
 
