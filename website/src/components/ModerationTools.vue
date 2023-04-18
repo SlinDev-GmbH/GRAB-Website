@@ -110,12 +110,7 @@ export default {
   </div>
 
   <Teleport to="body">
-    <!-- use the modal component, pass in the prop -->
-    <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" @handled="handledModerationPopup" :config="popupConfig" :identifier="moderationItem.object_info.identifier">
-      <template #header>
-        <h3>custom header</h3>
-      </template>
-    </ModerationPopup>
+    <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" @handled="handledModerationPopup" :config="popupConfig" :identifier="moderationItem.object_info.identifier" />
   </Teleport>
 </template>
 

@@ -4,11 +4,13 @@ import { useUserStore } from '@/stores/user'
 
 import ModerationTools from './ModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
+import HideLevelButton from './HideLevelButton.vue'
 
 export default {
   components: {
     ModerationTools,
-    VerifyLevelButton
+    VerifyLevelButton,
+    HideLevelButton
   },
 
   emit: ['more'],
@@ -83,7 +85,12 @@ export default {
       return this.moderationItem !== null
     },
 
-    ...mapState(useUserStore, ['isModerator'])
+    ...mapState(useUserStore, ['isModerator']),
+    ...mapState(useUserStore, ['isAdmin'])
+  },
+
+  created() {
+    if(this.item.hidden === true) this.cardColor = 'lightcoral'
   },
 
   methods: {
@@ -113,6 +120,7 @@ export default {
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
+    <HideLevelButton v-if="isAdmin" :level_id="item.identifier" @handled="didHandleCell"/>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />

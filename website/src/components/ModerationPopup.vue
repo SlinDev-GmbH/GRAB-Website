@@ -31,6 +31,10 @@ export default {
           {reason: 'level_glitch', title: 'Requires to use a Glitch to finish'},
           {reason: 'level_other', title: 'Other'}]
 
+          if(this.isAdmin) {
+            reasons.push({reason: 'no_punish', title: 'Don\'t punish'})
+          }
+
         //TODO: Add "Don't punish" option if config is level_hide and user is admin
         return reasons
       }
@@ -43,19 +47,27 @@ export default {
       }
     },
 
-    ...mapState(useUserStore, ['accessToken'])
+    ...mapState(useUserStore, ['accessToken']),
+    ...mapState(useUserStore, ['isAdmin'])
   },
 
   methods: {
     async doModerationAction() {
       const reason = this.currentSelection
       this.$emit('close')
+      console.log(this.config)
       if(this.config === 'level_hide')
       {
+        console.log('hiding level')
         if(!await hideLevelRequest(this.$api_server_url, this.accessToken, this.identifier)) return
-        const userID = this.identifier.split(':')[0]
-        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason)) return
-        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
+        console.log('done hiding level')
+
+        if(reason !== 'no_punish')
+        {
+          const userID = this.identifier.split(':')[0]
+          if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason)) return
+          if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
+        }
       }
       this.$emit('handled', true)
     }
