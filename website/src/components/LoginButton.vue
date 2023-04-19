@@ -1,4 +1,5 @@
 <script>
+import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
 export default {
@@ -30,10 +31,7 @@ export default {
   },
 
   computed: {
-    isLoggedIn() {
-      const userStore = useUserStore()
-      return userStore.accessToken && userStore.accessToken.length > 0
-    }
+    ...mapState(useUserStore, ['isLoggedIn'])
   }
 }
 </script>
