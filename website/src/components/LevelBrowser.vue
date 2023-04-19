@@ -58,7 +58,7 @@ export default {
   <header>
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
     <LoginButton />
-    <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Acces Token</button>
+    <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
     <button v-if="isAdmin" class="curation-button" type="button" @click="openCuration">Curation</button>
     <NavBar :tab-active="tabActive" @tab-changed="(value, userID) => this.tabChanged(value, userID)" @search-changed="(value) => this.searchChanged(value)" />
   </header>
