@@ -97,6 +97,7 @@ header {
   top: 35px;
   right: 0px;
   position: absolute;
+  cursor: pointer;
 }
 
 .curation-button {
@@ -116,5 +117,6 @@ header {
   top: 70px;
   right: 0px;
   position: absolute;
+  cursor: pointer;
 }
 </style>

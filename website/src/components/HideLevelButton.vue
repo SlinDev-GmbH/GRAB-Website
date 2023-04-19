@@ -51,6 +51,7 @@ export default {
   color: white;
   border: none;
   border-radius: 15px;
+  cursor: pointer;
 }
 
 .moderation-hide-level-button-container {

@@ -206,6 +206,7 @@ export default {
   font-size: 13px;
   text-align:center;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .stamp {

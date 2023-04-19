@@ -109,6 +109,7 @@ export default {
   font-size: 15px;
   text-align:center;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .creator-icon {

@@ -60,6 +60,7 @@ export default {
   top: 0px;
   right: 0px;
   position: absolute;
+  cursor: pointer;
 }
 
 .logout-button {
@@ -79,5 +80,6 @@ export default {
   top: 0px;
   right: 0px;
   position: absolute;
+  cursor: pointer;
 }
 </style>

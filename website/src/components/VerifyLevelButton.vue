@@ -58,6 +58,7 @@ export default {
   color: white;
   border: none;
   border-radius: 15px;
+  cursor: pointer;
 }
 
 .moderation-unverify-button {
@@ -68,5 +69,6 @@ export default {
   color: white;
   border: none;
   border-radius: 15px;
+  cursor: pointer;
 }
 </style>

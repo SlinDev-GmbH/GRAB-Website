@@ -60,6 +60,7 @@ export default {
   color: #FFFFFF;
   text-align: center;
   border: none;
+  cursor: pointer;
 }
 
 .video {
