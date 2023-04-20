@@ -136,6 +136,7 @@ export default {
   border-radius: 15px;
   margin-left: 17.5%;
   margin-right: 5%;
+  cursor: pointer;
 }
 
 .moderation-approve-button {
@@ -146,5 +147,6 @@ export default {
   color: white;
   border: none;
   border-radius: 15px;
+  cursor: pointer;
 }
 </style>
