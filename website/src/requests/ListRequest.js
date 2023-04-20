@@ -5,7 +5,7 @@ export async function listRequest(server, accessToken, listType, searchTerm, max
   {
     if(searchTerm && searchTerm.length > 0) requestURL += '&type=search&search_term=' + searchTerm
   }
-  else if(listType === 'tab_verified')
+  else if(listType === 'tab_ok')
   {
     requestURL += '&type=ok'
   }

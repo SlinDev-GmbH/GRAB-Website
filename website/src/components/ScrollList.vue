@@ -16,14 +16,14 @@ export default {
 
   props: {
     listType: String,
-    searchTerm: String
+    searchTerm: String,
+    otherUserID: String
   },
 
   data() {
     return {
       items: [],
       loading: false,
-      otherUserID: null,
       isInitialLoad: true
     }
   },
@@ -44,7 +44,6 @@ export default {
     if(!currentTab) currentTab = 'tab_newest'
 
     if(userID) {
-      this.otherUserID = userID
       this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID })
     }
     else if((currentSearch && currentSearch.length > 0) || currentTab !== this.listType) {
@@ -78,7 +77,6 @@ export default {
   watch: {
     async listType(type) {
       if(this.isInitialLoad && this.loading) return
-      if(type !== 'tab_other_user') this.otherUserID = null
       this.items = []
       this.nextPage = null
       await this.loadMore()
@@ -128,7 +126,6 @@ export default {
     },
 
     async showOtherUserLevels(userID) {
-      this.otherUserID = userID
       this.$emit('tabChanged', {tab: 'tab_other_user', user_id: userID})
     }
   },

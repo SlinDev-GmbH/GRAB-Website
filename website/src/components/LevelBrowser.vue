@@ -3,12 +3,14 @@ import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
 import NavBar from './NavBar.vue'
+import LevelTitle from './LevelTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
 
 export default {
   components: {
     NavBar,
+    LevelTitle,
     ScrollList,
     LoginButton
   },
@@ -16,13 +18,18 @@ export default {
   data() {
     return {
       tabActive: 'tab_newest',
-      searchTerm: ''
+      searchTerm: '',
+      userID: null
     }
   },
 
   computed: {
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['accessToken']),
+    showLevelTitle() {
+      const options = ['tab_newest', 'tab_ok', 'tab_my_levels', 'tab_favorite_levels', 'tab_other_user']
+      return options.includes(this.tabActive)
+    }
   },
 
   methods: {
@@ -30,10 +37,13 @@ export default {
       this.tabActive = query.tab
       if('search' in query) this.searchTerm = query['search']
       else this.searchTerm = ''
+      if('user_id' in query) this.userID = query['user_id']
+      else this.userID = null
       this.$router.push({ query: query})
     },
 
     searchChanged(value) {
+      this.userID = null
       this.searchTerm = value
       let query = {
         tab: this.tabActive
@@ -61,9 +71,10 @@ export default {
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
     <button v-if="isAdmin" class="curation-button" type="button" @click="openCuration">Curation</button>
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
+    <LevelTitle v-if="showLevelTitle" :tab-active="tabActive" :other-user-i-d="userID"/>
   </header>
   <main>
-    <ScrollList :list-type="tabActive" :search-term="searchTerm" @tab-changed="(query) => this.tabChanged(query)"/>
+    <ScrollList :list-type="tabActive" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)"/>
   </main>
 </template>
 
