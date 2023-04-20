@@ -55,12 +55,9 @@ export default {
     async doModerationAction() {
       const reason = this.currentSelection
       this.$emit('close')
-      console.log(this.config)
       if(this.config === 'level_hide')
       {
-        console.log('hiding level')
         if(!await hideLevelRequest(this.$api_server_url, this.accessToken, this.identifier)) return
-        console.log('done hiding level')
 
         if(reason !== 'no_punish')
         {

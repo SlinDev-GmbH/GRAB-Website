@@ -47,8 +47,6 @@ export const useUserStore = defineStore('user', {
         else {
           const responseBody = await response.json()
           this.user = responseBody;
-          console.log(responseBody)
-
           this.expires = Date.now() + 2 * 60 * 60 * 1000 //valid for 2 hours
         }
       }

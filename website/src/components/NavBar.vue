@@ -6,13 +6,13 @@ export default {
   emits: ['tabChanged', 'searchChanged'],
 
   props: {
-    tabActive: String
+    tabActive: String,
+    searchTerm: String
   },
 
   data() {
     return {
-      searchTypingTimer: '',
-      searchTerm: ''
+      searchTypingTimer: ''
     }
   },
 
@@ -27,8 +27,7 @@ export default {
 
   methods: {
    setTabActive(tabName) {
-    this.searchTerm = ''
-    this.$emit('tabChanged', tabName)
+    this.$emit('tabChanged', {tab: tabName})
    },
 
    changedSearchTerm(term) {

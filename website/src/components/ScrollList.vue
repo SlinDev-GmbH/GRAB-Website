@@ -23,8 +23,8 @@ export default {
     return {
       items: [],
       loading: false,
-      currentSearchTerm: '',
-      otherUserID: null
+      otherUserID: null,
+      isInitialLoad: true
     }
   },
 
@@ -48,21 +48,28 @@ export default {
 
   created() {
     const userID = this.$route.query['user_id']
-    const currentTab = this.$route.query['tab']
+    let currentTab = this.$route.query['tab']
+    const currentSearch = this.$route.query['search']
+    if(!currentTab) currentTab = 'tab_newest'
     if(userID) {
       this.otherUserID = userID
-      this.$emit('tabChanged', 'tab_other_user', userID)
+      this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID })
     }
-    else if(currentTab && currentTab != 'tab_newest')
+    else if((currentSearch && currentSearch.length > 0) || currentTab !== this.listType)
     {
-      this.$emit('tabChanged', currentTab)
+      let query = {tab: currentTab}
+      if(currentSearch) query['search'] = currentSearch
+      this.$emit('tabChanged', query)
     }
-    else this.loadMore();
+    else
+    {
+      this.loadMore();
+    }
   },
 
   watch: {
     async listType(type) {
-      this.currentSearchTerm = ''
+      if(this.isInitialLoad && this.loading) return
       if(type !== 'tab_other_user') this.otherUserID = null
       this.items = []
       this.nextPage = null
@@ -70,7 +77,7 @@ export default {
     },
 
     async searchTerm(type) {
-      this.currentSearchTerm = type
+      if(this.isInitialLoad && this.loading) return
       this.items = []
       this.nextPage = null
       await this.loadMore()
@@ -79,7 +86,7 @@ export default {
 
   methods: {
     async loadLevels() {
-      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.currentSearchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
+      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.searchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
       if(result !== false) {
         if(result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp
         else this.nextPage = null
@@ -93,13 +100,14 @@ export default {
       this.loading = true
 
       const activeListType = this.listType
-      const activeSearchTerm = this.currentSearchTerm
+      const activeSearchTerm = this.searchTerm
 
       const levels = await this.loadLevels()
-      if(activeSearchTerm !== this.currentSearchTerm || activeListType !== this.listType) return
+      if(activeSearchTerm !== this.searchTerm || activeListType !== this.listType) return
 
       this.items = [...this.items, ...levels]
       this.loading = false
+      this.isInitialLoad = false
     },
 
     handleScroll() {
@@ -113,7 +121,7 @@ export default {
 
     async showOtherUserLevels(userID) {
       this.otherUserID = userID
-      this.$emit('tabChanged', 'tab_other_user', userID)
+      this.$emit('tabChanged', {tab: 'tab_other_user', user_id: userID})
     }
   },
 

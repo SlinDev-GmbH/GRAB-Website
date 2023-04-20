@@ -45,7 +45,6 @@ export default {
     },
 
     showProfile() {
-      console.log(this.item.user_id)
       this.$emit('profile', this.item.user_id)
     }
   }
