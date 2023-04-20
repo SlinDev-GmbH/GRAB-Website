@@ -2,6 +2,7 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
+import { reportLevelRequest } from '../requests/ReportLevelRequest'
 import { hideLevelRequest } from '../requests/HideLevelRequest'
 import { resetReportsRequest } from '../requests/ResetReportsRequest'
 import { moderationActionRequest } from '../requests/ModerationActionRequest'
@@ -65,6 +66,10 @@ export default {
           if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason)) return
           if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
         }
+      }
+      else if(this.config === 'level_report')
+      {
+        if(!await reportLevelRequest(this.$api_server_url, this.accessToken, this.identifier, reason.replace('level_', ''))) return
       }
       this.$emit('handled', true)
     }

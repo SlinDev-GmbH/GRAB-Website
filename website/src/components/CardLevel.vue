@@ -6,13 +6,15 @@ import ModerationTools from './ModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
+import ReportLevelButton from './ReportLevelButton.vue'
 
 export default {
   components: {
     ModerationTools,
     VerifyLevelButton,
     HideLevelButton,
-    FavoriteLevelButton
+    FavoriteLevelButton,
+    ReportLevelButton
   },
 
   emit: ['more'],
@@ -125,7 +127,8 @@ export default {
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
     <HideLevelButton v-if="isAdmin && !isModerationCell" :level_id="item.identifier" @handled="didHandleCell"/>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
-    <FavoriteLevelButton v-if="isLoggedIn"  :level_id="item.identifier"/>
+    <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
+    <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>

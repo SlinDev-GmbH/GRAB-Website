@@ -48,8 +48,7 @@ export default {
 
 <style>
 .favorite-button {
-    max-width: 10%;
-    height: 30px;
+    width: 7%;
     cursor: pointer;
     position: absolute;
     bottom: 5%;
