@@ -28,6 +28,35 @@ export default {
     }
   },
 
+  created() {
+    let targetQuery = this.$route.query
+    if(Object.keys(targetQuery).length === 0) {
+      targetQuery = localStorage.getItem('currentLocation')
+      if(targetQuery) {
+        localStorage.removeItem('currentLocation')
+        targetQuery = JSON.parse(targetQuery)
+      }
+      else targetQuery = {}
+    }
+    const userID = targetQuery['user_id']
+    let currentTab = targetQuery['tab']
+    const currentSearch = targetQuery['search']
+    if(!currentTab) currentTab = 'tab_newest'
+
+    if(userID) {
+      this.otherUserID = userID
+      this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID })
+    }
+    else if((currentSearch && currentSearch.length > 0) || currentTab !== this.listType) {
+      let query = {tab: currentTab}
+      if(currentSearch) query['search'] = currentSearch
+      this.$emit('tabChanged', query)
+    }
+    else {
+      this.loadMore();
+    }
+  },
+
   computed: {
     wantsUserCells() {
       const types = ['tab_search_users', 'tab_reported_users', 'tab_banned_users']
@@ -44,27 +73,6 @@ export default {
     ...mapState(useUserStore, ['isLoggedIn']),
     ...mapState(useUserStore, ['userID']),
     ...mapState(useUserStore, ['accessToken'])
-  },
-
-  created() {
-    const userID = this.$route.query['user_id']
-    let currentTab = this.$route.query['tab']
-    const currentSearch = this.$route.query['search']
-    if(!currentTab) currentTab = 'tab_newest'
-    if(userID) {
-      this.otherUserID = userID
-      this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID })
-    }
-    else if((currentSearch && currentSearch.length > 0) || currentTab !== this.listType)
-    {
-      let query = {tab: currentTab}
-      if(currentSearch) query['search'] = currentSearch
-      this.$emit('tabChanged', query)
-    }
-    else
-    {
-      this.loadMore();
-    }
   },
 
   watch: {

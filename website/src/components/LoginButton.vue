@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/user'
 export default {
   methods: {
     login() {
+      localStorage.setItem('currentLocation', JSON.stringify(this.$route.query)) //This will be read by the scroll list to navigate back to where it was! I tried to do it in here, but didn't get it passed to the scroll list nicely...
       window.location.href = 'https://auth.oculus.com/sso/?redirect_uri=' + this.$page_url + '/levels&organization_id=1298096256894263'
     },
 
