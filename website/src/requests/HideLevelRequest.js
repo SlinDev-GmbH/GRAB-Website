@@ -3,11 +3,8 @@ export async function hideLevelRequest(server, accessToken, levelID) {
   const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
   const response = await fetch(server + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
   const responseBody = await response.text();
-  if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-  {
-    confirm("Result: " + responseBody);
-    //TODO: Log out user
-    //logout();
+  if(response.status != 200) {
+    confirm("Error: " + responseBody);
     return false
   }
 
