@@ -123,7 +123,7 @@ export default {
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
-    <HideLevelButton v-if="isAdmin" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideLevelButton v-if="isAdmin && !isModerationCell" :level_id="item.identifier" @handled="didHandleCell"/>
     <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <FavoriteLevelButton v-if="isLoggedIn"  :level_id="item.identifier"/>
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>
