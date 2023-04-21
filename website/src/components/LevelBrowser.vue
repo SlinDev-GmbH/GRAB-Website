@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 
 import NavBar from './NavBar.vue'
 import LevelTitle from './LevelTitle.vue'
+import UserTitle from './UserTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
 
@@ -11,6 +12,7 @@ export default {
   components: {
     NavBar,
     LevelTitle,
+    UserTitle,
     ScrollList,
     LoginButton
   },
@@ -27,7 +29,11 @@ export default {
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['accessToken']),
     showLevelTitle() {
-      const options = ['tab_newest', 'tab_ok', 'tab_my_levels', 'tab_favorite_levels', 'tab_other_user']
+      const options = ['tab_newest', 'tab_ok', 'tab_favorite_levels']
+      return options.includes(this.tabActive)
+    },
+    showUserTitle() {
+      const options = ['tab_my_levels', 'tab_other_user']
       return options.includes(this.tabActive)
     }
   },
@@ -71,9 +77,10 @@ export default {
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
     <button v-if="isAdmin" class="curation-button" type="button" @click="openCuration">Curation</button>
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
-    <LevelTitle v-if="showLevelTitle" :tab-active="tabActive" :other-user-i-d="userID"/>
+    <LevelTitle v-if="showLevelTitle" :tab-active="tabActive"/>
   </header>
   <main>
+    <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
     <ScrollList :list-type="tabActive" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)"/>
   </main>
 </template>

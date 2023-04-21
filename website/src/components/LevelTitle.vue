@@ -1,18 +1,9 @@
 <script>
-import { useUserStore } from '@/stores/user'
-import { mapState } from 'pinia'
-
 import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
-import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
 
 export default {
   props: {
-    tabActive: String,
-    otherUserID: String
-  },
-
-  computed: {
-    ...mapState(useUserStore, ['userID'])
+    tabActive: String
   },
 
   data() {
@@ -28,15 +19,6 @@ export default {
       {
         const userStore = useUserStore()
         this.count = userStore.favoriteLevels.length
-      }
-      else if(this.tabActive === 'tab_my_levels' || this.tabActive === 'tab_other_user')
-      {
-        const currentUserID = this.otherUserID? this.otherUserID : this.userID
-        if(!currentUserID) return
-        console.log(currentUserID)
-        const userInfo = await getUserInfoRequest(this.$api_server_url, currentUserID)
-        if(userInfo === false || currentUserID !== (this.otherUserID? this.otherUserID : this.userID)) return
-        this.count = userInfo.user_level_count
       }
       else
       {
