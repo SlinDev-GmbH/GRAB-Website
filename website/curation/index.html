@@ -227,7 +227,7 @@
 		    let levelId = oldLevelList[i]["identifier"];
 		    let position = levelList.findIndex(obj => obj.identifier === levelId);
 		    if (position === -1) {
-		      fetch(updateLevelEndpoint + '?level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
+		      fetch(updateLevelEndpoint + 'level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
 		    }
 		  }
 		  oldLevelList = levelList.slice();
