@@ -112,6 +112,7 @@
 		let existingListEndpoint = config.SERVER_URL + 'list?max_format_version=8&type=curated_';
 		let levelDetailsEndpoint = config.SERVER_URL + 'details/';
 		let updateLevelEndpoint = config.SERVER_URL + 'add_to_curated_list?';
+		let removeLevelEndpoint = config.SERVER_URL + 'remove_from_curated_list?';
 
 		let getListsEndpoint = config.SERVER_URL + 'get_curated_lists';
 		let addListEndpoint = config.SERVER_URL + 'add_curated_list?';
@@ -227,7 +228,7 @@
 		    let levelId = oldLevelList[i]["identifier"];
 		    let position = levelList.findIndex(obj => obj.identifier === levelId);
 		    if (position === -1) {
-		      fetch(updateLevelEndpoint + 'level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
+		      fetch(removeLevelEndpoint + 'level_id=' + levelId + '&list_key=' + type + '&access_token=' + accessToken);
 		    }
 		  }
 		  oldLevelList = levelList.slice();
