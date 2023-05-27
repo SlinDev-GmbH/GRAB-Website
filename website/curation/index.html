@@ -155,23 +155,20 @@
 		};
 		
 		// This function adds a new levels to the list
-		function addLevels() {
+		async function addLevels() {
 		    let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
 		    if(levelIds !== null)
 			{
 				let ids = levelIds.split("\n");
-				let index = 0
 				ids.forEach(id => {
 					let parts = id.split("level=");
 					let levelId = parts[1];
-					fetch(levelDetailsEndpoint + levelId.split(":").join("/")).then(response => {
+					await fetch(levelDetailsEndpoint + levelId.split(":").join("/")).then(response => {
 						response.json().then(data => {
-							levelList.splice(Math.min(index, levelList.length), 0, item);
 							levelList.push(data);
 							displayList();
 						});
 					});
-					index += 1
 				});
 			}
 		}
