@@ -160,7 +160,8 @@
 		    if(levelIds !== null)
 			{
 				let ids = levelIds.split("\n");
-				ids.forEach(id => {
+				for(const id of ids)
+				{
 					let parts = id.split("level=");
 					let levelId = parts[1];
 					await fetch(levelDetailsEndpoint + levelId.split(":").join("/")).then(response => {
@@ -169,7 +170,7 @@
 							displayList();
 						});
 					});
-				});
+				}
 			}
 		}
 		
