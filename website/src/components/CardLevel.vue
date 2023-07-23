@@ -2,7 +2,7 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-import ModerationTools from './ModerationTools.vue'
+import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
@@ -10,7 +10,7 @@ import ReportLevelButton from './ReportLevelButton.vue'
 
 export default {
   components: {
-    ModerationTools,
+    ReportModerationTools,
     VerifyLevelButton,
     HideLevelButton,
     FavoriteLevelButton,
@@ -126,7 +126,7 @@ export default {
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
     <HideLevelButton v-if="isAdmin && !isModerationCell" :level_id="item.identifier" @handled="didHandleCell"/>
-    <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
+    <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
     <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
     <a target="_blank" :href="viewerURL" class="play-button">OPEN</a>

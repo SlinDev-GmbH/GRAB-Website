@@ -98,7 +98,7 @@ export default {
     <div v-if="moderationItem.object_info.moderation_info" class="moderation-title">Previous Strike:</div>
     <ModerationInfo v-if="moderationItem.object_info.moderation_info" :info="moderationItem.object_info.moderation_info"/>
 
-    <div class="moderation-title">Reports:</div>
+    <div v-if="reports.length" class="moderation-title">Reports:</div>
     <div v-for="(value) in reports">
       {{ value[0].slice(15) }}: {{ value[1] }}
     </div>

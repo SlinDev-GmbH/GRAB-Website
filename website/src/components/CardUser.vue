@@ -1,9 +1,14 @@
 <script>
-import ModerationTools from './ModerationTools.vue'
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
+
+import ReportModerationTools from './ReportModerationTools.vue'
+import UserModerationTools from './UserModerationTools.vue'
 
 export default {
   components: {
-    ModerationTools
+    ReportModerationTools,
+    UserModerationTools
   },
 
   emit: ['profile'],
@@ -27,9 +32,15 @@ export default {
       return ''
     },
 
-    isModerationCell() {
+    isReportModerationCell() {
       return this.moderationItem !== null
-    }
+    },
+
+    isUserModerationCell() {
+      return this.moderationItem === null && this.isAdmin
+    },
+
+    ...mapState(useUserStore, ['isAdmin'])
   },
 
   methods: {
@@ -56,8 +67,9 @@ export default {
     <div class="user-name">{{ item.user_name }}</div>
     <img v-if="item.is_creator" alt="OK Stamp" class="creator-icon" src="./../assets/creator.png" />
     <div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
-    <div class="user-id">User ID: {{ item.user_id }}</div>
-    <ModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
+    <div v-if="isAdmin" class="user-id">User ID: {{ item.user_id }}</div>
+    <ReportModerationTools v-if="isReportModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
+    <UserModerationTools v-if="isUserModerationCell" :user-info="item" @handled="didHandleCell"/>
     <div class="profile-button" @click="showProfile">PROFILE</div>
   </div>
 </template>

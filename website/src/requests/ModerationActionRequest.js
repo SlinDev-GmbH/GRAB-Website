@@ -8,7 +8,7 @@ export async function moderationActionRequest(server, accessToken, userID, reaso
   }
   const response = await fetch(server + 'moderation_action/' + userID + extra, {headers: {'Authorization': 'Bearer ' + accessToken}})
   const responseBody = await response.text();
-  if(response.status != 200) {
+  if(response.status != 200 || responseBody !== 'Success') {
     confirm("Error: " + responseBody);
     return false
   }

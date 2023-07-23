@@ -32,11 +32,10 @@ export default {
           {reason: 'level_glitch', title: 'Requires to use a Glitch to finish'},
           {reason: 'level_other', title: 'Other'}]
 
-          if(this.isAdmin) {
+          if(this.isAdmin && this.config === "level_hide") {
             reasons.push({reason: 'no_punish', title: 'Don\'t punish'})
           }
 
-        //TODO: Add "Don't punish" option if config is level_hide and user is admin
         return reasons
       }
       else
@@ -70,6 +69,11 @@ export default {
       else if(this.config === 'level_report')
       {
         if(!await reportLevelRequest(this.$api_server_url, this.accessToken, this.identifier, reason.replace('level_', ''))) return
+      }
+      else if(this.config === 'user_ban')
+      {
+        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, reason)) return
+        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, this.identifier)) return
       }
       this.$emit('handled', true)
     }
