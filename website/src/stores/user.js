@@ -6,7 +6,8 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
     expires: 0,
-    favoriteLevels: []
+    favoriteLevels: [],
+    list: []
   }),
 
   getters: {
@@ -72,6 +73,12 @@ export const useUserStore = defineStore('user', {
       if (!this.favoriteLevels.includes(level_id)) {
         this.favoriteLevels.push(level_id);
       }
+    },
+    getListItem(index) {
+      return this.list[index];
+    },
+    setList(list) {
+      this.list = list;
     }
   },
   persist: true,
