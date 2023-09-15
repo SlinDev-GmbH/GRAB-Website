@@ -287,6 +287,38 @@ function init()
 
 			if(userStore.isAdmin)
 			{
+				document.getElementById("hidecontainer").style.display = "block";
+				document.getElementById("hideReason").addEventListener("change", function(e) {
+					(async () => {
+						const reason = e.target.value;
+						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+						const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+						const hideResponseBody = await hideResponse.text();
+						if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
+							confirm("Error: " + hideResponseBody);
+						}
+
+						if (reason !== "no_punish") {
+							let extra = ''
+							if (reason === "level_glitch") {
+								extra += "?reason=message&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
+							} else {
+								extra += '?reason=' + reason
+							}
+							const moderationResponse = await fetch(config.SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + extra, {headers: {'Authorization': 'Bearer ' + accessToken}})
+							const moderationResponseBody = await moderationResponse.text();
+							if (moderationResponse.status != 200 || moderationResponseBody !== 'Success') {
+								confirm("Error: " + moderationResponseBody);
+							}
+							const resetResponse = await fetch(config.SERVER_URL + 'reports_reset/' + levelIdentifierParts[0], {headers: {'Authorization': 'Bearer ' + accessToken}})
+							const resetResponseBody = await resetResponse.text();
+							if(resetResponse.status != 200 || resetResponseBody !== 'Success'){
+								confirm("Error: " + resetResponseBody);
+							}
+						}
+					})();
+				});
+
 				let creatorButton = document.createElement("button");
 				moderationContainer.appendChild(creatorButton);
 				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
