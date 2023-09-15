@@ -29,7 +29,7 @@ export async function listRequest(server, accessToken, listType, searchTerm, max
   }
   else if(listType === 'tab_reported_levels')
   {
-    // requestURL = server + 'report_list?type=level&max_format_version=' + maxLevelFormatVersion;
+    requestURL = server + 'report_list?type=level&max_format_version=' + maxLevelFormatVersion;
     wantsAccessToken = true
   }
   else if(listType === 'tab_reported_users')
