@@ -1,5 +1,6 @@
 <script>
 import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
+import { useUserStore } from '@/stores/user'
 
 export default {
   props: {
