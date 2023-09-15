@@ -182,7 +182,8 @@ function init()
 			const app = createApp(App)
 			app.use(pinia)
 			const userStore = useUserStore(pinia)
-			let accessToken = userStore.accessToken
+			let accessToken = userStore.accessToken;
+			let list = userStore.list;
 
 			var titleLabel = document.getElementById("title");
 			var creatorsLabel = document.getElementById("creators");
@@ -193,6 +194,7 @@ function init()
 			var dateLabel = document.getElementById("date");
 
 			const urlParams = new URLSearchParams(window.location.search);
+			let listIndex = urlParams.get('listIndex');
 			let levelIdentifier = urlParams.get('level');
 			let levelIdentifierParts = levelIdentifier.split(':')
 			let hasIteration = levelIdentifierParts.length === 3
@@ -319,6 +321,18 @@ function init()
 					})();
 				});
 
+				if (list.length > 0 && listIndex) {
+					let nextButton = document.createElement("button");
+					moderationContainer.appendChild(nextButton);
+					nextButton.innerHTML = "<b>NEXT</b>";
+					nextButton.onclick = function() {
+						location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
+					}
+				}
+				
+				let linebreak = document.createElement("br");
+				moderationContainer.appendChild(linebreak);
+
 				let creatorButton = document.createElement("button");
 				moderationContainer.appendChild(creatorButton);
 				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
@@ -335,7 +349,7 @@ function init()
 					})();
 				};
 
-				let linebreak = document.createElement("br");
+				linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
 				linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
