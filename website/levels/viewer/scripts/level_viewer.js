@@ -356,7 +356,7 @@ function init()
 					let reports_data = await reportsResponse.text();
 					if(reportsResponse.status != 200 || reports_data === 'Not authorized!') {
 						confirm("Error: " + reports_data);
-						return;
+						return false;
 					}
 					reports_data = JSON.parse(reports_data);
 					if ('object_info' in reports_data) {
