@@ -234,6 +234,14 @@ function init()
 			var fullscreenButton = document.getElementById("fullscreen")
 			fullscreenButton.onclick = openFullscreen
 
+			if (list.length > 0 && listIndex) {
+				let nextButton = document.getElementById("nextListItem");
+				nextButton.style.display = "block";
+				nextButton.addEventListener("click", function() {
+					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
+				});
+			}
+
 			let moderationContainer = document.getElementById("moderationcontainer")
 			if(userStore.isModerator === true)
 			{
@@ -320,15 +328,6 @@ function init()
 						}
 					})();
 				});
-
-				if (list.length > 0 && listIndex) {
-					let nextButton = document.createElement("button");
-					moderationContainer.appendChild(nextButton);
-					nextButton.innerHTML = "<b>NEXT</b>";
-					nextButton.onclick = function() {
-						location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
-					}
-				}
 				
 				let linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
