@@ -238,6 +238,11 @@ function init()
 				let listButtons = document.getElementById("listButtons");
 				let nextButton = document.getElementById("nextListItem");
 				let backButton = document.getElementById("prevListItem");
+				if (listIndex === list.length) {
+					nextButton.style.display = "none";
+				} else if (listIndex === "0") {
+					backButton.style.display = "none";
+				}
 				listButtons.style.display = "block";
 				nextButton.addEventListener("click", function() {
 					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
@@ -303,9 +308,10 @@ function init()
 			if(userStore.isAdmin)
 			{
 				document.getElementById("hidecontainer").style.display = "block";
-				document.getElementById("hideReason").addEventListener("change", function(e) {
+				const hideButton = document.getElementById("hideButton");
+				hideButton.addEventListener("click", function() {
 					(async () => {
-						const reason = e.target.value;
+						const reason = document.getElementById("hideReason").value;
 						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
 						const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
 						const hideResponseBody = await hideResponse.text();
@@ -350,7 +356,7 @@ function init()
 					let reports_data = await reportsResponse.text();
 					if(reportsResponse.status != 200 || reports_data === 'Not authorized!') {
 						confirm("Error: " + reports_data);
-						return;
+						return false;
 					}
 					reports_data = JSON.parse(reports_data);
 					if ('object_info' in reports_data) {
