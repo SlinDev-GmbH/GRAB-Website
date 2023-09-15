@@ -182,7 +182,8 @@ function init()
 			const app = createApp(App)
 			app.use(pinia)
 			const userStore = useUserStore(pinia)
-			let accessToken = userStore.accessToken
+			let accessToken = userStore.accessToken;
+			let list = userStore.list;
 
 			var titleLabel = document.getElementById("title");
 			var creatorsLabel = document.getElementById("creators");
@@ -193,6 +194,7 @@ function init()
 			var dateLabel = document.getElementById("date");
 
 			const urlParams = new URLSearchParams(window.location.search);
+			let listIndex = urlParams.get('listIndex');
 			let levelIdentifier = urlParams.get('level');
 			let levelIdentifierParts = levelIdentifier.split(':')
 			let hasIteration = levelIdentifierParts.length === 3
@@ -231,6 +233,19 @@ function init()
 
 			var fullscreenButton = document.getElementById("fullscreen")
 			fullscreenButton.onclick = openFullscreen
+
+			if (list.length > 0 && listIndex) {
+				let listButtons = document.getElementById("listButtons");
+				let nextButton = document.getElementById("nextListItem");
+				let backButton = document.getElementById("prevListItem");
+				listButtons.style.display = "block";
+				nextButton.addEventListener("click", function() {
+					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
+				});
+				backButton.addEventListener("click", function() {
+					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) - 1].identifier + "&listIndex=" + (parseInt(listIndex) - 1);
+				});
+			}
 
 			let moderationContainer = document.getElementById("moderationcontainer")
 			if(userStore.isModerator === true)
@@ -287,7 +302,75 @@ function init()
 
 			if(userStore.isAdmin)
 			{
+				document.getElementById("hidecontainer").style.display = "block";
+				document.getElementById("hideReason").addEventListener("change", function(e) {
+					(async () => {
+						const reason = e.target.value;
+						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+						const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+						const hideResponseBody = await hideResponse.text();
+						if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
+							confirm("Error: " + hideResponseBody);
+						}
+
+						if (reason !== "no_punish") {
+							let extra = ''
+							if (reason === "level_glitch") {
+								extra += "?reason=message&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
+							} else {
+								extra += '?reason=' + reason
+							}
+							const moderationResponse = await fetch(config.SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + extra, {headers: {'Authorization': 'Bearer ' + accessToken}})
+							const moderationResponseBody = await moderationResponse.text();
+							if (moderationResponse.status != 200 || moderationResponseBody !== 'Success') {
+								confirm("Error: " + moderationResponseBody);
+							}
+							const resetResponse = await fetch(config.SERVER_URL + 'reports_reset/' + levelIdentifierParts[0], {headers: {'Authorization': 'Bearer ' + accessToken}})
+							const resetResponseBody = await resetResponse.text();
+							if(resetResponse.status != 200 || resetResponseBody !== 'Success'){
+								confirm("Error: " + resetResponseBody);
+							}
+						}
+					})();
+				});
+				document.getElementById("approveButton").addEventListener("click", function() {
+					(async () => {
+						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+						const approveResponse = await fetch(config.SERVER_URL + 'ignore_reports/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+						const approveResponseBody = await approveResponse.text();
+						if(approveResponse.status != 200 || approveResponseBody !== 'Success') {
+							confirm("Error: " + approveResponseBody);
+						}
+					})();
+				});
+
+				( async () => {
+					const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+					const reportsResponse = await fetch(config.SERVER_URL + 'report_info/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+					let reports_data = await reportsResponse.text();
+					if(reportsResponse.status != 200 || reports_data === 'Not authorized!') {
+						confirm("Error: " + reports_data);
+						return;
+					}
+					reports_data = JSON.parse(reports_data);
+					if ('object_info' in reports_data) {
+						const reportElement = document.getElementById("reports");
+						reportElement.style.display = "block";
+						const reportTitle = document.getElementById("reportsTitle");
+						reportTitle.innerText += `${reports_data.reported_score} (${reports_data.reported_count})`;
+						const reports = document.getElementById("reports");
+						reports_data = Object.entries(reports_data).filter(([key]) => key.includes('reported_score_'))
+						for (const report of reports_data) {
+							reports.innerHTML += `${report[0].slice(15)}:${report[1]}<br>`;
+						}
+					}
+				})();
+				
+				let linebreak = document.createElement("br");
+				moderationContainer.appendChild(linebreak);
+
 				let creatorButton = document.createElement("button");
+				creatorButton.className = "creatorButton";
 				moderationContainer.appendChild(creatorButton);
 				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
 				creatorButton.onclick = function () {
@@ -303,7 +386,7 @@ function init()
 					})();
 				};
 
-				let linebreak = document.createElement("br");
+				linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
 				linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
