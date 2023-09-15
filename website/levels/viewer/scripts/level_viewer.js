@@ -235,10 +235,15 @@ function init()
 			fullscreenButton.onclick = openFullscreen
 
 			if (list.length > 0 && listIndex) {
+				let listButtons = document.getElementById("listButtons");
 				let nextButton = document.getElementById("nextListItem");
-				nextButton.style.display = "block";
+				let backButton = document.getElementById("prevListItem");
+				listButtons.style.display = "block";
 				nextButton.addEventListener("click", function() {
 					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
+				});
+				backButton.addEventListener("click", function() {
+					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) - 1].identifier + "&listIndex=" + (parseInt(listIndex) - 1);
 				});
 			}
 
@@ -328,11 +333,42 @@ function init()
 						}
 					})();
 				});
+				document.getElementById("approveButton").addEventListener("click", function() {
+					(async () => {
+						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+						const approveResponse = await fetch(config.SERVER_URL + 'ignore_reports/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+						const approveResponseBody = await approveResponse.text();
+						if(approveResponse.status != 200 || approveResponseBody !== 'Success') {
+							confirm("Error: " + approveResponseBody);
+						}
+					})();
+				});
+
+				( async () => {
+					const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+					const reportsResponse = await fetch(config.SERVER_URL + 'report_info/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+					const reportsResponseBody = await reportsResponse.text();
+					if(reportsResponse.status != 200 || reportsResponseBody !== 'Success') {
+						confirm("Error: " + reportsResponseBody);
+					}
+					if ("object_info" in reports_data) {
+						const reportElement = document.getElementById("reports");
+						reportElement.style.display = "block";
+						const reportTitle = document.getElementById("reportsTitle");
+						reportTitle.innerText += `${reports_data.reported_score} (${reports_data.reported_count})`;
+						const reports = document.getElementById("reports");
+						reports_data = Object.entries(reports_data).filter(([key]) => key.includes('reported_score_'))
+						for (const report of reports_data) {
+							reports.innerHTML += `${report[0].slice(15)}:${report[1]}<br>`;
+						}
+					}
+				})();
 				
 				let linebreak = document.createElement("br");
 				moderationContainer.appendChild(linebreak);
 
 				let creatorButton = document.createElement("button");
+				creatorButton.className = "creatorButton";
 				moderationContainer.appendChild(creatorButton);
 				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
 				creatorButton.onclick = function () {
