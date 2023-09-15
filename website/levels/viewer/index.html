@@ -231,6 +231,50 @@
                 border: none;
                 float: right;
             }
+            #listButtons {
+                display: flex;
+                justify-content: space-between;
+                margin: 0 auto;
+                margin-top: 10px;
+            }
+            #listButtons > button {
+                cursor: pointer;
+                width: 80px;
+                height: 30px;
+                font-weight: bold;
+                border-radius: 2em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #FFAE00;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+            }
+            #approveButton {
+                height: 30px;
+                font-weight: bold;
+                background-color: green;
+                color: white;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+            }
+            #hideReason {
+                height: 30px;
+                font-weight: bold;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+            }
+            .creatorButton {
+                height: 30px;
+                font-weight: bold;
+                background-color: green;
+                color: white;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+            }
         </style>
     </head>
     <body>
@@ -269,24 +313,34 @@
         <br>
         <div id="go to finish"></div>
         <br>
-        <button id="nextListItem" style="display: none;">NEXT</button>
+        <div id="listButtons" style="display: none;">
+            <button id="prevListItem">BACK</button>
+            <button id="nextListItem">NEXT</button>
+        </div>
         <br>
         <div id="moderationcontainer" class="moderationinfo">
             <div id="hidecontainer" style="display: none;">
-                <div>Hide Level</div>
-                    <form>
-                        <select id="hideReason" style="width: 70%;">
-                            <option value="">- Reason -</option>
-                            <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
-                            <option id="level_violence" value="level_violence">Detailed Violence</option>
-                            <option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
-                            <option id="level_loweffort" value="level_loweffort">Very low effort level</option>
-                            <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
-                            <option id="level_other" value="level_other">Other</option>
-                            <option id="no_punish" value="no_punish">Don't punish</option>
-                        </select>
-                    </form>
+                <div id="reports" style="display: none;">
+                    <b><p id="reportsTitle">Reports:</p></b>
+                    <div id="reportlist"></div>
+                </div>
                 <br>
+                <b>Hide Level</b>
+                <form>
+                    <select id="hideReason" style="width: 70%;">
+                        <option value="">- Reason -</option>
+                        <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
+                        <option id="level_violence" value="level_violence">Detailed Violence</option>
+                        <option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
+                        <option id="level_loweffort" value="level_loweffort">Very low effort level</option>
+                        <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
+                        <option id="level_other" value="level_other">Other</option>
+                        <option id="no_punish" value="no_punish">Don't punish</option>
+                    </select>
+                </form>
+                <br>
+                <button id="approveButton">Approve</button>
+                <br><br>
             </div>
         </div>
         <br>
