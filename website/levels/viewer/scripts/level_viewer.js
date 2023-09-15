@@ -347,11 +347,13 @@ function init()
 				( async () => {
 					const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
 					const reportsResponse = await fetch(config.SERVER_URL + 'report_info/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
-					const reportsResponseBody = await reportsResponse.text();
-					if(reportsResponse.status != 200 || reportsResponseBody !== 'Success') {
-						confirm("Error: " + reportsResponseBody);
+					let reports_data = await reportsResponse.text();
+					if(reportsResponse.status != 200 || reports_data === 'Not authorized!') {
+						confirm("Error: " + reports_data);
+						return;
 					}
-					if ("object_info" in reports_data) {
+					reports_data = JSON.parse(reports_data);
+					if ('object_info' in reports_data) {
 						const reportElement = document.getElementById("reports");
 						reportElement.style.display = "block";
 						const reportTitle = document.getElementById("reportsTitle");
