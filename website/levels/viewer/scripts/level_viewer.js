@@ -245,10 +245,14 @@ function init()
 				}
 				listButtons.style.display = "block";
 				nextButton.addEventListener("click", function() {
-					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) + 1].identifier + "&listIndex=" + (parseInt(listIndex) + 1);
+					let nextListItem = list[parseInt(listIndex) + 1]
+					if("object_info" in nextListItem) nextListItem = nextListItem["object_info"]
+					location.href = "/levels/viewer/?level=" + nextListItem.identifier + "&listIndex=" + (parseInt(listIndex) + 1);
 				});
 				backButton.addEventListener("click", function() {
-					location.href = "/levels/viewer/?level=" + list[parseInt(listIndex) - 1].identifier + "&listIndex=" + (parseInt(listIndex) - 1);
+					let previousListItem = list[parseInt(listIndex) - 1]
+					if("object_info" in previousListItem) previousListItem = previousListItem["object_info"]
+					location.href = "/levels/viewer/?level=" + previousListItem.identifier + "&listIndex=" + (parseInt(listIndex) - 1);
 				});
 			}
 
