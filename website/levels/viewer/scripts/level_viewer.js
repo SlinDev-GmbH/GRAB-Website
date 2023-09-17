@@ -241,23 +241,27 @@ function init()
 				} else if (listIndex === 0) {
 					backButton.style.display = "none";
 				}
-				listButtons.style.display = "block";
+
+				let nextListItem = list[listIndex + 1];
+				let previousListItem = list[listIndex - 1];
+				if("object_info" in nextListItem) {
+					nextListItem = nextListItem["object_info"]
+				}
+				if("object_info" in previousListItem) {
+					previousListItem = previousListItem["object_info"]
+				}
+
 				nextButton.addEventListener("click", function() {
-					let nextListItem = list[listIndex + 1];
-					if("object_info" in nextListItem) {
-						nextListItem = nextListItem["object_info"]
-					}
 					location.href = "/levels/viewer/?level=" + nextListItem.identifier;
 					userStore.setListIndex(listIndex + 1);
 				});
 				backButton.addEventListener("click", function() {
-					let previousListItem = list[listIndex - 1];
-					if("object_info" in previousListItem) {
-						previousListItem = previousListItem["object_info"]
-					}
 					location.href = "/levels/viewer/?level=" + previousListItem.identifier;
 					userStore.setListIndex(listIndex - 1);
 				});
+				if (document.referrer.includes(nextListItem.identifier) || document.referrer.includes(previousListItem.identifier) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
+					listButtons.style.display = "block";
+				}
 			}
 
 			let moderationContainer = document.getElementById("moderationcontainer")
