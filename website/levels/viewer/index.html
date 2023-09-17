@@ -259,7 +259,7 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
-            #hideButton {
+            #hideButton, #unverifyButton {
                 height: 30px;
                 font-weight: bold;
                 background-color: red;
@@ -275,7 +275,7 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
-            .creatorButton {
+            .creatorButton, #verifyButton {
                 height: 30px;
                 font-weight: bold;
                 background-color: green;
@@ -328,6 +328,8 @@
         </div>
         <br>
         <div id="moderationcontainer" class="moderationinfo">
+            <button id="verifyButton" style="display: none;">Verify</button>
+            <button id="unverifyButton" style="display: none;">Unverify</button>
             <div id="hidecontainer" style="display: none;">
                 <div id="reports" style="display: none;">
                     <b><p id="reportsTitle">Reports:</p></b>
