@@ -244,10 +244,10 @@ function init()
 
 				let nextListItem = list[listIndex + 1];
 				let previousListItem = list[listIndex - 1];
-				if("object_info" in nextListItem) {
+				if(nextListItem && "object_info" in nextListItem) {
 					nextListItem = nextListItem["object_info"]
 				}
-				if("object_info" in previousListItem) {
+				if(previousListItem && "object_info" in previousListItem) {
 					previousListItem = previousListItem["object_info"]
 				}
 
@@ -368,7 +368,7 @@ function init()
 						return false;
 					}
 					reports_data = JSON.parse(reports_data);
-					if ('object_info' in reports_data) {
+					if (reports_data && 'object_info' in reports_data) {
 						const reportElement = document.getElementById("reports");
 						reportElement.style.display = "block";
 						const reportTitle = document.getElementById("reportsTitle");
