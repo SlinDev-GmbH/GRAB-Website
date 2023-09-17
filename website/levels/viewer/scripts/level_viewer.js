@@ -259,7 +259,7 @@ function init()
 					location.href = "/levels/viewer/?level=" + previousListItem.identifier;
 					userStore.setListIndex(listIndex - 1);
 				});
-				if (document.referrer.includes(nextListItem.identifier) || document.referrer.includes(previousListItem.identifier) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
+				if ((nextListItem && document.referrer.includes(nextListItem.identifier)) || (previousListItem && document.referrer.includes(previousListItem.identifier)) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
 					listButtons.style.display = "block";
 				}
 			}
