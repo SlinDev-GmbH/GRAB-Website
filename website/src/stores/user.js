@@ -7,7 +7,8 @@ export const useUserStore = defineStore('user', {
     user: null,
     expires: 0,
     favoriteLevels: [],
-    list: []
+    list: [],
+    listIndex: null
   }),
 
   getters: {
@@ -79,6 +80,9 @@ export const useUserStore = defineStore('user', {
     },
     setList(list) {
       this.list = list;
+    },
+    setListIndex(index) {
+      this.listIndex = index;
     }
   },
   persist: true,

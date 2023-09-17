@@ -182,8 +182,7 @@ function init()
 			const app = createApp(App)
 			app.use(pinia)
 			const userStore = useUserStore(pinia)
-			let accessToken = userStore.accessToken;
-			let list = userStore.list;
+			let { accessToken, list, listIndex } = userStore;
 
 			var titleLabel = document.getElementById("title");
 			var creatorsLabel = document.getElementById("creators");
@@ -194,7 +193,6 @@ function init()
 			var dateLabel = document.getElementById("date");
 
 			const urlParams = new URLSearchParams(window.location.search);
-			let listIndex = urlParams.get('listIndex');
 			let levelIdentifier = urlParams.get('level');
 			let levelIdentifierParts = levelIdentifier.split(':')
 			let hasIteration = levelIdentifierParts.length === 3
@@ -233,85 +231,84 @@ function init()
 
 			var fullscreenButton = document.getElementById("fullscreen")
 			fullscreenButton.onclick = openFullscreen
-
-			if (list.length > 0 && listIndex) {
+			
+			if (list.length > 0 && listIndex != null) {
 				let listButtons = document.getElementById("listButtons");
 				let nextButton = document.getElementById("nextListItem");
 				let backButton = document.getElementById("prevListItem");
 				if (listIndex === list.length) {
 					nextButton.style.display = "none";
-				} else if (listIndex === "0") {
+				} else if (listIndex === 0) {
 					backButton.style.display = "none";
 				}
 				listButtons.style.display = "block";
 				nextButton.addEventListener("click", function() {
-					let nextListItem = list[parseInt(listIndex) + 1]
-					if("object_info" in nextListItem) nextListItem = nextListItem["object_info"]
-					location.href = "/levels/viewer/?level=" + nextListItem.identifier + "&listIndex=" + (parseInt(listIndex) + 1);
+					let nextListItem = list[listIndex + 1];
+					if("object_info" in nextListItem) {
+						nextListItem = nextListItem["object_info"]
+					}
+					location.href = "/levels/viewer/?level=" + nextListItem.identifier;
+					userStore.setListIndex(listIndex + 1);
 				});
 				backButton.addEventListener("click", function() {
-					let previousListItem = list[parseInt(listIndex) - 1]
-					if("object_info" in previousListItem) previousListItem = previousListItem["object_info"]
-					location.href = "/levels/viewer/?level=" + previousListItem.identifier + "&listIndex=" + (parseInt(listIndex) - 1);
+					let previousListItem = list[listIndex - 1];
+					if("object_info" in previousListItem) {
+						previousListItem = previousListItem["object_info"]
+					}
+					location.href = "/levels/viewer/?level=" + previousListItem.identifier;
+					userStore.setListIndex(listIndex - 1);
 				});
 			}
 
 			let moderationContainer = document.getElementById("moderationcontainer")
 			if(userStore.isModerator === true)
 			{
-				let tagsForm = document.createElement("form");
-				moderationContainer.appendChild(tagsForm);
-				tagsForm.innerHTML = '<fieldset><legend>Tags:</legend><input type="checkbox" value="ok">ok <input type="submit" value="Submit" /></fieldset>';
-				let tagsParentObject = tagsForm.childNodes[0];
-				let tagOptions = []
-				for(const option of tagsParentObject.childNodes)
+				const verifyButton = document.getElementById("verifyButton");
+				const unverifyButton = document.getElementById("unverifyButton");
+				verifyButton.style.display = "block";
+				unverifyButton.style.display = "none";
+				if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
 				{
-					if(option.type === "checkbox")
+					for(const tag of detailResponseBody.tags)
 					{
-						tagOptions.push(option);
-						if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
+						if(tag === "ok")
 						{
-							for(const tag of detailResponseBody.tags)
-							{
-								if(tag === option.value)
-								{
-									option.checked = true;
-								}
-							}
+							verifyButton.style.display = "none";
+							unverifyButton.style.display = "block";
+							break;
 						}
 					}
 				}
-
-				tagsForm.onsubmit = function(event) {
-					let tags = "";
-					for(const option of tagOptions)
-					{
-						if(option.checked)
-						{
-							tags += option.value + ",";
-						}
-					}
-
+				verifyButton.addEventListener("click", function() {
 					(async () => {
-						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tags + '&access_token=' + accessToken);
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=ok&access_token=' + accessToken);
 						let responseBody = await response.text();
-						console.log(responseBody);
-						confirm("Result: " + responseBody);
-						if(response.status != 200 && accessToken && responseBody === "Not authorized!")
-						{
-							logout();
+						if (responseBody == "Success") {
+							verifyButton.style.display = "none";
+							unverifyButton.style.display = "block";
+						} else {
+							confirm(responseBody);
 						}
 					})();
-					return false;
-				};
-
-				let linebreak = document.createElement("br");
-				moderationContainer.appendChild(linebreak);
+				});
+				unverifyButton.addEventListener("click", function() {
+					(async () => {
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=&access_token=' + accessToken);
+						let responseBody = await response.text();
+						if (responseBody == "Success") {
+							verifyButton.style.display = "block";
+							unverifyButton.style.display = "none";
+						} else {
+							confirm(responseBody);
+						}
+					})();
+				});
 			}
 
 			if(userStore.isAdmin)
 			{
-				document.getElementById("hidecontainer").style.display = "block";
+				const hideContainer = document.getElementById("hidecontainer");
+				hideContainer.style.display = "block";
 				const hideButton = document.getElementById("hideButton");
 				hideButton.addEventListener("click", function() {
 					(async () => {
@@ -321,6 +318,8 @@ function init()
 						const hideResponseBody = await hideResponse.text();
 						if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
 							confirm("Error: " + hideResponseBody);
+						} else {
+							hideContainer.style.display = "none";
 						}
 
 						if (reason !== "no_punish") {
@@ -350,6 +349,8 @@ function init()
 						const approveResponseBody = await approveResponse.text();
 						if(approveResponse.status != 200 || approveResponseBody !== 'Success') {
 							confirm("Error: " + approveResponseBody);
+						} else {
+							hideContainer.style.display = "none";
 						}
 					})();
 				});

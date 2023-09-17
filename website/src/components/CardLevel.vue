@@ -113,6 +113,11 @@ export default {
 
     showMoreLevels(userID) {
       this.$emit('more', this.item.identifier.split(':')[0])
+    },
+
+    setListIndex(index) {
+      const userStore = useUserStore()
+      userStore.setListIndex(index)
     }
   }
 }
@@ -130,7 +135,7 @@ export default {
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
     <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
-    <a target="_blank" :href="viewerURL+'&listIndex='+index" class="play-button">OPEN</a>
+    <a target="_blank" :href="viewerURL" class="play-button" @click="setListIndex(index)">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>
 </template>
