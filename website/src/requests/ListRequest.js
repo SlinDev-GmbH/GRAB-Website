@@ -22,6 +22,11 @@ export async function listRequest(server, accessToken, listType, searchTerm, max
   {
     requestURL += '&type=user_name&search_term=' + searchTerm
   }
+  else if(listType === 'tab_verify_queue')
+  {
+    requestURL = server + 'report_list?type=verify&max_format_version=' + maxLevelFormatVersion;
+    wantsAccessToken = true
+  }
   else if(listType === 'tab_hidden')
   {
     requestURL += '&type=hidden'
