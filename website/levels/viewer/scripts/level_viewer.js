@@ -238,7 +238,8 @@ function init()
 				let backButton = document.getElementById("prevListItem");
 				if (listIndex === list.length - 1) {
 					nextButton.style.display = "none";
-				} else if (listIndex === 0) {
+				}
+				if (listIndex === 0) {
 					backButton.style.display = "none";
 				}
 
