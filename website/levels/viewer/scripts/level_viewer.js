@@ -296,6 +296,16 @@ function init()
 							unverifyButton.style.display = "block";
 						} else {
 							confirm(responseBody);
+							return
+						}
+
+						let responseQueue = await fetch(config.SERVER_URL + 'remove_from_verification_queue/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=&access_token=' + accessToken);
+						let responseQueueBody = await responseQueue.text();
+						if (responseQueueBody == "Success") {
+							verifySkipSuccessButton.style.display = "block";
+							verifySkipButton.style.display = "none";
+						} else {
+							confirm(responseQueueBody);
 						}
 					})();
 				});
