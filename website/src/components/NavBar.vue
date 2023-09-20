@@ -55,10 +55,10 @@ export default {
     <button :class="tabActive==='tab_search_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_search_users')" id="tab_search_users">Players</button>
     <br v-if="isAdmin || isModerator"><br v-if="isAdmin || isModerator">
     <button v-if="isModerator" :class="tabActive==='tab_verify_queue'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_verify_queue')" id="tab_verify_queue">Verify Queue</button>
-    <button v-if="isAdmin" :class="tabActive==='tab_hidden'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_hidden')" id="tab_hidden">Hidden Levels</button>
     <button v-if="isAdmin" :class="tabActive==='tab_reported_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_levels')" id="tab_reported_levels">Reported Levels</button>
     <button v-if="isAdmin" :class="tabActive==='tab_reported_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_users')" id="tab_reported_users">Reported Users</button>
     <button v-if="isAdmin" :class="tabActive==='tab_banned_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_banned_users')" id="tab_banned_users">Banned Users</button>
+    <button v-if="isAdmin" :class="tabActive==='tab_hidden'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_hidden')" id="tab_hidden">Hidden Levels</button>
     <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)" :value="searchTerm">
   </div>
 </template>
