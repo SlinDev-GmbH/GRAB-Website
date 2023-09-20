@@ -269,8 +269,12 @@ function init()
 			{
 				const verifyButton = document.getElementById("verifyButton");
 				const unverifyButton = document.getElementById("unverifyButton");
+				const verifySkipButton = document.getElementById("verifySkipButton");
+				const verifySkipSuccessButton = document.getElementById("verifySkipSuccessButton");
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";
+				verifySkipButton.style.display = "block";
+				verifySkipSuccessButton.style.display = "none";
 				if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
 				{
 					for(const tag of detailResponseBody.tags)
@@ -302,6 +306,18 @@ function init()
 						if (responseBody == "Success") {
 							verifyButton.style.display = "block";
 							unverifyButton.style.display = "none";
+						} else {
+							confirm(responseBody);
+						}
+					})();
+				});
+				verifySkipButton.addEventListener("click", function() {
+					(async () => {
+						let response = await fetch(config.SERVER_URL + 'remove_from_verification_queue/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=&access_token=' + accessToken);
+						let responseBody = await response.text();
+						if (responseBody == "Success") {
+							verifySkipSuccessButton.style.display = "block";
+							verifySkipButton.style.display = "none";
 						} else {
 							confirm(responseBody);
 						}

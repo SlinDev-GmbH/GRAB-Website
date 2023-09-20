@@ -259,7 +259,7 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
-            #hideButton, #unverifyButton {
+            #hideButton, #unverifyButton, #verifySkipSuccessButton {
                 height: 30px;
                 font-weight: bold;
                 background-color: red;
@@ -275,7 +275,7 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
-            .creatorButton, #verifyButton {
+            .creatorButton, #verifyButton, #verifySkipButton {
                 height: 30px;
                 font-weight: bold;
                 background-color: green;
@@ -330,6 +330,8 @@
         <div id="moderationcontainer" class="moderationinfo">
             <button id="verifyButton" style="display: none;">Verify</button>
             <button id="unverifyButton" style="display: none;">Unverify</button>
+            <button id="verifySkipButton" style="display: none;">Skip</button>
+            <button id="verifySkipSuccessButton" style="display: none;">Skipped</button>
             <div id="hidecontainer" style="display: none;">
                 <div id="reports" style="display: none;">
                     <b><p id="reportsTitle">Reports:</p></b>
