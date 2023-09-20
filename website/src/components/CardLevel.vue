@@ -24,7 +24,8 @@ export default {
   props: {
     item: Object,
     moderationItem : Object,
-    index: Number
+    index: Number,
+    listType: String
   },
 
   data() {
@@ -97,7 +98,7 @@ export default {
     },
 
     isVerifyQueue() {
-      return document.location.href.includes('tab_verify_queue');
+      return this.listType == 'tab_verify_queue';
     },
 
     ...mapState(useUserStore, ['isModerator']),
@@ -128,16 +129,6 @@ export default {
     setListIndex(index) {
       const userStore = useUserStore()
       userStore.setListIndex(index)
-    },
-
-    handleHideClick(hide) {
-      if (hide) {
-        this.cardColor = 'lightcoral';
-        this.item.hidden = true;
-      } else {
-        this.cardColor = 'white';
-        this.item.hidden = false;
-      }
     }
   }
 }
