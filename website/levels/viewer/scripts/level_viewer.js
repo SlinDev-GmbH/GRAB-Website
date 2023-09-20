@@ -251,13 +251,12 @@ function init()
 				if(previousListItem && "object_info" in previousListItem) {
 					previousListItem = previousListItem["object_info"]
 				}
-
 				nextButton.addEventListener("click", function() {
-					location.href = "/levels/viewer/?level=" + nextListItem.identifier;
+					location.href = "/levels/viewer/?level=" + nextListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
 					userStore.setListIndex(listIndex + 1);
 				});
 				backButton.addEventListener("click", function() {
-					location.href = "/levels/viewer/?level=" + previousListItem.identifier;
+					location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
 					userStore.setListIndex(listIndex - 1);
 				});
 				if ((nextListItem && document.referrer.includes(nextListItem.identifier)) || (previousListItem && document.referrer.includes(previousListItem.identifier)) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
@@ -274,7 +273,9 @@ function init()
 				const verifySkipSuccessButton = document.getElementById("verifySkipSuccessButton");
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";
-				verifySkipButton.style.display = "block";
+				if (window.location.href.includes('verify_queue')) {
+					verifySkipButton.style.display = "block";
+				}
 				verifySkipSuccessButton.style.display = "none";
 				if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
 				{
