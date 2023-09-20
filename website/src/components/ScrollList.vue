@@ -148,7 +148,7 @@ export default {
   <div class="grid-container">
     <div v-for="(item, index) in items" :key="index" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
-      <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :index="index" @more="showOtherUserLevels" />
+      <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :index="index" :listType="listType" @more="showOtherUserLevels" />
     </div>
   </div>
   <div v-if="loading" class="loading">Loading more items...</div>
