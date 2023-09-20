@@ -124,6 +124,16 @@ export default {
     setListIndex(index) {
       const userStore = useUserStore()
       userStore.setListIndex(index)
+    },
+
+    handleHideClick(hide) {
+      if (hide) {
+        this.cardColor = 'lightcoral';
+        this.item.hidden = true;
+      } else {
+        this.cardColor = 'white';
+        this.item.hidden = false;
+      }
     }
   }
 }
