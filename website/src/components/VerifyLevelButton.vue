@@ -3,6 +3,7 @@ import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
 import { setLevelTagsRequest } from '../requests/SetLevelTagsRequest.js'
+import { removeLevelFromVerificationQueueRequest } from '../requests/RemoveLevelFromVerificationQueueRequest.js'
 
 export default {
   props: {
@@ -37,6 +38,8 @@ export default {
         this.isVerified = oldState
         return
       }
+
+      await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)
     }
   }
 }

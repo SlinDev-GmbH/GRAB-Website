@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/user'
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
+import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
 
@@ -13,6 +14,7 @@ export default {
     ReportModerationTools,
     VerifyLevelButton,
     HideLevelButton,
+    UnhideLevelButton,
     FavoriteLevelButton,
     ReportLevelButton
   },
@@ -90,6 +92,10 @@ export default {
       return this.moderationItem !== null
     },
 
+    isHidden() {
+      return this.item.hidden === true
+    },
+
     ...mapState(useUserStore, ['isModerator']),
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['isLoggedIn'])
@@ -131,7 +137,8 @@ export default {
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
-    <HideLevelButton v-if="isAdmin && !isModerationCell" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
+    <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
     <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
