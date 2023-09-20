@@ -96,6 +96,10 @@ export default {
       return this.item.hidden === true
     },
 
+    isVerifyQueue() {
+      return document.location.href.includes('tab_verify_queue');
+    },
+
     ...mapState(useUserStore, ['isModerator']),
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['isLoggedIn'])
@@ -152,7 +156,7 @@ export default {
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
     <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
-    <a target="_blank" :href="viewerURL" class="play-button" @click="setListIndex(index)">OPEN</a>
+    <a target="_blank" :href="viewerURL + (isVerifyQueue ? '?verify_queue' : '')" class="play-button" @click="setListIndex(index)">OPEN</a>
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>
 </template>
