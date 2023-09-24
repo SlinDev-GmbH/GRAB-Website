@@ -203,7 +203,7 @@ function init()
 			userID = levelIdentifierParts[0];
 			console.log(userID);
 
-			if(detailResponseBody.hidden === true && !userStore.is_admin)
+			if(detailResponseBody.hidden === true && !userStore.isAdmin)
 			{
 				//Don't load hidden levels unless this is an admin
 				titleLabel.innerHTML = '<b>NOT AVAILABLE</b>';
