@@ -36,7 +36,7 @@ export default {
       let searchTerm = term
       if(searchTerm && searchTerm.length > 0)
       {
-        searchTerm = searchTerm.toLowerCase().replace(/[^a-z0-9]/g, '')
+        searchTerm = searchTerm.toLowerCase().replace(/[^a-z0-9]/g, ' ')
       }
       this.$emit('searchChanged', searchTerm)
     }, 500);
@@ -59,7 +59,7 @@ export default {
     <button v-if="isAdmin" :class="tabActive==='tab_reported_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_users')" id="tab_reported_users">Reported Users</button>
     <button v-if="isAdmin" :class="tabActive==='tab_banned_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_banned_users')" id="tab_banned_users">Banned Users</button>
     <button v-if="isAdmin" :class="tabActive==='tab_hidden'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_hidden')" id="tab_hidden">Hidden Levels</button>
-    <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)">
+    <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)" :value="searchTerm">
   </div>
 </template>
 
