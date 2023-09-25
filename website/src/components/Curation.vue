@@ -30,14 +30,11 @@ export default {
   },
 
   methods: {
-    // This function adds a new levels to the list
-		async addLevels() {
-		    let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
-		    if(levelIds !== null)
-			{
+		async addLevels() { // adds a new levels to the list
+      let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
+      if (levelIds !== null) {
 				let ids = levelIds.split("\n");
-				for(const id of ids)
-				{
+				for (const id of ids) {
 					let parts = id.split("level=");
 					let levelId = parts[1];
 					await fetch(this.$api_server_url + 'details/' + levelId.split(":").join("/")).then(response => {
@@ -60,17 +57,14 @@ export default {
         });
       });
     },
-		
-		// This function removes the selected level from the list
-		removeLevel() {
+
+		removeLevel() { // removes the selected level from the list
 			let index = document.getElementById("levelList").selectedIndex;
-			let levelId = this.levelList[index];
 			this.levelList.splice(index, 1);
 			this.displayList();
 		},
-		
-		// This function moves the selected level up by one
-		moveLevelUp() {
+
+		moveLevelUp() { // moves the selected level up by one
 			let index = document.getElementById("levelList").selectedIndex;
 			if (index > 0) {
 				let levelId = this.levelList[index];
@@ -81,9 +75,8 @@ export default {
 				document.getElementById("levelList").selectedIndex = index - 1;
 			}
 		},
-		
-		// This function moves the selected level down by one
-		moveLevelDown() {
+
+		moveLevelDown() { // moves the selected level down by one
 			let index = document.getElementById("levelList").selectedIndex;
 			if (index < this.levelList.length - 1) {
 				let levelId = this.levelList[index];
@@ -95,18 +88,16 @@ export default {
 			}
 		},
 		
-		// This function sends all updates to the server
-		sendUpdates() {
-			if(!this.accessToken) {
+		sendUpdates() { // sends all updates to the server
+			if (!this.accessToken) {
 				alert("No access token!");
 				return;
 			}
-
 			let type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
 		  for (let i = 0; i < this.levelList.length; i++) {
 		    let levelId = this.levelList[i]["identifier"];
 		    let position = this.oldLevelList.findIndex(obj => obj.identifier === levelId);
-		    if(position !== i) {
+		    if (position !== i) {
 		      fetch(this.$api_server_url + 'add_to_curated_list?' + 'level_id=' + levelId + '&list_key=' + type + '&level_key=' + i.toString().padStart(8, '0') + '&access_token=' + this.accessToken);
 		    }
 		  }
@@ -120,8 +111,7 @@ export default {
 		  this.oldLevelList = this.levelList.slice();
 		},
 
-		// This function displays the list in the page
-		displayTypeSelector() {
+		displayTypeSelector() { // displays the list in the page
 			this.typeSelector.innerHTML = '';
 			for (let i = 0; i < this.typesList.length; i++) {
 				let type = this.typesList[i];
@@ -131,9 +121,8 @@ export default {
 				this.typeSelector.appendChild(option);
 			}
 		},
-		
-		// This function displays the list in the page
-		displayList() {
+
+		displayList() { // displays the list in the page
 			let listElement = document.getElementById('levelList');
 			listElement.innerHTML = '';
 			listElement.size = this.levelList.length;
@@ -145,12 +134,12 @@ export default {
 				listElement.appendChild(option);
 			}
 		},
+
     addNewList() {
-			if(!this.accessToken) {
+			if (!this.accessToken) {
 				alert("No access token!");
 				return;
 			}
-
 			const name = prompt("Please enter the name of the new list:");
 			if (name) {
 				fetch(this.$api_server_url + 'add_curated_list?' + "name=" + name + "&access_token=" + this.accessToken).then(response => {
@@ -163,7 +152,7 @@ export default {
 		},
 
     removeList() {
-			if(!this.accessToken) {
+			if (!this.accessToken) {
 				alert("No access token!");
 				return;
 			}
@@ -250,16 +239,22 @@ select:focus-visible {
     justify-content: flex-end;
     margin-bottom: 10px;
 }
-.button {
+.button, #controls input {
     font-size: 20px;
     padding: 10px;
     margin-left: 10px;
     width: 20%;
-    border-radius: 10px;
-    border: 2px solid #ccc;
-    background-color: #555;
     color: #fff;
     cursor: pointer;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+}
+#add-new-list-button {
+    background-color: #00bc87;
+}
+#remove-list-button {
+    background-color: red;
 }
 #container {
     margin: 0 auto;
@@ -267,7 +262,7 @@ select:focus-visible {
     width: 100%;
     display: block;
     height: 0;
-        padding-block: 0;
+    padding-block: 0;
 }
 #levelList {
     float: left;
@@ -285,19 +280,22 @@ select:focus-visible {
     width: 27%;
 }
 #controls input {
-    font-size: 20px;
-    padding: 10px;
     margin: 10px;
     width: 100%;
-    border-radius: 10px;
-    border: 2px solid #ccc;
-    background-color: #555;
-    color: #fff;
-    cursor: pointer;
     margin-right: 0;
-        margin-left: 20px;
+    margin-left: 20px;
+    background-color: #555;
 }
 #controls input:nth-child(1) {
     margin-top: 0;
+}
+#controls #send-button {
+    background-color: #00bc87;
+}
+#controls #add-levels-button {
+    background-color: #00bc87;
+}
+#controls #remove-levels-button {
+    background-color: red;
 }
 </style>
