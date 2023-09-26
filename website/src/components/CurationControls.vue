@@ -3,19 +3,19 @@ import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import { AddToCuratedListRequest } from '../requests/AddToCuratedListRequest.js'
 import { RemoveFromCuratedListRequest } from '../requests/RemoveFromCuratedListRequest.js'
+import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
 
 export default {
     props: {
         typeSelector: Object,
         oldLevelList: Array,
         levelList: Array,
-        typesList: Array,
     },
 
     computed: {
         ...mapState(useUserStore, ['accessToken'])
     },
-    
+
     emits: ['handled'],
 
     methods: {
@@ -26,12 +26,11 @@ export default {
 				for (const id of ids) {
 					let parts = id.split("level=");
 					let levelId = parts[1];
-					await fetch(this.$api_server_url + 'details/' + levelId.split(":").join("/")).then(response => {
-						response.json().then(data => {
-							this.levelList.push(data);			
-                            this.$emit('handled', true)
-						});
-					});
+					const results = await GetLevelDetailsRequest(this.$api_server_url, levelId)
+                    if (results) {
+                        this.levelList.push(results);			
+                        this.$emit('handled', this.levelList)
+                    }
 				}
 			}
 		},
@@ -39,7 +38,7 @@ export default {
         removeLevel() {
             let index = document.getElementById("levelList").selectedIndex;
             this.levelList.splice(index, 1);
-            this.$emit('handled', true)
+            this.$emit('handled', this.levelList)
         },
         
 		moveLevelUp() {
@@ -49,7 +48,7 @@ export default {
 				let temp = this.levelList[index - 1];
 				this.levelList[index - 1] = levelId;
 				this.levelList[index] = temp;
-                this.$emit('handled', true)
+                this.$emit('handled', this.levelList)
 				document.getElementById("levelList").selectedIndex = index - 1;
 			}
 		},
@@ -61,7 +60,7 @@ export default {
 				let temp = this.levelList[index + 1];
 				this.levelList[index + 1] = levelId;
 				this.levelList[index] = temp;
-                this.$emit('handled', true)
+                this.$emit('handled', this.levelList)
 				document.getElementById("levelList").selectedIndex = index + 1;
 			}
 		},

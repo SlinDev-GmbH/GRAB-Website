@@ -2,16 +2,14 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import CurationControls from './CurationControls.vue'
-// import CurationSelector from './CurationSelector.vue'
-// import CurationList from './CurationList.vue'
 import NewCurationButton from './NewCurationButton.vue'
 import RemoveCurationButton from './RemoveCurationButton.vue'
+import { listRequest } from '../requests/ListRequest'
+import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
 export default {
   components: {
     CurationControls,
-    // CurationSelector,
-    // CurationList,
     NewCurationButton,
     RemoveCurationButton,
   },
@@ -30,28 +28,25 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
     this.typeSelector = document.getElementById("typeSelector");
-    // This stores the original level list as it is on the server
-    fetch(this.$api_server_url + 'get_curated_lists').then(response => {
-      response.json().then(data => {
-        this.typesList = data;
-        this.displayTypeSelector();
-        this.handleTypeChange();
-      });
-    });
+    const result = await GetCuratedListsRequest(this.$api_server_url)
+    if (result) {
+      this.typesList = result;
+      this.displayTypeSelector();
+      this.handleTypeChange();
+    }
   },
 
   methods: {
-    handleTypeChange() {
+    async handleTypeChange() {
       let type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
-      fetch(this.$api_server_url + 'list?max_format_version=8&type=curated_' + type).then(response => {
-        response.json().then(data => {
-          this.oldLevelList = data;
-          this.levelList = this.oldLevelList.slice();
-          this.displayList();
-        });
-      });
+      const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${type}`, false, this.$max_level_format_version, false, false)
+      if (result) {
+        this.oldLevelList = result;
+        this.levelList = this.oldLevelList.slice();
+        this.displayList();
+      }
     },
 
 		displayTypeSelector() {
@@ -77,6 +72,13 @@ export default {
 				listElement.appendChild(option);
 			}
 		},
+
+    handleControlsUpdate(list) {
+      if (list) {
+        this.levelList = list;
+        this.displayList();
+      }
+    }
   }
 }
 </script>
@@ -84,15 +86,15 @@ export default {
 <template>
   <h1>Curated Level Lists</h1>
 	<div id="buttonWrapper">
-		<NewCurationButton :typeSelector="typeSelector" :oldLevelList="oldLevelList" :levelList="levelList" :typesList="typesList" @handled="displayTypeSelector"/>
-		<RemoveCurationButton :typeSelector="typeSelector" :oldLevelList="oldLevelList" :levelList="levelList" :typesList="typesList" @handled="displayTypeSelector"/>
+		<NewCurationButton :typesList="typesList" @handled="displayTypeSelector"/>
+		<RemoveCurationButton :typesList="typesList" @handled="displayTypeSelector"/>
 	</div>
 	<div id="typeSelectorWrapper">
 		<select id="typeSelector" @change="handleTypeChange"></select>
 	</div>
 	<div id="container">
 		<select id="levelList"></select>
-		<CurationControls :typeSelector="typeSelector" :oldLevelList="oldLevelList" :levelList="levelList" :typesList="typesList" @handled="displayList"/>
+		<CurationControls :typeSelector="typeSelector" :oldLevelList="oldLevelList" :levelList="levelList" @handled="handleControlsUpdate"/>
 	</div>
 </template>
 
