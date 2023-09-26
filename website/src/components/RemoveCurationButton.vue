@@ -5,9 +5,6 @@ import { RemoveCuratedListRequest } from '../requests/RemoveCuratedListRequest.j
 
 export default {
     props: {
-        typeSelector: Object,
-        oldLevelList: Array,
-        levelList: Array,
         typesList: Array,
     },
 
@@ -25,7 +22,7 @@ export default {
             }
             const name = prompt("Please enter the name of the list to remove:");
             if (name) {
-                result = await RemoveCuratedListRequest(this.$api_server_url, accessToken, name);
+                const result = await RemoveCuratedListRequest(this.$api_server_url, accessToken, name);
                 if (result) {
                     this.typesList = result;
                     this.$emit('handled', true)

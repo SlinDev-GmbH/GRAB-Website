@@ -5,9 +5,6 @@ import { AddCuratedListRequest } from '../requests/AddCuratedListRequest.js'
 
 export default {
     props: {
-        typeSelector: Object,
-        oldLevelList: Array,
-        levelList: Array,
         typesList: Array,
     },
 
@@ -25,7 +22,7 @@ export default {
             }
             const name = prompt("Please enter the name of the new list:");
             if (name) {
-                result = await AddCuratedListRequest(this.$api_server_url, accessToken, name);
+                const result = await AddCuratedListRequest(this.$api_server_url, accessToken, name);
                 if (result) {
                     this.typesList = result;
                     this.$emit('handled', true)
