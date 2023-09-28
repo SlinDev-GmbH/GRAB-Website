@@ -4,8 +4,13 @@ import { useUserStore } from '@/stores/user'
 import { AddToCuratedListRequest } from '../requests/AddToCuratedListRequest.js'
 import { RemoveFromCuratedListRequest } from '../requests/RemoveFromCuratedListRequest.js'
 import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
+import CurationLevelCard from './CurationLevelCard.vue'
 
 export default {
+    components: {
+        CurationLevelCard
+    },
+
     props: {
         typeSelector: Object,
         oldLevelList: Array,
@@ -15,6 +20,12 @@ export default {
     computed: {
         ...mapState(useUserStore, ['accessToken'])
     },
+    
+  data() {
+    return {
+      selected: 0
+    }
+  },
 
     emits: ['handled'],
 
@@ -36,32 +47,32 @@ export default {
 		},
     
         removeLevel() {
-            let index = document.getElementById("levelList").selectedIndex;
+            let index = this.selected;
             this.levelList.splice(index, 1);
             this.$emit('handled', this.levelList)
         },
         
 		moveLevelUp() {
-			let index = document.getElementById("levelList").selectedIndex;
+			let index = this.selected;
 			if (index > 0) {
 				let levelId = this.levelList[index];
 				let temp = this.levelList[index - 1];
 				this.levelList[index - 1] = levelId;
 				this.levelList[index] = temp;
                 this.$emit('handled', this.levelList)
-				document.getElementById("levelList").selectedIndex = index - 1;
+				this.setSelected(index - 1);
 			}
 		},
 
 		moveLevelDown() {
-			let index = document.getElementById("levelList").selectedIndex;
+			let index = this.selected;
 			if (index < this.levelList.length - 1) {
 				let levelId = this.levelList[index];
 				let temp = this.levelList[index + 1];
 				this.levelList[index + 1] = levelId;
 				this.levelList[index] = temp;
                 this.$emit('handled', this.levelList)
-				document.getElementById("levelList").selectedIndex = index + 1;
+				this.setSelected(index + 1);
 			}
 		},
 		
@@ -87,11 +98,20 @@ export default {
             }
             this.oldLevelList = this.levelList.slice();
 		},
+
+        setSelected(index) {
+            this.selected = index;
+        }
     }
 }
 </script>
 
 <template>
+    <div id="levelList">
+      <div v-for="(item, index) in levelList" :key="index" :class="'grid-item' + (index === selected ? ' selected' : '')">
+        <CurationLevelCard :item="item" @click="setSelected(index)" />
+      </div>
+    </div>
     <div id="controls">
         <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
         <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
@@ -103,6 +123,9 @@ export default {
 </template>
 
 <style>
+.selected .level-card {
+    background-color: #c3c3c3;
+}
 #controls input {
     font-size: 20px;
     padding: 10px;
