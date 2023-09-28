@@ -25,6 +25,7 @@ export default {
       oldLevelList: [],
       levelList: [],
       typesList: [],
+      selected: 0
     }
   },
 
@@ -45,7 +46,6 @@ export default {
       if (result) {
         this.oldLevelList = result;
         this.levelList = this.oldLevelList.slice();
-        this.displayList();
       }
     },
 
@@ -60,23 +60,9 @@ export default {
 			}
 		},
 
-		displayList() {
-			let listElement = document.getElementById('levelList');
-			listElement.innerHTML = '';
-			listElement.size = this.levelList.length;
-			for (let i = 0; i < this.levelList.length; i++) {
-				let levelTitle = this.levelList[i]["title"];
-				let option = document.createElement('option');
-				option.value = levelTitle;
-				option.text = levelTitle;
-				listElement.appendChild(option);
-			}
-		},
-
     handleControlsUpdate(list) {
       if (list) {
         this.levelList = list;
-        this.displayList();
       }
     }
   }
@@ -93,7 +79,6 @@ export default {
 		<select id="typeSelector" @change="handleTypeChange"></select>
 	</div>
 	<div id="container">
-		<select id="levelList"></select>
 		<CurationControls :typeSelector="typeSelector" :oldLevelList="oldLevelList" :levelList="levelList" @handled="handleControlsUpdate"/>
 	</div>
 </template>
@@ -169,7 +154,6 @@ select:focus-visible {
     font-size: 20px;
     text-align: center;
     border-radius: 10px;
-    border: 2px solid #ccc;
     width: 70%;
     margin-left: 0;
 }
