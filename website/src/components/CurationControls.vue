@@ -8,17 +8,17 @@ import CurationLevelCard from './CurationLevelCard.vue'
 import { listRequest } from '../requests/ListRequest'
 
 export default {
-    components: {
-        CurationLevelCard
-    },
+  components: {
+    CurationLevelCard
+  },
 
-    props: {
-        type: String,
-    },
+  props: {
+    type: String,
+  },
 
-    computed: {
-        ...mapState(useUserStore, ['accessToken'])
-    },
+  computed: {
+    ...mapState(useUserStore, ['accessToken'])
+  },
     
   data() {
     return {
@@ -28,45 +28,45 @@ export default {
     }
   },
 
-    created() {
-        this.updateType();
+  created() {
+    this.updateType();
+  },
+
+  watch: {
+    type: function() {
+      this.updateType();
+    }
+  },
+
+  methods: {
+    async updateType() {     
+      console.log(this.type);
+      const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${this.type}`, false, this.$max_level_format_version, false, false)
+      if (result) {
+        this.oldLevelList = result;
+        this.levelList = this.oldLevelList.slice();
+      }
     },
 
-    watch: {
-        type: function() {
-            this.updateType();
+    async addLevels() {
+      let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
+      if (levelIds !== null) {
+        let ids = levelIds.split("\n");
+        for (const id of ids) {
+          let parts = id.split("level=");
+          let levelId = parts[1];
+          const results = await GetLevelDetailsRequest(this.$api_server_url, levelId)
+          if (results) {
+              this.levelList.push(results);
+          }
         }
+      }
     },
-
-    methods: {
-        async updateType() {     
-            console.log(this.type);
-            const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${this.type}`, false, this.$max_level_format_version, false, false)
-            if (result) {
-                this.oldLevelList = result;
-                this.levelList = this.oldLevelList.slice();
-            }
-        },
-
-        async addLevels() {
-            let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
-            if (levelIds !== null) {
-				let ids = levelIds.split("\n");
-				for (const id of ids) {
-					let parts = id.split("level=");
-					let levelId = parts[1];
-					const results = await GetLevelDetailsRequest(this.$api_server_url, levelId)
-                    if (results) {
-                        this.levelList.push(results);
-                    }
-				}
-			}
-		},
     
-        removeLevel() {
-            let index = this.selected;
-            this.levelList.splice(index, 1);
-        },
+    removeLevel() {
+      let index = this.selected;
+      this.levelList.splice(index, 1);
+    },
         
 		moveLevelUp() {
 			let index = this.selected;
@@ -95,46 +95,46 @@ export default {
 				alert("No access token!");
 				return;
 			}
-            for (let i = 0; i < this.levelList.length; i++) {
-                let levelId = this.levelList[i]["identifier"];
-                let position = this.oldLevelList.findIndex(obj => obj.identifier === levelId);
-                if (position !== i) {
-                    AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type, i.toString().padStart(8, '0'));
-                    console.log(levelId, this.type, i.toString().padStart(8, '0'));
-                }
-            }
-            for (let i = 0; i < this.oldLevelList.length; i++) {
-                let levelId = this.oldLevelList[i]["identifier"];
-                let position = this.levelList.findIndex(obj => obj.identifier === levelId);
-                if (position === -1) {
-                    RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type);
-                    console.log(levelId, this.type);
-                }
-            }
-            this.oldLevelList = this.levelList.slice();
+      for (let i = 0; i < this.levelList.length; i++) {
+        let levelId = this.levelList[i]["identifier"];
+        let position = this.oldLevelList.findIndex(obj => obj.identifier === levelId);
+        if (position !== i) {
+          AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type, i.toString().padStart(8, '0'));
+          console.log(levelId, this.type, i.toString().padStart(8, '0'));
+        }
+      }
+      for (let i = 0; i < this.oldLevelList.length; i++) {
+        let levelId = this.oldLevelList[i]["identifier"];
+        let position = this.levelList.findIndex(obj => obj.identifier === levelId);
+        if (position === -1) {
+          RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type);
+          console.log(levelId, this.type);
+        }
+      }
+      this.oldLevelList = this.levelList.slice();
 		},
 
-        setSelected(index) {
-            this.selected = index;
-        }
-    }
+    setSelected(index) {
+      this.selected = index;
+    },
+  },
 }
 </script>
 
 <template>
-    <div id="levelList">
-      <div v-for="(item, index) in levelList" :key="index" :class="'grid-item' + (index === selected ? ' selected' : '')">
-        <CurationLevelCard :item="item" @click="setSelected(index)" />
-      </div>
+  <div id="levelList">
+    <div v-for="(item, index) in levelList" :key="index" :class="'grid-item' + (index === selected ? ' selected' : '')">
+      <CurationLevelCard :item="item" @click="setSelected(index)" />
     </div>
-    <div id="controls">
-      <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
-      <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
-      <input type="button" value="Move Level Up" id="move-up-button" @click="moveLevelUp"/><br />
-      <input type="button" value="Move Level Down" id="move-down-button" @click="moveLevelDown"/><br />
-      <br>
-      <input type="button" value="Send" id="send-button" @click="sendUpdates"/>
-    </div>
+  </div>
+  <div id="controls">
+    <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
+    <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
+    <input type="button" value="Move Level Up" id="move-up-button" @click="moveLevelUp"/><br />
+    <input type="button" value="Move Level Down" id="move-down-button" @click="moveLevelDown"/><br />
+    <br>
+    <input type="button" value="Send" id="send-button" @click="sendUpdates"/>
+  </div>
 </template>
 
 <style>
@@ -177,5 +177,4 @@ export default {
 #controls #remove-levels-button {
     background-color: red;
 }
-
 </style>
