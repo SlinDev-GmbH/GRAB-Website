@@ -4,7 +4,6 @@ import { useUserStore } from '@/stores/user'
 import CurationControls from './CurationControls.vue'
 import NewCurationButton from './NewCurationButton.vue'
 import RemoveCurationButton from './RemoveCurationButton.vue'
-import { listRequest } from '../requests/ListRequest'
 import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
 export default {
@@ -22,15 +21,13 @@ export default {
   data() {
     return {
       typeSelector: null,
-      oldLevelList: [],
-      levelList: [],
       typesList: [],
-      selected: 0
+      selected: 0,
+      type: ""
     }
   },
 
-  async mounted() {
-    this.typeSelector = document.getElementById("typeSelector");
+  async created() {
     const result = await GetCuratedListsRequest(this.$api_server_url)
     if (result) {
       this.typesList = result;
@@ -39,14 +36,13 @@ export default {
     }
   },
 
+  mounted() {
+    this.typeSelector = document.getElementById("typeSelector");
+  },
+
   methods: {
     async handleTypeChange() {
-      let type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
-      const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${type}`, false, this.$max_level_format_version, false, false)
-      if (result) {
-        this.oldLevelList = result;
-        this.levelList = this.oldLevelList.slice();
-      }
+      this.type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
     },
 
 		displayTypeSelector() {
@@ -58,13 +54,7 @@ export default {
 				option.text = type;
 				this.typeSelector.appendChild(option);
 			}
-		},
-
-    handleControlsUpdate(list) {
-      if (list) {
-        this.levelList = list;
-      }
-    }
+		}
   }
 }
 </script>
@@ -79,7 +69,7 @@ export default {
 		<select id="typeSelector" @change="handleTypeChange"></select>
 	</div>
 	<div id="container">
-		<CurationControls :typeSelector="typeSelector" :oldLevelList="oldLevelList" :levelList="levelList" @handled="handleControlsUpdate"/>
+		<CurationControls :type="type"/>
 	</div>
 </template>
 

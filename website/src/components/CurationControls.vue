@@ -5,6 +5,7 @@ import { AddToCuratedListRequest } from '../requests/AddToCuratedListRequest.js'
 import { RemoveFromCuratedListRequest } from '../requests/RemoveFromCuratedListRequest.js'
 import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
 import CurationLevelCard from './CurationLevelCard.vue'
+import { listRequest } from '../requests/ListRequest'
 
 export default {
     components: {
@@ -12,9 +13,7 @@ export default {
     },
 
     props: {
-        typeSelector: Object,
-        oldLevelList: Array,
-        levelList: Array,
+        type: String,
     },
 
     computed: {
@@ -23,13 +22,32 @@ export default {
     
   data() {
     return {
-      selected: 0
+      selected: 0,
+      oldLevelList: [],
+      levelList: []
     }
   },
 
-    emits: ['handled'],
+    created() {
+        this.updateType();
+    },
+
+    watch: {
+        type: function() {
+            this.updateType();
+        }
+    },
 
     methods: {
+        async updateType() {     
+            console.log(this.type);
+            const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${this.type}`, false, this.$max_level_format_version, false, false)
+            if (result) {
+                this.oldLevelList = result;
+                this.levelList = this.oldLevelList.slice();
+            }
+        },
+
         async addLevels() {
             let levelIds = prompt("Please enter the list of URLs, each one in a new line: ");
             if (levelIds !== null) {
@@ -39,8 +57,7 @@ export default {
 					let levelId = parts[1];
 					const results = await GetLevelDetailsRequest(this.$api_server_url, levelId)
                     if (results) {
-                        this.levelList.push(results);			
-                        this.$emit('handled', this.levelList)
+                        this.levelList.push(results);
                     }
 				}
 			}
@@ -49,7 +66,6 @@ export default {
         removeLevel() {
             let index = this.selected;
             this.levelList.splice(index, 1);
-            this.$emit('handled', this.levelList)
         },
         
 		moveLevelUp() {
@@ -59,7 +75,6 @@ export default {
 				let temp = this.levelList[index - 1];
 				this.levelList[index - 1] = levelId;
 				this.levelList[index] = temp;
-                this.$emit('handled', this.levelList)
 				this.setSelected(index - 1);
 			}
 		},
@@ -71,7 +86,6 @@ export default {
 				let temp = this.levelList[index + 1];
 				this.levelList[index + 1] = levelId;
 				this.levelList[index] = temp;
-                this.$emit('handled', this.levelList)
 				this.setSelected(index + 1);
 			}
 		},
@@ -81,19 +95,20 @@ export default {
 				alert("No access token!");
 				return;
 			}
-			let type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
             for (let i = 0; i < this.levelList.length; i++) {
                 let levelId = this.levelList[i]["identifier"];
                 let position = this.oldLevelList.findIndex(obj => obj.identifier === levelId);
                 if (position !== i) {
-                    AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, type, i.toString().padStart(8, '0'));
+                    AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type, i.toString().padStart(8, '0'));
+                    console.log(levelId, this.type, i.toString().padStart(8, '0'));
                 }
             }
             for (let i = 0; i < this.oldLevelList.length; i++) {
                 let levelId = this.oldLevelList[i]["identifier"];
                 let position = this.levelList.findIndex(obj => obj.identifier === levelId);
                 if (position === -1) {
-                    RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, type);
+                    RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type);
+                    console.log(levelId, this.type);
                 }
             }
             this.oldLevelList = this.levelList.slice();
@@ -113,12 +128,12 @@ export default {
       </div>
     </div>
     <div id="controls">
-        <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
-        <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
-        <input type="button" value="Move Level Up" id="move-up-button" @click="moveLevelUp"/><br />
-        <input type="button" value="Move Level Down" id="move-down-button" @click="moveLevelDown"/><br />
-        <br>
-        <input type="button" value="Send" id="send-button" @click="sendUpdates"/>
+      <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
+      <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
+      <input type="button" value="Move Level Up" id="move-up-button" @click="moveLevelUp"/><br />
+      <input type="button" value="Move Level Down" id="move-down-button" @click="moveLevelDown"/><br />
+      <br>
+      <input type="button" value="Send" id="send-button" @click="sendUpdates"/>
     </div>
 </template>
 
