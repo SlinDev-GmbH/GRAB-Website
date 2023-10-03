@@ -47,7 +47,7 @@ export async function listRequest(server, accessToken, listType, searchTerm, max
     requestURL = server + 'report_list?type=banned_user';
     wantsAccessToken = true
   }
-  else if (listType.includes('curated'))
+  else if (listType.includes('curated_'))
   {
     requestURL += `&type=${listType}`
   }
