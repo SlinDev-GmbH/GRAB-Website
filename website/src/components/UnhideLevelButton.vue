@@ -9,6 +9,10 @@ export default {
     level_id : String
   },
 
+  computed: {
+    ...mapState(useUserStore, ['accessToken'])
+  },
+
   methods: {
     async doModerationAction() {
       if(!await unhideLevelRequest(this.$api_server_url, this.accessToken, this.level_id)) return
