@@ -36,7 +36,7 @@ export default {
       let searchTerm = term
       if(searchTerm && searchTerm.length > 0)
       {
-        searchTerm = searchTerm.toLowerCase().replace(/[^a-z0-9]/g, '')
+        searchTerm = searchTerm.toLowerCase().replace(/[^a-z0-9]/g, ' ')
       }
       this.$emit('searchChanged', searchTerm)
     }, 500);
