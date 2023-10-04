@@ -45,8 +45,12 @@ export default {
 	  this.type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
 	},
 
-	displayTypeSelector(typesList) {
+	handleTypeListUpdate(typesList) {
 		this.typesList = typesList
+		this.displayTypeSelector()
+	},
+
+	displayTypeSelector() {
 		this.typeSelector.innerHTML = '';
 		for (let i = 0; i < this.typesList.length; i++) {
 			let type = this.typesList[i];
@@ -63,8 +67,8 @@ export default {
 <template>
   <h1>Curated Level Lists</h1>
 	<div id="buttonWrapper">
-		<NewCurationButton :typesList="typesList" @handled="displayTypeSelector"/>
-		<RemoveCurationButton :typesList="typesList" @handled="displayTypeSelector"/>
+		<NewCurationButton :typesList="typesList" @handled="handleTypeListUpdate"/>
+		<RemoveCurationButton :typesList="typesList" @handled="handleTypeListUpdate"/>
 	</div>
 	<div id="typeSelectorWrapper">
 		<select id="typeSelector" @change="handleTypeChange"></select>
