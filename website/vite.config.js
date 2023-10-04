@@ -20,7 +20,6 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         'levels/viewer': resolve(__dirname, 'levels/viewer/index.html'),
         'curation': resolve(__dirname, 'curation/index.html'),
-        'levels-old': resolve(__dirname, 'levels-old/index.html'),
       },
     },
     outDir: resolve(__dirname, "../public"),
