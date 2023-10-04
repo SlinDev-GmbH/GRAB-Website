@@ -22,7 +22,7 @@ export default {
             }
             const name = prompt("Please enter the name of the new list:");
             if (name) {
-                const result = await AddCuratedListRequest(this.$api_server_url, accessToken, name);
+                const result = await AddCuratedListRequest(this.$api_server_url, this.accessToken, name);
                 if (result) {
                     this.typesList = result;
                     this.$emit('handled', true)
