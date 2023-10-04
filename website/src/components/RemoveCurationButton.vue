@@ -25,7 +25,7 @@ export default {
                 const result = await RemoveCuratedListRequest(this.$api_server_url, this.accessToken, name);
                 if (result) {
                     this.typesList = result;
-                    this.$emit('handled', true)
+                    this.$emit('handled', result)
                 }
             }
         },
