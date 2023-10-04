@@ -35,6 +35,8 @@ import textureBouncingURL from '../textures/bouncing.png'
 let userID = undefined;
 
 let clock, camera, scene, renderer, controls;
+let animatedObjects = []
+let animationTime = 0.0
 let textureLoader;
 let gltfLoader;
 let shapes = [];
@@ -42,6 +44,9 @@ let objects = []
 let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
+
+let extraRotate = new THREE.Quaternion();
+extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
 
 init();
 
@@ -510,39 +515,41 @@ function init()
 				material.uniforms["sunDirection"] = { value: skySunDirection }
 			}
 
-			let extraRotate = new THREE.Quaternion();
-			extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
-
 			let signCounter = 0;
 			let realComplexity = 0;
 
 			const loadLevelNodes = function(nodes, parentNode){
 				for(let node of nodes)
 				{
+					let object = undefined
 					if(node.levelNodeGroup)
 					{
-						let cube = new THREE.Object3D()
-						parentNode.add(cube);
-						cube.position.x = node.levelNodeGroup.position.x
-						cube.position.y = node.levelNodeGroup.position.y
-						cube.position.z = node.levelNodeGroup.position.z
+						object = new THREE.Object3D()
+						parentNode.add(object);
+						object.position.x = node.levelNodeGroup.position.x
+						object.position.y = node.levelNodeGroup.position.y
+						object.position.z = node.levelNodeGroup.position.z
 
-						cube.scale.x = node.levelNodeGroup.scale.x
-						cube.scale.y = node.levelNodeGroup.scale.y
-						cube.scale.z = node.levelNodeGroup.scale.z
+						object.scale.x = node.levelNodeGroup.scale.x
+						object.scale.y = node.levelNodeGroup.scale.y
+						object.scale.z = node.levelNodeGroup.scale.z
 
-						cube.quaternion.x = node.levelNodeGroup.rotation.x
-						cube.quaternion.y = node.levelNodeGroup.rotation.y
-						cube.quaternion.z = node.levelNodeGroup.rotation.z
-						cube.quaternion.w = node.levelNodeGroup.rotation.w
+						object.quaternion.x = node.levelNodeGroup.rotation.x
+						object.quaternion.y = node.levelNodeGroup.rotation.y
+						object.quaternion.z = node.levelNodeGroup.rotation.z
+						object.quaternion.w = node.levelNodeGroup.rotation.w
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+						object.isGroup = true
 
 						/*if(parentNode == scene)
 						{
-							let rotation = cube.quaternion.multiply(extraRotate)
-							cube.setRotationFromQuaternion(rotation)
+							let rotation = object.quaternion.multiply(extraRotate)
+							object.setRotationFromQuaternion(rotation)
 						}*/
 
-						loadLevelNodes(node.levelNodeGroup.childNodes, cube)
+						loadLevelNodes(node.levelNodeGroup.childNodes, object)
 
 						//realComplexity += 1
 					}
@@ -562,31 +569,34 @@ function init()
 							newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
 						}
 
-						let cube = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
-						parentNode.add(cube);
-						cube.position.x = node.levelNodeStatic.position.x
-						cube.position.y = node.levelNodeStatic.position.y
-						cube.position.z = node.levelNodeStatic.position.z
+						object = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
+						parentNode.add(object);
+						object.position.x = node.levelNodeStatic.position.x
+						object.position.y = node.levelNodeStatic.position.y
+						object.position.z = node.levelNodeStatic.position.z
 
-						cube.scale.x = node.levelNodeStatic.scale.x
-						cube.scale.y = node.levelNodeStatic.scale.y
-						cube.scale.z = node.levelNodeStatic.scale.z
+						object.scale.x = node.levelNodeStatic.scale.x
+						object.scale.y = node.levelNodeStatic.scale.y
+						object.scale.z = node.levelNodeStatic.scale.z
 
-						cube.quaternion.x = node.levelNodeStatic.rotation.x
-						cube.quaternion.y = node.levelNodeStatic.rotation.y
-						cube.quaternion.z = node.levelNodeStatic.rotation.z
-						cube.quaternion.w = node.levelNodeStatic.rotation.w
+						object.quaternion.x = node.levelNodeStatic.rotation.x
+						object.quaternion.y = node.levelNodeStatic.rotation.y
+						object.quaternion.z = node.levelNodeStatic.rotation.z
+						object.quaternion.w = node.levelNodeStatic.rotation.w
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
 
 						//if(parentNode == scene)
 						{
-							let rotation = cube.quaternion.multiply(extraRotate)
-							cube.setRotationFromQuaternion(rotation)
+							let rotation = object.quaternion.multiply(extraRotate)
+							object.setRotationFromQuaternion(rotation)
 						}
 
 						let targetVector = new THREE.Vector3()
 						let targetQuaternion = new THREE.Quaternion()
 						let worldMatrix = new THREE.Matrix4()
-						worldMatrix.compose(cube.getWorldPosition(targetVector), cube.getWorldQuaternion(targetQuaternion), cube.getWorldScale(targetVector))
+						worldMatrix.compose(object.getWorldPosition(targetVector), object.getWorldQuaternion(targetQuaternion), object.getWorldScale(targetVector))
 
 						let normalMatrix = new THREE.Matrix3()
 						normalMatrix.getNormalMatrix(worldMatrix)
@@ -600,31 +610,34 @@ function init()
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
 
-						let cube = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
-						parentNode.add(cube);
-						cube.position.x = node.levelNodeCrumbling.position.x
-						cube.position.y = node.levelNodeCrumbling.position.y
-						cube.position.z = node.levelNodeCrumbling.position.z
+						object = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
+						parentNode.add(object);
+						object.position.x = node.levelNodeCrumbling.position.x
+						object.position.y = node.levelNodeCrumbling.position.y
+						object.position.z = node.levelNodeCrumbling.position.z
 
-						cube.scale.x = node.levelNodeCrumbling.scale.x
-						cube.scale.y = node.levelNodeCrumbling.scale.y
-						cube.scale.z = node.levelNodeCrumbling.scale.z
+						object.scale.x = node.levelNodeCrumbling.scale.x
+						object.scale.y = node.levelNodeCrumbling.scale.y
+						object.scale.z = node.levelNodeCrumbling.scale.z
 
-						cube.quaternion.x = node.levelNodeCrumbling.rotation.x
-						cube.quaternion.y = node.levelNodeCrumbling.rotation.y
-						cube.quaternion.z = node.levelNodeCrumbling.rotation.z
-						cube.quaternion.w = node.levelNodeCrumbling.rotation.w
+						object.quaternion.x = node.levelNodeCrumbling.rotation.x
+						object.quaternion.y = node.levelNodeCrumbling.rotation.y
+						object.quaternion.z = node.levelNodeCrumbling.rotation.z
+						object.quaternion.w = node.levelNodeCrumbling.rotation.w
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
 
 						//if(parentNode == scene)
 						{
-							let rotation = cube.quaternion.multiply(extraRotate)
-							cube.setRotationFromQuaternion(rotation)
+							let rotation = object.quaternion.multiply(extraRotate)
+							object.setRotationFromQuaternion(rotation)
 						}
 
 						let targetVector = new THREE.Vector3()
 						let targetQuaternion = new THREE.Quaternion()
 						let worldMatrix = new THREE.Matrix4()
-						worldMatrix.compose(cube.getWorldPosition(targetVector), cube.getWorldQuaternion(targetQuaternion), cube.getWorldScale(targetVector))
+						worldMatrix.compose(object.getWorldPosition(targetVector), object.getWorldQuaternion(targetQuaternion), object.getWorldScale(targetVector))
 
 						let normalMatrix = new THREE.Matrix3()
 						normalMatrix.getNormalMatrix(worldMatrix)
@@ -634,32 +647,38 @@ function init()
 					}
 					else if(node.levelNodeStart)
 					{
-						let start = new THREE.Mesh(objects[0], objectMaterials[0]);
-						parentNode.add(start);
-						start.position.x = node.levelNodeStart.position.x
-						start.position.y = node.levelNodeStart.position.y
-						start.position.z = node.levelNodeStart.position.z
+						object = new THREE.Mesh(objects[0], objectMaterials[0]);
+						parentNode.add(object);
+						object.position.x = node.levelNodeStart.position.x
+						object.position.y = node.levelNodeStart.position.y
+						object.position.z = node.levelNodeStart.position.z
 
-						start.scale.x = node.levelNodeStart.radius * 2.0;
-						start.scale.z = node.levelNodeStart.radius * 2.0;
+						object.scale.x = node.levelNodeStart.radius * 2.0;
+						object.scale.z = node.levelNodeStart.radius * 2.0;
 
-						camera.position.set(start.position.x, start.position.y + 2.0, start.position.z);
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+
+						camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
 					}
 					else if(node.levelNodeFinish)
 					{
-						let finish = new THREE.Mesh(objects[0], objectMaterials[1]);
-						parentNode.add(finish);
-						finish.position.x = node.levelNodeFinish.position.x
-						finish.position.y = node.levelNodeFinish.position.y
-						finish.position.z = node.levelNodeFinish.position.z
+						object = new THREE.Mesh(objects[0], objectMaterials[1]);
+						parentNode.add(object);
+						object.position.x = node.levelNodeFinish.position.x
+						object.position.y = node.levelNodeFinish.position.y
+						object.position.z = node.levelNodeFinish.position.z
 
-						finish.scale.x = node.levelNodeFinish.radius * 2.0;
-						finish.scale.z = node.levelNodeFinish.radius * 2.0;
+						object.scale.x = node.levelNodeFinish.radius * 2.0;
+						object.scale.z = node.levelNodeFinish.radius * 2.0;
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
 
 						var goToFinishLabel = document.getElementById("go to finish");
 						goToFinishLabel.innerHTML = "Go to Finish"
 						goToFinishLabel.onclick = function() {
-							camera.position.set(finish.position.x, finish.position.y + 2.0, finish.position.z);
+							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
 						}
 					}
 					else if(node.levelNodeSign)
@@ -668,21 +687,24 @@ function init()
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
 
-						let sign = new THREE.Mesh(objects[1], newMaterial);
-						parentNode.add(sign);
-						sign.position.x = node.levelNodeSign.position.x
-						sign.position.y = node.levelNodeSign.position.y
-						sign.position.z = node.levelNodeSign.position.z
+						object = new THREE.Mesh(objects[1], newMaterial);
+						parentNode.add(object);
+						object.position.x = node.levelNodeSign.position.x
+						object.position.y = node.levelNodeSign.position.y
+						object.position.z = node.levelNodeSign.position.z
 
-						sign.quaternion.x = node.levelNodeSign.rotation.x
-						sign.quaternion.y = node.levelNodeSign.rotation.y
-						sign.quaternion.z = node.levelNodeSign.rotation.z
-						sign.quaternion.w = node.levelNodeSign.rotation.w
+						object.quaternion.x = node.levelNodeSign.rotation.x
+						object.quaternion.y = node.levelNodeSign.rotation.y
+						object.quaternion.z = node.levelNodeSign.rotation.z
+						object.quaternion.w = node.levelNodeSign.rotation.w
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
 
 						//if(parentNode == scene)
 						{
-							let rotation = sign.quaternion.multiply(extraRotate)
-							sign.setRotationFromQuaternion(rotation)
+							let rotation = object.quaternion.multiply(extraRotate)
+							object.setRotationFromQuaternion(rotation)
 						}
 
 						let signText = node.levelNodeSign.text
@@ -694,13 +716,24 @@ function init()
 							signTextElement.appendChild(document.createElement("br"));
 							signTextElement.appendChild(document.createElement("br"));
 							signTextElement.onclick = function() {
-								camera.position.set(sign.position.x, sign.position.y + 1.0, sign.position.z);
+								camera.position.set(object.position.x, object.position.y + 1.0, object.position.z);
 							}
 							moderationContainer.appendChild(signTextElement);
 						}
 
 						signCounter += 1;
 						realComplexity += 5
+					}
+
+					if(object !== undefined)
+					{
+						//Attach data of the first animation to the object (which is all the initial animation system supports anyway)
+						if(node.animations && node.animations.length > 0 && node.animations[0].frames && node.animations[0].frames.length > 0)
+						{
+							object.animation = node.animations[0]
+							object.animation.currentFrameIndex = 0
+							animatedObjects.push(object)
+						}
 					}
 				}
 			};
@@ -791,6 +824,60 @@ function init()
 	});
 }
 
+function updateObjectAnimation(object, time)
+{
+	let animation = object.animation
+	const animationFrames = animation.frames
+	const relativeTime = (time * object.animation.speed) % animationFrames[animationFrames.length - 1].time;
+		
+	//Find frames to blend between
+	let oldFrame = animationFrames[animation.currentFrameIndex];
+	let newFrameIndex = animation.currentFrameIndex + 1;
+	if(newFrameIndex >= animationFrames.length) newFrameIndex = 0;
+	let newFrame = animationFrames[newFrameIndex];
+	
+	let loopCounter = 0; //Used to prevent endless loop with only one frame or all having the same time
+	while(loopCounter <= animationFrames.length)
+	{
+		oldFrame = animationFrames[animation.currentFrameIndex];
+		newFrameIndex = animation.currentFrameIndex + 1;
+		if(newFrameIndex >= animationFrames.length) newFrameIndex = 0;
+		newFrame = animationFrames[newFrameIndex];
+		
+		if(oldFrame.time <= relativeTime && newFrame.time > relativeTime) break;
+		animation.currentFrameIndex += 1;
+		if(animation.currentFrameIndex >= animationFrames.length - 1) animation.currentFrameIndex = 0;
+		
+		loopCounter += 1;
+	}
+
+	let factor = 0.0
+	let timeDiff = (newFrame.time - oldFrame.time);
+	if(Math.abs(timeDiff) > 0.00000001) //Prevent dividing by 0 if time of both frames is equal
+	{
+		factor = (relativeTime - oldFrame.time) / timeDiff;
+	}
+
+	const oldPosition = new THREE.Vector3( oldFrame.position.x, oldFrame.position.y, oldFrame.position.z )
+	const newPosition = new THREE.Vector3( newFrame.position.x, newFrame.position.y, newFrame.position.z )
+	object.position.lerpVectors(oldPosition, newPosition, factor)
+
+	const oldRotation = new THREE.Quaternion( oldFrame.rotation.x, oldFrame.rotation.y, oldFrame.rotation.z, oldFrame.rotation.w )
+	const newRotation = new THREE.Quaternion( newFrame.rotation.x, newFrame.rotation.y, newFrame.rotation.z, newFrame.rotation.w )
+	object.quaternion.slerpQuaternions(oldRotation, newRotation, factor)
+
+	object.position.add(object.initialPosition)
+
+	let rotation = object.quaternion.multiply(object.initialRotation)
+	object.setRotationFromQuaternion(rotation)
+
+	if(object.isGroup !== true)
+	{
+		let rotation = object.quaternion.multiply(extraRotate)
+		object.setRotationFromQuaternion(rotation)
+	}
+}
+
 function onWindowResize()
 {
 	let SCREEN_HEIGHT = window.innerHeight;
@@ -806,6 +893,14 @@ function animation(time)
 {
 	const delta = clock.getDelta();
 	controls.update(delta);
+
+	animationTime += delta;
+
+	for(let object of animatedObjects)
+	{
+		//Play animation of all animated objects
+		updateObjectAnimation(object, animationTime)
+	}
 
 	renderer.render(scene, camera);
 }
