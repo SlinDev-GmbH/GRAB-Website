@@ -4,9 +4,6 @@ import { useUserStore } from '@/stores/user'
 import { RemoveCuratedListRequest } from '../requests/RemoveCuratedListRequest.js'
 
 export default {
-    props: {
-        typesList: Array,
-    },
 
     computed: {
         ...mapState(useUserStore, ['accessToken'])
@@ -24,7 +21,6 @@ export default {
             if (name) {
                 const result = await RemoveCuratedListRequest(this.$api_server_url, this.accessToken, name);
                 if (result) {
-                    this.typesList = result;
                     this.$emit('handled', result)
                 }
             }
