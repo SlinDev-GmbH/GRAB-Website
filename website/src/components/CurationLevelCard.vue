@@ -13,7 +13,11 @@ export default {
         return 'by ' + this.item.creators.join(', ')
 
       return ''
-    }
+    },
+
+    viewerURL() {
+      return 'levels/viewer/?level=' + this.item.identifier
+    },
   }
 }
 </script>
@@ -23,10 +27,26 @@ export default {
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
     <div class="description">{{ item.description }}</div>
+    <a target="_blank" :href=viewerURL class="open-button">OPEN</a>
   </div>
 </template>
 
 <style>
+.open-button {
+  display: block;
+  width: 30%;
+  line-height: 30px;
+  border: none;
+  border-radius: 10px;
+  background-color:#00BC87;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 15px;
+  text-align:center;
+  text-decoration: none;
+  margin: 10px auto 0;
+}
+
 .level-card {
   width: 100%;
   background-color: #ffffff;
