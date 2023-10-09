@@ -40,11 +40,12 @@ export default {
 
   methods: {
     async updateType() {     
-      console.log(this.type);
-      const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${this.type}`, false, this.$max_level_format_version, false, false)
-      if (result) {
-        this.oldLevelList = result;
-        this.levelList = this.oldLevelList.slice();
+      if (this.type) {
+        const result = await listRequest(this.$api_server_url, this.accessToken, `curated_${this.type}`, false, this.$max_level_format_version, false, false)
+        if (result) {
+          this.oldLevelList = result;
+          this.levelList = this.oldLevelList.slice();
+        }
       }
     },
 
