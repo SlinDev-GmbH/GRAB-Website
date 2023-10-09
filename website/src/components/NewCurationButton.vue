@@ -4,9 +4,6 @@ import { useUserStore } from '@/stores/user'
 import { AddCuratedListRequest } from '../requests/AddCuratedListRequest.js'
 
 export default {
-    props: {
-        typesList: Array,
-    },
 
     computed: {
         ...mapState(useUserStore, ['accessToken'])
@@ -33,7 +30,7 @@ export default {
 </script>
 
 <template>
-    <button class="button" id="add-new-list-button" @click="addNewList">Add New List</button>
+    <button class="button" id="add-new-list-button" @click="addNewList">Add List</button>
 </template>
 
 <style>

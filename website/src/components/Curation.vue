@@ -67,8 +67,8 @@ export default {
 <template>
   <h1>Curated Level Lists</h1>
 	<div id="buttonWrapper">
-		<NewCurationButton :typesList="typesList" @handled="handleTypeListUpdate"/>
-		<RemoveCurationButton :typesList="typesList" @handled="handleTypeListUpdate"/>
+		<NewCurationButton @handled="handleTypeListUpdate"/>
+		<RemoveCurationButton @handled="handleTypeListUpdate"/>
 	</div>
 	<div id="typeSelectorWrapper">
 		<select id="typeSelector" @change="handleTypeChange"></select>
