@@ -7,7 +7,7 @@ import Curation from './components/Curation.vue'
 const routes = [
   { path: '/', component: StartPage },
   { path: '/levels', component: LevelBrowser },
-  { path: '/curation_temp', component: Curation },
+  { path: '/curation', component: Curation },
 ]
 
 const router = createRouter({
