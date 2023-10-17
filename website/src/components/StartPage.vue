@@ -13,7 +13,6 @@ export default {
     <router-link to="/levels"><button class="start-page-button" type="button">LEVEL BROWSER</button></router-link>
     <button class="start-page-button" type="button" onclick="window.location.href = 'https://discord.slin.dev'">DISCORD</button>
   </div>
-  <iframe class="video" width="560" height="315" src="https://www.youtube-nocookie.com/embed/Qr6zxZg9Ag4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </template>
 
 
@@ -61,11 +60,5 @@ export default {
   text-align: center;
   border: none;
   cursor: pointer;
-}
-
-.video {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 </style>

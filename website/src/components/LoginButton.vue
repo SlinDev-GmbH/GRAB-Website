@@ -39,7 +39,7 @@ export default {
 
 <template>
   <button v-if="isLoggedIn" class="logout-button" type="button" @click="logout">Logout</button>
-  <button v-else class="login-button" type="button" @click="login">Login</button>
+  <button v-else class="login-button" type="button" @click="login">Login with Meta</button>
 </template>
 
 <style>
