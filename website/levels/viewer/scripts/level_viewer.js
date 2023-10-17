@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
+import * as protobuf from 'protobufjs'
 
 import { createApp } from 'vue'
 import App from '@/App.vue'
