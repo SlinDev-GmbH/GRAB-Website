@@ -142,6 +142,9 @@ export default {
 .selected .level-card {
     background-color: #c3c3c3;
 }
+.grid-item {
+  min-width: 0;
+}
 #controls input {
     font-size: 20px;
     padding: 10px;
@@ -177,5 +180,13 @@ export default {
 }
 #controls #remove-levels-button {
     background-color: red;
+}
+#levelList {
+  float: left;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 10px;
+  width: 70%;
+  margin-left: 0;
 }
 </style>

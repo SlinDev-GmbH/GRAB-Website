@@ -143,12 +143,4 @@ select:focus-visible {
 	height: 0;
 	padding-block: 0;
 }
-#levelList {
-	float: left;
-	font-size: 20px;
-	text-align: center;
-	border-radius: 10px;
-	width: 70%;
-	margin-left: 0;
-}
 </style>
