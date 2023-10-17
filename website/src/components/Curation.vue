@@ -78,7 +78,7 @@ export default {
 	</div>
 </template>
 
-<style>
+<style scoped>
 ::-webkit-scrollbar {
 	display: none;
 }

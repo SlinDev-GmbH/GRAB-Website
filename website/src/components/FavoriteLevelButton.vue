@@ -46,7 +46,7 @@ export default {
     <img v-else class="favorite-button" @click="addFavoriteLevel" src="./../assets/star_off.svg" alt="Remove from Favorites">
 </template>
 
-<style>
+<style scoped>
 .favorite-button {
     width: 7%;
     cursor: pointer;

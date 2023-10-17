@@ -33,7 +33,7 @@ export default {
     <button class="button" id="remove-list-button" @click="removeList">Remove List</button>
 </template>
 
-<style>
+<style scoped>
 #remove-list-button {
     background-color: red;
 }

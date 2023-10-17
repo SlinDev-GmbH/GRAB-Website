@@ -68,7 +68,7 @@ export default {
   </Teleport>
 </template>
 
-<style>
+<style scoped>
 .moderation-tools {
   width: 100%;
   min-height: 0px;

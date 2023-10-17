@@ -30,7 +30,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .moderation-info {
   width: 100%;
   min-height: 0px;

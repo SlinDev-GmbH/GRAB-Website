@@ -74,7 +74,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .user-card {
   width: 100%;
   height: 100%;

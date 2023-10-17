@@ -42,7 +42,7 @@ export default {
   <button v-else class="login-button" type="button" @click="login">Login with Meta</button>
 </template>
 
-<style>
+<style scoped>
 .login-button {
   width: 150px;
   height:  30px;

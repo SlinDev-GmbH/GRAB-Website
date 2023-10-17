@@ -61,7 +61,7 @@ export default {
 </template>
 
 
-<style>
+<style scoped>
 .user-tab-title-container {
   width: 100%;
   height: 50px;

@@ -64,7 +64,7 @@ export default {
 </template>
 
 
-<style>
+<style scoped>
 .tab {
   width: 100%;
   overflow: hidden;

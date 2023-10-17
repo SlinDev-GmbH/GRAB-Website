@@ -31,7 +31,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .open-button {
   display: block;
   width: 30%;

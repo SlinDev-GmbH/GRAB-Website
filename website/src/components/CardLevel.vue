@@ -148,7 +148,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .level-card {
   width: 100%;
   height: 100%;

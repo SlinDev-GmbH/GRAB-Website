@@ -155,7 +155,7 @@ export default {
 </template>
 
 
-<style>
+<style scoped>
 .grid-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -27,7 +27,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .moderation-unhide-level-button {
   min-width:30%;
   height: 30px;

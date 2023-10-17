@@ -52,7 +52,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .moderation-verify-button {
   min-width:30%;
   height: 30px;

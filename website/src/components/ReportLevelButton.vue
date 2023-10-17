@@ -29,7 +29,7 @@ export default {
   </Teleport>
 </template>
 
-<style>
+<style scoped>
 .report-level-button {
   width: 7%;
   cursor: pointer;

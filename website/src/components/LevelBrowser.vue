@@ -85,7 +85,7 @@ export default {
   </main>
 </template>
 
-<style>
+<style scoped>
 header {
   padding-bottom: 30px;
 }

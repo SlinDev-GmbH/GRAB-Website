@@ -42,7 +42,7 @@ export default {
   </Teleport>
 </template>
 
-<style>
+<style scoped>
 .moderation-hide-level-button {
   min-width:30%;
   height: 30px;

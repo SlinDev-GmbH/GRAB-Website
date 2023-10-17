@@ -50,7 +50,7 @@ export default {
 </template>
 
 
-<style>
+<style scoped>
 .level-tab-title {
   float: right;
 }

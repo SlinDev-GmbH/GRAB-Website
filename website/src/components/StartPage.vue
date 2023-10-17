@@ -16,7 +16,7 @@ export default {
 </template>
 
 
-<style>
+<style scoped>
 .title-image {
   display: block;
   margin-left: auto;

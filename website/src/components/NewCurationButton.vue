@@ -33,7 +33,7 @@ export default {
     <button class="button" id="add-new-list-button" @click="addNewList">Add List</button>
 </template>
 
-<style>
+<style scoped>
 #add-new-list-button {
     background-color: #00bc87;
 }

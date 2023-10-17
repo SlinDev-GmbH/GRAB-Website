@@ -138,7 +138,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .selected .level-card {
     background-color: #c3c3c3;
 }
