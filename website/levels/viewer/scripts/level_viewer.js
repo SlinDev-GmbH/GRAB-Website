@@ -1,8 +1,8 @@
-import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
+import * as THREE from 'three';
 import { FreeControls } from './free_controls.js';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as SHADERS from './shaders.js';
-import { GLTFExporter } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm//exporters/GLTFExporter.js';
+import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
 
 import { createApp } from 'vue'
@@ -68,6 +68,7 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, n
 
 	material.uniforms.colorTexture.value = textureLoader.load(name);
 	material.uniforms.colorTexture.value.wrapS = material.uniforms.colorTexture.value.wrapT = THREE.RepeatWrapping;
+	material.uniforms.colorTexture.value.colorSpace = THREE.SRGBColorSpace;
 
 	return material;
 }
@@ -88,9 +89,11 @@ function init()
 	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
 	document.getElementById("fog-button").addEventListener("click", toggleFog);
 
+	THREE.ColorManagement.enabled = true;
+
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.outputEncoding = THREE.sRGBEncoding;
+	renderer.outputColorSpace = THREE.SRGBColorSpace;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
 	renderer.setAnimationLoop(animation);
 	renderer.domElement.id = "canvas"

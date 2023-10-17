@@ -36,7 +36,8 @@ export const skyFS = `
 		if(sunAngle < sunSize) sunFactor = 1.5;
 		color.rgb = mix(color.rgb, sunColor, sunFactor);
 
-		gl_FragColor = LinearTosRGB(color);
+		gl_FragColor = color;
+		#include <colorspace_fragment>
 	}`
 
 export const levelVS = `
@@ -82,15 +83,15 @@ export const levelFS = `
         vec3 blendNormals = abs(vNormal);
         if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
         {
-            color.rgb *= sRGBToLinear(texture2D(colorTexture, vWorldPosition.zy * tileFactor)).rgb;
+            color.rgb *= texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
         }
         else if(blendNormals.y > blendNormals.z)
         {
-            color.rgb *= sRGBToLinear(texture2D(colorTexture, vWorldPosition.xz * tileFactor)).rgb;
+            color.rgb *= texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
         }
         else
         {
-            color.rgb *= sRGBToLinear(texture2D(colorTexture, vWorldPosition.xy * tileFactor)).rgb;
+            color.rgb *= texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
         }
 
         color.rgb *= diffuseColor;
@@ -115,7 +116,9 @@ export const levelFS = `
             color.rgb = mix(color.rgb, fogColor, fogAmount * fogAmount);
         }
 
-        gl_FragColor = LinearTosRGB(color);
+        gl_FragColor = color;
+
+   		#include <colorspace_fragment>
     }`
 
 
@@ -169,4 +172,5 @@ export const signFS = `
 		float lightFactor = 0.5 + dot(normalize(vNormal), -lightDirection) * 0.5 + 0.5;
 
 		gl_FragColor = texture2D(colorTexture, vTexcoord) * lightFactor;
+		#include <colorspace_fragment>
 	}`

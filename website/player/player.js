@@ -1,6 +1,6 @@
-import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get('user_id');

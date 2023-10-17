@@ -1,4 +1,4 @@
-import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
+import * as THREE from 'three';
 
 const _changeEvent = { type: 'change' };
 
