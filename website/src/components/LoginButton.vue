@@ -44,7 +44,7 @@ export default {
 
 <style>
 .login-button {
-  width: 120px;
+  width: 150px;
   height:  30px;
   font-size: 15px;
   align-items: center;
@@ -64,7 +64,7 @@ export default {
 }
 
 .logout-button {
-  width: 120px;
+  width: 150px;
   height:  30px;
   font-size: 15px;
   align-items: center;
