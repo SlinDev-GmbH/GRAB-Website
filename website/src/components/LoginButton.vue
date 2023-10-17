@@ -64,7 +64,7 @@ export default {
 }
 
 .logout-button {
-  width: 150px;
+  width: 120px;
   height:  30px;
   font-size: 15px;
   align-items: center;
