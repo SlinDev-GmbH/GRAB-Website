@@ -872,7 +872,7 @@ function updateObjectAnimation(object, time)
 
 	object.position.add(object.initialPosition)
 
-	let rotation = object.quaternion.multiply(object.initialRotation)
+	let rotation = object.quaternion.multiplyQuaternions(object.initialRotation, object.quaternion)
 	object.setRotationFromQuaternion(rotation)
 
 	if(object.isGroup !== true)
