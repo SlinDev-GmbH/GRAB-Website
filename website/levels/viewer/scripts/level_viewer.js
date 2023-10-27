@@ -46,9 +46,6 @@ let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
 
-let extraRotate = new THREE.Quaternion();
-extraRotate.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
-
 init();
 
 function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, neonEnabled=0.0)
@@ -530,28 +527,22 @@ function init()
 					{
 						object = new THREE.Object3D()
 						parentNode.add(object);
-						object.position.x = node.levelNodeGroup.position.x
+						object.position.x = -node.levelNodeGroup.position.x
 						object.position.y = node.levelNodeGroup.position.y
-						object.position.z = node.levelNodeGroup.position.z
+						object.position.z = -node.levelNodeGroup.position.z
 
 						object.scale.x = node.levelNodeGroup.scale.x
 						object.scale.y = node.levelNodeGroup.scale.y
 						object.scale.z = node.levelNodeGroup.scale.z
 
-						object.quaternion.x = node.levelNodeGroup.rotation.x
+						object.quaternion.x = -node.levelNodeGroup.rotation.x
 						object.quaternion.y = node.levelNodeGroup.rotation.y
-						object.quaternion.z = node.levelNodeGroup.rotation.z
+						object.quaternion.z = -node.levelNodeGroup.rotation.z
 						object.quaternion.w = node.levelNodeGroup.rotation.w
 
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 						object.isGroup = true
-
-						/*if(parentNode == scene)
-						{
-							let rotation = object.quaternion.multiply(extraRotate)
-							object.setRotationFromQuaternion(rotation)
-						}*/
 
 						loadLevelNodes(node.levelNodeGroup.childNodes, object)
 
@@ -576,27 +567,21 @@ function init()
 
 						object = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
 						parentNode.add(object);
-						object.position.x = node.levelNodeStatic.position.x
+						object.position.x = -node.levelNodeStatic.position.x
 						object.position.y = node.levelNodeStatic.position.y
-						object.position.z = node.levelNodeStatic.position.z
+						object.position.z = -node.levelNodeStatic.position.z
 
 						object.scale.x = node.levelNodeStatic.scale.x
 						object.scale.y = node.levelNodeStatic.scale.y
 						object.scale.z = node.levelNodeStatic.scale.z
 
-						object.quaternion.x = node.levelNodeStatic.rotation.x
+						object.quaternion.x = -node.levelNodeStatic.rotation.x
 						object.quaternion.y = node.levelNodeStatic.rotation.y
-						object.quaternion.z = node.levelNodeStatic.rotation.z
+						object.quaternion.z = -node.levelNodeStatic.rotation.z
 						object.quaternion.w = node.levelNodeStatic.rotation.w
 
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
-
-						//if(parentNode == scene)
-						{
-							let rotation = object.quaternion.multiply(extraRotate)
-							object.setRotationFromQuaternion(rotation)
-						}
 
 						let targetVector = new THREE.Vector3()
 						let targetQuaternion = new THREE.Quaternion()
@@ -617,27 +602,21 @@ function init()
 
 						object = new THREE.Mesh(shapes[node.levelNodeCrumbling.shape-1000], newMaterial);
 						parentNode.add(object);
-						object.position.x = node.levelNodeCrumbling.position.x
+						object.position.x = -node.levelNodeCrumbling.position.x
 						object.position.y = node.levelNodeCrumbling.position.y
-						object.position.z = node.levelNodeCrumbling.position.z
+						object.position.z = -node.levelNodeCrumbling.position.z
 
 						object.scale.x = node.levelNodeCrumbling.scale.x
 						object.scale.y = node.levelNodeCrumbling.scale.y
 						object.scale.z = node.levelNodeCrumbling.scale.z
 
-						object.quaternion.x = node.levelNodeCrumbling.rotation.x
+						object.quaternion.x = -node.levelNodeCrumbling.rotation.x
 						object.quaternion.y = node.levelNodeCrumbling.rotation.y
-						object.quaternion.z = node.levelNodeCrumbling.rotation.z
+						object.quaternion.z = -node.levelNodeCrumbling.rotation.z
 						object.quaternion.w = node.levelNodeCrumbling.rotation.w
 
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
-
-						//if(parentNode == scene)
-						{
-							let rotation = object.quaternion.multiply(extraRotate)
-							object.setRotationFromQuaternion(rotation)
-						}
 
 						let targetVector = new THREE.Vector3()
 						let targetQuaternion = new THREE.Quaternion()
@@ -654,9 +633,9 @@ function init()
 					{
 						object = new THREE.Mesh(objects[0], objectMaterials[0]);
 						parentNode.add(object);
-						object.position.x = node.levelNodeStart.position.x
+						object.position.x = -node.levelNodeStart.position.x
 						object.position.y = node.levelNodeStart.position.y
-						object.position.z = node.levelNodeStart.position.z
+						object.position.z = -node.levelNodeStart.position.z
 
 						object.scale.x = node.levelNodeStart.radius * 2.0;
 						object.scale.z = node.levelNodeStart.radius * 2.0;
@@ -670,9 +649,9 @@ function init()
 					{
 						object = new THREE.Mesh(objects[0], objectMaterials[1]);
 						parentNode.add(object);
-						object.position.x = node.levelNodeFinish.position.x
+						object.position.x = -node.levelNodeFinish.position.x
 						object.position.y = node.levelNodeFinish.position.y
-						object.position.z = node.levelNodeFinish.position.z
+						object.position.z = -node.levelNodeFinish.position.z
 
 						object.scale.x = node.levelNodeFinish.radius * 2.0;
 						object.scale.z = node.levelNodeFinish.radius * 2.0;
@@ -694,23 +673,17 @@ function init()
 
 						object = new THREE.Mesh(objects[1], newMaterial);
 						parentNode.add(object);
-						object.position.x = node.levelNodeSign.position.x
+						object.position.x = -node.levelNodeSign.position.x
 						object.position.y = node.levelNodeSign.position.y
-						object.position.z = node.levelNodeSign.position.z
+						object.position.z = -node.levelNodeSign.position.z
 
-						object.quaternion.x = node.levelNodeSign.rotation.x
+						object.quaternion.x = -node.levelNodeSign.rotation.x
 						object.quaternion.y = node.levelNodeSign.rotation.y
-						object.quaternion.z = node.levelNodeSign.rotation.z
+						object.quaternion.z = -node.levelNodeSign.rotation.z
 						object.quaternion.w = node.levelNodeSign.rotation.w
 
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
-
-						//if(parentNode == scene)
-						{
-							let rotation = object.quaternion.multiply(extraRotate)
-							object.setRotationFromQuaternion(rotation)
-						}
 
 						let signText = node.levelNodeSign.text
 						if(userStore.isAdmin && signText && signText.length > 0)
@@ -863,24 +836,19 @@ function updateObjectAnimation(object, time)
 		factor = (relativeTime - oldFrame.time) / timeDiff;
 	}
 
-	const oldPosition = new THREE.Vector3( oldFrame.position.x, oldFrame.position.y, oldFrame.position.z )
-	const newPosition = new THREE.Vector3( newFrame.position.x, newFrame.position.y, newFrame.position.z )
-	object.position.lerpVectors(oldPosition, newPosition, factor)
-
-	const oldRotation = new THREE.Quaternion( oldFrame.rotation.x, oldFrame.rotation.y, oldFrame.rotation.z, oldFrame.rotation.w )
-	const newRotation = new THREE.Quaternion( newFrame.rotation.x, newFrame.rotation.y, newFrame.rotation.z, newFrame.rotation.w )
+	const oldRotation = new THREE.Quaternion( -oldFrame.rotation.x, oldFrame.rotation.y, -oldFrame.rotation.z, oldFrame.rotation.w )
+	const newRotation = new THREE.Quaternion( -newFrame.rotation.x, newFrame.rotation.y, -newFrame.rotation.z, newFrame.rotation.w )
 	object.quaternion.slerpQuaternions(oldRotation, newRotation, factor)
 
-	object.position.add(object.initialPosition)
-
-	let rotation = object.quaternion.multiplyQuaternions(object.initialRotation, object.quaternion)
+	let rotation = object.quaternion.premultiply(object.initialRotation)
 	object.setRotationFromQuaternion(rotation)
 
-	if(object.isGroup !== true)
-	{
-		let rotation = object.quaternion.multiply(extraRotate)
-		object.setRotationFromQuaternion(rotation)
-	}
+	const oldPosition = new THREE.Vector3( -oldFrame.position.x, oldFrame.position.y, -oldFrame.position.z )
+	const newPosition = new THREE.Vector3( -newFrame.position.x, newFrame.position.y, -newFrame.position.z )
+	object.position.lerpVectors(oldPosition, newPosition, factor)
+
+	object.position.applyQuaternion(rotation);
+	object.position.add(object.initialPosition)
 }
 
 function onWindowResize()
