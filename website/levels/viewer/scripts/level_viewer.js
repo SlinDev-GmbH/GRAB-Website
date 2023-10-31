@@ -838,17 +838,16 @@ function updateObjectAnimation(object, time)
 
 	const oldRotation = new THREE.Quaternion( -oldFrame.rotation.x, oldFrame.rotation.y, -oldFrame.rotation.z, oldFrame.rotation.w )
 	const newRotation = new THREE.Quaternion( -newFrame.rotation.x, newFrame.rotation.y, -newFrame.rotation.z, newFrame.rotation.w )
-	object.quaternion.slerpQuaternions(oldRotation, newRotation, factor)
-
-	let rotation = object.quaternion.premultiply(object.initialRotation)
-	object.setRotationFromQuaternion(rotation)
+	const finalRotation = new THREE.Quaternion()
+	finalRotation.slerpQuaternions(oldRotation, newRotation, factor)
 
 	const oldPosition = new THREE.Vector3( -oldFrame.position.x, oldFrame.position.y, -oldFrame.position.z )
 	const newPosition = new THREE.Vector3( -newFrame.position.x, newFrame.position.y, -newFrame.position.z )
-	object.position.lerpVectors(oldPosition, newPosition, factor)
+	const finalPosition = new THREE.Vector3()
+	finalPosition.lerpVectors(oldPosition, newPosition, factor)
 
-	object.position.applyQuaternion(rotation);
-	object.position.add(object.initialPosition)
+	object.position.copy(object.initialPosition).add(finalPosition.applyQuaternion(object.initialRotation))
+	object.quaternion.multiplyQuaternions(object.initialRotation, finalRotation)
 }
 
 function onWindowResize()
