@@ -44,18 +44,54 @@
             }
 
             .info {
+                background-color: #ffffff40;
+                border-radius: 20px;
+                padding: 0px 15px 0px 15px;
+                width: 100%;
+                text-align: left;
+                overflow-y: auto;
+                display: block;
+                height: auto;
+            }
+             #time-slider {
+                -webkit-appearance: none;
+                width: 100%;
+                height:2.1%;
+                border-radius: 5px;
+                background: #d3d3d3;
+                outline: none;
+                opacity: 0.7;
+                position: absolute;
+                bottom: 0px;
+                -webkit-transition: .2s;
+                transition: opacity .2s;
+            }
+
+            #info-container {
                 position: absolute;
                 top: 50px;
                 left: 10px;
                 max-height: 100%;
-                background-color: #ffffff40;
-                border-radius: 20px;
-                padding: 0px 15px 0px 15px;
                 max-width: 30%;
-                text-align: left;
-                z-index: 100;
-                overflow-y: auto;
-                display:block;
+            }
+
+            #time-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #04AA6D;
+                cursor: pointer;
+            }
+
+            #time-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #04AA6D;
+                cursor: pointer;
+
             }
 
             .moderationinfo {
@@ -322,7 +358,8 @@
             <input type="button" id="download-button" class="download-button" value="Download as GLTF">
         </form>
         </div>
-
+        
+        <div id='info-container'>
         <div id="info" class="info">
         <br>
         <div id="title"></div>
@@ -380,7 +417,10 @@
         </div>
         <br>
         <br>
-        </div>
+    </div>    
+    <br>
+    <input type="range" id="time-slider" min="0" max="0" step="0.1" value="0">
+</div>
 
         <div id="overlay" class="overlay"></div>
         <div id="leaderboard" class="leaderboard">
