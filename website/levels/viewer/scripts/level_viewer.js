@@ -889,7 +889,6 @@ function animation() {
 	}
 		
 		renderer.render(scene, camera);
-	}
 }
 
 function toggleFog()
