@@ -45,7 +45,7 @@ let objects = []
 let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
-
+let lastTimelineValue;
 init();
 
 function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, neonEnabled=0.0)
@@ -807,7 +807,10 @@ function updateObjectAnimation(object, time)
 	let animation = object.animation
 	const animationFrames = animation.frames
 	const relativeTime = (time * object.animation.speed) % animationFrames[animationFrames.length - 1].time;
-		
+	if (parseInt(document.getElementById('time-slider').max) < animationFrames[animationFrames.length - 1].time) {
+		document.getElementById('time-slider').max = `${animationFrames[animationFrames.length - 1].time}`
+	}
+	
 	//Find frames to blend between
 	let oldFrame = animationFrames[animation.currentFrameIndex];
 	let newFrameIndex = animation.currentFrameIndex + 1;
@@ -861,19 +864,24 @@ function onWindowResize()
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
-function animation(time)
+function animation()
 {
 	const delta = clock.getDelta();
 	controls.update(delta);
 
 	animationTime += delta;
-
-	for(let object of animatedObjects)
-	{
-		//Play animation of all animated objects
-		updateObjectAnimation(object, animationTime)
+	if (lastTimelineValue !== parseInt(document.getElementById('time-slider').value)) {
+		for (let object of animatedObjects) {
+			updateObjectAnimation(object, parseInt(document.getElementById('time-slider').value))
+		} 
+		lastTimelineValue = parseInt(document.getElementById('time-slider').value)
+		animationTime+=parseInt(document.getElementById('time-slider').value)
 	}
-
+	else {
+		for (let object of animatedObjects) {
+			updateObjectAnimation(object, animationTime)
+		}
+	}
 	renderer.render(scene, camera);
 }
 
