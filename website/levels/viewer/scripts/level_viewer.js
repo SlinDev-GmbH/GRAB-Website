@@ -45,7 +45,8 @@ let objects = []
 let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
-let lastTimelineValue;
+let isSliderDragging = false;
+
 init();
 
 function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, neonEnabled=0.0)
@@ -863,26 +864,32 @@ function onWindowResize()
 
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
+document.getElementById('time-slider').addEventListener('input', function (){
+	isSliderDragging=true
+});
 
-function animation()
-{
-	const delta = clock.getDelta();
-	controls.update(delta);
-
-	animationTime += delta;
-	if (lastTimelineValue !== parseInt(document.getElementById('time-slider').value)) {
-		for (let object of animatedObjects) {
-			updateObjectAnimation(object, parseInt(document.getElementById('time-slider').value))
-		} 
-		lastTimelineValue = parseInt(document.getElementById('time-slider').value)
-		animationTime+=parseInt(document.getElementById('time-slider').value)
-	}
-	else {
-		for (let object of animatedObjects) {
-			updateObjectAnimation(object, animationTime)
+document.getElementById('time-slider').addEventListener('mouseup', function(){
+    isSliderDragging = false
+});
+function animation() {
+	if (isSliderDragging==true) {
+			for (let object of animatedObjects) {
+				updateObjectAnimation(object, parseInt(document.getElementById('time-slider').value))
+			} 
+			animationTime=parseInt(document.getElementById('time-slider').value)
 		}
+	else {
+			const delta = clock.getDelta();
+			controls.update(delta);
+			animationTime += delta;
+			document.getElementById('time-slider').value = animationTime
+			for (let object of animatedObjects) {
+				updateObjectAnimation(object, animationTime)
+			}
 	}
-	renderer.render(scene, camera);
+		
+		renderer.render(scene, camera);
+	}
 }
 
 function toggleFog()
