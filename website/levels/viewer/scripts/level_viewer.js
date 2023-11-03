@@ -883,11 +883,10 @@ function animation() {
 			controls.update(delta);
 			animationTime += delta;
 			document.getElementById('time-slider').value = animationTime
-			for (let object of animatedObjects) {
-				updateObjectAnimation(object, animationTime)
-			}
 	}
-		
+		for (let object of animatedObjects) {
+				updateObjectAnimation(object, animationTime)
+		}
 		renderer.render(scene, camera);
 }
 
