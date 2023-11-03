@@ -45,6 +45,7 @@ let objects = []
 let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
+let isSliderDragging = false;
 
 init();
 
@@ -807,7 +808,10 @@ function updateObjectAnimation(object, time)
 	let animation = object.animation
 	const animationFrames = animation.frames
 	const relativeTime = (time * object.animation.speed) % animationFrames[animationFrames.length - 1].time;
-		
+	if (parseInt(document.getElementById('time-slider').max) < animationFrames[animationFrames.length - 1].time) {
+		document.getElementById('time-slider').max = `${animationFrames[animationFrames.length - 1].time}`
+	}
+	
 	//Find frames to blend between
 	let oldFrame = animationFrames[animation.currentFrameIndex];
 	let newFrameIndex = animation.currentFrameIndex + 1;
@@ -860,21 +864,30 @@ function onWindowResize()
 
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
+document.getElementById('time-slider').addEventListener('input', function (){
+	isSliderDragging=true
+});
 
-function animation(time)
-{
-	const delta = clock.getDelta();
-	controls.update(delta);
-
-	animationTime += delta;
-
-	for(let object of animatedObjects)
-	{
-		//Play animation of all animated objects
-		updateObjectAnimation(object, animationTime)
+document.getElementById('time-slider').addEventListener('mouseup', function(){
+    isSliderDragging = false
+});
+function animation() {
+	if (isSliderDragging==true) {
+			for (let object of animatedObjects) {
+				updateObjectAnimation(object, parseInt(document.getElementById('time-slider').value))
+			} 
+			animationTime=parseInt(document.getElementById('time-slider').value)
+		}
+	else {
+			const delta = clock.getDelta();
+			controls.update(delta);
+			animationTime += delta;
+			document.getElementById('time-slider').value = animationTime
 	}
-
-	renderer.render(scene, camera);
+		for (let object of animatedObjects) {
+				updateObjectAnimation(object, animationTime)
+		}
+		renderer.render(scene, camera);
 }
 
 function toggleFog()
