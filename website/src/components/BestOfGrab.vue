@@ -41,7 +41,7 @@ export default {
     },
 
     tabChanged(query) {
-      console.log(query)
+      this.$emit('tabChanged', query)
     },
 
     handleBack() {
@@ -52,8 +52,8 @@ export default {
       console.log(section);
       if (section.hasOwnProperty('list_key')) {
         if (section.list_key.startsWith('user:')) {
-          const userID = section.list_key.split(':')[1]
-          this.$emit('tabChanged', {tab: 'tab_other_user', user_id: userID})
+          const userID = section.list_key.split(':')[1];
+          this.tabChanged({tab: 'tab_other_user', user_id: userID});
         }
       }
       this.currentSection = section;
