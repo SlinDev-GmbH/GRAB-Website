@@ -83,7 +83,7 @@ export default {
   </header>
   <main>
     <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
-    <BestOfGrab v-if="tabActive === 'tab_best_of_grab'"/>
+    <BestOfGrab v-if="tabActive === 'tab_best_of_grab'" @tab-changed="(query) => this.tabChanged(query)"/>
     <ScrollList v-else :list-type="tabActive" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)"/>
   </main>
 </template>

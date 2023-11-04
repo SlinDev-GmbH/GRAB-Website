@@ -29,6 +29,8 @@ export default {
     }
   },
 
+  emits: ['tabChanged'],
+
   methods: {
     async loadBestOfGrab() {
       const result = await GetBestOfGrabRequest(this.$api_server_url)
@@ -44,6 +46,29 @@ export default {
 
     handleBack() {
       this.currentSection = this.bestOfGrab
+    },
+
+    setSection(section) {
+      console.log(section);
+      if (section.hasOwnProperty('list_key')) {
+        if (section.list_key.startsWith('user:')) {
+          const userID = section.list_key.split(':')[1]
+          this.$emit('tabChanged', {tab: 'tab_other_user', user_id: userID})
+        }
+      }
+      this.currentSection = section;
+    },
+
+    shouldRenderSection(section) {
+      if (section.hasOwnProperty('list_key')) {
+        if (section.list_key.startsWith('builtin:')) {
+          return false
+        }
+        if (['ok', 'newest'].includes(section.list_key)) {
+          return false
+        }
+      }
+      return true
     }
   },
 
@@ -65,8 +90,10 @@ export default {
     <ScrollList :listType="this.currentSection.list_key" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
   </div>
   <div v-else-if="isSection" class="sections">
-    <div class="section-element-title" v-for="section in this.currentSection.sections" @click="this.currentSection = section">
-      {{ section.title }}
+    <div class="section-element-title" v-for="section in this.currentSection.sections" @click="this.setSection(section)">
+      <div v-if="shouldRenderSection(section)">
+        {{ section.title }}
+      </div>
     </div>
   </div>
 </template>
