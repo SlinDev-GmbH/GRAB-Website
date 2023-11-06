@@ -68,9 +68,17 @@ export default {
           return false
         }
       }
+      if (section.hasOwnProperty('type') && section.type === 'space') {
+        return false
+      }
       return true
-    }
+    },
+
+    isSpace(section) {
+      return section.hasOwnProperty('type') && section.type === 'space'
+    },
   },
+
 
   async mounted() {
     let featured = await this.loadFeatured();
@@ -90,10 +98,11 @@ export default {
     <ScrollList :listType="this.currentSection.list_key" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
   </div>
   <div v-else-if="isSection" class="sections">
-    <div class="section-element-title" v-for="section in this.currentSection.sections" @click="this.setSection(section)">
-      <div v-if="shouldRenderSection(section)">
+    <div class="section-element-title" v-for="section in this.currentSection.sections">
+      <div class="section-button" v-if="shouldRenderSection(section)" @click="this.setSection(section)">
         {{ section.title }}
       </div>
+      <div v-else-if="isSpace(section)" :style="`height: ${section.size/4}px`"></div>
     </div>
   </div>
 </template>
@@ -105,7 +114,6 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 10px;
-    gap: 10px;
   }
   .section-element-title {
     width: 100%;
@@ -116,6 +124,9 @@ export default {
     border-radius: 15px;
     box-sizing: border-box;
     text-decoration: none;
+    margin-bottom: 5px;
+  }
+  .section-button {
     cursor: pointer;
   }
   .section-title, .section-element-title {
