@@ -7,7 +7,7 @@ import LevelTitle from './LevelTitle.vue'
 import UserTitle from './UserTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
-import BestOfGrab from './BestOfGrab.vue'
+import Featured from './Featured.vue'
 
 export default {
   components: {
@@ -16,7 +16,7 @@ export default {
     UserTitle,
     ScrollList,
     LoginButton,
-    BestOfGrab
+    Featured
   },
 
   data() {
@@ -83,7 +83,7 @@ export default {
   </header>
   <main>
     <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
-    <BestOfGrab v-if="tabActive === 'tab_best_of_grab'" @tab-changed="(query) => this.tabChanged(query)"/>
+    <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
     <ScrollList v-else :list-type="tabActive" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)"/>
   </main>
 </template>

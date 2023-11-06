@@ -2,7 +2,7 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-import { GetBestOfGrabRequest } from '../requests/GetBestOfGrabRequest'
+import { GetLevelBrowserRequest } from '../requests/GetLevelBrowserRequest'
 import ScrollList from './ScrollList.vue'
 
 export default {
@@ -23,7 +23,7 @@ export default {
 
   data() {
     return {
-      bestOfGrab: {},
+      featured: {},
       currentSection: {},
       displayingLevels: false,
     }
@@ -32,8 +32,8 @@ export default {
   emits: ['tabChanged'],
 
   methods: {
-    async loadBestOfGrab() {
-      const result = await GetBestOfGrabRequest(this.$api_server_url)
+    async loadFeatured() {
+      const result = await GetLevelBrowserRequest(this.$api_server_url)
       if(result !== false) {
         return result
       }
@@ -45,7 +45,7 @@ export default {
     },
 
     handleBack() {
-      this.currentSection = this.bestOfGrab
+      this.currentSection = this.featured
     },
 
     setSection(section) {
@@ -73,9 +73,9 @@ export default {
   },
 
   async mounted() {
-    let bestOfGrab = await this.loadBestOfGrab();
-    this.bestOfGrab = bestOfGrab;
-    this.currentSection = this.bestOfGrab;
+    let featured = await this.loadFeatured();
+    this.featured = featured;
+    this.currentSection = this.featured;
   },
 
 }
@@ -83,8 +83,8 @@ export default {
 
 <template>
   <div class="section-header">
-    <button v-if="this.currentSection !== this.bestOfGrab" @click="this.handleBack">back</button>
-    <h2 v-if="this.currentSection !== this.bestOfGrab" class="section-title">{{ this.currentSection.title }}</h2>
+    <button v-if="this.currentSection !== this.featured" @click="this.handleBack">back</button>
+    <h2 v-if="this.currentSection !== this.featured" class="section-title">{{ this.currentSection.hasOwnProperty("title_short") ? this.currentSection.title_short : this.currentSection.title }}</h2>
   </div>
   <div v-if="isList">
     <ScrollList :listType="this.currentSection.list_key" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
