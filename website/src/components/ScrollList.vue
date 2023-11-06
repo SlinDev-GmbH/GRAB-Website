@@ -46,7 +46,7 @@ export default {
     if(userID) {
       this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID })
     }
-    else if((currentSearch && currentSearch.length > 0) || currentTab !== this.listType) {
+    else if((currentSearch && currentSearch.length > 0) || (currentTab !== this.listType && currentTab !== 'tab_best_of_grab')) {
       let query = {tab: currentTab}
       if(currentSearch) query['search'] = currentSearch
       this.$emit('tabChanged', query)
