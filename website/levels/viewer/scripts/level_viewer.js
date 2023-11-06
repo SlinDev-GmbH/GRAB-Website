@@ -551,7 +551,7 @@ function init()
 					}
 					else if(node.levelNodeStatic)
 					{
-						console.log(node.levelNodeStatic.material)
+						// console.log(node.levelNodeStatic.material)
 						let material = materials[Math.min(Math.max(node.levelNodeStatic.material, 0), materials.length-1)]
 						if(node.levelNodeStatic.material === root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.isNeon)
 						{
