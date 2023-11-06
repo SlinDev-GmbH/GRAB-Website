@@ -50,7 +50,7 @@ export default {
   <div class="tab" id="tabbar">
     <button :class="tabActive==='tab_newest'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_newest')" id="tab_newest">All Levels</button>
     <button :class="tabActive==='tab_ok'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_ok')" id="tab_ok">Verified Levels</button>
-    <button :class="tabActive==='tab_best_of_grab'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_best_of_grab')" id="tab_best_of_grab">Best Of Grab</button>
+    <button :class="tabActive==='tab_featured'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_featured')" id="tab_featured">Featured</button>
     <button v-if="isLoggedIn" :class="tabActive==='tab_my_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_my_levels')" id="tab_my_levels">My Levels</button>
     <button v-if="isLoggedIn" :class="tabActive==='tab_favorite_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_favorite_levels')" id="tab_favorite_levels">My Favorites</button>
     <button :class="tabActive==='tab_search_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_search_users')" id="tab_search_users">Players</button>

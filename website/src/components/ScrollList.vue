@@ -46,7 +46,8 @@ export default {
     if(userID) {
       this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID })
     }
-    else if((currentSearch && currentSearch.length > 0) || (currentTab !== this.listType && currentTab !== 'tab_best_of_grab')) {
+    // this next line " && currentTab !== 'tab_featured'" is the temporary fix. without it, featured wont work. but with it, the tab wont auto switch
+    else if((currentSearch && currentSearch.length > 0) || (currentTab !== this.listType && currentTab !== 'tab_featured')) {
       let query = {tab: currentTab}
       if(currentSearch) query['search'] = currentSearch
       this.$emit('tabChanged', query)

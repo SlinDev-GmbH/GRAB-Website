@@ -2,7 +2,7 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-import { GetBestOfGrabRequest } from '../requests/GetBestOfGrabRequest'
+import { GetLevelBrowserRequest } from '../requests/GetLevelBrowserRequest'
 import ScrollList from './ScrollList.vue'
 
 export default {
@@ -23,7 +23,7 @@ export default {
 
   data() {
     return {
-      bestOfGrab: {},
+      featured: {},
       currentSection: {},
       displayingLevels: false,
     }
@@ -32,8 +32,8 @@ export default {
   emits: ['tabChanged'],
 
   methods: {
-    async loadBestOfGrab() {
-      const result = await GetBestOfGrabRequest(this.$api_server_url)
+    async loadFeatured() {
+      const result = await GetLevelBrowserRequest(this.$api_server_url)
       if(result !== false) {
         return result
       }
@@ -45,7 +45,7 @@ export default {
     },
 
     handleBack() {
-      this.currentSection = this.bestOfGrab
+      this.currentSection = this.featured
     },
 
     setSection(section) {
@@ -68,14 +68,22 @@ export default {
           return false
         }
       }
+      if (section.hasOwnProperty('type') && section.type === 'space') {
+        return false
+      }
       return true
-    }
+    },
+
+    isSpace(section) {
+      return section.hasOwnProperty('type') && section.type === 'space'
+    },
   },
 
+
   async mounted() {
-    let bestOfGrab = await this.loadBestOfGrab();
-    this.bestOfGrab = bestOfGrab;
-    this.currentSection = this.bestOfGrab;
+    let featured = await this.loadFeatured();
+    this.featured = featured;
+    this.currentSection = this.featured;
   },
 
 }
@@ -83,17 +91,18 @@ export default {
 
 <template>
   <div class="section-header">
-    <button v-if="this.currentSection !== this.bestOfGrab" @click="this.handleBack">back</button>
-    <h2 v-if="this.currentSection !== this.bestOfGrab" class="section-title">{{ this.currentSection.title }}</h2>
+    <button v-if="this.currentSection !== this.featured" @click="this.handleBack">back</button>
+    <h2 v-if="this.currentSection !== this.featured" class="section-title">{{ this.currentSection.hasOwnProperty("title_short") ? this.currentSection.title_short : this.currentSection.title }}</h2>
   </div>
   <div v-if="isList">
     <ScrollList :listType="this.currentSection.list_key" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
   </div>
   <div v-else-if="isSection" class="sections">
-    <div class="section-element-title" v-for="section in this.currentSection.sections" @click="this.setSection(section)">
-      <div v-if="shouldRenderSection(section)">
+    <div class="section-element-title" v-for="section in this.currentSection.sections">
+      <div class="section-button" v-if="shouldRenderSection(section)" @click="this.setSection(section)">
         {{ section.title }}
       </div>
+      <div v-else-if="isSpace(section)" :style="`height: ${section.size/4}px`"></div>
     </div>
   </div>
 </template>
@@ -105,7 +114,6 @@ export default {
     align-items: center;
     justify-content: center;
     padding: 10px;
-    gap: 10px;
   }
   .section-element-title {
     width: 100%;
@@ -116,6 +124,9 @@ export default {
     border-radius: 15px;
     box-sizing: border-box;
     text-decoration: none;
+    margin-bottom: 5px;
+  }
+  .section-button {
     cursor: pointer;
   }
   .section-title, .section-element-title {
