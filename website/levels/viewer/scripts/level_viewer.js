@@ -871,6 +871,9 @@ document.getElementById('time-slider').addEventListener('input', function (){
 document.getElementById('time-slider').addEventListener('mouseup', function(){
     isSliderDragging = false
 });
+document.getElementById('time-slider').addEventListener('touchend', function(){
+    isSliderDragging = false
+});
 function animation() {
 	if (isSliderDragging==true) {
 			for (let object of animatedObjects) {
