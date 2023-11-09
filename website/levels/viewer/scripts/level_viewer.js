@@ -1067,7 +1067,7 @@ function displayLeaderboardData(data) {
 					const urlParams = new URLSearchParams(window.location.search);
 					let levelIdentifier = urlParams.get('level');
 					let levelIdentifierParts = levelIdentifier.split(':')
-					const endpointUrl = config.SERVER_URL + 'statistics_remove_user/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + entry.user_id;
+					const endpointUrl = config.SERVER_URL + 'statistics_remove_user/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?user_id=' + entry.user_id;
 					try {
 						const response = await fetch(endpointUrl, {headers: {'Authorization': 'Bearer ' + userStore.accessToken}});
 						if (response.ok) {
