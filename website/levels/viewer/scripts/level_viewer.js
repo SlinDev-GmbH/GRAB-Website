@@ -250,6 +250,11 @@ function init()
 					backButton.style.display = "none";
 				}
 
+				let currentListItem = document.getElementById("currentListItem");
+				let totalListItems = document.getElementById("totalListItems");
+				currentListItem.innerHTML = listIndex + 1;
+				totalListItems.innerHTML = list.length;
+
 				let nextListItem = list[listIndex + 1];
 				let previousListItem = list[listIndex - 1];
 				if(nextListItem && "object_info" in nextListItem) {
@@ -353,6 +358,20 @@ function init()
 					(async () => {
 						const reason = document.getElementById("hideReason").value;
 						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+
+						if (reason === 'approve') {
+							(async () => {
+								const approveResponse = await fetch(config.SERVER_URL + 'ignore_reports/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+								const approveResponseBody = await approveResponse.text();
+								if(approveResponse.status != 200 || approveResponseBody !== 'Success') {
+									confirm("Error: " + approveResponseBody);
+								} else {
+									hideContainer.style.display = "none";
+								}
+							})();
+							return;
+						}
+
 						const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
 						const hideResponseBody = await hideResponse.text();
 						if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
@@ -378,18 +397,6 @@ function init()
 							if(resetResponse.status != 200 || resetResponseBody !== 'Success'){
 								confirm("Error: " + resetResponseBody);
 							}
-						}
-					})();
-				});
-				document.getElementById("approveButton").addEventListener("click", function() {
-					(async () => {
-						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
-						const approveResponse = await fetch(config.SERVER_URL + 'ignore_reports/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
-						const approveResponseBody = await approveResponse.text();
-						if(approveResponse.status != 200 || approveResponseBody !== 'Success') {
-							confirm("Error: " + approveResponseBody);
-						} else {
-							hideContainer.style.display = "none";
 						}
 					})();
 				});
@@ -687,7 +694,7 @@ function init()
 						object.initialRotation = object.quaternion.clone()
 
 						let signText = node.levelNodeSign.text
-						if(userStore.isAdmin && signText && signText.length > 0)
+						if(userStore.isModerator && signText && signText.length > 0)
 						{
 							let signTextElement = document.createElement("div");
 							const signTextNode = document.createTextNode("Sign " + signCounter + ": " + signText);

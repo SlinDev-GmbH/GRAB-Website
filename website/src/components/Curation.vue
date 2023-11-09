@@ -65,6 +65,7 @@ export default {
 </script>
 
 <template>
+  <a class="back-button" href="/levels">Back</a>
   <h1>Curated Level Lists</h1>
 	<div id="buttonWrapper">
 		<NewCurationButton @handled="handleTypeListUpdate"/>
@@ -93,7 +94,7 @@ body {
 	font-family: 'Roboto', sans-serif;
 }
 h1 {
-	margin-block: 40px;
+	margin-bottom: 20px;
 	text-align: center;
 	font-size: 32px;
 	padding-top: 15px;
@@ -142,5 +143,16 @@ select:focus-visible {
 	display: block;
 	height: 0;
 	padding-block: 0;
+}
+.back-button {
+	font-size: 20px;
+	padding: 10px 20px;
+	margin-left: 10px;
+	color: #fff;
+	background-color: #00bc87;
+	cursor: pointer;
+	font-weight: bold;
+	border: none;
+	border-radius: 15px;
 }
 </style>
