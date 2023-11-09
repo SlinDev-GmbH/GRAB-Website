@@ -1069,12 +1069,11 @@ function displayLeaderboardData(data) {
 					let levelIdentifierParts = levelIdentifier.split(':')
 					const endpointUrl = config.SERVER_URL + 'statistics_remove_user/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '/' + entry.user_id;
 					try {
-						const response = await fetch(endpointUrl);
+						const response = await fetch(endpointUrl, {headers: {'Authorization': 'Bearer ' + userStore.accessToken}});
 						if (response.ok) {
 							row.remove();
 						} else {
 							alert("Failed to remove user");
-							row.remove();
 						}
 					} catch (error) {
 						alert("Error removing user");
