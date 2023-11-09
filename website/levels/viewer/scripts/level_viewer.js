@@ -1038,6 +1038,11 @@ function displayLeaderboardData(data) {
 		placeholder.innerHTML = "No data yet!<br>Be the first to set a record!";
 		leaderboardContent.appendChild(placeholder);
 	} else {
+		const pinia = createPinia()
+		pinia.use(piniaPluginPersistedstate)
+		const app = createApp(App)
+		app.use(pinia)
+		const userStore = useUserStore(pinia)
 		data.forEach((entry, index) => {
 			const row = document.createElement("div");
 			row.className = "leaderboard-row";
@@ -1053,10 +1058,34 @@ function displayLeaderboardData(data) {
 			const time = document.createElement("div");
 			time.className = "leaderboard-time";
 			time.textContent = entry.best_time;
+			
+			const button = document.createElement("button");
+			button.className = "leaderboard-button";
+			button.textContent = "x";
+			button.onclick = function () {
+				(async () => {
+					const urlParams = new URLSearchParams(window.location.search);
+					let levelIdentifier = urlParams.get('level');
+					let levelIdentifierParts = levelIdentifier.split(':')
+					const endpointUrl = config.SERVER_URL + 'statistics_remove_user/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?user_id=' + entry.user_id;
+					try {
+						const response = await fetch(endpointUrl, {headers: {'Authorization': 'Bearer ' + userStore.accessToken}});
+						if (response.ok) {
+							row.remove();
+						} else {
+							alert("Failed to remove user");
+						}
+					} catch (error) {
+						alert("Error removing user");
+					}
+				})();
+			};
+			
 
 			row.appendChild(position);
 			row.appendChild(name);
 			row.appendChild(time);
+			if (userStore.isModerator === true) row.appendChild(button);
 			leaderboardContent.appendChild(row);
 		});
 	}
