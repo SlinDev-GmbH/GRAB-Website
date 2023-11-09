@@ -317,15 +317,6 @@
                 text-align: center;
                 border: none;
             }
-            #approveButton {
-                height: 30px;
-                font-weight: bold;
-                background-color: green;
-                color: white;
-                border: none;
-                border-radius: 15px;
-                cursor: pointer;
-            }
             #hideButton, #unverifyButton, #verifySkipSuccessButton {
                 height: 30px;
                 font-weight: bold;
@@ -392,6 +383,7 @@
         <div id="listButtons" style="display: none;">
             <button id="prevListItem">BACK</button>
             <button id="nextListItem">NEXT</button>
+            <p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
         </div>
         <br>
         <div id="moderationcontainer" class="moderationinfo">
@@ -416,11 +408,11 @@
                         <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
                         <option id="level_other" value="level_other">Other</option>
                         <option id="no_punish" value="no_punish">Don't punish</option>
+                        <option id="approve" value="approve">Approve</option>
                     </select>
                 </form>
                 <br>
-                <button id="hideButton">Hide</button>
-                <button id="approveButton">Approve</button>
+                <button id="hideButton">Apply</button>
                 <br><br>
             </div>
         </div>

@@ -82,7 +82,7 @@ export default {
     },
 
     viewerURL() {
-      return 'levels/viewer/?level=' + this.item.identifier
+      return '/levels/viewer/?level=' + this.item.identifier
     },
 
     hasOKStamp() {
