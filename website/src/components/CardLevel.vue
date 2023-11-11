@@ -42,6 +42,14 @@ export default {
       return ''
     },
 
+     hasImage() {
+      if(this.item.images && this.item.images.thumb)
+      {
+        return true
+      }
+      return false
+    },
+
     hasStatistics() {
       return this.moderationItem? false : true
     },
@@ -132,6 +140,7 @@ export default {
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
+    <img v-if="hasImage" class="thumbnail" :src="this.$api_server_url + '/image/' + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
     <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
@@ -236,6 +245,20 @@ export default {
   right: 2%;
   bottom: 3%;
   width: 15%;
+  height: auto;
+}
+
+.thumbnail {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0%;
+  margin-button: 0%;
+  paadding-right: 20px;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
   height: auto;
 }
 </style>
