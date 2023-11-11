@@ -79,13 +79,13 @@ export async function onRequest(context)
 				}
 
 				let levelThumbUrl = ""
-				let levelThumbWidth = 0
-				let levelThumbHeight = 0
+				let levelThumbWidth = "0"
+				let levelThumbHeight = "0"
 				if("images" in levelInfo && "thumb" in levelInfo.images && "key" in levelInfo.images.thumb)
 				{
 					levelThumbUrl = context.env.GRAB_SERVER_URL + "image/" + levelInfo.images.thumb.key
-					levelThumbWidth = levelInfo.images.thumb.width
-					levelThumbHeight = levelInfo.images.thumb.height
+					levelThumbWidth = "" + levelInfo.images.thumb.width
+					levelThumbHeight = "" + levelInfo.images.thumb.height
 				}
 
 				assetText = assetText.replace("__PAGE_TITLE__", escapeHTML(levelInfo.title))
