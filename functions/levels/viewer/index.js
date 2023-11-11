@@ -81,7 +81,7 @@ export async function onRequest(context)
 				let levelThumbUrl = ""
 				if("images" in levelInfo && "thumb" in levelInfo.images && "key" in levelInfo.images.thumb)
 				{
-					levelThumbUrl = GRAB_SERVER_URL + "/image" + levelInfo.images.thumb.key
+					levelThumbUrl = context.env.GRAB_SERVER_URL + "/image" + levelInfo.images.thumb.key
 				}
 
 				assetText = assetText.replace("__PAGE_TITLE__", escapeHTML(levelInfo.title))
