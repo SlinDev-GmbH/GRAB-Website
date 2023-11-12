@@ -140,7 +140,7 @@ export default {
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
-    <img v-if="hasImage" class="thumbnail" :src="this.$api_server_url + '/image/' + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
+    <img v-if="hasImage" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
     <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
     <div class="creators">{{ creators }}</div>
