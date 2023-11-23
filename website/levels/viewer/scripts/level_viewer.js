@@ -722,6 +722,12 @@ function init()
 						}
 					}
 				}
+
+				if(animatedObjects.length > 0)
+				{
+					const slider = document.getElementById("time-slider")
+					slider.style.display = "block"
+				}
 			};
 
 			loadLevelNodes(decoded.levelNodes, scene);
@@ -883,6 +889,7 @@ function onWindowResize()
 
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
+
 document.getElementById('time-slider').addEventListener('input', function (){
 	isSliderDragging=true
 });
@@ -893,23 +900,30 @@ document.getElementById('time-slider').addEventListener('mouseup', function(){
 document.getElementById('time-slider').addEventListener('touchend', function(){
     isSliderDragging = false
 });
-function animation() {
-	if (isSliderDragging==true) {
-			for (let object of animatedObjects) {
-				updateObjectAnimation(object, parseInt(document.getElementById('time-slider').value))
-			} 
-			animationTime=parseInt(document.getElementById('time-slider').value)
-		}
-	else {
-			const delta = clock.getDelta();
-			controls.update(delta);
-			animationTime += delta;
-			document.getElementById('time-slider').value = animationTime
+
+function animation()
+{
+	if(isSliderDragging==true)
+	{
+		for (let object of animatedObjects)
+		{
+			updateObjectAnimation(object, parseInt(document.getElementById('time-slider').value))
+		} 
+		animationTime=parseInt(document.getElementById('time-slider').value)
 	}
-		for (let object of animatedObjects) {
-				updateObjectAnimation(object, animationTime)
-		}
-		renderer.render(scene, camera);
+	else
+	{
+		const delta = clock.getDelta();
+		controls.update(delta);
+		animationTime += delta;
+		document.getElementById('time-slider').value = animationTime
+	}
+
+	for(let object of animatedObjects)
+	{
+		updateObjectAnimation(object, animationTime)
+	}
+	renderer.render(scene, camera);
 }
 
 function toggleFog()
