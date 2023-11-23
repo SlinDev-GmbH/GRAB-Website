@@ -772,6 +772,18 @@ function init()
 					}
 				}
 			}
+
+			if("images" in detailResponseBody && "thumb" in detailResponseBody.images && "key" in detailResponseBody.images.thumb && detailResponseBody.images.thumb.key.length > 0)
+			{
+				const infoNode = document.getElementById("info");
+				let thumbnailImage = document.createElement("img");
+				thumbnailImage.src = "https://grab-images.slin.dev/" + detailResponseBody.images.thumb.key;
+				thumbnailImage.className = "previewImage"
+				infoNode.prepend(thumbnailImage);
+
+				let linebreak = document.createElement("br");
+				infoNode.prepend(linebreak);
+			}
 			
 
 			//Get level statistics
