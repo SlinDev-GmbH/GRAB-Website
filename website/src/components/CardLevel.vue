@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
+import SkipLevelButton from './SkipLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
 import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
@@ -13,6 +14,7 @@ export default {
   components: {
     ReportModerationTools,
     VerifyLevelButton,
+    SkipLevelButton,
     HideLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
@@ -147,8 +149,9 @@ export default {
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
-    <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
-    <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
+    <SkipLevelButton v-if="isModerator && this.listType === 'tab_verify_queue'" :level-info="item"/>
+    <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
     <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
