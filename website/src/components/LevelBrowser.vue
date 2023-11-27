@@ -28,7 +28,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['isAdmin']),
+    ...mapState(useUserStore, ['isAdmin', 'isModerator']),
     ...mapState(useUserStore, ['accessToken']),
     showLevelTitle() {
       const options = ['tab_newest', 'tab_ok', 'tab_favorite_levels']
@@ -77,7 +77,7 @@ export default {
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
     <LoginButton />
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
-    <button v-if="isAdmin" class="curation-button" type="button" @click="openCuration">Curation</button>
+    <button v-if="isModerator" class="curation-button" type="button" @click="openCuration">Curation</button>
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
     <LevelTitle v-if="showLevelTitle" :tab-active="tabActive"/>
   </header>

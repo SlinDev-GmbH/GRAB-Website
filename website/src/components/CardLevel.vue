@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
+import SkipLevelButton from './SkipLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
 import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
@@ -12,6 +13,7 @@ import ReportLevelButton from './ReportLevelButton.vue'
 export default {
   components: {
     ReportModerationTools,
+    SkipLevelButton,
     VerifyLevelButton,
     HideLevelButton,
     UnhideLevelButton,
@@ -147,6 +149,7 @@ export default {
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
+    <SkipLevelButton v-if="isModerator" :level-info="item"/>
     <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
