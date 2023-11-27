@@ -149,7 +149,7 @@ export default {
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isModerator" :level-info="item"/>
-    <SkipLevelButton v-if="isModerator" :level-info="item"/>
+    <SkipLevelButton v-if="isModerator && this.listType == 'tab_verify_queue'" :level-info="item"/>
     <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
