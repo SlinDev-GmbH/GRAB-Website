@@ -394,17 +394,23 @@ if (userId) {
   playerPrim_Color = playerResponseBody.active_customizations.player_color_primary.color;
   playerSec_Color = playerResponseBody.active_customizations.player_color_secondary.color;
 
+  if (activeCosmetics['Facewear'] !== undefined && activeCosmetics['Facewear'] !== playerResponseBody.active_customizations.items["head/glasses"]) {
+    scene.remove(scene.getObjectByName(files[activeCosmetics['Facewear']].name));
+  } activeCosmetics['Facewear'] = playerResponseBody.active_customizations.items["head/glasses"]
+  if (activeCosmetics['Hats'] !== undefined && activeCosmetics['Hats'] !== playerResponseBody.active_customizations.items["head/hat"]) {
+    scene.remove(scene.getObjectByName(files[activeCosmetics['Hats']].name));
+  } activeCosmetics['Hats'] = playerResponseBody.active_customizations.items["head/hat"]
 
   if (activeCosmetics['Heads'] !== undefined && playerResponseBody.active_customizations.items["head"] !== undefined && activeCosmetics['Heads'] !== playerResponseBody.active_customizations.items["head"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Heads']].name));
   } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"] ? playerResponseBody.active_customizations.items["head"] : 'player_basic_head'
   if (activeCosmetics['Hands'] !== undefined && playerResponseBody.active_customizations.items["hand"] !== undefined && activeCosmetics['Hands'] !== playerResponseBody.active_customizations.items["hand"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Hands']].name));
+    if (clonedGroup) {
+      scene.remove(clonedGroup);
+    }
   } activeCosmetics['Hands'] = playerResponseBody.active_customizations.items["hand"] ? playerResponseBody.active_customizations.items["hand"] : 'player_basic_hand'
-  if (activeCosmetics['Hats'] !== undefined && activeCosmetics['Hats'] !== playerResponseBody.active_customizations.items["head/hat"]) {
-    scene.remove(scene.getObjectByName(files[activeCosmetics['Hats']].name));
-  } activeCosmetics['Hats'] = playerResponseBody.active_customizations.items["head/hat"]
-
+ 
   if (activeCosmetics['Grapples'] !== undefined && activeCosmetics['Grapples'] !== playerResponseBody.active_customizations.items["grapple/hook"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Grapples']].name));
 
@@ -418,11 +424,12 @@ if (userId) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Body']].name));
   } activeCosmetics['Body'] = playerResponseBody.active_customizations.items["body/neck"]
 
-  if (activeCosmetics['Facewear'] !== undefined && activeCosmetics['Facewear'] !== playerResponseBody.active_customizations.items["head/glasses"]) {
-    scene.remove(scene.getObjectByName(files[activeCosmetics['Facewear']].name));
-  } activeCosmetics['Facewear'] = playerResponseBody.active_customizations.items["head/glasses"]
+  
 
   let renderPromises = []
+  if (playerResponseBody.active_customizations.items["head/glasses"] !== undefined) {
+    renderPromises.push(renderPlayer(playerResponseBody.active_customizations.items["head/glasses"], 'Facewear'));
+  }
   if (playerResponseBody.active_customizations.items["head/hat"] !== undefined) {
     renderPromises.push(renderPlayer(playerResponseBody.active_customizations.items["head/hat"], 'Hats'));
   }
@@ -439,9 +446,7 @@ if (userId) {
   if (playerResponseBody.active_customizations.items["head"] !== undefined) {
     renderPromises.push(renderPlayer(playerResponseBody.active_customizations.items["head"], 'Heads'));
   }
-  if (playerResponseBody.active_customizations.items["head/glasses"] !== undefined) {
-    renderPromises.push(renderPlayer(playerResponseBody.active_customizations.items["head/glasses"], 'Facewear'));
-  }
+  
   if (playerResponseBody.active_customizations.items["body/neck"] !== undefined) {
     renderPromises.push(renderPlayer(playerResponseBody.active_customizations.items["body/neck"], 'Body'));
   }
@@ -498,9 +503,37 @@ function renderPlayer(file, category) {
 
 
       group.name = files[file].name;
+
       if (category !== undefined) {
         if (['Heads', 'Hats', 'Facewear'].includes(category)) {
           group.position.y += 0.2;
+        }
+        if ('Heads' === category) {
+          if (activeCosmetics['Facewear'] !== undefined) {
+            let referenceGroup = scene.getObjectByName(files[activeCosmetics['Facewear']].name)
+            referenceGroup.position.set(0,0.2,0);
+            if (files[file].attachment_points!==undefined&&files[file].attachment_points.glasses !== undefined) {
+              if (files[file].attachment_points.glasses.scale !== undefined) {
+                referenceGroup.scale.set(files[file].attachment_points.glasses.scale, files[file].attachment_points.glasses.scale, files[file].attachment_points.glasses.scale)
+              }
+              referenceGroup.position.z -= Number(files[file].attachment_points.glasses.position[2]);
+            }
+            if (activeCosmetics['Facewear'].attachment_point_overrides !== undefined) {
+              referenceGroup.position.x -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[0])
+              referenceGroup.position.y += Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[1])
+              referenceGroup.position.z -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[2])
+            }
+          }
+          if (activeCosmetics['Hats'] !== undefined) {
+            let referenceGroup = scene.getObjectByName(files[activeCosmetics['Hats']].name)
+            referenceGroup.position.set(0,0.2,0);
+            if (files[file].attachment_points!==undefined&&files[file].attachment_points.hat !== undefined) {
+              if (files[file].attachment_points.hat.scale !== undefined) {
+                referenceGroup.scale.set(files[file].attachment_points.hat.scale, files[file].attachment_points.hat.scale, files[file].attachment_points.hat.scale)
+              }
+              referenceGroup.position.y += Number(files[file].attachment_points.hat.position[1]);
+            }
+          } 
         }
         if (files[activeCosmetics['Heads']].attachment_points) {
           if ('Facewear' === category) {
@@ -508,9 +541,7 @@ function renderPlayer(file, category) {
               if (files[activeCosmetics['Heads']].attachment_points.glasses.scale !== undefined) {
                 group.scale.set(files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale)
               }
-              if (files[file].attachment_point_overrides !== undefined) {
-                group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);
-              }
+              group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);
             }
             if (files[file].attachment_point_overrides !== undefined) {
               group.position.x -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[0])
@@ -626,30 +657,38 @@ async function renderCosmetics(category) {
       previewButton.addEventListener('click', () => {
         previewButton.classList.toggle('toggled');
         const toggledButton = document.getElementById(activeCosmetics[category]);
-        if (previewButton.id !== toggledButton.id) {
-          toggledButton.classList.toggle('toggled');
-          toggledButton.innerHTML = 'Preview'
-          toggledButton.style.backgroundColor = '#00FF00'
+        if (toggledButton !== null) {
+          if (previewButton.id !== toggledButton.id) {
+            toggledButton.classList.toggle('toggled');
+            toggledButton.innerHTML = 'Preview'
+            toggledButton.style.backgroundColor = '#00FF00'
+            previewButton.innerHTML = 'Un-equip'
+            previewButton.style.backgroundColor = "#FF0000";
+            scene.remove(scene.getObjectByName(files[activeCosmetics[category]].name));
+            if (category == 'Hands') {
+              scene.remove(clonedGroup)
+            }
+            activeCosmetics[category] = itemBackup;
+            renderPlayer(itemBackup, category)
+          }
+
+          if (previewButton.id == toggledButton.id && ['Heads', 'Hands'].includes(category)) {
+            previewButton.innerHTML = 'Un-equip'
+            previewButton.style.backgroundColor = "#FF0000";
+            activeCosmetics[category] = itemBackup;
+          }
+          if (previewButton.id == toggledButton.id && !['Heads', 'Hands'].includes(category)) {
+            previewButton.classList.toggle('toggled');
+            previewButton.innerHTML = 'preview';
+            previewButton.style.backgroundColor = '#00FF00';
+            scene.remove(scene.getObjectByName(files[activeCosmetics[category]].name));
+            activeCosmetics[category] = undefined;
+          }
+        } else if (toggledButton == null) {
           previewButton.innerHTML = 'Un-equip'
           previewButton.style.backgroundColor = "#FF0000";
-          scene.remove(scene.getObjectByName(files[activeCosmetics[category]].name));
-          if (category == 'Hands') {
-            scene.remove(clonedGroup)
-          }
           activeCosmetics[category] = itemBackup;
           renderPlayer(itemBackup, category)
-        }
-
-        if (previewButton.id == toggledButton.id && ['Heads', 'Hands'].includes(category)) {
-          previewButton.innerHTML = 'Un-equip'
-          previewButton.style.backgroundColor = "#FF0000";
-          activeCosmetics[category] = itemBackup;
-        }
-        if (previewButton.id == toggledButton.id && !['Heads', 'Hands'].includes(category)) {
-          previewButton.classList.toggle('toggled');
-          previewButton.innerHTML = 'preview';
-          previewButton.style.backgroundColor = '#00FF00';
-          activeCosmetics[category] = undefined;
         }
       });
       element.appendChild(previewButton);
