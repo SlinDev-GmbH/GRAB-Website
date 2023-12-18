@@ -137,6 +137,7 @@ for (var category in catalogResponseBody) {
                 type: items[cosmeticItem].type,
                 previewRotation: preview_rotation,
                 attachment_points: items[cosmeticItem].attachment_points ? items[cosmeticItem].attachment_points : undefined,
+                attachment_point_overrides: items[cosmeticItem].attachment_point_overrides ? items[cosmeticItem].attachment_point_overrides : undefined
               }
             }
           }
@@ -166,6 +167,7 @@ for (var category in catalogResponseBody) {
               type: items[cosmeticItem].type,
               previewRotation: preview_rotation,
               attachment_points: items[cosmeticItem].attachment_points ? items[cosmeticItem].attachment_points : undefined,
+              attachment_point_overrides: items[cosmeticItem].attachment_point_overrides ? items[cosmeticItem].attachment_point_overrides : undefined
             }
           }
         }
@@ -497,7 +499,13 @@ function renderPlayer(file, category) {
                 if (files[activeCosmetics['Heads']].attachment_points.glasses.scale !== undefined) {
                   group.scale.set(files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale)
                 }
-                group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);
+                if(files[file].attachment_point_overrides !== undefined){
+                group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);}
+              }
+              if(files[file].attachment_point_overrides !== undefined){
+                group.position.x -=Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[0])
+                group.position.y +=Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[1])
+                group.position.z -=Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[2])
               }
             }
             if ('Hats' === category) {
@@ -538,7 +546,7 @@ function renderPlayer(file, category) {
       if (files[file].materials.indexOf("default_primary_color") == -1 && files[file].primaryColor) {
         group.children[0].material.color.set(`#${Math.round(files[file].primaryColor[0] * 255).toString(16).padStart(2, '0')}${Math.round(files[file].primaryColor[1] * 255).toString(16).padStart(2, '0')}${Math.round(files[file].primaryColor[2] * 255).toString(16).padStart(2, '0')}`)
       }
-      if (files[file].materials.indexOf("default_primary_color") == -1 && files[file].primaryColor) {
+      if (files[file].materials.indexOf("default_secondary_color") == -1 && files[file].secondaryColor) {
         group.children[1].material.color.set(`#${Math.round(files[file].secondaryColor[0] * 255).toString(16).padStart(2, '0')}${Math.round(files[file].secondaryColor[1] * 255).toString(16).padStart(2, '0')}${Math.round(files[file].secondaryColor[2] * 255).toString(16).padStart(2, '0')}`)
       }
       group.children.forEach((e) => {
@@ -683,8 +691,8 @@ async function renderCosmetics(category) {
           });
 
           if (z) {
-            if (files[z].previewRotation !== undefined) {
-              group.rotation.x += Number(files[z].previewRotation[0]) * Math.PI / 180;
+            if (files[z].previewRotation !== undefined && files[z].category !== 'Hats') {
+              group.rotation.x += Number(files[z].previewRotation[0]) * Math.PI / 180;//this cant be y
               group.rotation.y += Number(files[z].previewRotation[1]) * Math.PI / 180;
               group.rotation.z += Number(files[z].previewRotation[2]) * Math.PI / 180;
             }
@@ -694,6 +702,12 @@ async function renderCosmetics(category) {
               group.rotation.y -= Math.PI / 2;
             }
             if (files[z].category == 'Heads') {
+              group.rotation.z += Math.PI
+            }
+            if (files[z].category == 'Facewear') {
+              group.rotation.z += Math.PI
+            }
+            if (files[z].category == 'Hats') {
               group.rotation.y += Math.PI
             }
             if (files[z].category == 'Hands') {
@@ -711,7 +725,7 @@ async function renderCosmetics(category) {
             if (files[z].materials.indexOf("default_primary_color") == -1 && files[z].primaryColor) {
               group.children[0].material.color.set(`#${Math.round(files[z].primaryColor[0] * 255).toString(16).padStart(2, '0')}${Math.round(files[z].primaryColor[1] * 255).toString(16).padStart(2, '0')}${Math.round(files[z].primaryColor[2] * 255).toString(16).padStart(2, '0')}`)
             }
-            if (files[z].materials.indexOf("default_primary_color") == -1 && files[z].primaryColor) {
+            if (files[z].materials.indexOf("default_secondary_color") == -1 && files[z].secondaryColor) {
               group.children[1].material.color.set(`#${Math.round(files[z].secondaryColor[0] * 255).toString(16).padStart(2, '0')}${Math.round(files[z].secondaryColor[1] * 255).toString(16).padStart(2, '0')}${Math.round(files[z].secondaryColor[2] * 255).toString(16).padStart(2, '0')}`)
             }
           }
