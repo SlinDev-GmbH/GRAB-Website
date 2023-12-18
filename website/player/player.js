@@ -18,7 +18,7 @@ let selectedSecondaryDiv;
 let secondaryOpened;
 let files = {};
 let backTracker;
-let clonedGroup; 
+let clonedGroup;
 let activeCosmetics = {
   'Heads': undefined,
   'Hats': undefined,
@@ -244,6 +244,7 @@ files['player_basic_hand'] = {
 renderPlayer('player_basic_head', 'Heads');
 renderPlayer('player_basic_hand', 'Hands');
 renderPlayer('player_basic_body', undefined);
+let categoryState;
 function displayCategoryList(a) {
   let categoriesContent = document.getElementById('categories-content');
   let children = categoriesContent.children;
@@ -252,8 +253,8 @@ function displayCategoryList(a) {
     for (let i = 0; i < children.length; i++) {
       children[i].style.display = 'none';
     }
-    primaryOpened=false;
-    secondaryOpened=false
+    primaryOpened = false;
+    secondaryOpened = false
     if (selectedPrimaryDiv) selectedPrimaryDiv[0].style.outline = 'none';
     if (selectedSecondaryDiv) selectedSecondaryDiv[0].style.outline = 'none';
     document.getElementById('categories-content').style.display = "grid"
@@ -273,6 +274,7 @@ function displayCategoryList(a) {
       var child = contentChildren[i];
       document.getElementById("content").removeChild(child);
     }
+    categoryState = false;
     document.getElementById('categories-content').style.display = 'grid'
     document.getElementById('Head').style.display = 'block'
     document.getElementById('Body').style.display = 'block'
@@ -298,6 +300,7 @@ function displayCategoryList(a) {
   }
   if (a == 3) {//show head accessories categories
     backTracker = 1;
+    categoryState = true;
     for (let i = 0; i < children.length; i++) {
       children[i].style.display = 'none';
     }
@@ -305,6 +308,8 @@ function displayCategoryList(a) {
     document.getElementById('Hats').style.display = 'block'
     document.getElementById('Facewear').style.display = 'block'
     document.getElementById('categories-content').style.height = '150px'
+    document.getElementById('content').style.height = '';
+    document.getElementById('back-btn').style.marginTop = '0em';
     var contentChildren = document.getElementById("content").childNodes;
     for (var i = contentChildren.length - 1; i >= 0; i--) {
       var child = contentChildren[i];
@@ -313,7 +318,11 @@ function displayCategoryList(a) {
     document.getElementById('categories-content').style.display = 'grid'
   }
   if (a == 4) {//finals when clicked 
-    backTracker = 1;
+    if (categoryState == true) {
+      backTracker = 3;
+    } else {
+      backTracker = 1;
+    }
     for (let i = 0; i < children.length; i++) {
       children[i].style.display = 'none';
     }
@@ -388,10 +397,10 @@ if (userId) {
 
   if (activeCosmetics['Heads'] !== undefined && playerResponseBody.active_customizations.items["head"] !== undefined && activeCosmetics['Heads'] !== playerResponseBody.active_customizations.items["head"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Heads']].name));
-  } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"]?playerResponseBody.active_customizations.items["head"]:'player_basic_head'
-  if (activeCosmetics['Hands'] !== undefined && playerResponseBody.active_customizations.items["hand"] !== undefined &&activeCosmetics['Hands'] !== playerResponseBody.active_customizations.items["hand"]) {
-   scene.remove(scene.getObjectByName(files[activeCosmetics['Hands']].name));
-  } activeCosmetics['Hands'] = playerResponseBody.active_customizations.items["hand"]?playerResponseBody.active_customizations.items["hand"]:'player_basic_hand'
+  } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"] ? playerResponseBody.active_customizations.items["head"] : 'player_basic_head'
+  if (activeCosmetics['Hands'] !== undefined && playerResponseBody.active_customizations.items["hand"] !== undefined && activeCosmetics['Hands'] !== playerResponseBody.active_customizations.items["hand"]) {
+    scene.remove(scene.getObjectByName(files[activeCosmetics['Hands']].name));
+  } activeCosmetics['Hands'] = playerResponseBody.active_customizations.items["hand"] ? playerResponseBody.active_customizations.items["hand"] : 'player_basic_hand'
   if (activeCosmetics['Hats'] !== undefined && activeCosmetics['Hats'] !== playerResponseBody.active_customizations.items["head/hat"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Hats']].name));
   } activeCosmetics['Hats'] = playerResponseBody.active_customizations.items["head/hat"]
@@ -487,53 +496,54 @@ function renderPlayer(file, category) {
         group.add(threeMesh);
       });
 
-   
-        group.name = files[file].name;
-        if (category !== undefined) {
-          if (['Heads', 'Hats', 'Facewear'].includes(category)) {
-            group.position.y += 0.2;
-          }
-          if (files[activeCosmetics['Heads']].attachment_points) {
-            if ('Facewear' === category) {
-              if (files[activeCosmetics['Heads']].attachment_points.glasses !== undefined) {
-                if (files[activeCosmetics['Heads']].attachment_points.glasses.scale !== undefined) {
-                  group.scale.set(files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale)
-                }
-                if(files[file].attachment_point_overrides !== undefined){
-                group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);}
+
+      group.name = files[file].name;
+      if (category !== undefined) {
+        if (['Heads', 'Hats', 'Facewear'].includes(category)) {
+          group.position.y += 0.2;
+        }
+        if (files[activeCosmetics['Heads']].attachment_points) {
+          if ('Facewear' === category) {
+            if (files[activeCosmetics['Heads']].attachment_points.glasses !== undefined) {
+              if (files[activeCosmetics['Heads']].attachment_points.glasses.scale !== undefined) {
+                group.scale.set(files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale, files[activeCosmetics['Heads']].attachment_points.glasses.scale)
               }
-              if(files[file].attachment_point_overrides !== undefined){
-                group.position.x -=Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[0])
-                group.position.y +=Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[1])
-                group.position.z -=Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[2])
+              if (files[file].attachment_point_overrides !== undefined) {
+                group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);
               }
             }
-            if ('Hats' === category) {
-              if (files[activeCosmetics['Heads']].attachment_points.hat !== undefined) {
-                if (files[activeCosmetics['Heads']].attachment_points.hat.scale !== undefined) {
-                  group.scale.set(files[activeCosmetics['Heads']].attachment_points.hat.scale, files[activeCosmetics['Heads']].attachment_points.hat.scale, files[activeCosmetics['Heads']].attachment_points.hat.scale)
-                }
-                group.position.y += Number(files[activeCosmetics['Heads']].attachment_points.hat.position[1]);
-              }
+            if (files[file].attachment_point_overrides !== undefined) {
+              group.position.x -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[0])
+              group.position.y += Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[1])
+              group.position.z -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[2])
             }
           }
-          if ('Grapples' === category) {
-            group.position.x = 0.5;
-            group.position.y = -1.25
-            group.rotation.x += Math.PI / 2;
-            group.rotation.y += Math.PI
+          if ('Hats' === category) {
+            if (files[activeCosmetics['Heads']].attachment_points.hat !== undefined) {
+              if (files[activeCosmetics['Heads']].attachment_points.hat.scale !== undefined) {
+                group.scale.set(files[activeCosmetics['Heads']].attachment_points.hat.scale, files[activeCosmetics['Heads']].attachment_points.hat.scale, files[activeCosmetics['Heads']].attachment_points.hat.scale)
+              }
+              group.position.y += Number(files[activeCosmetics['Heads']].attachment_points.hat.position[1]);
+            }
           }
+        }
+        if ('Grapples' === category) {
+          group.position.x = 0.5;
+          group.position.y = -1.25
+          group.rotation.x += Math.PI / 2;
+          group.rotation.y += Math.PI
+        }
 
-          if ('Checkpoints' === category) {
-            group.position.x = -0.5;
-            group.position.y = -1.5
-            group.rotation.y += Math.PI
-          }
+        if ('Checkpoints' === category) {
+          group.position.x = -0.5;
+          group.position.y = -1.5
+          group.rotation.y += Math.PI
+        }
 
-        } 
-        group.rotation.y += Math.PI;
-       
-      
+      }
+      group.rotation.y += Math.PI;
+
+
       if (files[file].materials.indexOf('default_primary_color') !== -1) {
         group.children[files[file].materials.indexOf('default_primary_color')].name = 'default_primary_color'
       }
@@ -557,21 +567,21 @@ function renderPlayer(file, category) {
         } if (e.name === 'default_secondary_color_visor' && visorColor !== undefined) {
           e.material.color.set(visorColor);
         }
-      });  scene.add(group);
-      if('Hands' === category){
-       clonedGroup = group.clone(); // Clone the group
-       clonedGroup.position.set(-0.3, -0.75, 0.1);
-       clonedGroup.rotation.z += Math.PI
-       clonedGroup.rotation.x += Math.PI/2
-       scene.add(clonedGroup); // Add the cloned group 
+      }); scene.add(group);
+      if ('Hands' === category) {
+        clonedGroup = group.clone(); // Clone the group
+        clonedGroup.position.set(-0.3, -0.75, 0.1);
+        clonedGroup.rotation.z += Math.PI
+        clonedGroup.rotation.x += Math.PI / 2
+        scene.add(clonedGroup); // Add the cloned group 
         group.position.set(0.3, -0.75, 0.1);
-        group.rotation.x+=Math.PI/2
+        group.rotation.x += Math.PI / 2
       }
-    
+
       resolve();
     });
   });
-  
+
 }
 let canvas;
 var scenes = [], renderer2;
@@ -615,21 +625,21 @@ async function renderCosmetics(category) {
       }
       previewButton.addEventListener('click', () => {
         previewButton.classList.toggle('toggled');
-      const toggledButton = document.getElementById(activeCosmetics[category]);
-          if (previewButton.id !== toggledButton.id) {
-            toggledButton.classList.toggle('toggled');
-            toggledButton.innerHTML = 'Preview'
-            toggledButton.style.backgroundColor = '#00FF00'
-            previewButton.innerHTML = 'Un-equip'
-            previewButton.style.backgroundColor = "#FF0000";
-            scene.remove(scene.getObjectByName(files[activeCosmetics[category]].name));
-            if(category=='Hands'){
-              scene.remove(clonedGroup)
-            }
-            activeCosmetics[category] = itemBackup;
-            renderPlayer(itemBackup, category)
+        const toggledButton = document.getElementById(activeCosmetics[category]);
+        if (previewButton.id !== toggledButton.id) {
+          toggledButton.classList.toggle('toggled');
+          toggledButton.innerHTML = 'Preview'
+          toggledButton.style.backgroundColor = '#00FF00'
+          previewButton.innerHTML = 'Un-equip'
+          previewButton.style.backgroundColor = "#FF0000";
+          scene.remove(scene.getObjectByName(files[activeCosmetics[category]].name));
+          if (category == 'Hands') {
+            scene.remove(clonedGroup)
           }
-        
+          activeCosmetics[category] = itemBackup;
+          renderPlayer(itemBackup, category)
+        }
+
         if (previewButton.id == toggledButton.id && ['Heads', 'Hands'].includes(category)) {
           previewButton.innerHTML = 'Un-equip'
           previewButton.style.backgroundColor = "#FF0000";
@@ -711,7 +721,7 @@ async function renderCosmetics(category) {
               group.rotation.y += Math.PI
             }
             if (files[z].category == 'Hands') {
-              group.rotation.x += Math.PI/2
+              group.rotation.x += Math.PI / 2
             }
             if (files[z].materials.indexOf('default_primary_color') !== -1) {
               group.children[files[z].materials.indexOf('default_primary_color')].name = 'default_primary_color'
