@@ -384,9 +384,9 @@ if (userId) {
   playerSec_Color = playerResponseBody.active_customizations.player_color_secondary.color;
 
 
-  if (activeCosmetics['Heads'] !== undefined && activeCosmetics['Heads'] !== playerResponseBody.active_customizations.items["head"]) {
+  if (activeCosmetics['Heads'] !== undefined && playerResponseBody.active_customizations.items["head"] !== undefined && activeCosmetics['Heads'] !== playerResponseBody.active_customizations.items["head"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Heads']].name));
-  } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"]
+  } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"]?playerResponseBody.active_customizations.items["head"]:'player_basic_head'
   if (activeCosmetics['Hands'] !== undefined && playerResponseBody.active_customizations.items["hand"] !== undefined &&activeCosmetics['Hands'] !== playerResponseBody.active_customizations.items["hand"]) {
    scene.remove(scene.getObjectByName(files[activeCosmetics['Hands']].name));
   } activeCosmetics['Hands'] = playerResponseBody.active_customizations.items["hand"]?playerResponseBody.active_customizations.items["hand"]:'player_basic_hand'
