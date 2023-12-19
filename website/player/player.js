@@ -223,12 +223,13 @@ for (let w = 0; w < 100; w++) {
   container.style.backgroundColor = `rgb(${Math.floor(LinearToGamma(GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255)}, ${Math.floor(LinearToGamma(GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255)}, ${Math.floor(LinearToGamma(GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255)})`;
   picker.appendChild(container);
 }
-files['player_basic_head'] = {
+files['default'] = {
   file: './cosmetics/head/head/head.sgm',
   name: 'Head Basic',
   category: 'Heads',
   materials: ['default_primary_color', 'default_secondary_color', 'default_secondary_color_visor'],
-  previewRotation: [180, 0, 0]
+  previewRotation: [180, 0, 0],
+  attachment_points:{glasses:{position:[0,0,0]}}//really weird condition 
 }
 files['player_basic_body'] = {
   file: './cosmetics/body/body.sgm',
@@ -244,9 +245,7 @@ files['player_basic_hand'] = {
   materials: ['default_primary_color', 'default_secondary_color', 'default_secondary_color_visor'],
   previewRotation: [180, 0, 0]
 }
-renderPlayer('player_basic_head', 'Heads');
-renderPlayer('player_basic_hand', 'Hands');
-renderPlayer('player_basic_body', undefined);
+ 
 let categoryState;
 function displayCategoryList(a) {
   let categoriesContent = document.getElementById('categories-content');
@@ -373,7 +372,7 @@ const scene = new THREE.Scene();
 scene.background = null
 
 scene.add(new THREE.AmbientLight(0xffffff, 1));
-const directionalLight = new THREE.DirectionalLight(0x999999, 0.5)
+const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 2)
 directionalLight.position.set(0, 1, 2);
 scene.add(directionalLight);
 
@@ -390,7 +389,9 @@ controls.enableZoom = controls.enablePan = true;
 controls.minPolarAngle = controls.maxPolarAngle = Math.PI / 2;
 controls.addEventListener('start', () => document.body.style.cursor = 'none');
 controls.addEventListener('end', () => document.body.style.cursor = 'auto');
-
+await renderPlayer('default', 'Heads');
+await renderPlayer('player_basic_hand', 'Hands');
+await renderPlayer('player_basic_body', undefined);
 if (userId) {
   let playerInfoResponse = await fetch(playerInfo_Url);
   let playerResponseBody = await playerInfoResponse.json();
@@ -406,7 +407,7 @@ if (userId) {
 
   if (activeCosmetics['Heads'] !== undefined && playerResponseBody.active_customizations.items["head"] !== undefined && activeCosmetics['Heads'] !== playerResponseBody.active_customizations.items["head"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Heads']].name));
-  } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"] ? playerResponseBody.active_customizations.items["head"] : 'player_basic_head'
+  } activeCosmetics['Heads'] = playerResponseBody.active_customizations.items["head"] ? playerResponseBody.active_customizations.items["head"] : 'default'
   if (activeCosmetics['Hands'] !== undefined && playerResponseBody.active_customizations.items["hand"] !== undefined && activeCosmetics['Hands'] !== playerResponseBody.active_customizations.items["hand"]) {
     scene.remove(scene.getObjectByName(files[activeCosmetics['Hands']].name));
     if (clonedGroup) {
@@ -461,24 +462,22 @@ if (userId) {
 
 function renderPlayer(file, category) {
   return new Promise((resolve, reject) => {
-    if (file === 'player_basic_head') {
-      activeCosmetics['Heads'] = 'player_basic_head'
+    if (file === 'default') {
+      activeCosmetics['Heads'] = 'default';
     }
     if (file === 'player_basic_hand') {
-      activeCosmetics['Hands'] = 'player_basic_hand'
+      activeCosmetics['Hands'] = 'player_basic_hand';
     }
 
     const loader = new SGMLoader();
-    loader.load(files[file].file, function ([meshes, materials]) {
+    loader.load(files[file].file, async function ([meshes, materials]) {
       const group = new THREE.Group();
 
       const threeMaterials = materials.map((material) => {
-        console.log(material)
         const color = material.colors[0][0];
         const matOptions = {
           color: new THREE.Color(color[0], color[1], color[2]),
         };
-        //we need some way to render the textures in cosmetics/textures
         return new THREE.MeshStandardMaterial(matOptions);
       });
 
@@ -504,7 +503,6 @@ function renderPlayer(file, category) {
         const threeMesh = new THREE.Mesh(geometry, threeMaterials[mesh.material_id]);
         group.add(threeMesh);
       });
-
 
       group.name = files[file].name;
 
@@ -548,6 +546,8 @@ function renderPlayer(file, category) {
               group.position.z -= Number(files[activeCosmetics['Heads']].attachment_points.glasses.position[2]);
             }
             if (files[file].attachment_point_overrides !== undefined) {
+              console.log(activeCosmetics['Heads'])
+
               group.position.x -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[0])
               group.position.y += Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[1])
               group.position.z -= Number(files[file].attachment_point_overrides[activeCosmetics['Heads']].position[2])
@@ -612,7 +612,6 @@ function renderPlayer(file, category) {
         group.position.set(0.3, -0.75, 0.1);
         group.rotation.x += Math.PI / 2
       }
-
       resolve();
     });
   });
@@ -745,25 +744,13 @@ async function renderCosmetics(category) {
           });
 
           if (z) {
-            if (files[z].previewRotation !== undefined && files[z].category !== 'Hats') {
-              group.rotation.x += Number(files[z].previewRotation[0]) * Math.PI / 180;//this cant be y
-              group.rotation.y += Number(files[z].previewRotation[1]) * Math.PI / 180;
-              group.rotation.z += Number(files[z].previewRotation[2]) * Math.PI / 180;
+            if (files[z].previewRotation !== undefined) {
+                group.rotation.x += Number(files[z].previewRotation[1]) * Math.PI / 180;//this cant be y. Update: it might be y 
+                group.rotation.y += Number(files[z].previewRotation[0]) * Math.PI / 180;
+                group.rotation.z += Number(files[z].previewRotation[2]) * Math.PI / 180;
+                //Three js and grab rotations axis I still dont know the conversion so this might be wrong           
             }
             group.name = files[z].name;
-            if (files[z].category == 'Grapples') {
-              group.rotation.x += Math.PI / 2;
-              group.rotation.y -= Math.PI / 2;
-            }
-            if (files[z].category == 'Heads') {
-              group.rotation.z += Math.PI
-            }
-            if (files[z].category == 'Facewear') {
-              group.rotation.z += Math.PI
-            }
-            if (files[z].category == 'Hats') {
-              group.rotation.y += Math.PI
-            }
             if (files[z].category == 'Hands') {
               group.rotation.x += Math.PI / 2
             }
