@@ -1,6 +1,9 @@
 import * as THREE from 'https://cdn.skypack.dev/three@v0.132.0';
 import { OrbitControls } from 'https://cdn.skypack.dev/three@v0.132.0/examples/jsm/controls/OrbitControls.js';
 import { SGMLoader } from './sgmLoader.js'
+
+( async () => {
+
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get('user_id');
 const playerInfo_Url = `https://api.slin.dev/grab/v1/get_user_info?user_id=${userId}`;
@@ -861,3 +864,4 @@ function changeMeshColors(primaryColor, secondaryColor, visorColor_) {
 }
 
 renderLoop();
+})();
