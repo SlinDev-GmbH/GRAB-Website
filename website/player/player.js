@@ -473,6 +473,7 @@ function renderPlayer(file, category) {
       const group = new THREE.Group();
 
       const threeMaterials = materials.map((material) => {
+        console.log(material)
         const color = material.colors[0][0];
         const matOptions = {
           color: new THREE.Color(color[0], color[1], color[2]),
@@ -712,6 +713,7 @@ async function renderCosmetics(category) {
         sgmLoader2.load(files[item].file, function ([meshes, materials]) {
           const group = new THREE.Group();
           const threeMaterials = materials.map((material) => {
+            console.log(material)
             const color = material.colors[0][0];
 
             return new THREE.MeshStandardMaterial({
