@@ -13,8 +13,6 @@ class SGMLoader extends THREE.Loader {
     loader.setWithCredentials(this.withCredentials);
     loader.load(url, (data) => {
       try {
-        console.log(url)
-        console.log(data)
         const result = this.parse(data);
         onLoad(result);
       } catch (error) {

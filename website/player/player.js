@@ -131,7 +131,7 @@ for (var category in catalogResponseBody) {
 
             if (catalogResponseBody[category].sections[index].items[item] === cosmeticItem) {
               files[cosmeticItem] = {
-                file: items[cosmeticItem].file + '.sgm',
+                file: '/' + items[cosmeticItem].file + '.sgm',
                 name: items[cosmeticItem].title,
                 category: catalogResponseBody[category].sections[index].title,
                 primaryColor: items[cosmeticItem].colors ? items[cosmeticItem].colors[0] : undefined,
@@ -161,7 +161,7 @@ for (var category in catalogResponseBody) {
           }
           if (catalogResponseBody[category].items[item] === cosmeticItem) {
             files[cosmeticItem] = {
-              file: items[cosmeticItem].file + '.sgm',
+              file: '/' + items[cosmeticItem].file + '.sgm',
               name: items[cosmeticItem].title,
               category: catalogResponseBody[category].title,
               primaryColor: items[cosmeticItem].colors ? items[cosmeticItem].colors[0] : undefined,
@@ -224,7 +224,7 @@ for (let w = 0; w < 100; w++) {
   picker.appendChild(container);
 }
 files['default'] = {
-  file: './cosmetics/head/head/head.sgm',
+  file: '/cosmetics/head/head/head.sgm',
   name: 'Head Basic',
   category: 'Heads',
   materials: ['default_primary_color', 'default_secondary_color', 'default_secondary_color_visor'],
@@ -232,14 +232,14 @@ files['default'] = {
   attachment_points:{glasses:{position:[0,0,0]}}//really weird condition 
 }
 files['player_basic_body'] = {
-  file: './cosmetics/body/body.sgm',
+  file: '/cosmetics/body/body.sgm',
   name: 'Body Basic',
   category: undefined,
   materials: ['default_secondary_color', 'default_primary_color']
 
 }
 files['player_basic_hand'] = {
-  file: './cosmetics/hand/hand_claw.sgm',
+  file: '/cosmetics/hand/hand_claw.sgm',
   name: 'Claw Hand',
   category: 'Hands',
   materials: ['default_primary_color', 'default_secondary_color', 'default_secondary_color_visor'],
@@ -472,8 +472,6 @@ function renderPlayer(file, category) {
     const loader = new SGMLoader();
     loader.load(files[file].file, async function ([meshes, materials]) {
       const group = new THREE.Group();
-
-      console.log(materials)
 
       const threeMaterials = materials.map((material) => {
         const color = material.colors[0][0];
@@ -714,7 +712,6 @@ async function renderCosmetics(category) {
         sgmLoader2.load(files[item].file, function ([meshes, materials]) {
           const group = new THREE.Group();
           const threeMaterials = materials.map((material) => {
-            console.log(material)
             const color = material.colors[0][0];
 
             return new THREE.MeshStandardMaterial({
