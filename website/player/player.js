@@ -471,6 +471,7 @@ function renderPlayer(file, category) {
 
     const loader = new SGMLoader();
     loader.load(files[file].file, async function ([meshes, materials]) {
+      console.log(meshes, materials);
       const group = new THREE.Group();
 
       const threeMaterials = materials.map((material) => {
