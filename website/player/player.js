@@ -473,6 +473,8 @@ function renderPlayer(file, category) {
     loader.load(files[file].file, async function ([meshes, materials]) {
       const group = new THREE.Group();
 
+      console.log(materials)
+
       const threeMaterials = materials.map((material) => {
         const color = material.colors[0][0];
         const matOptions = {
