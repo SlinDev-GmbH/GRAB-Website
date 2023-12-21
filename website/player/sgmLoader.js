@@ -28,36 +28,31 @@ class SGMLoader extends THREE.Loader {
     }, onProgress, onError);
   }
   parse(data) {
-    const buffer = new Uint8Array(data);
+    const bufferView = new DataView(data);
     let offset = 0;
   
-    function readBytes(size) {
-      const result = buffer.slice(offset, offset + size);
-      offset += size;
-      return result;
-    }
-  
     function readUInt8() {
-      return readBytes(1)[0];
+      let value = bufferView.getUint8(offset, true)
+      offset += 1
+      return value
     }
   
     function readUInt16() {
-      const bytes = readBytes(2);
-      return (bytes[0] | (bytes[1] << 8)) >>> 0;
+      let value = bufferView.getUint16(offset, true)
+      offset += 2
+      return value
     }
   
     function readUInt32() {
-      const bytes = readBytes(4);
-      return (bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)) >>> 0;
+      let value = bufferView.getUint32(offset, true)
+      offset += 4
+      return value
     }
   
     function readFloat32() {
-      const bytes = readBytes(4);
-      const view = new DataView(new ArrayBuffer(4));
-      for (let i = 0; i < 4; i++) {
-        view.setUint8(i, bytes[i]);
-      }
-      return view.getFloat32(0, true);
+      let value = bufferView.getFloat32(offset, true)
+      offset += 4
+      return value
     }
   
     function readFloat32Array(count) {
@@ -69,10 +64,17 @@ class SGMLoader extends THREE.Loader {
     }
   
     function readString() {
-      const length = readUInt16() - 1;
-      const bytes = readBytes(length);
-      readBytes(1); // skip null terminator
-      return new TextDecoder("utf-8").decode(bytes);
+      var text = '';
+      var val = -1;
+
+      const length = readUInt16() - 1
+      for(let i = 0; i < length; i++)
+      {
+        val = readUInt8()
+        text += String.fromCharCode(val)
+      }
+      readBytes(1) // skip null terminator
+      return text
     }
   
     const version = [readUInt32(), readUInt8()];
