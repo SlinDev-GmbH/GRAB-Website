@@ -118,6 +118,26 @@ export default {
     setSelected(index) {
       this.selected = index;
     },
+
+    handleKey(event) {
+      if (event.key === 'ArrowUp') {
+        this.moveLevelUp();
+      }
+      else if (event.key === 'ArrowDown') {
+        this.moveLevelDown();
+      }
+      else if (event.key === 'Delete') {
+        this.removeLevel();
+      }
+    }
+  },
+
+  mounted() {
+    window.addEventListener('keydown', this.handleKey);
+  },
+
+  destroyed() {
+    window.removeEventListener('keydown', this.handleKey);
   },
 }
 </script>
@@ -158,9 +178,9 @@ export default {
 }
 #controls {
     text-align: center;
-    clear: right;
-    float: left;
-    width: 27%;
+    float: right;
+    width: 30%;
+    padding-right: 16px;
 }
 #controls input {
     margin: 10px;
@@ -169,7 +189,7 @@ export default {
     margin-left: 20px;
     background-color: #555;
 }
-#controls input:nth-child(1) {
+#controls input:nth-child(1), #levelList .level-card:nth-child(1) {
     margin-top: 0;
 }
 #controls #send-button {
@@ -188,5 +208,6 @@ export default {
   border-radius: 10px;
   width: 70%;
   margin-left: 0;
+  padding-left: 16px;
 }
 </style>
