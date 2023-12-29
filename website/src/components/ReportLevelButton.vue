@@ -34,7 +34,7 @@ export default {
   width: 7%;
   cursor: pointer;
   position: absolute;
-  bottom: 4%;
-  left: 12%;
+  bottom: 4.5%;
+  left: 15%;
 }
 </style>
