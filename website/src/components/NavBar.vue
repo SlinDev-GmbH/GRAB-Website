@@ -84,7 +84,7 @@ export default {
   transition: 0.3s;
   font-weight: medium;
   height: 100%;
-      font-size: 14px;
+  font-size: 14px;
 }
 
 /* Change background color of buttons on hover */

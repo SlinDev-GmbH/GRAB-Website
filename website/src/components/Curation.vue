@@ -67,16 +67,14 @@ export default {
 <template>
   <a class="back-button" href="/levels">Back</a>
   <h1>Curated Level Lists</h1>
-	<div id="buttonWrapper">
+	<div v-if="isAdmin" id="buttonWrapper">
 		<NewCurationButton @handled="handleTypeListUpdate"/>
 		<RemoveCurationButton @handled="handleTypeListUpdate"/>
 	</div>
 	<div id="typeSelectorWrapper">
 		<select id="typeSelector" @change="handleTypeChange"></select>
 	</div>
-	<div id="container">
-		<CurationControls :type="type"/>
-	</div>
+	<CurationControls :type="type"/>
 </template>
 
 <style scoped>
@@ -129,20 +127,12 @@ select:focus-visible {
 	font-size: 20px;
 	padding: 10px;
 	margin-left: 10px;
-	width: 20%;
+	width: max(20%, 150px);
 	color: #fff;
 	cursor: pointer;
 	font-weight: bold;
 	border: none;
 	border-radius: 15px;
-}
-#container {
-	margin: 0 auto;
-	padding: 10px;
-	width: 100%;
-	display: block;
-	height: 0;
-	padding-block: 0;
 }
 .back-button {
 	font-size: 20px;

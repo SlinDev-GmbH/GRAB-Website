@@ -17,7 +17,8 @@ export default {
   data() {
     return {
       name: undefined,
-      count: undefined
+      count: undefined,
+      isVerified: false,
     }
   },
 
@@ -25,6 +26,7 @@ export default {
     async updateCounter() {
       this.count = undefined
       this.name = undefined
+      this.isVerified = false
 
       const currentUserID = this.otherUserID? this.otherUserID : this.userID
       if(!currentUserID) return
@@ -33,6 +35,7 @@ export default {
       console.log(userInfo)
       this.count = userInfo.user_level_count
       this.name = userInfo.user_name
+      this.isVerified = userInfo.is_creator
     }
   },
 
@@ -53,6 +56,7 @@ export default {
   <div class="user-tab-title-container">
     <div v-if="name" class="user-tab-name">
       {{ name }}
+      <img v-if="isVerified" alt="OK Stamp" class="creator-icon" src="./../assets/creator.png" />
     </div>
     <div v-if="count" class="user-tab-count">
       Level count: {{ count }}
@@ -83,5 +87,12 @@ export default {
   vertical-align: middle;
   line-height: 50px;
   float: right;
+}
+.creator-icon {
+  width: 20px;
+  height: 20px;
+  margin-left: 3px;
+  position: relative;
+  top: 3px;
 }
 </style>
