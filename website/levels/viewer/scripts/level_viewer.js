@@ -592,7 +592,8 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 50.0)
+						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z)
+						particleCount = Math.min(particleCount, 2000);
 						let particlePositions = [];
 
 						for (let i = 0; i < particleCount; i++) {
