@@ -271,6 +271,15 @@ function init()
 					location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
 					userStore.setListIndex(listIndex - 1);
 				});
+				document.addEventListener("keydown", function(event) {
+					if (event.key === '2') {
+						location.href = "/levels/viewer/?level=" + nextListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+						userStore.setListIndex(listIndex + 1);
+					} else if (event.key === '1' && previousListItem) {
+						location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+						userStore.setListIndex(listIndex - 1);
+					}
+				});
 				if ((nextListItem && document.referrer.includes(nextListItem.identifier)) || (previousListItem && document.referrer.includes(previousListItem.identifier)) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
 					listButtons.style.display = "block";
 				}
@@ -652,6 +661,13 @@ function init()
 						object.initialRotation = object.quaternion.clone()
 
 						camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+						
+						var goToStartLabel = document.getElementById("go to start");
+						goToStartLabel.innerHTML = "Go to Start"
+						goToStartLabel.style.cursor="pointer";
+						goToStartLabel.onclick = function() {
+							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+						}
 					}
 					else if(node.levelNodeFinish)
 					{
@@ -669,6 +685,8 @@ function init()
 
 						var goToFinishLabel = document.getElementById("go to finish");
 						goToFinishLabel.innerHTML = "Go to Finish"
+						goToFinishLabel.style.cursor="pointer";
+
 						goToFinishLabel.onclick = function() {
 							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
 						}
