@@ -107,7 +107,7 @@ export default {
       return this.item.hidden === true
     },
 
-    ...mapState(useUserStore, ['isModerator']),
+    ...mapState(useUserStore, ['isVerifier']),
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['isLoggedIn'])
   },
@@ -148,8 +148,8 @@ export default {
     <div class="creators">{{ creators }}</div>
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
-    <VerifyLevelButton v-if="isModerator" :level-info="item"/>
-    <SkipLevelButton v-if="isModerator && this.listType === 'tab_verify_queue'" :level-info="item"/>
+    <VerifyLevelButton v-if="isVerifier" :level-info="item"/>
+    <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
     <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>

@@ -8,6 +8,8 @@ import ModerationPopup from './ModerationPopup.vue'
 import { moderationActionRequest } from '../requests/ModerationActionRequest'
 import { removeModerationActionRequest } from '../requests/RemoveModerationActionRequest'
 
+import { setUserInfoAdmin } from '../requests/SetUserInfoAdmin'
+
 
 export default {
   components: {
@@ -48,6 +50,15 @@ export default {
       const userID = this.userInfo.user_id
       if(!await removeModerationActionRequest(this.$api_server_url, this.accessToken, userID)) return
       this.$emit('handled', false)
+    },
+
+    async makeVerifier()
+    {
+      if(confirm("Do you really want to make this user a Verifier?"))
+      {
+        const userID = this.userInfo.user_id
+        await setUserInfoAdmin(this.$api_server_url, this.accessToken, userID, true)
+      }
     }
   }
 }
@@ -61,6 +72,10 @@ export default {
     <br>
     <button class="moderation-hide-button" @click="showModerationPopup=true">Punish</button>
     <button class="moderation-approve-button" @click="removeModerationAction">Remove Strike</button>
+
+    <br><br>
+    <button class="moderation-approve-button" @click="makeVerifier">Make Verifier</button>
+
   </div>
 
   <Teleport to="body">

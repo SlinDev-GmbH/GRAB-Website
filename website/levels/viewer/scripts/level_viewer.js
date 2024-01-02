@@ -277,7 +277,7 @@ function init()
 			}
 
 			let moderationContainer = document.getElementById("moderationcontainer")
-			if(userStore.isModerator === true)
+			if(userStore.isVerifier === true)
 			{
 				const verifyButton = document.getElementById("verifyButton");
 				const unverifyButton = document.getElementById("unverifyButton");

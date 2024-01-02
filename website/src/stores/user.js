@@ -20,6 +20,10 @@ export const useUserStore = defineStore('user', {
       if (!state.accessToken || state.accessToken.length == 0) return false
       return true
     },
+    isVerifier: (state) => {
+      if (!state.isLoggedIn) return false
+      return state.user.info.is_verifier === true
+    },
     isModerator: (state) => {
       if (!state.isLoggedIn) return false
       return state.user.info.is_moderator === true
