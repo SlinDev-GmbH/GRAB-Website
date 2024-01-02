@@ -712,7 +712,7 @@ function init()
 						object.initialRotation = object.quaternion.clone()
 
 						let signText = node.levelNodeSign.text
-						if(userStore.isModerator && signText && signText.length > 0)
+						if(userStore.isVerifier && signText && signText.length > 0)
 						{
 							let signTextElement = document.createElement("div");
 							const signTextNode = document.createTextNode("Sign " + signCounter + ": " + signText);
