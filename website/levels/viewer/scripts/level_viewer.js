@@ -583,7 +583,7 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 40.0)
+						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 50.0)
 						let particlePositions = [];
 
 						for (let i = 0; i < particleCount; i++) {
@@ -598,6 +598,8 @@ function init()
 						let particles = new THREE.Points(particleGeometry, particleMaterial);
 						object.add(particles);
 						parentNode.add(object);
+
+						realComplexity += 10;
 					}
 					else if(node.levelNodeStatic)
 					{
