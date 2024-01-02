@@ -49,6 +49,8 @@ export default {
 <style scoped>
 .favorite-button {
     width: 7%;
+    height: 7%;
+    aspect-ratio: 1/1;
     cursor: pointer;
     position: absolute;
     bottom: 5%;

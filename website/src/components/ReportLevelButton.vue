@@ -22,7 +22,7 @@ export default {
 </script>
 
 <template>
-  <img class="report-level-button" @click="showModerationPopup=true" src="./../assets/report.png" />
+  <img class="report-level-button" @click="showModerationPopup=true" src="./../assets/report.svg" />
 
   <Teleport to="body">
     <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" config="level_report" :identifier="level_id" alt="Report Level" />
@@ -32,9 +32,11 @@ export default {
 <style scoped>
 .report-level-button {
   width: 7%;
+  height: 7%;
+  aspect-ratio: 1/1;
   cursor: pointer;
   position: absolute;
-  bottom: 4.5%;
+  bottom: 5%;
   left: 15%;
 }
 </style>
