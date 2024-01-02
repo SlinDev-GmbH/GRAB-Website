@@ -556,6 +556,49 @@ function init()
 
 						//realComplexity += 1
 					}
+					else if (node.levelNodeGravity)
+					{
+						let particleGeometry = new THREE.BufferGeometry();
+
+						let particleColor = new THREE.Color(1.0, 1.0, 1.0);
+						if (node.levelNodeGravity?.mode == 1) {
+							particleColor = new THREE.Color(1.0, 0.6, 0.6);
+						}
+						let particleMaterial = new THREE.PointsMaterial({ color: particleColor, size: 0.05 });
+
+						object = new THREE.Object3D()
+						object.position.x = -node.levelNodeGravity.position.x
+						object.position.y = node.levelNodeGravity.position.y
+						object.position.z = -node.levelNodeGravity.position.z
+
+						object.scale.x = node.levelNodeGravity.scale.x
+						object.scale.y = node.levelNodeGravity.scale.y
+						object.scale.z = node.levelNodeGravity.scale.z
+
+						object.quaternion.x = -node.levelNodeGravity.rotation.x
+						object.quaternion.y = node.levelNodeGravity.rotation.y
+						object.quaternion.z = -node.levelNodeGravity.rotation.z
+						object.quaternion.w = node.levelNodeGravity.rotation.w
+						
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+
+						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 40.0)
+						let particlePositions = [];
+
+						for (let i = 0; i < particleCount; i++) {
+							let x = (Math.random() - 0.5) * object.scale.x;
+							let y = (Math.random() - 0.5) * object.scale.y;
+							let z = (Math.random() - 0.5) * object.scale.z;
+
+							particlePositions.push(x, y, z);
+						}
+
+						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+						let particles = new THREE.Points(particleGeometry, particleMaterial);
+						object.add(particles);
+						parentNode.add(object);
+					}
 					else if(node.levelNodeStatic)
 					{
 						// console.log(node.levelNodeStatic.material)
