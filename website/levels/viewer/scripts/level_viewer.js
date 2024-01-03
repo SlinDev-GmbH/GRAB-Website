@@ -46,6 +46,8 @@ let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
 let isSliderDragging = false;
+let particles = [];
+let particlesPositions = [];
 
 init();
 
@@ -573,7 +575,7 @@ function init()
 						if (node.levelNodeGravity?.mode == 1) {
 							particleColor = new THREE.Color(1.0, 0.6, 0.6);
 						}
-						let particleMaterial = new THREE.PointsMaterial({ color: particleColor, size: 0.05 });
+						let particleMaterial = new THREE.PointsMaterial({ color: particleColor, size: 0.1 });
 
 						object = new THREE.Object3D()
 						object.position.x = -node.levelNodeGravity.position.x
@@ -605,9 +607,12 @@ function init()
 						}
 
 						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
-						let particles = new THREE.Points(particleGeometry, particleMaterial);
-						object.add(particles);
+						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+						object.add(particlePoints);
 						parentNode.add(object);
+
+						particles.push(particlePoints);
+						particlesPositions.push(particlePositions);
 
 						realComplexity += 10;
 					}
@@ -987,6 +992,25 @@ function animation()
 	{
 		updateObjectAnimation(object, animationTime)
 	}
+
+	let particleRenderDistance = 1000;
+	let currentPosition = camera.position;
+	for (let i = 0; i < particles.length; i++) {
+		let particle = particles[i];
+		let particlePositions = particlesPositions[i];
+
+		let visibleParticles = [];
+		for (let j = 0; j < particlePositions.length; j++) {
+			let position = new THREE.Vector3(particlePositions[j * 3] , particlePositions[j * 3 + 1], particlePositions[j * 3 + 2]);
+			let globalPosition = position.clone().applyMatrix4(particle.matrixWorld);
+			if (globalPosition.distanceTo(currentPosition) < particleRenderDistance) {
+				visibleParticles.push(position.x, position.y, position.z);
+			}
+		}
+
+		particle.geometry.setAttribute('position', new THREE.Float32BufferAttribute(visibleParticles, 3));
+	}
+
 	renderer.render(scene, camera);
 }
 
