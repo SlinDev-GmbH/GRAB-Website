@@ -1,0 +1,250 @@
+<script type="module">
+import Player from './player.js';
+
+export default {
+  data() {
+    return {
+      showCategories: true,
+    };
+  },
+  methods: {
+    showCosmetics() {
+      this.showCategories = true;
+    },
+    showPrimary() {
+      this.showCategories = true;
+    },
+    showSecondary() {
+      this.showCategories = true;
+    },
+  },
+};
+Player();
+</script>
+
+<template>
+  <div id="app">
+    <canvas class="player-model"></canvas>
+    <canvas id="canvas"></canvas>
+    <div id="customizations">
+      <span id="back-btn" style="display: none;">Back</span>
+      <div id="categories-content">
+        <span id="cosmetics">Cosmetics</span>
+        <span id="primary">Change Main Color</span>
+        <span id="secondary">Change Second Color</span>
+        <span id="Head" style="display: none;">Head</span>
+        <span class="final" id="Body" style="display: none;">Body</span>
+        <span class="final" id="Hands" style="display: none;">Hands</span>
+        <span class="final" id="Grapples" style="display: none;">Grapples</span>
+        <span class="final" id="Checkpoints" style="display: none;">Checkpoints</span>
+        <span class="final" id="Heads" style="display: none;">Heads</span>
+        <span class="final" id="Hats" style="display: none;">Hats</span>
+        <span class="final" id="Facewear" style="display: none;">Facewear</span>
+      </div>
+      <div id="content"></div>
+    </div>
+  </div>
+</template>
+  
+<style>
+/* roboto-regular - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/roboto-v30-latin-regular.woff2') format('woff2');
+}
+
+/* roboto-italic - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto';
+  font-style: italic;
+  font-weight: 400;
+  src: url('../fonts/roboto-v30-latin-italic.woff2') format('woff2');
+}
+
+/* roboto-700 - latin */
+@font-face {
+  font-display: swap;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/roboto-v30-latin-700.woff2') format('woff2');
+}
+
+body {
+  font-family: 'Roboto';
+  font-weight: 700;
+  background-image: linear-gradient(#84c1f0, #e1f6ff, #84c1f0);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 100vh;
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+  margin: 0;
+  gap: 30px;
+}
+
+#customizations {
+  width: 572px;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 3px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+}
+
+.previewButton {
+  width: 70%;
+  border-radius: 2em;
+  background-color: #00FF00;
+  text-align: center;
+  bottom: 10%;
+  color: white;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  z-index: 999;
+}
+
+#categories-content {
+  display: grid;
+  overflow: hidden;
+  width: 372px;
+  z-index: 2;
+  height: 372px;
+  padding: 3px;
+  position: relative;
+
+}
+
+#categories-content div,
+#categories-content div.selected:has(~ div:active),
+div.selected:is(#categories-content div:active ~ div.selected) {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  outline: none;
+}
+
+#categories-content div:hover {
+  cursor: pointer;
+  outline: 3px solid #333;
+}
+
+#categories-content div.selected,
+#categories-content div:active {
+  outline: 3px solid #000;
+}
+
+#categories-content span {
+  color: #0f6db3;
+  font-size: 1.5em;
+  cursor: pointer;
+  text-align: center;
+}
+
+#categories-content div {
+  display: none;
+  margin: 1%;
+}
+
+.player-model {
+  z-index: 2;
+  width: 400px;
+  height: 450px;
+}
+
+.cosmetic-Container {
+  width: 100px;
+  height: 100px;
+  background: rgba(0, 0, 0, .1);
+  border-radius: 15%;
+}
+
+#cosmetics {
+  grid-column: 1 / 10;
+  grid-row: 2/ 6;
+}
+
+#primary {
+  grid-column: 1 / 10;
+  grid-row: 3 / 6;
+}
+
+#secondary {
+  grid-column: 1 / 10;
+  grid-row: 4 / 6;
+}
+
+
+#content {
+  position: relative;
+  top: 0px;
+  width: 100%;
+  z-index: 1;
+}
+
+#back-btn {
+  z-index: 9999;
+  color: #0f6db3;
+  font-size: 1.5em;
+  cursor: pointer;
+  position: relative;
+  width: fit-content;
+}
+
+#canvas {
+  position: fixed;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.list-item {
+  display: inline-block;
+  text-align: center;
+  margin-bottom: 1em;
+  padding: 1em;
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.25);
+  margin-right: 1em;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.list-item .scene {
+  width: 200px;
+  height: 200px;
+}
+
+.list-item .description {
+  color: #0f6db3;
+  font-family: sans-serif;
+  font-size: large;
+  width: 200px;
+  height: 20px;
+  margin-top: 0.5em;
+  bottom: 75%;
+}
+
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  #customizations {
+    position: absolute;
+    left: 100vh;
+  }
+
+  body {
+    justify-content: unset;
+    align-items: center;
+  }
+}</style>
+  
