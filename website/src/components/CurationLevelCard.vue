@@ -15,26 +15,43 @@ export default {
       return ''
     },
 
-    viewerURL() {
-      return 'levels/viewer/?level=' + this.item.identifier
+    hasImage() {
+      if(this.item.images && this.item.images.thumb)
+      {
+        return true
+      }
+      return false
     },
+
+    viewerURL() {
+      return '/levels/viewer/?level=' + this.item.identifier
+    },
+
+    creatorUrl() {
+      return '/levels?tab=tab_other_user&user_id=' + this.item.identifier.split(':')[0]
+    }
   }
 }
 </script>
 
 <template>
   <div class="level-card">
-    <div class="title">{{ item.title }}</div>
-    <div class="creators">{{ creators }}</div>
-    <div class="description">{{ item.description }}</div>
-    <a target="_blank" :href=viewerURL class="open-button">OPEN</a>
+    <img v-if="hasImage" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
+    <div class="info">
+      <div class="title">{{ item.title }}</div>
+      <div class="creators">{{ creators }}</div>
+    </div>
+    <div class="buttons">
+      <a target="_blank" :href=creatorUrl class="user-button">USER</a>
+      <a target="_blank" :href=viewerURL class="open-button">OPEN</a>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .open-button {
   display: block;
-  width: 30%;
+  width: 100%;
   line-height: 30px;
   border: none;
   border-radius: 10px;
@@ -44,7 +61,22 @@ export default {
   font-size: 15px;
   text-align:center;
   text-decoration: none;
-  margin: 10px auto 0;
+  margin: auto 0;
+}
+
+.user-button {
+  display: block;
+  width: 100%;
+  line-height: 30px;
+  border: none;
+  border-radius: 10px;
+  background-color:#4642BE;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 15px;
+  text-align:center;
+  text-decoration: none;
+  margin: auto 0;
 }
 
 .level-card {
@@ -54,6 +86,29 @@ export default {
   padding: 3%;
   margin-block: 10px;
   overflow-wrap: break-word;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px
+}
+
+.info {
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-right: auto;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 10%;
 }
 
 .title {
@@ -61,11 +116,13 @@ export default {
   font-size: 20px;
   font-style: bold;
   line-height: 0.9;
+  text-align: left;
 }
 
 .creators {
   font-size: 15px;
   font-style: italic;
+  text-align: left;
 }
 
 .description {
@@ -75,5 +132,16 @@ export default {
   -webkit-box-orient: vertical;     
   overflow: hidden;
   padding-top: 10px;
+}
+
+.thumbnail {
+  position: relative;
+  margin: 0;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  width: 20%;
+  height: auto;
+  border-radius: 10px;
 }
 </style>
