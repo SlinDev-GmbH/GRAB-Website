@@ -26,6 +26,7 @@ export default {
       featured: {},
       currentSection: {},
       displayingLevels: false,
+      sectionStack: [],
     }
   },
 
@@ -45,7 +46,11 @@ export default {
     },
 
     handleBack() {
-      this.currentSection = this.featured
+      if (this.sectionStack.length > 0) {
+        this.currentSection = this.sectionStack.pop();
+      } else {
+        this.currentSection = this.featured;
+      }
     },
 
     setSection(section) {
@@ -56,6 +61,7 @@ export default {
           this.tabChanged({tab: 'tab_other_user', user_id: userID});
         }
       }
+      this.sectionStack.push(this.currentSection);
       this.currentSection = section;
     },
 
