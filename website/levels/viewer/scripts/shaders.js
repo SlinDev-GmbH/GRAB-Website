@@ -29,11 +29,11 @@ export const skyFS = `
 		vec4 color = vec4(fogColor, 1.0);
 
 		float sunAngle = acos(dot(sunDirection, -cameraToVertex));
-		float sunSize = 0.05 * sunSize;
+		float realSunSize = 0.05 * sunSize;
 		float sunGlowSize = sunSize;
 		float sunFactor = clamp((sunGlowSize - sunAngle) / sunGlowSize, 0.0, 1.0);
 		sunFactor *= sunFactor;
-		if(sunAngle < sunSize) sunFactor = 1.5;
+		if(sunAngle < realSunSize) sunFactor = 1.5;
 		color.rgb = mix(color.rgb, sunColor, sunFactor);
 
 		gl_FragColor = color;
