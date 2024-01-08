@@ -34,7 +34,7 @@ export const skyFS = `
 		float sunFactor = clamp((sunGlowSize - sunAngle) / sunGlowSize, 0.0, 1.0);
 		sunFactor *= sunFactor;
 		if(sunAngle < realSunSize) sunFactor = 1.5;
-		color.rgb = mix(color.rgb, sunColor, clamp(sunFactor, 0.0, 1.0));
+		color.rgb = mix(color.rgb, sunColor, sunFactor);
 
 		gl_FragColor = color;
 		#include <colorspace_fragment>
@@ -76,39 +76,45 @@ export const levelFS = `
 
     void main()
     {
-        vec3 lightDirection = normalize(-sunDirection);
-
-        float light = dot(normalize(vNormal), lightDirection);
-        float finalLight = clamp(light, 0.0, 1.0);
-        float lightFactor = finalLight + 0.5;
-        lightFactor -= clamp(-light * 0.15, 0.0, 1.0);
-        if(neonEnabled > 0.5) lightFactor = 1.0;
-        vec4 color = vec4(lightFactor, lightFactor, lightFactor, 1.0);
+        vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
 
         vec3 blendNormals = abs(vNormal);
         if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
         {
-            color.rgb *= texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
+            color.rgb = texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
         }
         else if(blendNormals.y > blendNormals.z)
         {
-            color.rgb *= texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
+            color.rgb = texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
         }
         else
         {
-            color.rgb *= texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
+            color.rgb = texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
         }
 
         color.rgb *= diffuseColor;
 
+        //Apply sun light
         vec3 cameraToVertex = vWorldPosition - cameraPosition;
         float distanceToCamera = length(cameraToVertex);
         cameraToVertex = normalize(cameraToVertex);
 
+        vec3 lightDirection = normalize(-sunDirection);
+
+        float light = dot(normalize(vNormal), lightDirection);
+        float finalLight = clamp(light, 0.0, 1.0);
+        float lightFactor = finalLight;
+        lightFactor -= clamp(-light * 0.15, 0.0, 1.0);
+
 		vec3 halfVector = normalize((-sunDirection - cameraToVertex));
 		float lightSpecular = clamp(dot(normalize(vNormal), halfVector), 0.0, 1.0);
-        color.rgb += pow(lightSpecular, specularColor.a) * specularColor.rgb * finalLight;
 
+		if(neonEnabled < 0.5)
+		{
+			color.rgb = 0.5 * color.rgb + sunColor * clamp(sunSize * 0.7 + 0.3, 0.0, 1.0) * (color.rgb * lightFactor + pow(lightSpecular, specularColor.a) * specularColor.rgb * finalLight);
+		}
+
+        //Fog
         if(fogEnabled > 0.5)
         {
             float horizonFactor = 1.0 - clamp(abs(cameraToVertex.y) / 0.8, 0.0, 1.0);

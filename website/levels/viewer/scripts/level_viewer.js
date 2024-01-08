@@ -472,14 +472,19 @@ function init()
 			skyMaterial.depthWrite = false;
 			skyMaterial.side = THREE.BackSide;
 
-			let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(-45), THREE.MathUtils.degToRad(315), 0.0)
+			let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(315), 0.0)
+			let sunAltitude = 45.0
+			let horizonColor = [0.916, 0.9574, 0.9574]
 			if(decoded.ambienceSettings)
 			{
-				sunAngle = new THREE.Euler(-THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), 0.0);
+				sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAltitude), THREE.MathUtils.degToRad(decoded.ambienceSettings.sunAzimuth), 0.0);
 
 				skyMaterial.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
 				skyMaterial.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
 				skyMaterial.uniforms["sunSize"] = { value: decoded.ambienceSettings.sunSize }
+
+				sunAltitude = decoded.ambienceSettings.sunAltitude
+				horizonColor = [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b]
 			}
 			else
 			{
@@ -496,8 +501,15 @@ function init()
 			skySunDirection.y = skySunDirection.y;
 			skySunDirection.z = skySunDirection.z;
 
+			let sunColorFactor = 1.0 - sunAltitude / 90.0
+			sunColorFactor *= sunColorFactor
+			sunColorFactor = 1.0 - sunColorFactor
+			sunColorFactor *= 0.8
+			sunColorFactor += 0.2
+			let sunColor = [horizonColor[0] * (1.0 - sunColorFactor) + sunColorFactor, horizonColor[1] * (1.0 - sunColorFactor) + sunColorFactor, horizonColor[2] * (1.0 - sunColorFactor) + sunColorFactor]
+
 			skyMaterial.uniforms["sunDirection"] = { value: skySunDirection }
-			skyMaterial.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
+			skyMaterial.uniforms["sunColor"] = { value: sunColor }
 
 			const sky = new THREE.Mesh(shapes[1], skyMaterial)
 			sky.frustumCulled = false
@@ -522,7 +534,7 @@ function init()
 				}
 
 				material.uniforms["sunDirection"] = { value: skySunDirection }
-				material.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
+				material.uniforms["sunColor"] = { value: sunColor }
 
 				let densityFactor = density * density * density * density
 				let fogDensityX = 0.5 * densityFactor + 0.000001 * (1.0 - densityFactor)
