@@ -516,7 +516,9 @@ function init()
 			sky.renderOrder = 1000 //sky should be rendered after opaque, before transparent
 			scene.add(sky);
 
-			for(let material of materials)
+			const allMaterials = [...materials, ...objectMaterials]
+
+			for(let material of allMaterials)
 			{
 				let density = 0.0
 				if(decoded.ambienceSettings)
@@ -541,11 +543,6 @@ function init()
 				let fogDensityY = 1.0/(1.0 - Math.exp(-1500.0 * fogDensityX))
 
 				material.uniforms["cameraFogDistance"] = { value: [fogDensityX, fogDensityY] }
-			}
-
-			for(let material of objectMaterials)
-			{
-				material.uniforms["sunDirection"] = { value: skySunDirection }
 			}
 
 			let signCounter = 0;
