@@ -30,7 +30,7 @@ export const skyFS = `
 
 		float sunAngle = acos(dot(sunDirection, -cameraToVertex));
 		float sunSize = 0.05 * sunSize;
-		float sunGlowSize = sunSize * 40.0;
+		float sunGlowSize = sunSize;
 		float sunFactor = clamp((sunGlowSize - sunAngle) / sunGlowSize, 0.0, 1.0);
 		sunFactor *= sunFactor;
 		if(sunAngle < sunSize) sunFactor = 1.5;
