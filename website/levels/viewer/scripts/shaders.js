@@ -34,7 +34,7 @@ export const skyFS = `
 		float sunFactor = clamp((sunGlowSize - sunAngle) / sunGlowSize, 0.0, 1.0);
 		sunFactor *= sunFactor;
 		if(sunAngle < realSunSize) sunFactor = 1.5;
-		color.rgb = mix(color.rgb, sunColor, sunFactor);
+		color.rgb = mix(color.rgb, sunColor, clamp(sunFactor, 0.0, 1.0));
 
 		gl_FragColor = color;
 		#include <colorspace_fragment>
@@ -72,12 +72,17 @@ export const levelFS = `
 	uniform float sunSize;
 	uniform vec3 sunColor;
 	uniform vec3 sunDirection;
+	uniform vec4 specularColor;
 
     void main()
     {
         vec3 lightDirection = normalize(-sunDirection);
 
-        float lightFactor = neonEnabled > 0.5 ? 1.0 : 0.5 + dot(normalize(vNormal), lightDirection) * 0.5 + 0.5;
+        float light = dot(normalize(vNormal), lightDirection);
+        float finalLight = clamp(light, 0.0, 1.0);
+        float lightFactor = finalLight + 0.5;
+        lightFactor -= clamp(-light * 0.15, 0.0, 1.0);
+        if(neonEnabled > 0.5) lightFactor = 1.0;
         vec4 color = vec4(lightFactor, lightFactor, lightFactor, 1.0);
 
         vec3 blendNormals = abs(vNormal);
@@ -96,12 +101,16 @@ export const levelFS = `
 
         color.rgb *= diffuseColor;
 
+        vec3 cameraToVertex = vWorldPosition - cameraPosition;
+        float distanceToCamera = length(cameraToVertex);
+        cameraToVertex = normalize(cameraToVertex);
+
+		vec3 halfVector = normalize((-sunDirection - cameraToVertex));
+		float lightSpecular = clamp(dot(normalize(vNormal), halfVector), 0.0, 1.0);
+        color.rgb += pow(lightSpecular, specularColor.a) * specularColor.rgb * finalLight;
+
         if(fogEnabled > 0.5)
         {
-            vec3 cameraToVertex = vWorldPosition - cameraPosition;
-            float distanceToCamera = length(cameraToVertex);
-            cameraToVertex = normalize(cameraToVertex);
-
             float horizonFactor = 1.0 - clamp(abs(cameraToVertex.y) / 0.8, 0.0, 1.0);
             vec3 fogColor = mix(cameraFogColor1.rgb, cameraFogColor0.rgb, horizonFactor * horizonFactor);
 
@@ -120,7 +129,6 @@ export const levelFS = `
 
    		#include <colorspace_fragment>
     }`
-
 
 export const startFinishVS = `
 	varying vec2 vTexcoord;

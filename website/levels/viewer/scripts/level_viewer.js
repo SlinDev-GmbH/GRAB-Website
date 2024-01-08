@@ -25,7 +25,7 @@ import modelSignURL from '../models/sign.gltf'
 import textureDefaultURL from '../textures/default.png'
 import textureGrabbableURL from '../textures/grabbable.png'
 import textureIceURL from '../textures/ice.png'
-import textureLaveURL from '../textures/lava.png'
+import textureLavaURL from '../textures/lava.png'
 import textureWoodURL from '../textures/wood.png'
 import textureGrapplableURL from '../textures/grapplable.png'
 import textureGrapplableLavaURL from '../textures/grapplable_lava.png'
@@ -51,7 +51,7 @@ let particlesPositions = [];
 
 init();
 
-function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, neonEnabled=0.0)
+function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, specularColor=[0.3, 0.3, 0.3, 16.0], neonEnabled=0.0)
 {
 	let material = new THREE.ShaderMaterial();
 	material.vertexShader = vertexShader;
@@ -64,7 +64,8 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, n
 		"diffuseColor": { value: [1.0, 1.0, 1.0] },
 		"worldNormalMatrix": { value: new THREE.Matrix3() },
 		"neonEnabled": { value: neonEnabled },
-		"fogEnabled": { value: 1.0 }
+		"fogEnabled": { value: 1.0 },
+		"specularColor": { value: specularColor}
 	};
 
 	material.uniforms.colorTexture.value = textureLoader.load(name);
@@ -133,16 +134,16 @@ function init()
 		}
 	});
 
-	materials.push(getMaterialForTexture(textureDefaultURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureGrabbableURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureIceURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureLaveURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureGrapplableURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureGrapplableLavaURL, 0.1, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureGrabbableCrumblingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
-	materials.push(getMaterialForTexture(textureBouncingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS));
+	materials.push(getMaterialForTexture(textureDefaultURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0]));
+	materials.push(getMaterialForTexture(textureGrabbableURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.2, 0.2, 0.2, 16.0]));
+	materials.push(getMaterialForTexture(textureIceURL, 0.1, SHADERS.levelVS, SHADERS.levelFS, [0.6, 0.6, 0.6, 64.0]));
+	materials.push(getMaterialForTexture(textureLavaURL, 0.1, SHADERS.levelVS, SHADERS.levelFS, [0.0, 0.0, 0.0, 1.0]));
+	materials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.2, 0.2, 0.2, 32.0]));
+	materials.push(getMaterialForTexture(textureGrapplableURL, 0.1, SHADERS.levelVS, SHADERS.levelFS, [0.3, 0.3, 0.3, 32.0]));
+	materials.push(getMaterialForTexture(textureGrapplableLavaURL, 0.1, SHADERS.levelVS, SHADERS.levelFS, [0.0, 0.0, 0.0, 1.0]));
+	materials.push(getMaterialForTexture(textureGrabbableCrumblingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.2, 0.2, 0.2, 16.0]));
+	materials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.15, 0.15, 0.15, 10.0]));
+	materials.push(getMaterialForTexture(textureBouncingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.8, 0.8, 0.8, 64.0]));
 
 	let startMaterial = new THREE.ShaderMaterial();
 	startMaterial.vertexShader = SHADERS.startFinishVS;
@@ -631,6 +632,9 @@ function init()
 						if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
 						{
 							newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
+
+							const specularFactor = Math.sqrt(node.levelNodeStatic.color.r * node.levelNodeStatic.color.r + node.levelNodeStatic.color.g * node.levelNodeStatic.color.g + node.levelNodeStatic.color.b * node.levelNodeStatic.color.b) * 0.15
+							newMaterial.uniforms.specularColor.value = [specularFactor, specularFactor, specularFactor, 16.0]
 						}
 
 						object = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)
