@@ -491,9 +491,9 @@ function init()
 			sunDirection.applyEuler(sunAngle);
 
 			const skySunDirection = sunDirection.clone()
-			skySunDirection.x = -skySunDirection.x;
-			skySunDirection.y = -skySunDirection.y;
-			skySunDirection.z = -skySunDirection.z;
+			skySunDirection.x = skySunDirection.x;
+			skySunDirection.y = skySunDirection.y;
+			skySunDirection.z = skySunDirection.z;
 
 			skyMaterial.uniforms["sunDirection"] = { value: skySunDirection }
 			skyMaterial.uniforms["sunColor"] = { value: [1.0, 1.0, 1.0] }
