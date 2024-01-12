@@ -94,23 +94,23 @@ export const levelFS = `
 
         color.rgb *= diffuseColor;
 
-        //Apply sun light
         vec3 cameraToVertex = vWorldPosition - cameraPosition;
-        float distanceToCamera = length(cameraToVertex);
-        cameraToVertex = normalize(cameraToVertex);
-
-        vec3 lightDirection = normalize(-sunDirection);
-
-        float light = dot(normalize(vNormal), lightDirection);
-        float finalLight = clamp(light, 0.0, 1.0);
-        float lightFactor = finalLight;
-        lightFactor -= clamp(-light * 0.15, 0.0, 1.0);
-
-		vec3 halfVector = normalize((-sunDirection - cameraToVertex));
-		float lightSpecular = clamp(dot(normalize(vNormal), halfVector), 0.0, 1.0);
+	    float distanceToCamera = length(cameraToVertex);
+	    cameraToVertex = normalize(cameraToVertex);
 
 		if(neonEnabled < 0.5)
 		{
+			//Apply sun light
+	        vec3 lightDirection = normalize(-sunDirection);
+
+	        float light = dot(normalize(vNormal), lightDirection);
+	        float finalLight = clamp(light, 0.0, 1.0);
+	        float lightFactor = finalLight;
+	        lightFactor -= clamp(-light * 0.15, 0.0, 1.0);
+
+			vec3 halfVector = normalize((-sunDirection - cameraToVertex));
+			float lightSpecular = clamp(dot(normalize(vNormal), halfVector), 0.0, 1.0);
+
 			color.rgb = 0.5 * color.rgb + sunColor * clamp(sunSize * 0.7 + 0.3, 0.0, 1.0) * (color.rgb * lightFactor + pow(lightSpecular, specularColor.a) * specularColor.rgb * finalLight);
 		}
 
