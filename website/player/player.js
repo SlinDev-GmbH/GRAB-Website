@@ -259,67 +259,66 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
         activeCosmetics[type] !== undefined
       ) {
         renderPromises.push(
-          renderPlayer(
+         await renderPlayer(
             activeCosmetics[type],
             type
           )
         );
       }
     }
-    Promise.all(renderPromises).then(() => {
-      if (playerPrim_Color !== undefined) {
+   await Promise.all(renderPromises).then(() => {
 
         changeMeshColors(
           `rgb(${Math.floor(
             LinearToGamma({
-              r: playerPrim_Color[0],
-              g: playerPrim_Color[1],
-              b: playerPrim_Color[2],
+              r: playerPrim_Color?playerPrim_Color[0]:1,
+              g: playerPrim_Color?playerPrim_Color[1]:1,
+              b: playerPrim_Color?playerPrim_Color[2]:1,
               a: 1,
             }).r * 255
           )},${Math.floor(
             LinearToGamma({
-              r: playerPrim_Color[0],
-              g: playerPrim_Color[1],
-              b: playerPrim_Color[2],
+              r: playerPrim_Color?playerPrim_Color[0]:1,
+              g: playerPrim_Color?playerPrim_Color[1]:1,
+              b: playerPrim_Color?playerPrim_Color[2]:1,
               a: 1,
             }).g * 255
           )},${Math.floor(
             LinearToGamma({
-              r: playerPrim_Color[0],
-              g: playerPrim_Color[1],
-              b: playerPrim_Color[2],
+              r: playerPrim_Color?playerPrim_Color[0]:1,
+              g: playerPrim_Color?playerPrim_Color[1]:1,
+              b: playerPrim_Color?playerPrim_Color[2]:1,
               a: 1,
             }).b * 255
           )})`,
           `rgb(${Math.floor(
             LinearToGamma({
-              r: playerSec_Color[0],
-              g: playerSec_Color[1],
-              b: playerSec_Color[2],
+              r: playerSec_Color?playerSec_Color[0]:1,
+              g: playerSec_Color?playerSec_Color[1]:0,
+              b: playerSec_Color?playerSec_Color[2]:0,
               a: 1,
             }).r * 255
           )},${Math.floor(
             LinearToGamma({
-              r: playerSec_Color[0],
-              g: playerSec_Color[1],
-              b: playerSec_Color[2],
+              r: playerSec_Color?playerSec_Color[0]:1,
+              g: playerSec_Color?playerSec_Color[1]:0,
+              b: playerSec_Color?playerSec_Color[2]:0,
               a: 1,
             }).g * 255
           )},${Math.floor(
             LinearToGamma({
-              r: playerSec_Color[0],
-              g: playerSec_Color[1],
-              b: playerSec_Color[2],
+              r: playerSec_Color?playerSec_Color[0]:1,
+              g: playerSec_Color?playerSec_Color[1]:0,
+              b: playerSec_Color?playerSec_Color[2]:0,
               a: 1,
             }).b * 255
           )})`,
           `#${parseInt(
             Math.floor(
               (LinearToGamma({
-                r: playerSec_Color[0],
-                g: playerSec_Color[1],
-                b: playerSec_Color[2],
+                r: playerSec_Color?playerSec_Color[0]:1,
+                g: playerSec_Color?playerSec_Color[1]:0,
+                b: playerSec_Color?playerSec_Color[2]:0,
                 a: 1,
               }).r *
                 255) /
@@ -330,9 +329,9 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
             .padStart(2, "0")}${parseInt(
               Math.floor(
                 (LinearToGamma({
-                  r: playerSec_Color[0],
-                  g: playerSec_Color[1],
-                  b: playerSec_Color[2],
+                  r: playerSec_Color?playerSec_Color[0]:1,
+                  g: playerSec_Color?playerSec_Color[1]:0,
+                  b: playerSec_Color?playerSec_Color[2]:0,
                   a: 1,
                 }).g *
                   255) /
@@ -343,9 +342,9 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
               .padStart(2, "0")}${parseInt(
                 Math.floor(
                   (LinearToGamma({
-                    r: playerSec_Color[0],
-                    g: playerSec_Color[1],
-                    b: playerSec_Color[2],
+                    r: playerSec_Color?playerSec_Color[0]:1,
+                    g: playerSec_Color?playerSec_Color[1]:0,
+                    b: playerSec_Color?playerSec_Color[2]:0,
                     a: 1,
                   }).b *
                     255) /
@@ -355,7 +354,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
                 .toString(16)
                 .padStart(2, "0")}`
         );
-      }
+      
       if (userStore.isLoggedIn) {
         if (userId && userId === userStore.userID) {
           editMode = true;
@@ -417,7 +416,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
       activeCosmetics[type] = undefined;
     }
   }
-  function renderPlayer(file, type) {
+  async function renderPlayer(file, type) {
     return new Promise((resolve, reject) => {
       if (file === "default") {
         activeCosmetics["head"] = "default";
