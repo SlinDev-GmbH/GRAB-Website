@@ -1186,6 +1186,13 @@ function displayLeaderboardData(data) {
 		const app = createApp(App)
 		app.use(pinia)
 		const userStore = useUserStore(pinia)
+		let maxDecimals = 0;
+		data.forEach((entry) => {
+			let decimals = entry.best_time.toString().split(".")[1];
+			if (decimals) {
+				maxDecimals = Math.max(maxDecimals, decimals.length);
+			}
+		});
 		data.forEach((entry, index) => {
 			const row = document.createElement("div");
 			row.className = "leaderboard-row";
@@ -1194,13 +1201,18 @@ function displayLeaderboardData(data) {
 			position.className = "leaderboard-position";
 			position.textContent = entry.position + 1;
 
-			const name = document.createElement("div");
+			const name = document.createElement("a");
 			name.className = "leaderboard-name";
 			name.textContent = entry.user_name;
+			name.href = `/levels?tab=tab_other_user&user_id=${entry.user_id}`;
 
 			const time = document.createElement("div");
 			time.className = "leaderboard-time";
-			time.textContent = entry.best_time;
+			let minutes = Math.floor(entry.best_time / 60);
+			let seconds = (entry.best_time % 60).toFixed(maxDecimals);
+			if (minutes < 10) { minutes = "0" + minutes; }
+			if (seconds < 10) { seconds = "0" + seconds; }
+			time.textContent = minutes + ':' + seconds;
 			
 			const button = document.createElement("button");
 			button.className = "leaderboard-button";
