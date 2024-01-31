@@ -61,10 +61,6 @@ export default {
       this.$router.push({ query: query })
     },
 
-    openCuration() {
-      window.location.href = '/curation/'
-    },
-
     async copyAccessToken(event)
     {
       await navigator.clipboard.writeText(this.accessToken);
@@ -77,7 +73,7 @@ export default {
   <header>
     <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
     <LoginButton />
-    <button v-if="isModerator" class="curation-button" type="button" @click="openCuration">Curation</button>
+    <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
     <LevelTitle v-if="showLevelTitle" :tab-active="tabActive"/>
@@ -140,5 +136,6 @@ header {
   right: 0px;
   position: absolute;
   cursor: pointer;
+  padding-block: 3px;
 }
 </style>

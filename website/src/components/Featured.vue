@@ -27,6 +27,7 @@ export default {
       currentSection: {},
       displayingLevels: false,
       sectionStack: [],
+      loaded: false,
     }
   },
 
@@ -90,6 +91,7 @@ export default {
     let featured = await this.loadFeatured();
     this.featured = featured;
     this.currentSection = this.featured;
+    this.loaded = true;
   },
 
 }
@@ -97,7 +99,7 @@ export default {
 
 <template>
   <div class="section-header">
-    <button v-if="this.currentSection !== this.featured" @click="this.handleBack">back</button>
+    <button v-if="loaded && this.currentSection !== this.featured" @click="this.handleBack">back</button>
     <h2 v-if="this.currentSection !== this.featured" class="section-title">{{ this.currentSection.hasOwnProperty("title_short") ? this.currentSection.title_short : this.currentSection.title }}</h2>
   </div>
   <div v-if="isList">
