@@ -65,7 +65,8 @@ export default {
 <template>
   <div class="user-card" :style="{'background-color': cardColor}">
     <div class="user-name">{{ item.user_name }}</div>
-    <img v-if="item.is_creator" alt="OK Stamp" class="creator-icon" src="./../assets/creator.png" />
+    <img v-if="item.is_creator" alt="creator" class="creator-icon" src="./../assets/creator.png" />
+    <img v-if="item.is_moderator" alt="moderator" class="moderator-icon" src="./../assets/moderator.png" />
     <div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
     <div v-if="isAdmin" class="user-id">User ID: {{ item.user_id }}</div>
     <ReportModerationTools v-if="isReportModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
@@ -123,7 +124,7 @@ export default {
   cursor: pointer;
 }
 
-.creator-icon {
+.creator-icon, .moderator-icon {
   width: 20px;
   height: 20px;
   margin-left: 3px;
