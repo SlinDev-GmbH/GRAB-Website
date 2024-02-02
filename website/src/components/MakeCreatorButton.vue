@@ -2,7 +2,7 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-import { makeCreatorRequest } from '../requests/makeCreatorRequest.js'
+import { makeCreatorRequest } from '../requests/MakeCreatorRequest.js'
 
 export default {
   props: {
