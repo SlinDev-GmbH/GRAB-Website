@@ -1,0 +1,1717 @@
+<script>
+import { mapState } from 'pinia'
+import { useUserStore } from '@/stores/user'
+import * as THREE from "https://unpkg.com/three@0.138.0/build/three.module.js"
+import { SGMLoader } from "../assets/sgmLoader.js";
+import { OrbitControls } from "../assets/OrbitContols.js";
+
+import { getShopCatalogRequest } from '../requests/GetShopCatalogRequest';
+import { getShopProductsRequest } from '../requests/GetShopProductsRequest';
+import { getShopItemsRequest } from '../requests/GetShopItemsRequest';
+import { getUserInfoRequest } from '../requests/getUserInfoRequest';
+import { setActiveCustomizationsRequest } from '../requests/SetActiveCustomizationsRequest';
+
+export default {
+  data() {
+    return {
+      
+    }
+  },
+
+  computed: {
+    ...mapState(useUserStore, ['accessToken']),
+    ...mapState(useUserStore, ['userInfo'])
+  },
+
+  created() {
+    // all this has to be non-responsive so three.js doesn't get mad :(
+    this.userID = null;
+    this.playerPrim_Color = null;
+    this.playerSec_Color = null;
+    this.visorColor = null;
+    this.selectedPrimaryDiv = null;
+    this.primaryOpened = null;
+    this.selectedSecondaryDiv = null;
+    this.secondaryOpened = null;
+    this.backTracker = null;
+    this.clonedGroup = null;
+    this.canvas = null;
+    this.renderer2 = null;
+    this.editMode = null;
+    this.picker = null;
+    this.grabColorArray = null;
+    this.categoryState = null;
+    this.scene = null;
+    this.camera = null;
+    this.renderer = null;
+    this.files = {
+      default: {
+        file: "../../cosmetics/head/head/head.sgm",
+        name: "Head Basic",
+        category: "Heads",
+        materials: [
+          "default_primary_color",
+          "default_secondary_color",
+          "default_secondary_color_visor",
+        ],
+        type:"head",
+        previewRotation: [180, 0, 0],
+        attachment_points: { glasses: { position: [0, 0, 0] } }, //really weird condition
+      },
+      player_basic_body: {
+        file: "../../cosmetics/body/body.sgm",
+        name: "Body Basic",
+        category: undefined,
+        materials: ["default_secondary_color", "default_primary_color"],
+      },
+      player_basic_hand: {
+        file: "../../cosmetics/hand/hand_claw.sgm",
+        name: "Claw Hand",
+        category: "Hands",
+        type:"hand",
+        materials: [
+          "default_primary_color",
+          "default_secondary_color",
+          "default_secondary_color_visor",
+        ],
+        previewRotation: [180, 0, 0],
+      },
+    },
+    this.scenes = [];
+    this.ownedItems = [];
+    this.activeCosmetics = {
+      "hand": undefined,
+      "head/glasses": undefined,
+      "head/hat": undefined,
+      "checkpoint": undefined,
+      "grapple/hook": undefined,
+      "body/neck": undefined,
+      "head": undefined
+    }
+  },
+
+  async mounted() {
+    this.userID = this.$route.query.user_id;
+    await this.loadPlayer();
+    this.picker = document.getElementById("categories-content");
+    for (let w = 0; w < 100; w++) {
+      this.createContainer(w, this.picker, this.handleContainerClick, this.handleContainerMouseOut);
+    }
+
+    const { scene, camera, renderer } = this.initScene();
+    this.scene = scene;
+    this.camera = camera;
+    this.renderer = renderer;
+
+    let controls = new OrbitControls(camera, renderer.domElement);
+    controls.enablePan = false;
+
+    controls.maxPolarAngle = Math.PI;
+    controls.addEventListener(
+      "start",
+      () => (document.body.style.cursor = "none")
+    );
+    controls.addEventListener("end", () => (document.body.style.cursor = "auto"));
+    await this.renderPlayer("default", "head");
+    await this.renderPlayer("player_basic_hand", "hand");
+    await this.renderPlayer("player_basic_body", undefined);
+    if (this.userID) {
+      let playerResponseBody = await getUserInfoRequest(this.$api_server_url, this.userID);
+      console.log(playerResponseBody)
+      this.playerPrim_Color = playerResponseBody.active_customizations.player_color_primary ?
+        playerResponseBody.active_customizations.player_color_primary.color : undefined;
+        this.playerSec_Color =
+        playerResponseBody.active_customizations.player_color_secondary ? playerResponseBody.active_customizations.player_color_secondary.color : undefined;
+      let renderPromises = [];
+      for (var type in this.activeCosmetics) {
+        if (playerResponseBody.active_customizations.items && playerResponseBody.active_customizations.items[type] !== undefined) {
+          if (this.activeCosmetics[type] !== undefined) {
+            scene.remove(
+              scene.getObjectByName(this.files[this.activeCosmetics[type]].name)
+            );
+          }
+          this.activeCosmetics[type] = playerResponseBody.active_customizations.items[type]
+        }
+        if (type == "hand" && this.clonedGroup) {
+          this.activeCosmetics[type] = playerResponseBody.active_customizations.items ? (playerResponseBody.active_customizations.items[type] == undefined ? "player_basic_hand" : playerResponseBody.active_customizations.items[type]) : undefined
+        }
+
+        if (
+          this.activeCosmetics[type] !== undefined
+        ) {
+          renderPromises.push(
+          await this.renderPlayer(
+              this.activeCosmetics[type],
+              type
+            )
+          );
+        }
+      }
+    await Promise.all(renderPromises).then(() => {
+
+          this.changeMeshColors(
+            `rgb(${Math.floor(
+              this.LinearToGamma({
+                r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
+                g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
+                b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
+                a: 1,
+              }).r * 255
+            )},${Math.floor(
+              this.LinearToGamma({
+                r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
+                g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
+                b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
+                a: 1,
+              }).g * 255
+            )},${Math.floor(
+              this.LinearToGamma({
+                r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
+                g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
+                b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
+                a: 1,
+              }).b * 255
+            )})`,
+            `rgb(${Math.floor(
+              this.LinearToGamma({
+                r: this.playerSec_Color?this.playerSec_Color[0]:1,
+                g: this.playerSec_Color?this.playerSec_Color[1]:0,
+                b: this.playerSec_Color?this.playerSec_Color[2]:0,
+                a: 1,
+              }).r * 255
+            )},${Math.floor(
+              this.LinearToGamma({
+                r: this.playerSec_Color?this.playerSec_Color[0]:1,
+                g: this.playerSec_Color?this.playerSec_Color[1]:0,
+                b: this.playerSec_Color?this.playerSec_Color[2]:0,
+                a: 1,
+              }).g * 255
+            )},${Math.floor(
+              this.LinearToGamma({
+                r: this.playerSec_Color?this.playerSec_Color[0]:1,
+                g: this.playerSec_Color?this.playerSec_Color[1]:0,
+                b: this.playerSec_Color?this.playerSec_Color[2]:0,
+                a: 1,
+              }).b * 255
+            )})`,
+            `#${parseInt(
+              Math.floor(
+                (this.LinearToGamma({
+                  r: this.playerSec_Color?this.playerSec_Color[0]:1,
+                  g: this.playerSec_Color?this.playerSec_Color[1]:0,
+                  b: this.playerSec_Color?this.playerSec_Color[2]:0,
+                  a: 1,
+                }).r *
+                  255) /
+                2
+              )
+            )
+              .toString(16)
+              .padStart(2, "0")}${parseInt(
+                Math.floor(
+                  (this.LinearToGamma({
+                    r: this.playerSec_Color?this.playerSec_Color[0]:1,
+                    g: this.playerSec_Color?this.playerSec_Color[1]:0,
+                    b: this.playerSec_Color?this.playerSec_Color[2]:0,
+                    a: 1,
+                  }).g *
+                    255) /
+                  2
+                )
+              )
+                .toString(16)
+                .padStart(2, "0")}${parseInt(
+                  Math.floor(
+                    (this.LinearToGamma({
+                      r: this.playerSec_Color?this.playerSec_Color[0]:1,
+                      g: this.playerSec_Color?this.playerSec_Color[1]:0,
+                      b: this.playerSec_Color?this.playerSec_Color[2]:0,
+                      a: 1,
+                    }).b *
+                      255) /
+                    2
+                  )
+                )
+                  .toString(16)
+                  .padStart(2, "0")}`
+          );
+        
+        if (this.isLoggedIn) {
+          if (userID && userID === this.userID) {
+            this.editMode = true;
+            let ownedProducts = this.userInfo.owned_products
+            console.log(this.products)
+            for (var pack in this.products) {
+              if (ownedProducts.includes(pack)) {
+                for (var product in this.products[pack].items) {
+                  ownedItems.push(this.products[pack].items[product])
+                }
+              }
+            }
+          }
+        }
+      });
+
+    }
+    this.renderLoop();
+  },
+
+  methods: {
+    async loadPlayer() {
+      await this.createPlayer()
+    },
+
+    async createPlayer() {
+      const picker = document.getElementById("categories-content");
+      const items = await getShopItemsRequest(this.$api_server_url);
+      console.log(items);
+      let catalog = await getShopCatalogRequest(this.$api_server_url);
+      this.products = await getShopProductsRequest(this.$api_server_url);
+      if (this.userInfo && !this.userInfo.active_customizations || this.userInfo && !this.userInfo.active_customizations.items && this.userInfo.active_customizations) {
+        this.userInfo.active_customizations = { items: {} }
+      }
+      for (let category in catalog) {
+        if (
+          catalog[category].title !== "Item Packs" &&
+          catalog[category].title !== "Change Detail Color" &&
+          catalog[category].title !== "Change Main Color"
+        ) {
+          if (catalog[category].title == "Head") {
+            for (let index in catalog[category].sections) {
+              this.processItemsAndSections(
+                catalog[category].sections[index].items,
+                catalog[category].sections[index],
+                this.files,
+                items
+              );
+            }
+          } else {
+            this.processItemsAndSections(
+              catalog[category].items,
+              catalog[category],
+              this.files,
+              items
+            );
+          }
+        }
+      }
+    },
+
+    handleContainerClick(e, rgbValue) {
+      if (this.primaryOpened == true) {
+        if (this.selectedSecondaryDiv) this.selectedSecondaryDiv.style.outline = "none"
+        if (this.selectedPrimaryDiv) this.selectedPrimaryDiv.style.outline = "none"
+
+
+        this.selectedPrimaryDiv = e.target
+        this.playerPrim_Color = e.target.style.backgroundColor
+        if (this.editMode == true) {
+          this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
+          this.userInfo.active_customizations.player_color_primary = { "color": this.grabColorArray }
+          // setCustomizations(userStore)
+        }
+        this.changeMeshColors(e.target.style.backgroundColor, undefined, undefined)
+        this.primaryOpened = false
+      }
+      if (this.secondaryOpened == true) {
+        if (this.selectedPrimaryDiv) this.selectedPrimaryDiv.style.outline = "none"
+        if (this.selectedSecondaryDiv) this.selectedSecondaryDiv.style.outline = "none"
+
+        if (this.editMode == true) {
+          this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
+          this.userInfo.active_customizations.player_color_secondary = { "color": this.grabColorArray }
+          // setCustomizations(userStore)
+        }
+        this.selectedSecondaryDiv = e.target
+        this.visorColor = `rgb(${Math.ceil(
+          parseInt(rgbValue[0], 10) / 2
+        )},${Math.ceil(parseInt(rgbValue[1], 10) / 2)},${Math.ceil(
+          parseInt(rgbValue[2], 10) / 2
+        )})`
+        this.playerSec_Color = e.target.style.backgroundColor
+        this.changeMeshColors(undefined, e.target.style.backgroundColor, this.visorColor)
+        this.secondaryOpened = false
+      }
+      this.backTracker = this.displayCategoryList(
+        0,
+        this.backTracker,
+        this.selectedPrimaryDiv,
+        this.selectedSecondaryDiv,
+
+        this.categoryState
+      )
+    },
+
+    initScene() {
+      const scene = new THREE.Scene()
+      scene.background = null
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
+      directionalLight.position.set(0, 1, 2)
+      scene.add(directionalLight)
+
+      const camera = new THREE.PerspectiveCamera(55, 400 / 450, 1, 1000)
+      camera.position.z = 3.5
+      camera.rotation.x = -0.1
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: document.querySelector(".player-model"),
+        alpha: true,
+        transparent: true,
+        antialias: true,
+        preserveDrawingBuffer: true 
+      })
+      renderer.setPixelRatio(window.devicePixelRatio)
+      renderer.setSize(400, 450)
+      return {
+        scene,
+        camera,
+        renderer,
+      }
+    },
+
+    processItemsAndSections(sectionItems, catalogSection, files, items) {
+      for (var item in sectionItems) {
+        for (var cosmeticItem in items) {
+          let preview_rotation = items[cosmeticItem].preview_rotation
+          let materialList = []
+          for (var e in items[cosmeticItem].materials_v2) {
+            if (items[cosmeticItem].materials_v2[e].type) {
+              materialList.push(items[cosmeticItem].materials_v2[e].type)
+            } else {
+              materialList.push(items[cosmeticItem].materials_v2[e])
+            }
+          }
+
+          if (sectionItems[item] === cosmeticItem) {
+            files[cosmeticItem] = {
+              file: "/" + items[cosmeticItem].file + ".sgm",
+              name: items[cosmeticItem].title,
+              category: catalogSection.title,
+              primaryColor: items[cosmeticItem].colors
+                ? items[cosmeticItem].colors[0]
+                : undefined,
+              secondaryColor: items[cosmeticItem].colors
+                ? items[cosmeticItem].colors[1]
+                  ? items[cosmeticItem].colors[1]
+                  : undefined
+                : undefined,
+              materials: materialList,
+              type: items[cosmeticItem].type,
+              previewRotation: preview_rotation,
+              attachment_points: items[cosmeticItem].attachment_points
+                ? items[cosmeticItem].attachment_points
+                : undefined,
+              attachment_point_overrides: items[cosmeticItem]
+                .attachment_point_overrides
+                ? items[cosmeticItem].attachment_point_overrides
+                : undefined,
+                attachment_offset: items[cosmeticItem].attachment_offset_v2? items[cosmeticItem].attachment_offset_v2:undefined
+              }
+          }
+        }
+      }
+    },
+
+    setupRenderer(canvas) {
+      let renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        transparent: true,
+        antialias: true,
+      })
+      renderer.setPixelRatio(window.devicePixelRatio)
+      return renderer
+    },
+
+    loadLight(scenes, scene) {
+      var light = new THREE.DirectionalLight(0xffffff, 0.5)
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+      light.position.set(0, 0, 1)
+      scene.add(light)
+      scenes.push(scene)
+    },
+
+    applyColors(
+      group,
+      playerPrim_Color,
+      playerSec_Color,
+      visorColor
+    ) {
+      group.children.forEach((obj) => {
+        if (obj.name === "default_primary_color" && playerPrim_Color) {
+          obj.material.color.set(playerPrim_Color)
+        } else if (obj.name === "default_secondary_color" && playerSec_Color) {
+          obj.material.color.set(playerSec_Color)
+        } else if (obj.name === "default_secondary_color_visor" && visorColor) {
+          obj.material.color.set(visorColor)
+        }
+      })
+      return group
+    },
+
+    async createGroupFromMeshes(meshes, materials, file, files) {
+      const group = new THREE.Group()
+      group.name = files[file].name 
+      const threeMaterials = materials.map((material) => {
+        const color = material.colors[0][0]
+        const matOptions = {
+          color: new THREE.Color(color[0], color[1], color[2]),
+        }
+        return new THREE.MeshStandardMaterial(matOptions)
+      })
+
+      meshes.forEach((mesh) => {
+        const geometry = new THREE.BufferGeometry()
+        const positions = []
+        const normals = []
+        const uvs = []
+
+        mesh.vertices.forEach((vertex) => {
+          positions.push(...vertex[0])
+          normals.push(...vertex[1])
+          if (vertex[2].length > 0) {
+            uvs.push(...vertex[2][0])
+          }
+        })
+        geometry.setAttribute(
+          "position",
+          new THREE.Float32BufferAttribute(positions, 3)
+        )
+        geometry.setAttribute(
+          "normal",
+          new THREE.Float32BufferAttribute(normals, 3)
+        )
+        geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2))
+        geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1))
+
+        const threeMesh = new THREE.Mesh(
+          geometry,
+          threeMaterials[mesh.material_id]
+        )
+        group.add(threeMesh)
+      })
+
+      return group
+    },
+
+    adjustPositionForCategory(
+      category,
+      group,
+      file,
+      files,
+      activeCosmetics,
+      scene
+    ) {
+      if (category) {
+        if (["head", "head/hat", "head/glasses"].includes(category)) {
+          group.position.y += 0.2
+        }
+        if ("head" === category) {
+          if (activeCosmetics["head/glasses"]) {
+            let referenceGroup = scene.getObjectByName(
+              files[activeCosmetics["head/glasses"]].name
+            )
+            referenceGroup.position.set(0, 0.2, 0)
+            if (
+              files[file].attachment_points &&
+              files[file].attachment_points.glasses
+            ) {
+              if (files[file].attachment_points.glasses.scale) {
+                referenceGroup.scale.set(
+                  files[file].attachment_points.glasses.scale,
+                  files[file].attachment_points.glasses.scale,
+                  files[file].attachment_points.glasses.scale
+                )
+              }
+              referenceGroup.position.z -= Number(
+                files[file].attachment_points.glasses.position[2]
+              )
+            }
+            if (activeCosmetics["head/glasses"].attachment_point_overrides) {
+              referenceGroup.position.x -= Number(
+                files[file].attachment_point_overrides[activeCosmetics["head"]]
+                  .position[0]
+              )
+              referenceGroup.position.y += Number(
+                files[file].attachment_point_overrides[activeCosmetics["head"]]
+                  .position[1]
+              )
+              referenceGroup.position.z -= Number(
+                files[file].attachment_point_overrides[activeCosmetics["head"]]
+                  .position[2]
+              )
+            }
+          }
+          if (activeCosmetics["head/hat"]) {
+            let referenceGroup = scene.getObjectByName(
+              files[activeCosmetics["head/hat"]].name
+            )
+            referenceGroup.position.set(0, 0.2, 0)
+            if (
+              files[file].attachment_points &&
+              files[file].attachment_points.hat
+            ) {
+              if (files[file].attachment_points.hat.scale) {
+                referenceGroup.scale.set(
+                  files[file].attachment_points.hat.scale,
+                  files[file].attachment_points.hat.scale,
+                  files[file].attachment_points.hat.scale
+                )
+              }
+              referenceGroup.position.y += Number(
+                files[file].attachment_points.hat.position[1]
+              )
+            }
+          }
+        }
+        if (files[activeCosmetics["head"]].attachment_points) {
+          if ("head/glasses" === category) {
+            if (files[activeCosmetics["head"]].attachment_points.glasses) {
+              if (files[activeCosmetics["head"]].attachment_points.glasses.scale) {
+                group.scale.set(
+                  files[activeCosmetics["head"]].attachment_points.glasses.scale,
+                  files[activeCosmetics["head"]].attachment_points.glasses.scale,
+                  files[activeCosmetics["head"]].attachment_points.glasses.scale
+                )
+              }
+              group.position.z -= Number(
+                files[activeCosmetics["head"]].attachment_points.glasses
+                  .position[2]
+              )
+            }
+            if (files[file].attachment_point_overrides) {
+              group.position.x -= Number(
+                files[file].attachment_point_overrides[activeCosmetics["head"]]
+                  .position[0]
+              )
+              group.position.y += Number(
+                files[file].attachment_point_overrides[activeCosmetics["head"]]
+                  .position[1]
+              )
+              group.position.z -= Number(
+                files[file].attachment_point_overrides[activeCosmetics["head"]]
+                  .position[2]
+              )
+            }
+          }
+          if ("head/hat" === category) {
+            if (files[activeCosmetics["head"]].attachment_points.hat) {
+              if (files[activeCosmetics["head"]].attachment_points.hat.scale) {
+                group.scale.set(
+                  files[activeCosmetics["head"]].attachment_points.hat.scale,
+                  files[activeCosmetics["head"]].attachment_points.hat.scale,
+                  files[activeCosmetics["head"]].attachment_points.hat.scale
+                )
+              }
+              group.position.y += Number(
+                files[activeCosmetics["head"]].attachment_points.hat.position[1]
+              )
+            }
+          }
+        }
+        if ("grapple/hook" === category) {
+          group.position.x = 0.5
+          group.position.y = -1.0
+      group.rotation.z+=Math.PI
+      group.rotation.x-=Math.PI/2
+      
+        }
+
+        if ("checkpoint" === category) {
+          group.position.x = -0.5
+          group.position.y = -1.5
+          group.rotation.y += Math.PI
+        }
+      }
+      return group
+    },
+
+    handleAttachmentPoints(files, file, group) {
+      if (files[file].materials.indexOf("default_primary_color") !== -1) {
+        group.children[
+          files[file].materials.indexOf("default_primary_color")
+        ].name = "default_primary_color"
+      }
+      if (files[file].materials.indexOf("default_secondary_color") !== -1) {
+        group.children[
+          files[file].materials.indexOf("default_secondary_color")
+        ].name = "default_secondary_color"
+      }
+      if (files[file].materials.indexOf("default_secondary_color_visor") !== -1) {
+        group.children[
+          files[file].materials.indexOf("default_secondary_color_visor")
+        ].name = "default_secondary_color_visor"
+      }
+
+      if (
+        files[file].materials.indexOf("default_primary_color") == -1 &&
+        files[file].primaryColor
+      ) {
+        group.children[0].material.color.set(
+          `#${Math.round(files[file].primaryColor[0] * 255)
+            .toString(16)
+            .padStart(2, "0")}${Math.round(files[file].primaryColor[1] * 255)
+            .toString(16)
+            .padStart(2, "0")}${Math.round(files[file].primaryColor[2] * 255)
+            .toString(16)
+            .padStart(2, "0")}`
+        )
+      }
+      if (
+        files[file].materials.indexOf("default_secondary_color") == -1 &&
+        files[file].secondaryColor
+      ) {
+        group.children[1].material.color.set(
+          `#${Math.round(files[file].secondaryColor[0] * 255)
+            .toString(16)
+            .padStart(2, "0")}${Math.round(files[file].secondaryColor[1] * 255)
+            .toString(16)
+            .padStart(2, "0")}${Math.round(files[file].secondaryColor[2] * 255)
+            .toString(16)
+            .padStart(2, "0")}`
+        )
+      }
+      return group
+    },
+
+    createThreeGroup(
+      meshes,
+      materials,
+      item,
+      files,
+      playerPrim_Color,
+      playerSec_Color,
+      visorColor
+    ) {
+      let group = new THREE.Group()
+      const threeMaterials = materials.map((material) =>
+        this.createThreeMaterial(material)
+      )
+
+      meshes.forEach((mesh) => {
+        const geometry = this.createThreeGeometry(mesh)
+        const threeMesh = new THREE.Mesh(
+          geometry,
+          threeMaterials[mesh.material_id]
+        )
+        group.add(threeMesh)
+      })
+
+      group = this.applyPreviewRotation(group, item, files)
+      group = this.applyMaterialsAndColors(
+        group,
+        item,
+        files,
+        playerPrim_Color,
+        playerSec_Color,
+        visorColor
+      )
+
+      return group
+    },
+
+    createThreeMaterial(material) {
+      const color = material.colors[0][0]
+      return new THREE.MeshStandardMaterial({
+        color: new THREE.Color(color[0], color[1], color[2]),
+      })
+    },
+
+    createThreeGeometry(mesh) {
+      const geometry = new THREE.BufferGeometry()
+      const positions = []
+      const normals = []
+      const uvs = []
+
+      mesh.vertices.forEach((vertex) => {
+        positions.push(...vertex[0])
+        normals.push(...vertex[1])
+        if (vertex[2].length > 0) {
+          uvs.push(...vertex[2][0])
+        }
+      })
+
+      geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(positions, 3)
+      )
+      geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3))
+      geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2))
+      geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1))
+
+      return geometry
+    },
+
+    applyPreviewRotation(group, item, files) {
+      if (files[item].previewRotation !== undefined) {
+        const [rx, ry, rz] = files[item].previewRotation.map(Number)
+        group.rotation.x += (ry * Math.PI) / 180
+        group.rotation.y += (rx * Math.PI) / 180
+        group.rotation.z += (rz * Math.PI) / 180
+      }
+      return group
+    },
+
+    applyMaterialsAndColors(
+      group,
+      item,
+      files,
+      playerPrim_Color,
+      playerSec_Color,
+      visorColor
+    ) {
+      group.name = files[item].name
+      if (files[item].category == "hand") {
+        group.rotation.x += Math.PI / 2
+      }
+      group = this.applyMaterialIndices(group, item, files)
+      group = this.applyColors(group, playerPrim_Color, playerSec_Color, visorColor)
+
+      return group
+    },
+
+    applyMaterialIndices(group, item, files) {
+      if (files[item].materials.indexOf("default_primary_color") !== -1) {
+        group.children[
+          files[item].materials.indexOf("default_primary_color")
+        ].name = "default_primary_color"
+      }
+      if (files[item].materials.indexOf("default_secondary_color") !== -1) {
+        group.children[
+          files[item].materials.indexOf("default_secondary_color")
+        ].name = "default_secondary_color"
+      }
+      if (files[item].materials.indexOf("default_secondary_color_visor") !== -1) {
+        group.children[
+          files[item].materials.indexOf("default_secondary_color_visor")
+        ].name = "default_secondary_color_visor"
+      }
+      return group
+    },
+
+    createPreviewButton(item, activeCosmetics, owned_products, type) {
+      const previewButton = document.createElement("button")
+      previewButton.style.height = "2em"
+      previewButton.style.width = "70%"
+      // console.log(type);
+      previewButton.innerHTML = owned_products.includes(item)?"equip":"preview"
+      previewButton.style.zIndex = 999
+      previewButton.classList.add("previewButton", `${type}`)
+      previewButton.id = item
+      // console.log(activeCosmetics[type],activeCosmetics)
+      if(activeCosmetics[type]==item){
+        previewButton.classList.toggle("toggled")
+        
+          previewButton.innerHTML = "Un-equip";
+        previewButton.style.backgroundColor = "#FF0000";
+      }
+      return previewButton
+      },
+
+      createContainer(
+      w,
+      picker,
+      handleContainerClick,
+      handleContainerMouseOut
+      ) {
+        const container = document.createElement("div")
+        const lastWholeDigitNum = w % 10
+        const firstWholeDigitNum = Math.floor(w / 10)
+
+        container.onclick = (e) => handleContainerClick(e, [Math.floor(
+          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255
+        ), Math.floor(
+          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255
+        ), Math.floor(
+          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255
+        )])
+        container.onmouseout = handleContainerMouseOut
+
+        container.setAttribute('data-grab_color', `[${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).r},${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).g},${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).b}]`)
+        container.style.backgroundColor = `rgb(${Math.floor(
+          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255
+        )}, ${Math.floor(
+          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255
+        )}, ${Math.floor(
+          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255
+        )})`
+        picker.appendChild(container)
+      },
+
+      displayCategoryList(
+        a,
+        backTracker,
+        selectedPrimaryDiv,
+        selectedSecondaryDiv,
+        categoryState
+        ) {
+        let categoriesContent = document.getElementById("categories-content")
+        let children = categoriesContent.children
+        if (a == 0) {
+          //front page
+          backTracker = 0
+          for (let i = 0; i < children.length; i++) {
+            children[i].style.display = "none"
+          }
+
+          if (selectedPrimaryDiv) selectedPrimaryDiv.style.outline = "none"
+          if (selectedSecondaryDiv) selectedSecondaryDiv.style.outline = "none"
+          document.getElementById("categories-content").style.display = "grid"
+          document.getElementById("cosmetics").style.display = "block"
+          document.getElementById("primary").style.display = "block"
+          document.getElementById("secondary").style.display = "block"
+          document.getElementById("back-btn").style.display = "none"
+          document.getElementById("categories-content").style.height = "372px"
+        }
+        if (a == 1) {
+          //cosmetics clicked
+          backTracker = 0
+          for (let i = 0; i < children.length; i++) {
+            children[i].style.display = "none"
+          }
+          var contentChildren = document.getElementById("content").childNodes
+          for (var i = contentChildren.length - 1; i >= 0; i--) {
+            var child = contentChildren[i]
+            document.getElementById("content").removeChild(child)
+          }
+          categoryState = false
+          document.getElementById("categories-content").style.display = "grid"
+          document.getElementById("Head").style.display = "block"
+          document.getElementById("Body").style.display = "block"
+          document.getElementById("Hands").style.display = "block"
+          document.getElementById("Grapples").style.display = "block"
+          document.getElementById("Checkpoints").style.display = "block"
+          document.getElementById("back-btn").style.display = "block"
+          document.getElementById("categories-content").style.height = "300px"
+          document.getElementById("content").style.height = ""
+          document.getElementById("back-btn").style.marginTop = "0em"
+        }
+
+        if (a == 2) {
+          //color picker
+          backTracker = 0
+          for (let i = 0; i < children.length; i++) {
+            children[i].style.display = "none"
+          }
+          document.getElementById("categories-content").style.display = "block"
+          document
+            .querySelectorAll("#categories-content div")
+            .forEach((e) => (e.style.display = "inline-block"))
+          document.getElementById("back-btn").style.display = "block"
+          document.getElementById("categories-content").style.height = "400px"
+        }
+        if (a == 3) {
+          //show head accessories categories
+          backTracker = 1
+          categoryState = true
+          for (let i = 0; i < children.length; i++) {
+            children[i].style.display = "none"
+          }
+          document.getElementById("Heads").style.display = "block"
+          document.getElementById("Hats").style.display = "block"
+          document.getElementById("Facewear").style.display = "block"
+          document.getElementById("categories-content").style.height = "150px"
+          document.getElementById("content").style.height = ""
+          document.getElementById("back-btn").style.marginTop = "0em"
+          var contentChildren = document.getElementById("content").childNodes
+          for (var i = contentChildren.length - 1; i >= 0; i--) {
+            var child = contentChildren[i]
+            document.getElementById("content").removeChild(child)
+          }
+          document.getElementById("categories-content").style.display = "grid"
+        }
+        if (a == 4) {
+          //finals when clicked
+          if (categoryState == true) {
+            backTracker = 3
+          } else {
+            backTracker = 1
+          }
+          for (let i = 0; i < children.length; i++) {
+            children[i].style.display = "none"
+          }
+          document.getElementById("content").style.height = "100%"
+          document.getElementById("categories-content").style.height = "372px"
+          document.getElementById("back-btn").style.marginTop = "1.5em"
+
+          //categories will dissappear btw
+        }
+        return backTracker
+      },
+
+      LinearToGamma(color) {
+        let r = color.r
+        let g = color.g
+        let b = color.b
+
+        if(r <= 0.0031308)
+        {
+            r = r * 12.92
+        }
+        else
+        {
+            r = 1.055 * Math.pow(r, 1.0/2.4) - 0.055
+        }
+        
+        if(g <= 0.0031308)
+        {
+            g = g * 12.92
+        }
+        else
+        {
+            g = 1.055 * Math.pow(g, 1.0/2.4) - 0.055
+        }
+        
+        if(b <= 0.0031308)
+        {
+            b = b * 12.92
+        }
+        else
+        {
+            b = 1.055 * Math.pow(b, 1.0/2.4) - 0.055
+        }
+        
+        return {r: r, g: g, b: b, a: color.a}
+      },
+
+      ConvertHSVToRGB(h, s, v, alpha) {
+        let hi = h * 3.0 / Math.PI
+          const f  = hi - Math.floor(hi)
+          if(hi >= 3.0)
+              hi -= 6.0
+          if(hi < -3.0)
+              hi += 6.0
+          
+          let r = Math.max(v, 0.0)
+          let g = Math.max(v - s * v, 0.0)
+          let b = Math.max(v - s * f * v, 0.0)
+          let a = Math.max(v - s * (1.0 - f) * v, 0.0)
+          
+          if(hi < -2.0)
+          {
+              return {r: r, g: a, b: g, a: alpha}
+          }
+          else if(hi < -1.0)
+          {
+              return {r: b, g: r, b: g, a: alpha}
+          }
+          else if(hi < 0.0)
+          {
+              return {r: g, g: r, b: a, a: alpha}
+          }
+          else if(hi < 1.0)
+          {
+              return {r: g, g: b, b: r, a: alpha}
+          }
+          else if(hi < 2.0)
+          {
+              return {r: a, g: g, b: r, a: alpha}
+          }
+          else
+          {
+              return {r: r, g: g, b: b, a: alpha}
+          }
+      },
+
+      GetColor (row, column) {
+        let color
+        if(row ==0){
+            return (color = this.ConvertHSVToRGB(0.0, 0.0, 1.0 - column / 10.0))
+      }
+      if(row <= 5&&row!=0)
+        {
+            return (color = this.ConvertHSVToRGB(2.0 * Math.PI * column/10.0, 1.0, row/(10.0 - 4.0)))
+        }
+        else
+        {
+          return (color = this.ConvertHSVToRGB(2.0 * Math.PI * column/10.0, 1.0 - (row - 5.0)/(10.0 - 5.0), 1.0))
+        }
+      },
+
+      handleContainerMouseOut(e) {
+        if (this.selectedPrimaryDiv && this.primaryOpened == true) {
+          this.selectedPrimaryDiv.style.outline = "3px solid #333"
+        }
+        if (this.selectedSecondaryDiv && this.secondaryOpened == true) {
+          this.selectedSecondaryDiv.style.outline = "3px solid #333"
+        }
+      },
+
+      handleCosmeticsClick(e) {
+        this.backTracker = this.displayCategoryList(
+          1,
+          this.backTracker,
+          this.selectedPrimaryDiv,
+          this.selectedSecondaryDiv,
+          this.categoryState
+        );
+      },
+
+      handleColorClick(e) {
+        this.backTracker = this.displayCategoryList(
+          2,
+          this.backTracker,
+          this.selectedPrimaryDiv,
+          this.selectedSecondaryDiv,
+          this.categoryState
+        );
+        if (e.target.id == "primary") {
+          if (this.selectedPrimaryDiv) {
+            this.selectedPrimaryDiv.style.outline = "3px solid #333";
+          }
+          this.primaryOpened = true;
+        } else {
+          if (this.selectedSecondaryDiv) {
+            this.selectedSecondaryDiv.style.outline = "3px solid #333";
+          }
+          this.secondaryOpened = true;
+        }
+      },
+
+      handleHeadClick(e) {
+        this.backTracker = this.displayCategoryList(
+          3,
+          this.backTracker,
+          this.selectedPrimaryDiv,
+          this.selectedSecondaryDiv,
+          this.categoryState
+        );
+      },
+
+      handleFinalClick(e) {
+        //basically the things where you can view the cosmetics
+        this.backTracker = this.displayCategoryList(
+          4,
+          this.backTracker,
+          this.selectedPrimaryDiv,
+          this.selectedSecondaryDiv,
+
+          this.categoryState
+        );
+        this.renderCosmetics(e.target.id);
+        this.animates();
+      },
+
+      handleBackClick() {
+        this.backTracker = this.displayCategoryList(
+          this.backTracker,
+          this.backTracker,
+          this.selectedPrimaryDiv,
+          this.selectedSecondaryDiv,
+          this.categoryState
+        );
+      },
+
+      downloadPlayerPic() {
+        var canvas = document.getElementById('player-model')
+        var link = document.createElement('a');
+        link.download = 'filename.png';
+        link.href = canvas.toDataURL()
+        link.click();
+      },
+      
+      setupThreeScene(item) {
+        const scene2 = new THREE.Scene();
+        scene2.userData.element = document.querySelector(".scene");
+        const camera2 = new THREE.PerspectiveCamera(55, 1, 1, 1000);
+        camera2.position.z += 2;
+        scene2.userData.camera = camera2;
+        ((scene2) => {
+          const sgmLoader2 = new SGMLoader();
+          sgmLoader2.load(this.files[item].file, ([meshes, materials]) => {
+            let group;
+            group = this.createThreeGroup(
+              meshes,
+              materials,
+              item,
+              this.files,
+              this.playerPrim_Color,
+              this.playerSec_Color,
+              this.visorColor
+            );
+            group = this.handleAttachmentPoints(this.files, item, group);
+            scene2.add(group);
+          });
+        })(scene2);
+
+        return scene2;
+      },
+      
+      updateSize() {
+        var width = this.canvas.clientWidth;
+        var height = this.canvas.clientHeight;
+        if (this.canvas.width !== width || this.canvas.height != height) {
+          this.renderer2.setSize(width, height, false);
+        }
+      },
+      
+      renderLoop() {
+        this.renderer.render(this.scene, this.camera);
+        requestAnimationFrame(this.renderLoop);
+      },
+      
+      animates() {
+        this.render();
+        requestAnimationFrame(this.animates);
+      },
+      
+      render() {
+        this.updateSize();
+        this.renderer2.setScissorTest(false);
+        this.renderer2.clear();
+        this.renderer2.setScissorTest(true);
+        this.scenes.forEach((scene2) => {
+          scene2.children[0].rotation.y = Date.now() * 0.001;
+          var element = scene2.userData.element;
+          var rect = element.getBoundingClientRect();
+          var width = rect.right - rect.left;
+          var height = rect.bottom - rect.top;
+          var left = rect.left;
+          var bottom = this.renderer2.domElement.clientHeight - rect.bottom;
+          this.renderer2.setViewport(left, bottom, width, height);
+          this.renderer2.setScissor(left, bottom, width, height);
+          var camera = scene2.userData.camera;
+          this.renderer2.render(scene2, camera);
+        });
+      },
+      
+      changeMeshColors(primaryColor, secondaryColor, visorColor_) {
+        this.scene.traverse((child) => {
+          if (child instanceof THREE.Group) {
+            child.children.forEach((e) => {
+              if (e.name === "default_primary_color" && primaryColor) {
+                e.material.color.set(primaryColor);
+                this.playerPrim_Color = primaryColor;
+              }
+              if (e.name === "default_secondary_color" && secondaryColor) {
+                e.material.color.set(secondaryColor);
+                this.playerSec_Color = secondaryColor;
+              }
+              if (e.name === "default_secondary_color_visor" && visorColor_) {
+                e.material.color.set(visorColor_);
+                this.visorColor = visorColor_;
+              }
+            });
+          }
+        });
+      },
+
+      handlePreviewButtonClick(previewButton, item, type) {
+        const toggledButton = document.getElementById(this.activeCosmetics[type]);
+
+        if (toggledButton) {
+          this.handleToggleButtons(previewButton, toggledButton, item, type);
+        } else {
+          previewButton.innerHTML = "Un-equip";
+          previewButton.style.backgroundColor = "#FF0000";
+          this.activeCosmetics[type] = item;
+          this.renderPlayer(item, type);
+        }
+      },
+
+      handleToggleButtons(previewButton, toggledButton, item, type) {
+        if (toggledButton || previewButton.id !== toggledButton.id) {
+          toggledButton.innerHTML = "Preview";
+          toggledButton.style.backgroundColor = "#00FF00";
+          if (this.ownedItems.includes(item)) {
+            toggledButton.innerHTML = "equip";
+            toggledButton.style.backgroundColor = "#00FF00";
+          }
+          previewButton.innerHTML = "Un-equip";
+          previewButton.style.backgroundColor = "#FF0000";
+          this.scene.remove(
+            this.scene.getObjectByName(this.files[this.activeCosmetics[type]].name)
+          );
+          if (type == "hand") {
+            this.scene.remove(
+              this.scene.getObjectByName(this.files[this.activeCosmetics[type]].name)
+            );
+            this.clonedGroup.position.z += 2
+            this.scene.remove(this.clonedGroup);
+          }
+          this.activeCosmetics[type] = item;
+          this.renderPlayer(item, type);
+        } else if (["head", "hand"].includes(type)) {
+          previewButton.innerHTML = "Un-equip";
+          previewButton.style.backgroundColor = "#FF0000";
+          this.activeCosmetics[type] = item;
+        } else {
+          previewButton.classList.toggle("toggled");
+          previewButton.innerHTML = "preview";
+          previewButton.style.backgroundColor = "#00FF00";
+          this.activeCosmetics[type] = undefined;
+        }
+      },
+
+      async renderPlayer(file, type) {
+        return new Promise((resolve, reject) => {
+          if (file === "default") {
+            this.activeCosmetics["head"] = "default";
+          } else if (file === "player_basic_hand") {
+            this.activeCosmetics["hand"] = "player_basic_hand";
+          }
+
+          const loader = new SGMLoader();
+          // console.log(this.files);
+          loader.load(this.files[file].file, async ([meshes, materials]) => {
+            let group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
+            group = this.adjustPositionForCategory(
+              type,
+              group,
+              file,
+              this.files,
+              this.activeCosmetics,
+              this.scene
+            );
+            group.rotation.y += Math.PI;
+            group = this.handleAttachmentPoints(this.files, file, group);
+            group = this.applyColors(
+              group,
+              this.playerPrim_Color,
+              this.playerSec_Color,
+              this.visorColor
+            );
+            this.scene.add(group);
+            if ("hand" === type) {
+              this.clonedGroup = group.clone()
+              this.clonedGroup.position.set(-0.3, -0.75, 0.1)
+              this.clonedGroup.rotation.z += Math.PI
+              this.clonedGroup.rotation.x += Math.PI / 2
+              this.scene.add(this.clonedGroup)
+              group.position.set(0.3, -0.75, 0.1)
+              group.rotation.x += Math.PI / 2
+            }
+            if (this.editMode == true && this.userInfo && this.ownedItems.includes(file)) {
+              this.userInfo.active_customizations.items[type] = file;
+              // setCustomizations(userStore);
+            }
+            resolve();
+          });
+        });
+      },
+      
+      setupUI() {
+        document.getElementById("customizations").style.height = "100%";
+        document.getElementById("categories-content").style.display = "none";
+        this.canvas = document.getElementById("canvas");
+        var element2 = document.getElementById("body1");
+        var positionInfo = element2.getBoundingClientRect();
+        var height2 = positionInfo.height;
+        var width2 = positionInfo.width;
+        this.canvas.style.height = height2;
+        this.canvas.style.width2 = width2;
+      },
+
+      async renderCosmetics(category) {
+        this.setupUI();
+        const template = `<div class="description">Scene $</div><div class="scene"></div>`;
+        const content = document.getElementById("content");
+
+        for (const item in this.files) {
+          if (this.files[item].category === category) {
+            const element = document.createElement("div");
+            element.id = this.files[item].file;
+            element.className = "list-item";
+            element.innerHTML = template.replace("Scene $", this.files[item].name);
+            const previewButton = this.createPreviewButton(
+              item,
+              this.activeCosmetics,
+              this.ownedItems,
+              this.files[item].type
+            );
+            previewButton.addEventListener("click", () =>
+              this.handlePreviewButtonClick(previewButton, item, this.files[item].type)
+            );
+            element.appendChild(previewButton);
+
+            const scene2 = this.setupThreeScene(item);
+            scene2.userData.element = element.querySelector(".scene");
+            content.appendChild(element);
+            this.loadLight(this.scenes, scene2);
+          }
+        }
+
+        this.renderer2 = new THREE.WebGLRenderer({
+          canvas: this.canvas,
+          alpha: true,
+          transparent: true,
+          antialias: true,
+        });
+        this.renderer2.setPixelRatio(window.devicePixelRatio);
+      },
+
+      handleGoBack() {
+        location.href = "/levels?tab=tab_other_user&user_id=" + this.userID;
+      }
+
+  }
+}
+</script>
+
+<template>
+  <main id="body1" class="scopedAlternative">
+    <button class="buttons" id="download" @click="downloadPlayerPic">Download</button>
+    <a class="buttons" id="back" @click="handleGoBack">Back</a>
+    <div id="player-container">
+      <canvas class="player-model" id="player-model"></canvas>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div id="customizations">
+        <span id="back-btn" style="display: none;" @click="handleBackClick">Back</span>
+        <div id="categories-content">
+            <span id="cosmetics" @click="handleCosmeticsClick">Cosmetics</span>
+            <span id="primary" @click="handleColorClick">Change Main Color</span>
+            <span id="secondary" @click="handleColorClick">Change Second Color</span>
+            <span id="Head" style="display: none;" @click="handleHeadClick">Head</span>
+            <span class="final" @click="handleFinalClick" id="Body" style="display: none;">Body</span>
+            <span class="final" @click="handleFinalClick" id="Hands" style="display: none;">Hands</span>
+            <span class="final" @click="handleFinalClick" id="Grapples" style="display: none;">Grapples</span>
+            <span class="final" @click="handleFinalClick" id="Checkpoints" style="display: none;">Checkpoints</span>
+            <span class="final" @click="handleFinalClick" id="Heads" style="display: none;">Heads</span>
+            <span class="final" @click="handleFinalClick" id="Hats" style="display: none;">Hats</span>
+            <span class="final" @click="handleFinalClick" id="Facewear" style="display: none;">Facewear</span>
+        </div>
+        <div id="content"></div>
+
+    </div>
+  </main>
+</template>
+
+<!-- i know the css is garbage, its a temporary alternative for scoped breaking everything -->
+
+<style>
+/* roboto-regular - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/roboto-v30-latin-regular.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* roboto-italic - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Roboto';
+    font-style: italic;
+    font-weight: 400;
+    src: url('../fonts/roboto-v30-latin-italic.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+/* roboto-700 - latin */
+@font-face {
+    font-display: swap;
+    /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: url('../fonts/roboto-v30-latin-700.woff2') format('woff2');
+    /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+main.scopedAlternative {
+    font-family: 'Roboto';
+    font-weight: 700;
+    background-image: linear-gradient(#84c1f0, #e1f6ff, #84c1f0);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100vh;
+    flex-direction: row;
+    flex-wrap: wrap-reverse;
+    margin: 0;
+    gap: 30px;
+}
+
+main.scopedAlternative * {
+  font-weight: 700;
+}
+
+.scopedAlternative #customizations {
+    width: 572px;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 3px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+}
+
+.scopedAlternative .previewButton {
+    width: 70%;
+    border-radius: 2em;
+    background-color: #00FF00;
+    text-align: center;
+    bottom: 10%;
+    color: white;
+    border: none;
+    position: relative;
+    cursor: pointer;
+    z-index: 999;
+}
+
+.scopedAlternative #categories-content {
+    display: grid;
+    overflow: hidden;
+    width: 382px;
+    z-index: 2;
+    height: 372px;
+    padding: 3px;
+    position: relative;
+
+}
+
+.scopedAlternative #categories-content div,
+.scopedAlternative #categories-content div.selected:has(~ div:active),
+.scopedAlternative div.selected:is(#categories-content div:active ~ div.selected) {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    outline: none;
+}
+
+.scopedAlternative #categories-content div:hover {
+    cursor: pointer;
+    outline: 3px solid #333;
+}
+
+.scopedAlternative #categories-content div.selected,
+.scopedAlternative #categories-content div:active {
+    outline: 3px solid #000;
+}
+
+.scopedAlternative #categories-content span {
+    color: #0f6db3;
+    font-size: 1.5em;
+    cursor: pointer;
+    text-align: center;
+}
+
+.scopedAlternative #categories-content div {
+    display: none;
+    margin-inline: 1%;
+    outline: 3px solid transparent;
+}
+
+.scopedAlternative .player-model {
+    z-index: 2;
+    width: 400px;
+    height: 450px;
+}
+
+.scopedAlternative .cosmetic-Container {
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 0, 0, .1);
+    border-radius: 15%;
+}
+
+.scopedAlternative #cosmetics {
+    grid-column: 1 / 10;
+    grid-row: 2/ 6;
+}
+
+.scopedAlternative #primary {
+    grid-column: 1 / 10;
+    grid-row: 3 / 6;
+}
+
+.scopedAlternative #secondary {
+    grid-column: 1 / 10;
+    grid-row: 4 / 6;
+}
+
+.scopedAlternative #content {
+    position: relative;
+    top: 0px;
+    width: 100%;
+    z-index: 1;
+}
+
+.scopedAlternative #back-btn {
+    z-index: 9999;
+    color: #0f6db3;
+    font-size: 1.5em;
+    cursor: pointer;
+    position: relative;
+    width: fit-content;
+}
+
+.scopedAlternative #canvas {
+    position: fixed;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.scopedAlternative .buttons {
+    width: 150px;
+    height: 30px;
+    font-size: 15px;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border-radius: 15px;
+    box-sizing: border-box;
+    text-decoration: none;
+    background-color: #00bc87;
+    color: #fff;
+    text-align: center;
+    border: none;
+    top: 1em;
+    left: 1em;
+    position: absolute;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.scopedAlternative .list-item {
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 1em;
+    padding: 1em;
+    box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.25);
+    margin-right: 1em;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.scopedAlternative .list-item .scene {
+    width: 200px;
+    height: 200px;
+}
+
+.scopedAlternative .list-item .description {
+    color: #0f6db3;
+    font-family: sans-serif;
+    font-size: large;
+    width: 200px;
+    height: 20px;
+    margin-top: 0.5em;
+    bottom: 75%;
+}
+
+.scopedAlternative .customContainer {
+    width: 28px;
+    height: 28px;
+}
+
+.scopedAlternative .customContainer:hover {
+    cursor: pointer;
+    outline: 3px solid #333;
+}
+
+.scopedAlternative #download {
+  z-index: 3;
+  width: 110px;
+  top: 3.5em;
+}
+
+.scopedAlternative #back {
+  z-index: 3;
+  width: 110px;
+  padding-block: 3px;
+  height: auto;
+  background-color: red;
+}
+
+#app:has(.scopedAlternative) {
+  max-width: 100% !important;
+  width: 100%;
+  padding: 0 !important;
+}
+body:has(.scopedAlternative) {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+.scopedAlternative ::-webkit-scrollbar {
+  width: 0;
+}
+
+@media screen and (max-width: 1002px) {
+  main.scopedAlternative {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  .scopedAlternative #customizations {
+    align-items: center;
+  }
+  .scopedAlternative #back-btn {
+    margin-right: auto;
+  }
+  .scopedAlternative #content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .scopedAlternative .list-item:nth-last-child(1):nth-child(odd) {
+    margin-right: calc(50% - 25px);
+  }
+  .scopedAlternative .list-item {
+    display: block;
+  }
+  .scopedAlternative .previewButton {
+    bottom: 0;
+  }
+  .scopedAlternative .list-item .description {
+    bottom: 0;
+  }
+  .scopedAlternative canvas#player-model.player-model {
+    width: 300px !important;
+    height: 337.5px !important;
+    background-color: #4BA0D6;
+  }
+  main.scopedAlternative {
+    background-color: #4BA0D6;
+    background-image: none;
+    gap: 0;
+  }
+  .scopedAlternative #player-container {
+    background-color: #4BA0D6;
+    padding-inline: 100px;
+    z-index: 1;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .scopedAlternative #player-container {
+    padding-inline: 0;
+  }
+  .scopedAlternative .list-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(300px, 80%);
+    margin-right: 0;
+  }
+  .scopedAlternative #content {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .scopedAlternative #back-btn {
+    margin-right: 0;
+    margin-inline: auto;
+  }
+  .scopedAlternative .list-item:nth-last-child(1):nth-child(odd) {
+    margin-right: 0;
+  }
+  .scopedAlternative #customizations {
+    width: 95%;
+  }
+}
+</style>
