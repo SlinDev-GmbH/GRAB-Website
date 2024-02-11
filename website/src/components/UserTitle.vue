@@ -76,6 +76,7 @@ export default {
     </div>
     <div class="user-buttons">
       <MakeCreatorButton v-if="loaded && !isVerified" :userID="identifier"/>
+      <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
     </div>
     <div v-if="count" class="user-tab-count">
       Level count: {{ count }}
@@ -128,5 +129,17 @@ export default {
   height: 100%;
   display: flex;
   align-items: center;
+  gap: 5px;
+}
+
+.player-button {
+  padding: 2px 5px 1px 5px;
+  font-weight: bold;
+  background-color: #4642BE;
+  color: white;
+  border: none;
+  font-size: 12px;
+  border-radius: 15px;
+  cursor: pointer;
 }
 </style>
