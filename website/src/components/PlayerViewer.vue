@@ -14,85 +14,85 @@ import { setActiveCustomizationsRequest } from '../requests/SetActiveCustomizati
 export default {
   data() {
     return {
-      
+      userID: null,
+      playerPrim_Color: null,
+      playerSec_Color: null,
+      visorColor: null,
+      selectedPrimaryDiv: null,
+      primaryOpened: null,
+      selectedSecondaryDiv: null,
+      secondaryOpened: null,
+      backTracker: null,
+      canvas: null,
+      renderer2: null,
+      picker: null,
+      grabColorArray: null,
+      categoryState: null,
+      editMode: null,
+      files: {
+        default: {
+          file: "../../cosmetics/head/head/head.sgm",
+          name: "Head Basic",
+          category: "Heads",
+          materials: [
+            "default_primary_color",
+            "default_secondary_color",
+            "default_secondary_color_visor",
+          ],
+          type:"head",
+          previewRotation: [180, 0, 0],
+          attachment_points: { glasses: { position: [0, 0, 0] } }, //really weird condition
+        },
+        player_basic_body: {
+          file: "../../cosmetics/body/body.sgm",
+          name: "Body Basic",
+          category: undefined,
+          materials: ["default_secondary_color", "default_primary_color"],
+        },
+        player_basic_hand: {
+          file: "../../cosmetics/hand/hand_claw.sgm",
+          name: "Claw Hand",
+          category: "Hands",
+          type:"hand",
+          materials: [
+            "default_primary_color",
+            "default_secondary_color",
+            "default_secondary_color_visor",
+          ],
+          previewRotation: [180, 0, 0],
+        },
+      },
+      ownedItems: [],
+      activeCosmetics: {
+        "hand": undefined,
+        "head/glasses": undefined,
+        "head/hat": undefined,
+        "checkpoint": undefined,
+        "grapple/hook": undefined,
+        "body/neck": undefined,
+        "head": undefined
+      },
     }
   },
 
   computed: {
     ...mapState(useUserStore, ['accessToken']),
+    ...mapState(useUserStore, ['isLoggedIn']),
     ...mapState(useUserStore, ['userInfo'])
   },
 
   created() {
-    // all this has to be non-responsive so three.js doesn't get mad :(
-    this.userID = null;
-    this.playerPrim_Color = null;
-    this.playerSec_Color = null;
-    this.visorColor = null;
-    this.selectedPrimaryDiv = null;
-    this.primaryOpened = null;
-    this.selectedSecondaryDiv = null;
-    this.secondaryOpened = null;
-    this.backTracker = null;
-    this.clonedGroup = null;
-    this.canvas = null;
-    this.renderer2 = null;
-    this.editMode = null;
-    this.picker = null;
-    this.grabColorArray = null;
-    this.categoryState = null;
+    // non responsive so three.js works
     this.scene = null;
     this.camera = null;
     this.renderer = null;
-    this.files = {
-      default: {
-        file: "../../cosmetics/head/head/head.sgm",
-        name: "Head Basic",
-        category: "Heads",
-        materials: [
-          "default_primary_color",
-          "default_secondary_color",
-          "default_secondary_color_visor",
-        ],
-        type:"head",
-        previewRotation: [180, 0, 0],
-        attachment_points: { glasses: { position: [0, 0, 0] } }, //really weird condition
-      },
-      player_basic_body: {
-        file: "../../cosmetics/body/body.sgm",
-        name: "Body Basic",
-        category: undefined,
-        materials: ["default_secondary_color", "default_primary_color"],
-      },
-      player_basic_hand: {
-        file: "../../cosmetics/hand/hand_claw.sgm",
-        name: "Claw Hand",
-        category: "Hands",
-        type:"hand",
-        materials: [
-          "default_primary_color",
-          "default_secondary_color",
-          "default_secondary_color_visor",
-        ],
-        previewRotation: [180, 0, 0],
-      },
-    },
+    this.clonedGroup = null;
     this.scenes = [];
-    this.ownedItems = [];
-    this.activeCosmetics = {
-      "hand": undefined,
-      "head/glasses": undefined,
-      "head/hat": undefined,
-      "checkpoint": undefined,
-      "grapple/hook": undefined,
-      "body/neck": undefined,
-      "head": undefined
-    }
   },
 
   async mounted() {
     this.userID = this.$route.query.user_id;
-    await this.loadPlayer();
+    await this.createPlayer();
     this.picker = document.getElementById("categories-content");
     for (let w = 0; w < 100; w++) {
       this.createContainer(w, this.picker, this.handleContainerClick, this.handleContainerMouseOut);
@@ -107,164 +107,126 @@ export default {
     controls.enablePan = false;
 
     controls.maxPolarAngle = Math.PI;
-    controls.addEventListener(
-      "start",
-      () => (document.body.style.cursor = "none")
-    );
+    controls.addEventListener("start", () => (document.body.style.cursor = "none"));
     controls.addEventListener("end", () => (document.body.style.cursor = "auto"));
     await this.renderPlayer("default", "head");
     await this.renderPlayer("player_basic_hand", "hand");
     await this.renderPlayer("player_basic_body", undefined);
     if (this.userID) {
       let playerResponseBody = await getUserInfoRequest(this.$api_server_url, this.userID);
-      console.log(playerResponseBody)
       this.playerPrim_Color = playerResponseBody.active_customizations.player_color_primary ?
         playerResponseBody.active_customizations.player_color_primary.color : undefined;
-        this.playerSec_Color =
-        playerResponseBody.active_customizations.player_color_secondary ? playerResponseBody.active_customizations.player_color_secondary.color : undefined;
+      this.playerSec_Color = playerResponseBody.active_customizations.player_color_secondary ?
+        playerResponseBody.active_customizations.player_color_secondary.color : undefined;
       let renderPromises = [];
       for (var type in this.activeCosmetics) {
         if (playerResponseBody.active_customizations.items && playerResponseBody.active_customizations.items[type] !== undefined) {
           if (this.activeCosmetics[type] !== undefined) {
-            scene.remove(
-              scene.getObjectByName(this.files[this.activeCosmetics[type]].name)
-            );
+            scene.remove(scene.getObjectByName(this.files[this.activeCosmetics[type]].name));
+            if (type == "hand") {
+                scene.remove(scene.getObjectByName(this.files[this.activeCosmetics[type]].name));
+            }
           }
           this.activeCosmetics[type] = playerResponseBody.active_customizations.items[type]
         }
         if (type == "hand" && this.clonedGroup) {
           this.activeCosmetics[type] = playerResponseBody.active_customizations.items ? (playerResponseBody.active_customizations.items[type] == undefined ? "player_basic_hand" : playerResponseBody.active_customizations.items[type]) : undefined
         }
-
-        if (
-          this.activeCosmetics[type] !== undefined
-        ) {
-          renderPromises.push(
-          await this.renderPlayer(
-              this.activeCosmetics[type],
-              type
-            )
-          );
+        if (this.activeCosmetics[type] !== undefined) {
+          renderPromises.push(await this.renderPlayer(this.activeCosmetics[type], type));
         }
       }
     await Promise.all(renderPromises).then(() => {
-
-          this.changeMeshColors(
-            `rgb(${Math.floor(
-              this.LinearToGamma({
-                r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
-                g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
-                b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
-                a: 1,
-              }).r * 255
-            )},${Math.floor(
-              this.LinearToGamma({
-                r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
-                g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
-                b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
-                a: 1,
-              }).g * 255
-            )},${Math.floor(
-              this.LinearToGamma({
-                r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
-                g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
-                b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
-                a: 1,
-              }).b * 255
-            )})`,
-            `rgb(${Math.floor(
-              this.LinearToGamma({
-                r: this.playerSec_Color?this.playerSec_Color[0]:1,
-                g: this.playerSec_Color?this.playerSec_Color[1]:0,
-                b: this.playerSec_Color?this.playerSec_Color[2]:0,
-                a: 1,
-              }).r * 255
-            )},${Math.floor(
-              this.LinearToGamma({
-                r: this.playerSec_Color?this.playerSec_Color[0]:1,
-                g: this.playerSec_Color?this.playerSec_Color[1]:0,
-                b: this.playerSec_Color?this.playerSec_Color[2]:0,
-                a: 1,
-              }).g * 255
-            )},${Math.floor(
-              this.LinearToGamma({
-                r: this.playerSec_Color?this.playerSec_Color[0]:1,
-                g: this.playerSec_Color?this.playerSec_Color[1]:0,
-                b: this.playerSec_Color?this.playerSec_Color[2]:0,
-                a: 1,
-              }).b * 255
-            )})`,
-            `#${parseInt(
-              Math.floor(
-                (this.LinearToGamma({
-                  r: this.playerSec_Color?this.playerSec_Color[0]:1,
-                  g: this.playerSec_Color?this.playerSec_Color[1]:0,
-                  b: this.playerSec_Color?this.playerSec_Color[2]:0,
-                  a: 1,
-                }).r *
-                  255) /
-                2
-              )
-            )
-              .toString(16)
-              .padStart(2, "0")}${parseInt(
-                Math.floor(
-                  (this.LinearToGamma({
-                    r: this.playerSec_Color?this.playerSec_Color[0]:1,
-                    g: this.playerSec_Color?this.playerSec_Color[1]:0,
-                    b: this.playerSec_Color?this.playerSec_Color[2]:0,
-                    a: 1,
-                  }).g *
-                    255) /
-                  2
-                )
-              )
-                .toString(16)
-                .padStart(2, "0")}${parseInt(
-                  Math.floor(
-                    (this.LinearToGamma({
-                      r: this.playerSec_Color?this.playerSec_Color[0]:1,
-                      g: this.playerSec_Color?this.playerSec_Color[1]:0,
-                      b: this.playerSec_Color?this.playerSec_Color[2]:0,
-                      a: 1,
-                    }).b *
-                      255) /
-                    2
-                  )
-                )
-                  .toString(16)
-                  .padStart(2, "0")}`
-          );
-        
+      this.changeMeshColors(
+        `rgb(${Math.floor(
+          this.LinearToGamma({
+            r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
+            g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
+            b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
+            a: 1,
+          }).r * 255
+        )},${Math.floor(
+          this.LinearToGamma({
+            r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
+            g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
+            b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
+            a: 1,
+          }).g * 255
+        )},${Math.floor(
+          this.LinearToGamma({
+            r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
+            g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
+            b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
+            a: 1,
+          }).b * 255
+        )})`,
+        `rgb(${Math.floor(
+          this.LinearToGamma({
+            r: this.playerSec_Color?this.playerSec_Color[0]:1,
+            g: this.playerSec_Color?this.playerSec_Color[1]:0,
+            b: this.playerSec_Color?this.playerSec_Color[2]:0,
+            a: 1,
+          }).r * 255
+        )},${Math.floor(
+          this.LinearToGamma({
+            r: this.playerSec_Color?this.playerSec_Color[0]:1,
+            g: this.playerSec_Color?this.playerSec_Color[1]:0,
+            b: this.playerSec_Color?this.playerSec_Color[2]:0,
+            a: 1,
+          }).g * 255
+        )},${Math.floor(
+          this.LinearToGamma({
+            r: this.playerSec_Color?this.playerSec_Color[0]:1,
+            g: this.playerSec_Color?this.playerSec_Color[1]:0,
+            b: this.playerSec_Color?this.playerSec_Color[2]:0,
+            a: 1,
+          }).b * 255
+        )})`,
+        `#${parseInt(
+          Math.floor((this.LinearToGamma({
+            r: this.playerSec_Color?this.playerSec_Color[0]:1,
+            g: this.playerSec_Color?this.playerSec_Color[1]:0,
+            b: this.playerSec_Color?this.playerSec_Color[2]:0,
+            a: 1,
+          }).r * 255) / 2)
+        ).toString(16).padStart(2, "0")}${parseInt(
+          Math.floor((this.LinearToGamma({
+            r: this.playerSec_Color?this.playerSec_Color[0]:1,
+            g: this.playerSec_Color?this.playerSec_Color[1]:0,
+            b: this.playerSec_Color?this.playerSec_Color[2]:0,
+            a: 1,
+          }).g * 255) / 2)
+        ).toString(16).padStart(2, "0")}${parseInt(
+          Math.floor((this.LinearToGamma({
+            r: this.playerSec_Color?this.playerSec_Color[0]:1,
+            g: this.playerSec_Color?this.playerSec_Color[1]:0,
+            b: this.playerSec_Color?this.playerSec_Color[2]:0,
+            a: 1,
+          }).b * 255) / 2 )
+        ).toString(16).padStart(2, "0")}`);
         if (this.isLoggedIn) {
-          if (userID && userID === this.userID) {
+          if (this.userID && this.userID === this.userInfo.user_id) {
             this.editMode = true;
+            console.log("Editing mode")
             let ownedProducts = this.userInfo.owned_products
-            console.log(this.products)
             for (var pack in this.products) {
               if (ownedProducts.includes(pack)) {
                 for (var product in this.products[pack].items) {
-                  ownedItems.push(this.products[pack].items[product])
+                  this.ownedItems.push(this.products[pack].items[product])
                 }
               }
             }
           }
         }
       });
-
     }
     this.renderLoop();
   },
 
   methods: {
-    async loadPlayer() {
-      await this.createPlayer()
-    },
-
     async createPlayer() {
       const picker = document.getElementById("categories-content");
       const items = await getShopItemsRequest(this.$api_server_url);
-      console.log(items);
       let catalog = await getShopCatalogRequest(this.$api_server_url);
       this.products = await getShopProductsRequest(this.$api_server_url);
       if (this.userInfo && !this.userInfo.active_customizations || this.userInfo && !this.userInfo.active_customizations.items && this.userInfo.active_customizations) {
@@ -297,18 +259,18 @@ export default {
       }
     },
 
-    handleContainerClick(e, rgbValue) {
+    async handleContainerClick(e, rgbValue) {
       if (this.primaryOpened == true) {
         if (this.selectedSecondaryDiv) this.selectedSecondaryDiv.style.outline = "none"
         if (this.selectedPrimaryDiv) this.selectedPrimaryDiv.style.outline = "none"
-
 
         this.selectedPrimaryDiv = e.target
         this.playerPrim_Color = e.target.style.backgroundColor
         if (this.editMode == true) {
           this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
           this.userInfo.active_customizations.player_color_primary = { "color": this.grabColorArray }
-          // setCustomizations(userStore)
+          setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
+          console.log("setCustomizations");
         }
         this.changeMeshColors(e.target.style.backgroundColor, undefined, undefined)
         this.primaryOpened = false
@@ -320,7 +282,8 @@ export default {
         if (this.editMode == true) {
           this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
           this.userInfo.active_customizations.player_color_secondary = { "color": this.grabColorArray }
-          // setCustomizations(userStore)
+          setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
+          console.log("setCustomizations");
         }
         this.selectedSecondaryDiv = e.target
         this.visorColor = `rgb(${Math.ceil(
@@ -364,11 +327,7 @@ export default {
       })
       renderer.setPixelRatio(window.devicePixelRatio)
       renderer.setSize(400, 450)
-      return {
-        scene,
-        camera,
-        renderer,
-      }
+      return {scene, camera, renderer}
     },
 
     processItemsAndSections(sectionItems, catalogSection, files, items) {
@@ -426,19 +385,14 @@ export default {
     },
 
     loadLight(scenes, scene) {
-      var light = new THREE.DirectionalLight(0xffffff, 0.5)
-      scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+      let light = new THREE.DirectionalLight(0xffffff, 0.5)
       light.position.set(0, 0, 1)
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5))
       scene.add(light)
       scenes.push(scene)
     },
 
-    applyColors(
-      group,
-      playerPrim_Color,
-      playerSec_Color,
-      visorColor
-    ) {
+    applyColors(group, playerPrim_Color, playerSec_Color, visorColor) {
       group.children.forEach((obj) => {
         if (obj.name === "default_primary_color" && playerPrim_Color) {
           obj.material.color.set(playerPrim_Color)
@@ -475,21 +429,11 @@ export default {
             uvs.push(...vertex[2][0])
           }
         })
-        geometry.setAttribute(
-          "position",
-          new THREE.Float32BufferAttribute(positions, 3)
-        )
-        geometry.setAttribute(
-          "normal",
-          new THREE.Float32BufferAttribute(normals, 3)
-        )
+        geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3))
+        geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3))
         geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2))
         geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1))
-
-        const threeMesh = new THREE.Mesh(
-          geometry,
-          threeMaterials[mesh.material_id]
-        )
+        const threeMesh = new THREE.Mesh(geometry, threeMaterials[mesh.material_id])
         group.add(threeMesh)
       })
 
@@ -531,16 +475,13 @@ export default {
             }
             if (activeCosmetics["head/glasses"].attachment_point_overrides) {
               referenceGroup.position.x -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]]
-                  .position[0]
+                files[file].attachment_point_overrides[activeCosmetics["head"]].position[0]
               )
               referenceGroup.position.y += Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]]
-                  .position[1]
+                files[file].attachment_point_overrides[activeCosmetics["head"]].position[1]
               )
               referenceGroup.position.z -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]]
-                  .position[2]
+                files[file].attachment_point_overrides[activeCosmetics["head"]].position[2]
               )
             }
           }
@@ -577,22 +518,18 @@ export default {
                 )
               }
               group.position.z -= Number(
-                files[activeCosmetics["head"]].attachment_points.glasses
-                  .position[2]
+                files[activeCosmetics["head"]].attachment_points.glasses.position[2]
               )
             }
             if (files[file].attachment_point_overrides) {
               group.position.x -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]]
-                  .position[0]
+                files[file].attachment_point_overrides[activeCosmetics["head"]].position[0]
               )
               group.position.y += Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]]
-                  .position[1]
+                files[file].attachment_point_overrides[activeCosmetics["head"]].position[1]
               )
               group.position.z -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]]
-                  .position[2]
+                files[file].attachment_point_overrides[activeCosmetics["head"]].position[2]
               )
             }
           }
@@ -614,9 +551,8 @@ export default {
         if ("grapple/hook" === category) {
           group.position.x = 0.5
           group.position.y = -1.0
-      group.rotation.z+=Math.PI
-      group.rotation.x-=Math.PI/2
-      
+          group.rotation.z+=Math.PI
+          group.rotation.x-=Math.PI/2
         }
 
         if ("checkpoint" === category) {
@@ -650,12 +586,9 @@ export default {
         files[file].primaryColor
       ) {
         group.children[0].material.color.set(
-          `#${Math.round(files[file].primaryColor[0] * 255)
-            .toString(16)
-            .padStart(2, "0")}${Math.round(files[file].primaryColor[1] * 255)
-            .toString(16)
-            .padStart(2, "0")}${Math.round(files[file].primaryColor[2] * 255)
-            .toString(16)
+          `#${Math.round(files[file].primaryColor[0] * 255).toString(16)
+            .padStart(2, "0")}${Math.round(files[file].primaryColor[1] * 255).toString(16)
+            .padStart(2, "0")}${Math.round(files[file].primaryColor[2] * 255).toString(16)
             .padStart(2, "0")}`
         )
       }
@@ -664,12 +597,9 @@ export default {
         files[file].secondaryColor
       ) {
         group.children[1].material.color.set(
-          `#${Math.round(files[file].secondaryColor[0] * 255)
-            .toString(16)
-            .padStart(2, "0")}${Math.round(files[file].secondaryColor[1] * 255)
-            .toString(16)
-            .padStart(2, "0")}${Math.round(files[file].secondaryColor[2] * 255)
-            .toString(16)
+          `#${Math.round(files[file].secondaryColor[0] * 255).toString(16)
+            .padStart(2, "0")}${Math.round(files[file].secondaryColor[1] * 255).toString(16)
+            .padStart(2, "0")}${Math.round(files[file].secondaryColor[2] * 255).toString(16)
             .padStart(2, "0")}`
         )
       }
@@ -733,10 +663,7 @@ export default {
         }
       })
 
-      geometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(positions, 3)
-      )
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3))
       geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3))
       geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2))
       geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1))
@@ -795,431 +722,403 @@ export default {
       const previewButton = document.createElement("button")
       previewButton.style.height = "2em"
       previewButton.style.width = "70%"
-      // console.log(type);
-      previewButton.innerHTML = owned_products.includes(item)?"equip":"preview"
+      previewButton.innerHTML = owned_products.includes(item)?"Equip":"Preview"
+      if (['default', 'player_basic_hand'].includes(item) && this.editMode) {
+        previewButton.innerHTML = "Equip"
+      }
       previewButton.style.zIndex = 999
       previewButton.classList.add("previewButton", `${type}`)
       previewButton.id = item
-      // console.log(activeCosmetics[type],activeCosmetics)
       if(activeCosmetics[type]==item){
         previewButton.classList.toggle("toggled")
-        
-          previewButton.innerHTML = "Un-equip";
+        previewButton.innerHTML = "Un-equip";
+        if (type == "head" || type == "hand") {
+          previewButton.innerHTML = "Equipped";
+        }
         previewButton.style.backgroundColor = "#FF0000";
       }
       return previewButton
-      },
+    },
 
-      createContainer(
+    createContainer(
       w,
       picker,
       handleContainerClick,
       handleContainerMouseOut
-      ) {
-        const container = document.createElement("div")
-        const lastWholeDigitNum = w % 10
-        const firstWholeDigitNum = Math.floor(w / 10)
+    ) {
+      const container = document.createElement("div")
+      const lastWholeDigitNum = w % 10
+      const firstWholeDigitNum = Math.floor(w / 10)
 
-        container.onclick = (e) => handleContainerClick(e, [Math.floor(
-          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255
-        ), Math.floor(
-          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255
-        ), Math.floor(
-          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255
-        )])
-        container.onmouseout = handleContainerMouseOut
+      container.onclick = (e) => handleContainerClick(e, [Math.floor(
+        this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255
+      ), Math.floor(
+        this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255
+      ), Math.floor(
+        this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255
+      )])
+      container.onmouseout = handleContainerMouseOut
 
-        container.setAttribute('data-grab_color', `[${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).r},${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).g},${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).b}]`)
-        container.style.backgroundColor = `rgb(${Math.floor(
-          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255
-        )}, ${Math.floor(
-          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255
-        )}, ${Math.floor(
-          this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255
-        )})`
-        picker.appendChild(container)
-      },
+      container.setAttribute('data-grab_color', `[${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).r},${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).g},${this.GetColor(firstWholeDigitNum, lastWholeDigitNum).b}]`)
+      container.style.backgroundColor = `rgb(${Math.floor(
+        this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).r * 255
+      )}, ${Math.floor(
+        this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).g * 255
+      )}, ${Math.floor(
+        this.LinearToGamma(this.GetColor(firstWholeDigitNum, lastWholeDigitNum)).b * 255
+      )})`
+      picker.appendChild(container)
+    },
 
-      displayCategoryList(
-        a,
-        backTracker,
-        selectedPrimaryDiv,
-        selectedSecondaryDiv,
-        categoryState
-        ) {
-        let categoriesContent = document.getElementById("categories-content")
-        let children = categoriesContent.children
-        if (a == 0) {
-          //front page
-          backTracker = 0
-          for (let i = 0; i < children.length; i++) {
-            children[i].style.display = "none"
-          }
-
-          if (selectedPrimaryDiv) selectedPrimaryDiv.style.outline = "none"
-          if (selectedSecondaryDiv) selectedSecondaryDiv.style.outline = "none"
-          document.getElementById("categories-content").style.display = "grid"
-          document.getElementById("cosmetics").style.display = "block"
-          document.getElementById("primary").style.display = "block"
-          document.getElementById("secondary").style.display = "block"
-          document.getElementById("back-btn").style.display = "none"
-          document.getElementById("categories-content").style.height = "372px"
-        }
-        if (a == 1) {
-          //cosmetics clicked
-          backTracker = 0
-          for (let i = 0; i < children.length; i++) {
-            children[i].style.display = "none"
-          }
-          var contentChildren = document.getElementById("content").childNodes
-          for (var i = contentChildren.length - 1; i >= 0; i--) {
-            var child = contentChildren[i]
-            document.getElementById("content").removeChild(child)
-          }
-          categoryState = false
-          document.getElementById("categories-content").style.display = "grid"
-          document.getElementById("Head").style.display = "block"
-          document.getElementById("Body").style.display = "block"
-          document.getElementById("Hands").style.display = "block"
-          document.getElementById("Grapples").style.display = "block"
-          document.getElementById("Checkpoints").style.display = "block"
-          document.getElementById("back-btn").style.display = "block"
-          document.getElementById("categories-content").style.height = "300px"
-          document.getElementById("content").style.height = ""
-          document.getElementById("back-btn").style.marginTop = "0em"
+    displayCategoryList(
+      a,
+      backTracker,
+      selectedPrimaryDiv,
+      selectedSecondaryDiv,
+      categoryState
+    ) {
+      let categoriesContent = document.getElementById("categories-content")
+      let children = categoriesContent.children
+      if (a == 0) {
+        //front page
+        backTracker = 0
+        for (let i = 0; i < children.length; i++) {
+          children[i].style.display = "none"
         }
 
-        if (a == 2) {
-          //color picker
-          backTracker = 0
-          for (let i = 0; i < children.length; i++) {
-            children[i].style.display = "none"
-          }
-          document.getElementById("categories-content").style.display = "block"
-          document
-            .querySelectorAll("#categories-content div")
-            .forEach((e) => (e.style.display = "inline-block"))
-          document.getElementById("back-btn").style.display = "block"
-          document.getElementById("categories-content").style.height = "400px"
-        }
-        if (a == 3) {
-          //show head accessories categories
-          backTracker = 1
-          categoryState = true
-          for (let i = 0; i < children.length; i++) {
-            children[i].style.display = "none"
-          }
-          document.getElementById("Heads").style.display = "block"
-          document.getElementById("Hats").style.display = "block"
-          document.getElementById("Facewear").style.display = "block"
-          document.getElementById("categories-content").style.height = "150px"
-          document.getElementById("content").style.height = ""
-          document.getElementById("back-btn").style.marginTop = "0em"
-          var contentChildren = document.getElementById("content").childNodes
-          for (var i = contentChildren.length - 1; i >= 0; i--) {
-            var child = contentChildren[i]
-            document.getElementById("content").removeChild(child)
-          }
-          document.getElementById("categories-content").style.display = "grid"
-        }
-        if (a == 4) {
-          //finals when clicked
-          if (categoryState == true) {
-            backTracker = 3
-          } else {
-            backTracker = 1
-          }
-          for (let i = 0; i < children.length; i++) {
-            children[i].style.display = "none"
-          }
-          document.getElementById("content").style.height = "100%"
-          document.getElementById("categories-content").style.height = "372px"
-          document.getElementById("back-btn").style.marginTop = "1.5em"
-
-          //categories will dissappear btw
-        }
-        return backTracker
-      },
-
-      LinearToGamma(color) {
-        let r = color.r
-        let g = color.g
-        let b = color.b
-
-        if(r <= 0.0031308)
-        {
-            r = r * 12.92
-        }
-        else
-        {
-            r = 1.055 * Math.pow(r, 1.0/2.4) - 0.055
-        }
-        
-        if(g <= 0.0031308)
-        {
-            g = g * 12.92
-        }
-        else
-        {
-            g = 1.055 * Math.pow(g, 1.0/2.4) - 0.055
-        }
-        
-        if(b <= 0.0031308)
-        {
-            b = b * 12.92
-        }
-        else
-        {
-            b = 1.055 * Math.pow(b, 1.0/2.4) - 0.055
-        }
-        
-        return {r: r, g: g, b: b, a: color.a}
-      },
-
-      ConvertHSVToRGB(h, s, v, alpha) {
-        let hi = h * 3.0 / Math.PI
-          const f  = hi - Math.floor(hi)
-          if(hi >= 3.0)
-              hi -= 6.0
-          if(hi < -3.0)
-              hi += 6.0
-          
-          let r = Math.max(v, 0.0)
-          let g = Math.max(v - s * v, 0.0)
-          let b = Math.max(v - s * f * v, 0.0)
-          let a = Math.max(v - s * (1.0 - f) * v, 0.0)
-          
-          if(hi < -2.0)
-          {
-              return {r: r, g: a, b: g, a: alpha}
-          }
-          else if(hi < -1.0)
-          {
-              return {r: b, g: r, b: g, a: alpha}
-          }
-          else if(hi < 0.0)
-          {
-              return {r: g, g: r, b: a, a: alpha}
-          }
-          else if(hi < 1.0)
-          {
-              return {r: g, g: b, b: r, a: alpha}
-          }
-          else if(hi < 2.0)
-          {
-              return {r: a, g: g, b: r, a: alpha}
-          }
-          else
-          {
-              return {r: r, g: g, b: b, a: alpha}
-          }
-      },
-
-      GetColor (row, column) {
-        let color
-        if(row ==0){
-            return (color = this.ConvertHSVToRGB(0.0, 0.0, 1.0 - column / 10.0))
+        if (selectedPrimaryDiv) selectedPrimaryDiv.style.outline = "none"
+        if (selectedSecondaryDiv) selectedSecondaryDiv.style.outline = "none"
+        document.getElementById("categories-content").style.display = "grid"
+        document.getElementById("cosmetics").style.display = "block"
+        document.getElementById("primary").style.display = "block"
+        document.getElementById("secondary").style.display = "block"
+        document.getElementById("back-btn").style.display = "none"
+        document.getElementById("categories-content").style.height = "372px"
       }
-      if(row <= 5&&row!=0)
-        {
-            return (color = this.ConvertHSVToRGB(2.0 * Math.PI * column/10.0, 1.0, row/(10.0 - 4.0)))
+      if (a == 1) {
+        //cosmetics clicked
+        backTracker = 0
+        for (let i = 0; i < children.length; i++) {
+          children[i].style.display = "none"
         }
-        else
-        {
-          return (color = this.ConvertHSVToRGB(2.0 * Math.PI * column/10.0, 1.0 - (row - 5.0)/(10.0 - 5.0), 1.0))
+        var contentChildren = document.getElementById("content").childNodes
+        for (var i = contentChildren.length - 1; i >= 0; i--) {
+          var child = contentChildren[i]
+          document.getElementById("content").removeChild(child)
         }
-      },
+        categoryState = false
+        document.getElementById("categories-content").style.display = "grid"
+        document.getElementById("Head").style.display = "block"
+        document.getElementById("Body").style.display = "block"
+        document.getElementById("Hands").style.display = "block"
+        document.getElementById("Grapples").style.display = "block"
+        document.getElementById("Checkpoints").style.display = "block"
+        document.getElementById("back-btn").style.display = "block"
+        document.getElementById("categories-content").style.height = "300px"
+        document.getElementById("content").style.height = ""
+        document.getElementById("back-btn").style.marginTop = "0em"
+      }
 
-      handleContainerMouseOut(e) {
-        if (this.selectedPrimaryDiv && this.primaryOpened == true) {
-          this.selectedPrimaryDiv.style.outline = "3px solid #333"
+      if (a == 2) {
+        //color picker
+        backTracker = 0
+        for (let i = 0; i < children.length; i++) {
+          children[i].style.display = "none"
         }
-        if (this.selectedSecondaryDiv && this.secondaryOpened == true) {
-          this.selectedSecondaryDiv.style.outline = "3px solid #333"
+        document.getElementById("categories-content").style.display = "block"
+        document
+          .querySelectorAll("#categories-content div")
+          .forEach((e) => (e.style.display = "inline-block"))
+        document.getElementById("back-btn").style.display = "block"
+        document.getElementById("categories-content").style.height = "400px"
+      }
+      if (a == 3) {
+        //show head accessories categories
+        backTracker = 1
+        categoryState = true
+        for (let i = 0; i < children.length; i++) {
+          children[i].style.display = "none"
         }
-      },
-
-      handleCosmeticsClick(e) {
-        this.backTracker = this.displayCategoryList(
-          1,
-          this.backTracker,
-          this.selectedPrimaryDiv,
-          this.selectedSecondaryDiv,
-          this.categoryState
-        );
-      },
-
-      handleColorClick(e) {
-        this.backTracker = this.displayCategoryList(
-          2,
-          this.backTracker,
-          this.selectedPrimaryDiv,
-          this.selectedSecondaryDiv,
-          this.categoryState
-        );
-        if (e.target.id == "primary") {
-          if (this.selectedPrimaryDiv) {
-            this.selectedPrimaryDiv.style.outline = "3px solid #333";
-          }
-          this.primaryOpened = true;
+        document.getElementById("Heads").style.display = "block"
+        document.getElementById("Hats").style.display = "block"
+        document.getElementById("Facewear").style.display = "block"
+        document.getElementById("categories-content").style.height = "150px"
+        document.getElementById("content").style.height = ""
+        document.getElementById("back-btn").style.marginTop = "0em"
+        var contentChildren = document.getElementById("content").childNodes
+        for (var i = contentChildren.length - 1; i >= 0; i--) {
+          var child = contentChildren[i]
+          document.getElementById("content").removeChild(child)
+        }
+        document.getElementById("categories-content").style.display = "grid"
+      }
+      if (a == 4) {
+        //finals when clicked
+        if (categoryState == true) {
+          backTracker = 3
         } else {
-          if (this.selectedSecondaryDiv) {
-            this.selectedSecondaryDiv.style.outline = "3px solid #333";
-          }
-          this.secondaryOpened = true;
+          backTracker = 1
         }
-      },
+        for (let i = 0; i < children.length; i++) {
+          children[i].style.display = "none"
+        }
+        document.getElementById("content").style.height = "100%"
+        document.getElementById("categories-content").style.height = "372px"
+        document.getElementById("back-btn").style.marginTop = "1.5em"
 
-      handleHeadClick(e) {
-        this.backTracker = this.displayCategoryList(
-          3,
-          this.backTracker,
-          this.selectedPrimaryDiv,
-          this.selectedSecondaryDiv,
-          this.categoryState
-        );
-      },
+        //categories will dissappear btw
+      }
+      return backTracker
+    },
 
-      handleFinalClick(e) {
-        //basically the things where you can view the cosmetics
-        this.backTracker = this.displayCategoryList(
-          4,
-          this.backTracker,
-          this.selectedPrimaryDiv,
-          this.selectedSecondaryDiv,
+    LinearToGamma(color) {
+      let { r, g, b } = color;
 
-          this.categoryState
-        );
-        this.renderCosmetics(e.target.id);
-        this.animates();
-      },
-
-      handleBackClick() {
-        this.backTracker = this.displayCategoryList(
-          this.backTracker,
-          this.backTracker,
-          this.selectedPrimaryDiv,
-          this.selectedSecondaryDiv,
-          this.categoryState
-        );
-      },
-
-      downloadPlayerPic() {
-        var canvas = document.getElementById('player-model')
-        var link = document.createElement('a');
-        link.download = 'filename.png';
-        link.href = canvas.toDataURL()
-        link.click();
-      },
+      if(r <= 0.0031308) {
+        r = r * 12.92 
+      } else {
+        r = 1.055 * Math.pow(r, 1.0/2.4) - 0.055
+      }
+      if (g <= 0.0031308) {
+        g = g * 12.92
+      } else {
+        g = 1.055 * Math.pow(g, 1.0/2.4) - 0.055
+      }
+      if(b <= 0.0031308) {
+        b = b * 12.92
+      } else {
+        b = 1.055 * Math.pow(b, 1.0/2.4) - 0.055
+      }
       
-      setupThreeScene(item) {
-        const scene2 = new THREE.Scene();
-        scene2.userData.element = document.querySelector(".scene");
-        const camera2 = new THREE.PerspectiveCamera(55, 1, 1, 1000);
-        camera2.position.z += 2;
-        scene2.userData.camera = camera2;
-        ((scene2) => {
-          const sgmLoader2 = new SGMLoader();
-          sgmLoader2.load(this.files[item].file, ([meshes, materials]) => {
-            let group;
-            group = this.createThreeGroup(
-              meshes,
-              materials,
-              item,
-              this.files,
-              this.playerPrim_Color,
-              this.playerSec_Color,
-              this.visorColor
-            );
-            group = this.handleAttachmentPoints(this.files, item, group);
-            scene2.add(group);
+      return {r: r, g: g, b: b, a: color.a}
+    },
+
+    ConvertHSVToRGB(h, s, v, alpha) {
+      let hi = h * 3.0 / Math.PI
+      const f = hi - Math.floor(hi)
+      if (hi >= 3.0) {
+        hi -= 6.0
+      }
+      if (hi < -3.0) {
+        hi += 6.0
+      }
+      
+      let r = Math.max(v, 0.0)
+      let g = Math.max(v - s * v, 0.0)
+      let b = Math.max(v - s * f * v, 0.0)
+      let a = Math.max(v - s * (1.0 - f) * v, 0.0)
+      
+      if(hi < -2.0) {
+        return {r: r, g: a, b: g, a: alpha}
+      } else if(hi < -1.0) {
+        return {r: b, g: r, b: g, a: alpha}
+      } else if(hi < 0.0) {
+        return {r: g, g: r, b: a, a: alpha}
+      } else if(hi < 1.0) {
+        return {r: g, g: b, b: r, a: alpha}
+      } else if(hi < 2.0) {
+        return {r: a, g: g, b: r, a: alpha}
+      } else {
+        return {r: r, g: g, b: b, a: alpha}
+      }
+    },
+
+    GetColor (row, column) {
+      let color
+      if(row ==0){
+        return (color = this.ConvertHSVToRGB(0.0, 0.0, 1.0 - column / 10.0))
+      }
+      if(row <= 5&&row!=0) {
+        return (color = this.ConvertHSVToRGB(2.0 * Math.PI * column/10.0, 1.0, row/(10.0 - 4.0)))
+      } else {
+        return (color = this.ConvertHSVToRGB(2.0 * Math.PI * column/10.0, 1.0 - (row - 5.0)/(10.0 - 5.0), 1.0))
+      }
+    },
+
+    handleContainerMouseOut(e) {
+      if (this.selectedPrimaryDiv && this.primaryOpened == true) {
+        this.selectedPrimaryDiv.style.outline = "3px solid #333"
+      }
+      if (this.selectedSecondaryDiv && this.secondaryOpened == true) {
+        this.selectedSecondaryDiv.style.outline = "3px solid #333"
+      }
+    },
+
+    handleCosmeticsClick(e) {
+      this.backTracker = this.displayCategoryList(
+        1,
+        this.backTracker,
+        this.selectedPrimaryDiv,
+        this.selectedSecondaryDiv,
+        this.categoryState
+      );
+    },
+
+    handleColorClick(e) {
+      this.backTracker = this.displayCategoryList(
+        2,
+        this.backTracker,
+        this.selectedPrimaryDiv,
+        this.selectedSecondaryDiv,
+        this.categoryState
+      );
+      if (e.target.id == "primary") {
+        if (this.selectedPrimaryDiv) {
+          this.selectedPrimaryDiv.style.outline = "3px solid #333";
+        }
+        this.primaryOpened = true;
+      } else {
+        if (this.selectedSecondaryDiv) {
+          this.selectedSecondaryDiv.style.outline = "3px solid #333";
+        }
+        this.secondaryOpened = true;
+      }
+    },
+
+    handleHeadClick(e) {
+      this.backTracker = this.displayCategoryList(
+        3,
+        this.backTracker,
+        this.selectedPrimaryDiv,
+        this.selectedSecondaryDiv,
+        this.categoryState
+      );
+    },
+
+    handleFinalClick(e) {
+      //basically the things where you can view the cosmetics
+      this.backTracker = this.displayCategoryList(
+        4,
+        this.backTracker,
+        this.selectedPrimaryDiv,
+        this.selectedSecondaryDiv,
+
+        this.categoryState
+      );
+      this.renderCosmetics(e.target.id);
+      this.animates();
+    },
+
+    handleBackClick() {
+      this.backTracker = this.displayCategoryList(
+        this.backTracker,
+        this.backTracker,
+        this.selectedPrimaryDiv,
+        this.selectedSecondaryDiv,
+        this.categoryState
+      );
+    },
+
+    downloadPlayerPic() {
+      let canvas = document.getElementById('player-model')
+      let link = document.createElement('a');
+      link.download = 'filename.png';
+      link.href = canvas.toDataURL()
+      link.click();
+    },
+    
+    setupThreeScene(item) {
+      const scene2 = new THREE.Scene();
+      scene2.userData.element = document.querySelector(".scene");
+      const camera2 = new THREE.PerspectiveCamera(55, 1, 1, 1000);
+      camera2.position.z += 2;
+      scene2.userData.camera = camera2;
+      ((scene2) => {
+        const sgmLoader2 = new SGMLoader();
+        sgmLoader2.load(this.files[item].file, ([meshes, materials]) => {
+          let group;
+          group = this.createThreeGroup(
+            meshes,
+            materials,
+            item,
+            this.files,
+            this.playerPrim_Color,
+            this.playerSec_Color,
+            this.visorColor
+          );
+          group = this.handleAttachmentPoints(this.files, item, group);
+          scene2.add(group);
+        });
+      })(scene2);
+
+      return scene2;
+    },
+    
+    updateSize() {
+      let width = this.canvas.clientWidth;
+      let height = this.canvas.clientHeight;
+      if (this.canvas.width !== width || this.canvas.height != height) {
+        this.renderer2.setSize(width, height, false);
+      }
+    },
+    
+    renderLoop() {
+      this.renderer.render(this.scene, this.camera);
+      requestAnimationFrame(this.renderLoop);
+    },
+    
+    animates() {
+      this.render();
+      requestAnimationFrame(this.animates);
+    },
+    
+    render() {
+      this.updateSize();
+      this.renderer2.setScissorTest(false);
+      this.renderer2.clear();
+      this.renderer2.setScissorTest(true);
+      this.scenes.forEach((scene2) => {
+        scene2.children[0].rotation.y = Date.now() * 0.001;
+        let element = scene2.userData.element;
+        let rect = element.getBoundingClientRect();
+        let width = rect.right - rect.left;
+        let height = rect.bottom - rect.top;
+        let left = rect.left;
+        let bottom = this.renderer2.domElement.clientHeight - rect.bottom;
+        this.renderer2.setViewport(left, bottom, width, height);
+        this.renderer2.setScissor(left, bottom, width, height);
+        let camera = scene2.userData.camera;
+        this.renderer2.render(scene2, camera);
+      });
+    },
+      
+    changeMeshColors(primaryColor, secondaryColor, visorColor_) {
+      this.scene.traverse((child) => {
+        if (child instanceof THREE.Group) {
+          child.children.forEach((e) => {
+            if (e.name === "default_primary_color" && primaryColor) {
+              e.material.color.set(primaryColor);
+              this.playerPrim_Color = primaryColor;
+            }
+            if (e.name === "default_secondary_color" && secondaryColor) {
+              e.material.color.set(secondaryColor);
+              this.playerSec_Color = secondaryColor;
+            }
+            if (e.name === "default_secondary_color_visor" && visorColor_) {
+              e.material.color.set(visorColor_);
+              this.visorColor = visorColor_;
+            }
           });
-        })(scene2);
-
-        return scene2;
-      },
-      
-      updateSize() {
-        var width = this.canvas.clientWidth;
-        var height = this.canvas.clientHeight;
-        if (this.canvas.width !== width || this.canvas.height != height) {
-          this.renderer2.setSize(width, height, false);
         }
-      },
-      
-      renderLoop() {
-        this.renderer.render(this.scene, this.camera);
-        requestAnimationFrame(this.renderLoop);
-      },
-      
-      animates() {
-        this.render();
-        requestAnimationFrame(this.animates);
-      },
-      
-      render() {
-        this.updateSize();
-        this.renderer2.setScissorTest(false);
-        this.renderer2.clear();
-        this.renderer2.setScissorTest(true);
-        this.scenes.forEach((scene2) => {
-          scene2.children[0].rotation.y = Date.now() * 0.001;
-          var element = scene2.userData.element;
-          var rect = element.getBoundingClientRect();
-          var width = rect.right - rect.left;
-          var height = rect.bottom - rect.top;
-          var left = rect.left;
-          var bottom = this.renderer2.domElement.clientHeight - rect.bottom;
-          this.renderer2.setViewport(left, bottom, width, height);
-          this.renderer2.setScissor(left, bottom, width, height);
-          var camera = scene2.userData.camera;
-          this.renderer2.render(scene2, camera);
-        });
-      },
-      
-      changeMeshColors(primaryColor, secondaryColor, visorColor_) {
-        this.scene.traverse((child) => {
-          if (child instanceof THREE.Group) {
-            child.children.forEach((e) => {
-              if (e.name === "default_primary_color" && primaryColor) {
-                e.material.color.set(primaryColor);
-                this.playerPrim_Color = primaryColor;
-              }
-              if (e.name === "default_secondary_color" && secondaryColor) {
-                e.material.color.set(secondaryColor);
-                this.playerSec_Color = secondaryColor;
-              }
-              if (e.name === "default_secondary_color_visor" && visorColor_) {
-                e.material.color.set(visorColor_);
-                this.visorColor = visorColor_;
-              }
-            });
-          }
-        });
-      },
+      });
+    },
 
-      handlePreviewButtonClick(previewButton, item, type) {
-        const toggledButton = document.getElementById(this.activeCosmetics[type]);
+    handlePreviewButtonClick(previewButton, item, type) {
+      // previously equipped button
+      const toggledButton = document.getElementById(this.activeCosmetics[type]);
 
-        if (toggledButton) {
-          this.handleToggleButtons(previewButton, toggledButton, item, type);
-        } else {
-          previewButton.innerHTML = "Un-equip";
-          previewButton.style.backgroundColor = "#FF0000";
-          this.activeCosmetics[type] = item;
-          this.renderPlayer(item, type);
-        }
-      },
-
-      handleToggleButtons(previewButton, toggledButton, item, type) {
-        if (toggledButton || previewButton.id !== toggledButton.id) {
+      if (toggledButton) {
+        if (previewButton.id !== toggledButton.id) {
           toggledButton.innerHTML = "Preview";
           toggledButton.style.backgroundColor = "#00FF00";
-          if (this.ownedItems.includes(item)) {
-            toggledButton.innerHTML = "equip";
+          if (this.ownedItems.includes(item) || (['default', 'player_basic_hand'].includes(item) && this.editMode)) {
+            toggledButton.innerHTML = "Equip";
             toggledButton.style.backgroundColor = "#00FF00";
           }
           previewButton.innerHTML = "Un-equip";
+          if (["head", "hand"].includes(type)) {
+            previewButton.innerHTML = "Equipped";
+          }
           previewButton.style.backgroundColor = "#FF0000";
           this.scene.remove(
             this.scene.getObjectByName(this.files[this.activeCosmetics[type]].name)
@@ -1234,117 +1133,139 @@ export default {
           this.activeCosmetics[type] = item;
           this.renderPlayer(item, type);
         } else if (["head", "hand"].includes(type)) {
-          previewButton.innerHTML = "Un-equip";
+          previewButton.innerHTML = "Equipped";
           previewButton.style.backgroundColor = "#FF0000";
           this.activeCosmetics[type] = item;
         } else {
           previewButton.classList.toggle("toggled");
-          previewButton.innerHTML = "preview";
+          previewButton.innerHTML = "Preview";
           previewButton.style.backgroundColor = "#00FF00";
           this.activeCosmetics[type] = undefined;
-        }
-      },
-
-      async renderPlayer(file, type) {
-        return new Promise((resolve, reject) => {
-          if (file === "default") {
-            this.activeCosmetics["head"] = "default";
-          } else if (file === "player_basic_hand") {
-            this.activeCosmetics["hand"] = "player_basic_hand";
-          }
-
-          const loader = new SGMLoader();
-          // console.log(this.files);
-          loader.load(this.files[file].file, async ([meshes, materials]) => {
-            let group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
-            group = this.adjustPositionForCategory(
-              type,
-              group,
-              file,
-              this.files,
-              this.activeCosmetics,
-              this.scene
-            );
-            group.rotation.y += Math.PI;
-            group = this.handleAttachmentPoints(this.files, file, group);
-            group = this.applyColors(
-              group,
-              this.playerPrim_Color,
-              this.playerSec_Color,
-              this.visorColor
-            );
-            this.scene.add(group);
-            if ("hand" === type) {
-              this.clonedGroup = group.clone()
-              this.clonedGroup.position.set(-0.3, -0.75, 0.1)
-              this.clonedGroup.rotation.z += Math.PI
-              this.clonedGroup.rotation.x += Math.PI / 2
-              this.scene.add(this.clonedGroup)
-              group.position.set(0.3, -0.75, 0.1)
-              group.rotation.x += Math.PI / 2
-            }
-            if (this.editMode == true && this.userInfo && this.ownedItems.includes(file)) {
-              this.userInfo.active_customizations.items[type] = file;
-              // setCustomizations(userStore);
-            }
-            resolve();
-          });
-        });
-      },
-      
-      setupUI() {
-        document.getElementById("customizations").style.height = "100%";
-        document.getElementById("categories-content").style.display = "none";
-        this.canvas = document.getElementById("canvas");
-        var element2 = document.getElementById("body1");
-        var positionInfo = element2.getBoundingClientRect();
-        var height2 = positionInfo.height;
-        var width2 = positionInfo.width;
-        this.canvas.style.height = height2;
-        this.canvas.style.width2 = width2;
-      },
-
-      async renderCosmetics(category) {
-        this.setupUI();
-        const template = `<div class="description">Scene $</div><div class="scene"></div>`;
-        const content = document.getElementById("content");
-
-        for (const item in this.files) {
-          if (this.files[item].category === category) {
-            const element = document.createElement("div");
-            element.id = this.files[item].file;
-            element.className = "list-item";
-            element.innerHTML = template.replace("Scene $", this.files[item].name);
-            const previewButton = this.createPreviewButton(
-              item,
-              this.activeCosmetics,
-              this.ownedItems,
-              this.files[item].type
-            );
-            previewButton.addEventListener("click", () =>
-              this.handlePreviewButtonClick(previewButton, item, this.files[item].type)
-            );
-            element.appendChild(previewButton);
-
-            const scene2 = this.setupThreeScene(item);
-            scene2.userData.element = element.querySelector(".scene");
-            content.appendChild(element);
-            this.loadLight(this.scenes, scene2);
+          this.scene.remove(
+            this.scene.getObjectByName(this.files[item].name)
+          );
+          if (this.editMode && this.userInfo) {
+            this.userInfo.active_customizations.items[type] = undefined;
+            setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations);
+            console.log("setCustomizations");
           }
         }
-
-        this.renderer2 = new THREE.WebGLRenderer({
-          canvas: this.canvas,
-          alpha: true,
-          transparent: true,
-          antialias: true,
-        });
-        this.renderer2.setPixelRatio(window.devicePixelRatio);
-      },
-
-      handleGoBack() {
-        location.href = "/levels?tab=tab_other_user&user_id=" + this.userID;
+      } else {
+        // nothing was equipped
+        previewButton.innerHTML = "Un-equip";
+        if (["head", "hand"].includes(type)) {
+          previewButton.innerHTML = "Equipped";
+        }
+        previewButton.style.backgroundColor = "#FF0000";
+        this.activeCosmetics[type] = item;
+        this.renderPlayer(item, type);
       }
+    },
+      
+    async renderPlayer(file, type) {
+      return new Promise((resolve, reject) => {
+        if (file === "default") {
+          this.activeCosmetics["head"] = "default";
+        } else if (file === "player_basic_hand") {
+          this.activeCosmetics["hand"] = "player_basic_hand";
+        }
+
+        const loader = new SGMLoader();
+        loader.load(this.files[file].file, async ([meshes, materials]) => {
+          let group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
+          group = this.adjustPositionForCategory(
+            type,
+            group,
+            file,
+            this.files,
+            this.activeCosmetics,
+            this.scene
+          );
+          group.rotation.y += Math.PI;
+          group = this.handleAttachmentPoints(this.files, file, group);
+          group = this.applyColors(
+            group,
+            this.playerPrim_Color,
+            this.playerSec_Color,
+            this.visorColor
+          );
+          this.scene.add(group);
+          if ("hand" === type) {
+            this.clonedGroup = group.clone()
+            this.clonedGroup.position.set(-0.3, -0.75, 0.1)
+            this.clonedGroup.rotation.z += Math.PI
+            this.clonedGroup.rotation.x += Math.PI / 2
+            this.scene.add(this.clonedGroup)
+            group.position.set(0.3, -0.75, 0.1)
+            group.rotation.x += Math.PI / 2
+          }
+          if (this.editMode && this.userInfo && this.ownedItems.includes(file)) {
+            this.userInfo.active_customizations.items[type] = file;
+            setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
+            console.log("setCustomizations");
+          } else if (this.editMode && this.userInfo && ['default', 'player_basic_hand'].includes(file)) {
+            this.userInfo.active_customizations.items[type] = undefined;
+            setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
+            console.log("setCustomizations");
+          }
+          resolve();
+        });
+      });
+    },
+      
+    setupUI() {
+      document.getElementById("customizations").style.height = "100%";
+      document.getElementById("categories-content").style.display = "none";
+      this.canvas = document.getElementById("canvas");
+      let element2 = document.getElementById("body1");
+      let positionInfo = element2.getBoundingClientRect();
+      let height2 = positionInfo.height;
+      let width2 = positionInfo.width;
+      this.canvas.style.height = height2;
+      this.canvas.style.width2 = width2;
+    },
+
+    async renderCosmetics(category) {
+      this.setupUI();
+      const template = `<div class="description">Scene $</div><div class="scene"></div>`;
+      const content = document.getElementById("content");
+
+      for (const item in this.files) {
+        if (this.files[item].category === category) {
+          const element = document.createElement("div");
+          element.id = this.files[item].file;
+          element.className = "list-item";
+          element.innerHTML = template.replace("Scene $", this.files[item].name);
+          const previewButton = this.createPreviewButton(
+            item,
+            this.activeCosmetics,
+            this.ownedItems,
+            this.files[item].type
+          );
+          previewButton.addEventListener("click", () =>
+            this.handlePreviewButtonClick(previewButton, item, this.files[item].type)
+          );
+          element.appendChild(previewButton);
+
+          const scene2 = this.setupThreeScene(item);
+          scene2.userData.element = element.querySelector(".scene");
+          content.appendChild(element);
+          this.loadLight(this.scenes, scene2);
+        }
+      }
+
+      this.renderer2 = new THREE.WebGLRenderer({
+        canvas: this.canvas,
+        alpha: true,
+        transparent: true,
+        antialias: true,
+      });
+      this.renderer2.setPixelRatio(window.devicePixelRatio);
+    },
+
+    handleGoBack() {
+      location.href = "/levels?tab=tab_other_user&user_id=" + this.userID;
+    }
 
   }
 }
@@ -1374,7 +1295,6 @@ export default {
             <span class="final" @click="handleFinalClick" id="Facewear" style="display: none;">Facewear</span>
         </div>
         <div id="content"></div>
-
     </div>
   </main>
 </template>
