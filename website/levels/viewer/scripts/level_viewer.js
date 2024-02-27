@@ -442,7 +442,7 @@ function init()
 				let creatorButton = document.createElement("button");
 				creatorButton.className = "creatorButton";
 				moderationContainer.appendChild(creatorButton);
-				creatorButton.innerHTML = "<b>MAKE CREATOR</b>";
+				creatorButton.innerHTML = "<b>Make Creator</b>";
 				creatorButton.onclick = function () {
 				  	(async () => {
 						let response = await fetch(config.SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
@@ -730,7 +730,7 @@ function init()
 
 						camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
 						
-						var goToStartLabel = document.getElementById("go to start");
+						var goToStartLabel = document.getElementById("startButton");
 						goToStartLabel.innerHTML = "Go to Start"
 						goToStartLabel.style.cursor="pointer";
 						goToStartLabel.onclick = function() {
@@ -751,7 +751,7 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						var goToFinishLabel = document.getElementById("go to finish");
+						var goToFinishLabel = document.getElementById("finishButton");
 						goToFinishLabel.innerHTML = "Go to Finish"
 						goToFinishLabel.style.cursor="pointer";
 
@@ -911,12 +911,14 @@ function init()
 					: timeLabel.innerHTML = "average time: <b>N/a</b>"
 
 				if(userStore.isLoggedIn){
-					var reportButton = document.getElementById("report button")
-					reportButton.style.display='flex'
-						levelIdentifier = detailResponseBody.data_key.split(':')
-						levelIdentifier.splice(0, 1)
-						levelIdentifier = levelIdentifier.join('/')
-						reportButton.onclick = function () {
+					var reportButton = document.getElementById("reportButton")
+					reportButton.style.display='block'
+					levelIdentifier = detailResponseBody.data_key.split(':')
+					levelIdentifier.splice(0, 1)
+					levelIdentifier = levelIdentifier.join('/')
+
+					reportButton.addEventListener("click", function() {
+						(async () => {
 							let reasonMapping = {
 								sexual: "Sexual Content / Genitals",
 								violence: "Detailed Violence",
@@ -938,9 +940,10 @@ function init()
 								})()
 							}
 							showOptionsDialog("Report Level", "Why should this level be removed?", reasonMapping, onOk)
-					}
+						})();
+					});
 				}
-				})()
+			})()
 		})()
 	});
 }
