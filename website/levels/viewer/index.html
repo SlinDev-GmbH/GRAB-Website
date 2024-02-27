@@ -361,7 +361,35 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
+            .popup
+			{
+				position: fixed;
+				display: none;
+				left: 40%;
+				width: 20%;
+				top: 30%;
+				height: 20%;
+				z-index:1002;
+				color: #000000;
+			}
 
+			.popup-inner
+			{
+				background-color: white;
+				border-radius: 10px;
+				border: 3px solid grey;
+				padding: 10px;
+			}
+
+			.popup[open="open"]
+			{
+				display: block;
+			}
+            #report\ button{
+                width: 7%;
+                height: 7%;
+                cursor: pointer;
+            }
             .previewImage {
                 border-radius: 15px;
                 width: 100%;
@@ -372,6 +400,19 @@
         <script type="module" src="scripts/shaders.js"></script>
         <script type="module" src="scripts/level_viewer.js"></script>
 
+        <div class="popup" id="popup">
+			<div class="popup-inner">
+				<div class="cell-title" id="popup-title"></div><br>
+				<div class="cell-description" id="popup-description"></div><br>
+				<form>
+					<select id="popup-reason" style="width: 70%">
+					</select>
+				</form>
+				<br>
+				<button id="popup-button-cancel">Cancel</button>
+				<button id="popup-button-ok">OK</button>
+			</div>
+		</div>
         <div id="buttons" class="buttons">
         <form>
             <input type="button" id="back-button" class="back-button" value="User Levels">
@@ -401,6 +442,7 @@
         <div id="players rated count">players rated count</div>
         <div id="players liked count">players liked count</div>
         <div id="average time">average time</div>
+        <img id="report button" display="none" src="../../src/assets/report.svg">
         <br>
         <div id="go to start"></div>
         <br style="display: block;content: '';margin-top: 0.5em; ">
