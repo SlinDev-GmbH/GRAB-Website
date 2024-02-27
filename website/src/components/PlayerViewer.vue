@@ -5,11 +5,11 @@ import * as THREE from "https://unpkg.com/three@0.138.0/build/three.module.js"
 import { SGMLoader } from "../assets/sgmLoader.js";
 import { OrbitControls } from "../assets/OrbitContols.js";
 
-import { getShopCatalogRequest } from '../requests/GetShopCatalogRequest';
-import { getShopProductsRequest } from '../requests/GetShopProductsRequest';
-import { getShopItemsRequest } from '../requests/GetShopItemsRequest';
-import { getUserInfoRequest } from '../requests/getUserInfoRequest';
-import { setActiveCustomizationsRequest } from '../requests/SetActiveCustomizationsRequest';
+import { getShopCatalogRequest } from '../requests/GetShopCatalogRequest.js';
+import { getShopProductsRequest } from '../requests/GetShopProductsRequest.js';
+import { getShopItemsRequest } from '../requests/GetShopItemsRequest.js';
+import { getUserInfoRequest } from '../requests/getUserInfoRequest.js';
+import { setActiveCustomizationsRequest } from '../requests/SetActiveCustomizationsRequest.js';
 
 export default {
   data() {
