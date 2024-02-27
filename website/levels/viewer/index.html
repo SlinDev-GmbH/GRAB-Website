@@ -333,7 +333,7 @@
                 text-align: center;
                 border: none;
             }
-            #hideButton, #unverifyButton, #verifySkipSuccessButton {
+            #hideButton, #unverifyButton, #verifySkipSuccessButton   {
                 height: 30px;
                 font-weight: bold;
                 background-color: red;
@@ -386,9 +386,18 @@
 				display: block;
 			}
             #report\ button{
-                width: 7%;
-                height: 7%;
+                background-color: red;
+                height: 30px;
+                font-weight: bold;
+                width: fit-content;
+                padding-right: 20px;
+                padding-left: 20px;
+                color: white;
+                border: none;
+                border-radius: 15px;
                 cursor: pointer;
+                display: none;
+                align-items: center;
             }
             .previewImage {
                 border-radius: 15px;
@@ -442,7 +451,8 @@
         <div id="players rated count">players rated count</div>
         <div id="players liked count">players liked count</div>
         <div id="average time">average time</div>
-        <img id="report button" display="none" src="../../src/assets/report.svg">
+        <br>
+        <div id="report button">Report</div>
         <br>
         <div id="go to start"></div>
         <br style="display: block;content: '';margin-top: 0.5em; ">
