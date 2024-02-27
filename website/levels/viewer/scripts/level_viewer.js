@@ -912,7 +912,7 @@ function init()
 
 				if(userStore.isLoggedIn){
 					var reportButton = document.getElementById("report button")
-					reportButton.style.display='block';
+					reportButton.style.display='flex'
 						levelIdentifier = detailResponseBody.data_key.split(':')
 						levelIdentifier.splice(0, 1)
 						levelIdentifier = levelIdentifier.join('/')
