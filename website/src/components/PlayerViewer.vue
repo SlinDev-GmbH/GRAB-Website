@@ -8,7 +8,7 @@ import { OrbitControls } from "../assets/OrbitContols.js";
 import { getShopCatalogRequest } from '../requests/GetShopCatalogRequest.js';
 import { getShopProductsRequest } from '../requests/GetShopProductsRequest.js';
 import { getShopItemsRequest } from '../requests/GetShopItemsRequest.js';
-import { getUserInfoRequest } from '../requests/getUserInfoRequest.js';
+import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js';
 import { setActiveCustomizationsRequest } from '../requests/SetActiveCustomizationsRequest.js';
 
 export default {
