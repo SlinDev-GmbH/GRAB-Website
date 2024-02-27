@@ -4,7 +4,7 @@ import { filesConstants } from "./constants.js";
 import { OrbitControls } from "./OrbitContols.js";
 
 import { SGMLoader } from "./sgmLoader.js";
-import { getCatalogueResponse, getItems, setCustomizations } from "./Api/index.js";
+import { getCatalogueResponse, getItems, setCustomizations, getPlayerID } from "./Api/index.js";
 import {
   initScene,
   processItemsAndSections,
@@ -32,7 +32,10 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 (async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const userId = urlParams.get("user_id");
+  let userId = urlParams.get("user_id");
+  if(userId == undefined){
+ userId = await getPlayerID(urlParams.get("player")?urlParams.get("player"):(urlParams.get("user")?urlParams.get("user"):(urlParams.get("username")?urlParams.get("username"):undefined)));
+  }
   const playerInfo_Url = `https://api.slin.dev/grab/v1/get_user_info?user_id=${userId}`;
   const picker = document.getElementById("categories-content");
   const items = await getItems();

@@ -13,6 +13,13 @@ export const getCatalogueResponse = async () => {
   const catalog = await catalogResponse.json();
   return catalog;
 };
+export const getPlayerID = async (username) => {
+  const playerResponse = await fetch(
+    `https://api.slin.dev/grab/v1/list?max_format_version=&type=user_name&search_term=${username}`
+  );
+  const playerID = await playerResponse.json();
+  return playerID[0].user_id;
+};
 
 export const getShopProducts = async () => {
   const shopsResponse = await fetch(
