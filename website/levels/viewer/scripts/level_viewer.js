@@ -909,9 +909,82 @@ function init()
 				responseBody.average_time
 					? timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
 					: timeLabel.innerHTML = "average time: <b>N/a</b>"
-			})()
+
+				if(userStore.isLoggedIn){
+					var reportButton = document.getElementById("report button")
+					reportButton.style.display='block';
+					if(userStore.isModerator){
+						levelIdentifier = detailResponseBody.data_key.split(':')
+						levelIdentifier.splice(0, 1)
+						levelIdentifier = levelIdentifier.join('/')
+						reportButton.onclick = function () {
+							let reasonMapping = {
+								sexual: "Sexual Content / Genitals",
+								violence: "Detailed Violence",
+								hatespeech: "Offensive Language",
+								loweffort: "Very low effort level",
+								glitch: "Requires to use a Glitch to finish",
+								other: "Other"
+							}
+							let onOk = function(value) {
+								(async () => {
+									let response = await fetch(config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' +  userStore.accessToken + '&reason=' + value);
+									let responseBody = await response.text();
+									console.log(responseBody);
+									confirm(response.status == 200? "Success" : "Error: Need to login again?");
+									if(response.status != 200 &&  userStore.accessToken && responseBody === "Invalid Access Token")
+									{
+										logout();
+									}
+								})()
+							}
+							showOptionsDialog("Report Level", "Why should this level be removed?", reasonMapping, onOk)
+							
+						}
+					}
+				}
+				})()
 		})()
 	});
+}
+function showOptionsDialog(title, subtitle, options, onOk)
+{
+	let dialog = document.getElementById('popup')
+	let titleElement = document.getElementById('popup-title')
+	let descriptionElement = document.getElementById('popup-description')
+	let reasonSelector = document.getElementById('popup-reason')
+	let closeButton = document.getElementById('popup-button-cancel')
+	let okButton = document.getElementById('popup-button-ok')
+
+	titleElement.innerHTML = title
+	descriptionElement.innerHTML = subtitle
+
+	reasonSelector.innerHTML = ""
+	let selectOption = document.createElement("option")
+	selectOption.innerHTML = "- Select -"
+	reasonSelector.appendChild(selectOption)
+
+	for(let key in options)
+	{
+		let option = document.createElement("option")
+		option.innerHTML = options[key]
+		option.value = key
+		reasonSelector.appendChild(option)
+	}
+			
+	if(!dialog.hasAttribute('open'))
+	{
+		// show the dialog 
+		dialog.setAttribute('open','open');
+
+		closeButton.onclick = function(event) { dialog.removeAttribute('open'); reasonSelector.selectedIndex = 0; }
+		okButton.onclick = function(event) {
+				if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
+				dialog.removeAttribute('open');
+				onOk(reasonSelector.value)
+				reasonSelector.selectedIndex = 0;
+			}
+	}
 }
 
 function updateObjectAnimation(object, time)
