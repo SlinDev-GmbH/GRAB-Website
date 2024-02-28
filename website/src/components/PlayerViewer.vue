@@ -1273,7 +1273,7 @@ export default {
 
 <template>
   <main id="body1" class="scopedAlternative">
-    <button class="buttons" id="download" @click="downloadPlayerPic">Download</button>
+    <button class="buttons" id="download" @click="downloadPlayerPic">Download (.PNG)</button>
     <a class="buttons" id="back" @click="handleGoBack">Back</a>
     <div id="player-container">
       <canvas class="player-model" id="player-model"></canvas>
