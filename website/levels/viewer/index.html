@@ -422,6 +422,21 @@
                 border-radius: 15px;
                 width: 100%;
             }
+            #applyLeaderboardModifications {
+                font-weight: bold;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: #f15a5a;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                cursor: pointer;
+                margin-inline: 5px;
+                display: none;
+            }
+            .leaderboard-row.leaderboard-row-removed {
+                background-color: #FA8072;
+            }
         </style>
     </head>
     <body>
@@ -523,6 +538,7 @@
             <div class="leaderboard-header">Leaderboard</div>
             <div id="leaderboard-content" class="leaderboard-content"></div>
             <div class="leaderboard-close" id="leaderboard-close">&times;</div>
+            <button id="applyLeaderboardModifications">Confirm</button>
         </div>
     </body>
 </html>

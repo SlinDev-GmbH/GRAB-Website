@@ -49,6 +49,7 @@ let isSliderDragging = false;
 let particles = [];
 let particlesPositions = [];
 let particlesDirections = [];
+let removedTimes = [];
 
 init();
 
@@ -1215,6 +1216,7 @@ export function exportLevelAsGLTF()
 
 document.getElementById("leaderboard-button").addEventListener("click", openLeaderboard);
 document.getElementById("leaderboard-close").addEventListener("click", closeLeaderboard);
+document.getElementById("applyLeaderboardModifications").addEventListener("click", removeLeaderboardTimes);
 
 function openLeaderboard() {
 	document.getElementById("overlay").style.display = "block";
@@ -1225,6 +1227,9 @@ function openLeaderboard() {
 function closeLeaderboard() {
 	document.getElementById("overlay").style.display = "none";
 	document.getElementById("leaderboard").style.display = "none";
+	removedTimes = [];
+	document.getElementById("applyLeaderboardModifications").style.display = "none";
+	document.getElementById("leaderboard-content").innerHTML = "";
 }
 
 async function loadLeaderboardData() {
@@ -1293,22 +1298,17 @@ function displayLeaderboardData(data) {
 			button.className = "leaderboard-button";
 			button.textContent = "x";
 			button.onclick = function () {
-				(async () => {
-					const urlParams = new URLSearchParams(window.location.search);
-					let levelIdentifier = urlParams.get('level');
-					let levelIdentifierParts = levelIdentifier.split(':')
-					const endpointUrl = config.SERVER_URL + 'statistics_remove_user/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?user_id=' + entry.user_id;
-					try {
-						const response = await fetch(endpointUrl, {headers: {'Authorization': 'Bearer ' + userStore.accessToken}});
-						if (response.ok) {
-							row.remove();
-						} else {
-							alert("Failed to remove user");
-						}
-					} catch (error) {
-						alert("Error removing user");
+				for (let i = 0; i < removedTimes.length; i++) {
+					if (removedTimes[i][0] === entry.user_id) {
+						removedTimes[i][1].classList.remove("leaderboard-row-removed");
+						removedTimes.splice(i, 1);
+						document.getElementById("applyLeaderboardModifications").style.display = removedTimes.length > 0 ? "block" : "none";
+						return;
 					}
-				})();
+				}
+				removedTimes.push([entry.user_id, row]);
+				row.classList.add("leaderboard-row-removed");
+				document.getElementById("applyLeaderboardModifications").style.display = "block";
 			};
 			
 
@@ -1319,4 +1319,28 @@ function displayLeaderboardData(data) {
 			leaderboardContent.appendChild(row);
 		});
 	}
+}
+async function removeLeaderboardTimes() {
+	const pinia = createPinia()
+	pinia.use(piniaPluginPersistedstate)
+	const app = createApp(App)
+	app.use(pinia)
+	const userStore = useUserStore(pinia)
+	const urlParams = new URLSearchParams(window.location.search);
+	let levelIdentifier = urlParams.get('level');
+	let levelIdentifierParts = levelIdentifier.split(':')
+	for (let i = 0; i < removedTimes.length; i++) {
+		const endpointUrl = config.SERVER_URL + 'statistics_remove_user/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?user_id=' + removedTimes[i][0];
+		try {
+			const response = await fetch(endpointUrl, {headers: {'Authorization': 'Bearer ' + userStore.accessToken}});
+			if (response.ok) {
+				removedTimes[i][1].remove();
+			} else {
+				alert("Failed to remove user");
+			}
+		} catch (error) {
+			alert("Error removing user: " + error.message);
+		}
+	}
+	removedTimes = [];
 }
