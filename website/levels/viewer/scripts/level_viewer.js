@@ -554,6 +554,10 @@ function init()
 			let realComplexity = 0;
 
 			const loadLevelNodes = function(nodes, parentNode){
+
+				let cameraPosition = undefined
+				let cameraRotation = undefined
+
 				for(let node of nodes)
 				{
 					let object = undefined
@@ -732,7 +736,7 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
 						
 						var goToStartLabel = document.getElementById("startButton");
 						goToStartLabel.innerHTML = "Go to Start"
@@ -818,21 +822,29 @@ function init()
 					const slider = document.getElementById("time-slider")
 					slider.style.display = "block"
 				}
+
+				let cameraPositionFromUrl = urlParams.get('camera_position');
+				let cameraRotationFromUrl = urlParams.get('camera_rotation');
+				if(cameraPositionFromUrl && cameraRotationFromUrl)
+				{
+					cameraPosition = cameraPositionFromUrl.split(',').map(parseFloat);
+					cameraRotation = cameraRotationFromUrl.split(',').map(parseFloat);
+				}
+
+				if(cameraPosition)
+				{
+					camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+				}
+
+				if(cameraRotation)
+				{
+					controls.eulerVector.x = cameraRotation[0];
+					controls.eulerVector.y = cameraRotation[1];
+					controls.updateRotationVector();
+				}
 			};
 
 			loadLevelNodes(decoded.levelNodes, scene);
-
-			let cameraPosition = urlParams.get('camera_position');
-			let cameraRotation = urlParams.get('camera_rotation');
-			if (cameraPosition && cameraRotation) {
-				cameraPosition = cameraPosition.split(',').map(parseFloat);
-				cameraRotation = cameraRotation.split(',').map(parseFloat);
-				camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-				// camera.rotation.set(cameraRotation[0], cameraRotation[1], cameraRotation[2]);
-				controls.eulerVector.x += cameraRotation[0];
-				controls.eulerVector.y += cameraRotation[1];
-				controls.updateRotationVector();
-			}
 
 			//Creating these as text elements to prevent embeded html to be rendered by the browser
 			const titleTitleNode = document.createTextNode('title: ');
