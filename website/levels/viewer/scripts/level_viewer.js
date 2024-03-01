@@ -90,6 +90,7 @@ function init()
 {
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
 	document.getElementById('copy-button').addEventListener('click', copyLevelURLPressed);
+	document.getElementById('location-button').addEventListener('click', copyLocationURLPressed);
 	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
 	document.getElementById("fog-button").addEventListener("click", toggleFog);
 
@@ -821,6 +822,17 @@ function init()
 
 			loadLevelNodes(decoded.levelNodes, scene);
 
+			let cameraPosition = urlParams.get('camera_position');
+			let cameraRotation = urlParams.get('camera_rotation');
+			if (cameraPosition && cameraRotation) {
+				cameraPosition = cameraPosition.split(',').map(parseFloat);
+				cameraRotation = cameraRotation.split(',').map(parseFloat);
+				camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+				// camera.rotation.set(cameraRotation[0], cameraRotation[1], cameraRotation[2]);
+				controls.eulerVector.x += cameraRotation[0];
+				controls.eulerVector.y += cameraRotation[1];
+				controls.updateRotationVector();
+			}
 
 			//Creating these as text elements to prevent embeded html to be rendered by the browser
 			const titleTitleNode = document.createTextNode('title: ');
@@ -1171,7 +1183,22 @@ export function backButtonPressed()
 
 export async function copyLevelURLPressed()
 {
-	await navigator.clipboard.writeText(window.location.href);
+	const urlParams = new URLSearchParams(window.location.search);
+	const url = window.location.href.split("?")[0];
+	const levelID = urlParams.get("level");
+	await navigator.clipboard.writeText(url + "?level=" + levelID);
+}
+
+export function copyLocationURLPressed() {
+	const urlParams = new URLSearchParams(window.location.search);
+	const url = window.location.href.split("?")[0];
+	const levelID = urlParams.get("level");
+	const cameraPosition = camera.position;
+	const cameraRotation = controls.eulerVector;
+	const positionString = `camera_position=${cameraPosition.x},${cameraPosition.y},${cameraPosition.z}`;
+	const rotationString = `camera_rotation=${cameraRotation.x},${cameraRotation.y}`;
+	const newUrl = `${url}?level=${levelID}&${positionString}&${rotationString}`;
+	navigator.clipboard.writeText(newUrl); 
 }
 
 function saveDataAsFile(filename, data) {
