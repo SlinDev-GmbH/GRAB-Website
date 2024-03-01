@@ -183,19 +183,6 @@ function init()
 
 	controls = new FreeControls(camera, renderer.domElement);
 
-	const urlParams = new URLSearchParams(window.location.search);
-	let cameraPosition = urlParams.get('camera_position');
-	let cameraRotation = urlParams.get('camera_rotation');
-	if (cameraPosition && cameraRotation) {
-		cameraPosition = cameraPosition.split(',').map(parseFloat);
-		cameraRotation = cameraRotation.split(',').map(parseFloat);
-		camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-		// camera.rotation.set(cameraRotation[0], cameraRotation[1], cameraRotation[2]);
-		controls.eulerVector.x += cameraRotation[0];
-		controls.eulerVector.y += cameraRotation[1];
-		controls.updateRotationVector();
-	}
-
 	protobuf.load('/proto/level.proto', function(err, root) {
 		if(err) throw err;
 
@@ -745,9 +732,7 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						if (!cameraPosition || !cameraRotation) {
-							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
-						}
+						camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
 						
 						var goToStartLabel = document.getElementById("startButton");
 						goToStartLabel.innerHTML = "Go to Start"
@@ -836,6 +821,18 @@ function init()
 			};
 
 			loadLevelNodes(decoded.levelNodes, scene);
+
+			let cameraPosition = urlParams.get('camera_position');
+			let cameraRotation = urlParams.get('camera_rotation');
+			if (cameraPosition && cameraRotation) {
+				cameraPosition = cameraPosition.split(',').map(parseFloat);
+				cameraRotation = cameraRotation.split(',').map(parseFloat);
+				camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+				// camera.rotation.set(cameraRotation[0], cameraRotation[1], cameraRotation[2]);
+				controls.eulerVector.x += cameraRotation[0];
+				controls.eulerVector.y += cameraRotation[1];
+				controls.updateRotationVector();
+			}
 
 			//Creating these as text elements to prevent embeded html to be rendered by the browser
 			const titleTitleNode = document.createTextNode('title: ');
