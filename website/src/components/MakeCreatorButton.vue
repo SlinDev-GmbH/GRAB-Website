@@ -24,7 +24,7 @@ export default {
 </script>
 
 <template>
-    <button v-if="isAdmin" class="creator-button" @click="makeCreator">MAKE CREATOR</button>
+    <button v-if="isAdmin" class="creator-button" @click="makeCreator">Make Creator</button>
 </template>
 
 <style scoped>

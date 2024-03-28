@@ -17,7 +17,8 @@ export default {
 
   data() {
     return {
-      currentSelection: ''
+      currentSelection: '',
+      banDuration: undefined
     }
   },
 
@@ -53,7 +54,7 @@ export default {
 
   methods: {
     async doModerationAction() {
-      const reason = this.currentSelection
+      const reason = this.currentSelection;
       this.$emit('close')
       if(this.config === 'level_hide')
       {
@@ -72,7 +73,8 @@ export default {
       }
       else if(this.config === 'user_ban')
       {
-        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, reason)) return
+        const duration = this.banDuration * 24 * 60 * 60;
+        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, reason, duration)) return
         if(!await resetReportsRequest(this.$api_server_url, this.accessToken, this.identifier)) return
       }
       this.$emit('handled', true)
@@ -98,6 +100,8 @@ export default {
               {{ reason.title }}
               </option>
             </select>
+
+            <input v-if="config==='user_ban'" v-model="banDuration" type="number" style="width: 70%" placeholder="Duration (days)">
           </form>
         </div>
 

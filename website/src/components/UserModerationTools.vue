@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 
 import ModerationInfo from './ModerationInfo.vue'
 import ModerationPopup from './ModerationPopup.vue'
+import MakeCreatorButton from './MakeCreatorButton.vue'
 
 import { moderationActionRequest } from '../requests/ModerationActionRequest'
 import { removeModerationActionRequest } from '../requests/RemoveModerationActionRequest'
@@ -14,7 +15,8 @@ import { setUserInfoAdmin } from '../requests/SetUserInfoAdmin'
 export default {
   components: {
     ModerationInfo,
-    ModerationPopup
+    ModerationPopup,
+    MakeCreatorButton,
   },
 
   emits: ['handled'],
@@ -68,14 +70,16 @@ export default {
   <div class="moderation-tools">
     <div v-if="userInfo.moderation_info" class="moderation-title">Current Strike:</div>
     <ModerationInfo v-if="userInfo.moderation_info" :info="userInfo.moderation_info"/>
-
     <br>
-    <button class="moderation-hide-button" @click="showModerationPopup=true">Punish</button>
-    <button class="moderation-approve-button" @click="removeModerationAction">Remove Strike</button>
-
-    <br><br>
-    <button class="moderation-approve-button" @click="makeVerifier">Make Verifier</button>
-
+    <div class="punish-buttons">
+      <button class="moderation-hide-button" @click="showModerationPopup=true">Punish</button>
+      <button class="moderation-approve-button" @click="removeModerationAction">Remove Strike</button>
+    </div>
+    <br>
+    <div class="promote-buttons">
+      <button v-if="!this.userInfo.is_verifier && !this.userInfo.is_moderator" class="moderation-verifier-button" @click="makeVerifier">Make Verifier</button>
+      <MakeCreatorButton v-if="!this.userInfo.is_creator" :userID="this.userInfo.user_id" />
+    </div>
   </div>
 
   <Teleport to="body">
@@ -91,6 +95,20 @@ export default {
   padding-bottom: 5%;
 }
 
+.punish-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.promote-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.5em;
+}
+
 .moderation-title {
   font-weight: bold;
 }
@@ -103,8 +121,6 @@ export default {
   color: white;
   border: none;
   border-radius: 15px;
-  margin-left: 17.5%;
-  margin-right: 5%;
   cursor: pointer;
 }
 
@@ -115,6 +131,16 @@ export default {
   background-color: green;
   color: white;
   border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+.moderation-verifier-button {
+  padding-block: 5px;
+  font-weight: bold;
+  background-color: green;
+  color: white;
+  border: none;
+  font-size: 12px;
   border-radius: 15px;
   cursor: pointer;
 }
