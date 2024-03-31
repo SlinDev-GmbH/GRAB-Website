@@ -49,7 +49,7 @@ export default {
       {
         return true
       }
-      else if(this.moderationItem.image)
+      else if(this.moderationItem && this.moderationItem.image)
       {
         return true
       }
