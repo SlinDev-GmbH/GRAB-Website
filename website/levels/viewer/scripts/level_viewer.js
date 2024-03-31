@@ -433,9 +433,28 @@ function init()
 						const reportTitle = document.getElementById("reportsTitle");
 						reportTitle.innerText += `${reports_data.reported_score} (${reports_data.reported_count})`;
 						const reports = document.getElementById("reports");
-						reports_data = Object.entries(reports_data).filter(([key]) => key.includes('reported_score_'))
-						for (const report of reports_data) {
+						const reports_data_filtered = Object.entries(reports_data).filter(([key]) => key.includes('reported_score_'))
+						for (const report of reports_data_filtered) {
 							reports.innerHTML += `${report[0].slice(15)}:${report[1]}<br>`;
+						}
+					}
+
+					console.log(reports_data)
+
+					if(reports_data && "images" in reports_data) {
+						for(const image of reports_data.images)
+						{
+							let moderationImageElement = document.createElement("div");
+							var img = document.createElement("img");
+							img.src = 'https://grab-images.slin.dev/' + image.key;
+							moderationImageElement.appendChild(img);
+							moderationImageElement.appendChild(document.createElement("br"));
+							moderationImageElement.appendChild(document.createElement("br"));
+							moderationImageElement.onclick = function() {
+								console.log(image.camera_position)
+								camera.position.set(-image.camera_position[0], image.camera_position[1], -image.camera_position[2]);
+							}
+							moderationContainer.appendChild(moderationImageElement);
 						}
 					}
 				})();
