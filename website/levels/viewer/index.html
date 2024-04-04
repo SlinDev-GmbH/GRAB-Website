@@ -117,7 +117,22 @@
                 z-index: 100;
                 display:block;
             }
+            #take-image{
+                display: none;
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 0.75em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: blue;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+                margin-right: 1em;
 
+            }
             #buttons form input {
                 cursor: pointer;
             }
@@ -426,7 +441,44 @@
 				border: 3px solid grey;
 				padding: 10px;
 			}
-
+            #popup-thumbnail{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                border-radius: 10px;
+                border: 3px solid grey;
+                overflow: hidden;
+                width:  97.5%;
+            }
+            #popup-report-image{
+                filter: brightness(1); 
+                transition: filter 0.3s ease; 
+                width: 100%;
+            }
+            #popup-thumbnail:hover  #popup-report-image {
+                filter: brightness(0.5);
+            }
+            #setImage{
+                position: absolute;
+                background: blue;
+                color: white;
+                cursor: pointer;
+                border: none;
+                transform: scale(2); /* Scale button by 2x */
+                border-radius: 5px;
+            }
+            #setImage span {
+                transform: scale(0.75); 
+                display: inline-block;
+            }
+            .setImage {
+                opacity: 0;
+                transition: opacity 0.3s ease; 
+            }
+            #popup-thumbnail:hover .setImage{
+                opacity: 1;
+            }
 			.popup[open="open"]
 			{
 				display: block;
@@ -484,6 +536,12 @@
 
         <div class="popup" id="popup">
 			<div class="popup-inner">
+
+<div id="popup-thumbnail">
+    <img src="./textures/preview_image_placeholder.png" id="popup-report-image">
+    <button id="setImage"><span>Set Image</span></button>
+</div>
+
 				<div class="cell-title" id="popup-title"></div><br>
 				<div class="cell-description" id="popup-description"></div><br>
 				<form>
@@ -504,6 +562,7 @@
             <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
             <input type="button" id="leaderboard-button" value="Leaderboard">
             <input type="button" id="download-button" class="download-button" value="Download as GLTF">
+            <input type="button" id="take-image" class="take-image" value="Take Image">
         </form>
         </div>
         
