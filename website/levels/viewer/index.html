@@ -117,7 +117,7 @@
                 z-index: 100;
                 display:block;
             }
-            #take-image{
+            #report-take-image{
                 display: none;
                 width: 120px;
                 height:  30px;
@@ -459,7 +459,7 @@
             #popup-thumbnail:hover  #popup-report-image {
                 filter: brightness(0.5);
             }
-            #setImage{
+            #report-set-image{
                 position: absolute;
                 background: blue;
                 color: white;
@@ -468,15 +468,15 @@
                 transform: scale(2); /* Scale button by 2x */
                 border-radius: 5px;
             }
-            #setImage span {
+            #report-set-image span {
                 transform: scale(0.75); 
                 display: inline-block;
             }
-            .setImage {
+            .report-set-image {
                 opacity: 0;
                 transition: opacity 0.3s ease; 
             }
-            #popup-thumbnail:hover .setImage{
+            #popup-thumbnail:hover .report-set-image{
                 opacity: 1;
             }
 			.popup[open="open"]
@@ -537,10 +537,10 @@
         <div class="popup" id="popup">
 			<div class="popup-inner">
 
-<div id="popup-thumbnail">
-    <img src="./textures/preview_image_placeholder.png" id="popup-report-image">
-    <button id="setImage"><span>Set Image</span></button>
-</div>
+            <div id="popup-thumbnail">
+                <img src="./textures/preview_image_placeholder.png" id="popup-report-image">
+                <button id="report-set-image"><span>Set Image</span></button>
+            </div>
 
 				<div class="cell-title" id="popup-title"></div><br>
 				<div class="cell-description" id="popup-description"></div><br>
@@ -562,7 +562,7 @@
             <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
             <input type="button" id="leaderboard-button" value="Leaderboard">
             <input type="button" id="download-button" class="download-button" value="Download as GLTF">
-            <input type="button" id="take-image" class="take-image" value="Take Image">
+            <input type="button" id="report-take-image" class="report-take-image" value="Take Image">
         </form>
         </div>
         
