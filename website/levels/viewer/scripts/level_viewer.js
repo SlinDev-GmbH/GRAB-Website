@@ -972,14 +972,14 @@ function init()
 								glitch: "Requires to use a Glitch to finish",
 								other: "Other"
 							}
-							let onOk = function(value, imagedata) {
+							let onOk = function(value, image) {
 								(async () => {
 									let response = await fetch(config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' +  userStore.accessToken + '&reason=' + value, {
 										method: 'POST',
 										  headers: {
 										    'Content-Type': 'application/json'
 										  },
-										  body: imagedata
+										  body: image
 										})
 									
 									let responseBody = await response.text();
@@ -999,7 +999,7 @@ function init()
 		})()
 	});
 }
-function showOptionsDialog(title, subtitle, options, onOk, hasImage, reasonSelectorVal)
+function showOptionsDialog(title, subtitle, options, onOk, imageRequired, reasonValue)
 {
 	let dialog = document.getElementById('popup')
 	let titleElement = document.getElementById('popup-title')
@@ -1009,50 +1009,57 @@ function showOptionsDialog(title, subtitle, options, onOk, hasImage, reasonSelec
 	let imagePreview = document.getElementById('popup-report-image')
 	let closeButton = document.getElementById('popup-button-cancel')
 	let okButton = document.getElementById('popup-button-ok')
-	let setImage = document.getElementById('setImage')
-	let takeImage = document.getElementById('take-image')
+	let setImageBtn = document.getElementById('report-set-image')
+	let reportCaptureBtn  = document.getElementById('report-take-image')
 
 	titleElement.innerHTML = title
 	descriptionElement.innerHTML = subtitle
-	reasonSelector.style.display='none';
-	imageContext.style.display="none";
-	okButton.style.display="initial";
+	reasonSelector.style.display='none'
+	imageContext.style.display="none"
+	reportCaptureBtn.style.display="none"
+	okButton.style.display="initial"
 
+	if (imageRequired == true) {
+		imageContext.style.display = "flex"
+		okButton.style.display = "none"
 
-	if(hasImage==true){
-		imageContext.style.display="flex";
-		okButton.style.display="none";
-		setImage.addEventListener("click", function() {
-			dialog.removeAttribute('open');
-			takeImage.style.display='block';
+		imageContext.addEventListener("click", function() {
+			dialog.removeAttribute('open')
+			reportCaptureBtn.style.display ='block'
 		})
-		takeImage.addEventListener("click", function() 
-		{
-			var tempCanvas = document.createElement('canvas');
-			tempCanvas.width = 512;
-			tempCanvas.height = 288;
-			let ctx = tempCanvas.getContext('2d');
-			ctx.drawImage(canvas, 0, 0, 512, 288);
-			setImage.classList.add('setImage');
-			takeImage.style.display='none';
-			dialog.setAttribute('open','open');
-			okButton.style.display= 'initial';
+
+		reportCaptureBtn.addEventListener("click", function() 
+		{	
+			var tempCanvas = document.createElement('canvas')
+			tempCanvas.width = 512
+			tempCanvas.height = 288
+
+			let ctx = tempCanvas.getContext('2d')
+			ctx.drawImage(canvas, 0, 0, 512, 288)
+
+			setImageBtn.classList.add('report-set-image')
+			reportCaptureBtn.style.display='none'
+			dialog.setAttribute('open','open')
+			okButton.style.display = 'initial'
+
 			tempCanvas.toBlob(function(blob) {
-				imagePreview.src =URL.createObjectURL(blob);
-				console.log(URL.createObjectURL(blob))
-				let formData = new FormData();
-				formData.append('file', blob);
-				console.log(formData)
+				imagePreview.src = URL.createObjectURL(blob)
 				okButton.onclick = function() {
-				//	onOk(reasonSelectorVal, photoData)
-					tempCanvas.remove();
+					dialog.removeAttribute('open')
+					onOk(reasonValue, blob)
+					tempCanvas.remove()
+					setImageBtn.classList.remove('report-set-image')
+
 				}
 			});			
+
 		})
 	}
 	if(options !== undefined){
+
 		reasonSelector.style.display='block';
 		reasonSelector.innerHTML = ""
+
 		let selectOption = document.createElement("option")
 		selectOption.innerHTML = "- Select -"
 		reasonSelector.appendChild(selectOption)
