@@ -96,7 +96,7 @@ function init()
 
 	THREE.ColorManagement.enabled = true;
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.outputColorSpace = THREE.SRGBColorSpace;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
@@ -381,7 +381,6 @@ function init()
 						} else {
 							hideContainer.style.display = "none";
 						}
-
 						if (reason !== "no_punish") {
 							let extra = ''
 							if (reason === "level_glitch") {
@@ -973,9 +972,16 @@ function init()
 								glitch: "Requires to use a Glitch to finish",
 								other: "Other"
 							}
-							let onOk = function(value) {
+							let onOk = function(value, imagedata) {
 								(async () => {
-									let response = await fetch(config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' +  userStore.accessToken + '&reason=' + value);
+									let response = await fetch(config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' +  userStore.accessToken + '&reason=' + value, {
+										method: 'POST',
+										  headers: {
+										    'Content-Type': 'application/json'
+										  },
+										  body: imagedata
+										})
+									
 									let responseBody = await response.text();
 									console.log(responseBody);
 									confirm(response.status == 200? "Success" : "Error: Need to login again?");
@@ -985,7 +991,7 @@ function init()
 									}
 								})()
 							}
-							showOptionsDialog("Report Level", "Why should this level be removed?", reasonMapping, onOk)
+							showOptionsDialog("Report Level", "Why should this level be removed?", reasonMapping, onOk, false, undefined)
 						})();
 					});
 				}
@@ -993,42 +999,85 @@ function init()
 		})()
 	});
 }
-function showOptionsDialog(title, subtitle, options, onOk)
+function showOptionsDialog(title, subtitle, options, onOk, hasImage, reasonSelectorVal)
 {
 	let dialog = document.getElementById('popup')
 	let titleElement = document.getElementById('popup-title')
 	let descriptionElement = document.getElementById('popup-description')
 	let reasonSelector = document.getElementById('popup-reason')
+	let imageContext = document.getElementById('popup-thumbnail')
+	let imagePreview = document.getElementById('popup-report-image')
 	let closeButton = document.getElementById('popup-button-cancel')
 	let okButton = document.getElementById('popup-button-ok')
+	let setImage = document.getElementById('setImage')
+	let takeImage = document.getElementById('take-image')
 
 	titleElement.innerHTML = title
 	descriptionElement.innerHTML = subtitle
+	reasonSelector.style.display='none';
+	imageContext.style.display="none";
+	okButton.style.display="initial";
 
-	reasonSelector.innerHTML = ""
-	let selectOption = document.createElement("option")
-	selectOption.innerHTML = "- Select -"
-	reasonSelector.appendChild(selectOption)
 
-	for(let key in options)
-	{
-		let option = document.createElement("option")
-		option.innerHTML = options[key]
-		option.value = key
-		reasonSelector.appendChild(option)
+	if(hasImage==true){
+		imageContext.style.display="flex";
+		okButton.style.display="none";
+		setImage.addEventListener("click", function() {
+			dialog.removeAttribute('open');
+			takeImage.style.display='block';
+		})
+		takeImage.addEventListener("click", function() 
+		{
+			var tempCanvas = document.createElement('canvas');
+			tempCanvas.width = 512;
+			tempCanvas.height = 288;
+			let ctx = tempCanvas.getContext('2d');
+			ctx.drawImage(canvas, 0, 0, 512, 288);
+			setImage.classList.add('setImage');
+			takeImage.style.display='none';
+			dialog.setAttribute('open','open');
+			okButton.style.display= 'initial';
+			tempCanvas.toBlob(function(blob) {
+				imagePreview.src =URL.createObjectURL(blob);
+				console.log(URL.createObjectURL(blob))
+				let formData = new FormData();
+				formData.append('file', blob);
+				console.log(formData)
+				okButton.onclick = function() {
+				//	onOk(reasonSelectorVal, photoData)
+					tempCanvas.remove();
+				}
+			});			
+		})
 	}
-			
+	if(options !== undefined){
+		reasonSelector.style.display='block';
+		reasonSelector.innerHTML = ""
+		let selectOption = document.createElement("option")
+		selectOption.innerHTML = "- Select -"
+		reasonSelector.appendChild(selectOption)
+
+		for(let key in options)
+		{
+			let option = document.createElement("option")
+			option.innerHTML = options[key]
+			option.value = key
+			reasonSelector.appendChild(option)
+		}
+	}
 	if(!dialog.hasAttribute('open'))
-	{
+	{	
 		// show the dialog 
 		dialog.setAttribute('open','open');
 
-		closeButton.onclick = function(event) { dialog.removeAttribute('open'); reasonSelector.selectedIndex = 0; }
+		closeButton.onclick = function(event) { dialog.removeAttribute('open'); options?reasonSelector.selectedIndex = 0:null; }
 		okButton.onclick = function(event) {
 				if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
 				dialog.removeAttribute('open');
-				onOk(reasonSelector.value)
-				reasonSelector.selectedIndex = 0;
+				if(options !== undefined){
+					showOptionsDialog("Report Thumbnail", "Take a photo for the report in the map", undefined, onOk, true, reasonSelector.value)
+					reasonSelector.selectedIndex = 0;
+				}
 			}
 	}
 }
