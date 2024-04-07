@@ -228,17 +228,13 @@ export default {
     async createPlayer() {
       const picker = document.getElementById("categories-content");
       const items = await getShopItemsRequest(this.$api_server_url);
-      let catalog = await getShopCatalogRequest(this.$api_server_url);
+      let catalogResponse = await getShopCatalogRequest(this.$api_server_url);
+      let catalog = catalogResponse[3].sections
       this.products = await getShopProductsRequest(this.$api_server_url);
       if (this.userInfo && !this.userInfo.active_customizations || this.userInfo && !this.userInfo.active_customizations.items && this.userInfo.active_customizations) {
         this.userInfo.active_customizations = { items: {} }
       }
       for (let category in catalog) {
-        if (
-          catalog[category].title !== "Item Packs" &&
-          catalog[category].title !== "Change Detail Color" &&
-          catalog[category].title !== "Change Main Color"
-        ) {
           if (catalog[category].title == "Head") {
             for (let index in catalog[category].sections) {
               this.processItemsAndSections(
@@ -256,8 +252,7 @@ export default {
               items
             );
           }
-        }
-      }
+       }
     },
 
     async handleContainerClick(e, rgbValue) {
