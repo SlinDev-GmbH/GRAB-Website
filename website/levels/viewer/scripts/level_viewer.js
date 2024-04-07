@@ -50,6 +50,7 @@ let particles = [];
 let particlesPositions = [];
 let particlesDirections = [];
 let removedTimes = [];
+let blob;
 
 init();
 
@@ -999,8 +1000,9 @@ function init()
 		})()
 	});
 }
-function showOptionsDialog(title, subtitle, options, onOk, imageRequired, reasonValue)
-{
+
+
+function showImageDialog(title, subtitle, onOk){
 	let dialog = document.getElementById('popup')
 	let titleElement = document.getElementById('popup-title')
 	let descriptionElement = document.getElementById('popup-description')
@@ -1010,52 +1012,83 @@ function showOptionsDialog(title, subtitle, options, onOk, imageRequired, reason
 	let closeButton = document.getElementById('popup-button-cancel')
 	let okButton = document.getElementById('popup-button-ok')
 	let setImageBtn = document.getElementById('report-set-image')
-	let reportCaptureBtn  = document.getElementById('report-take-image')
+	let takeImageBtn  = document.getElementById('report-take-image')
+	var tempCanvas = document.getElementById('temp-canvas')
+	tempCanvas?tempCanvas.remove():tempCanvas=undefined
 
+	reasonSelector.style.display = 'none'
 	titleElement.innerHTML = title
 	descriptionElement.innerHTML = subtitle
-	reasonSelector.style.display='none'
-	imageContext.style.display="none"
-	reportCaptureBtn.style.display="none"
-	okButton.style.display="initial"
+	imageContext.style.display = "flex"
+	okButton.style.display = "none"
 
-	if (imageRequired == true) {
-		imageContext.style.display = "flex"
-		okButton.style.display = "none"
-
-		imageContext.addEventListener("click", function() {
-			dialog.removeAttribute('open')
-			reportCaptureBtn.style.display ='block'
-		})
-
-		reportCaptureBtn.addEventListener("click", function() 
-		{	
-			var tempCanvas = document.createElement('canvas')
-			tempCanvas.width = 512
-			tempCanvas.height = 288
-
-			let ctx = tempCanvas.getContext('2d')
-			ctx.drawImage(canvas, 0, 0, 512, 288)
-
-			setImageBtn.classList.add('report-set-image')
-			reportCaptureBtn.style.display='none'
-			dialog.setAttribute('open','open')
-			okButton.style.display = 'initial'
-
-			tempCanvas.toBlob(function(blob) {
-				imagePreview.src = URL.createObjectURL(blob)
-				okButton.onclick = function() {
-					dialog.removeAttribute('open')
-					onOk(reasonValue, blob)
-					tempCanvas.remove()
-					setImageBtn.classList.remove('report-set-image')
-
-				}
-			});			
-
-		})
+	function onClick(){
+		dialog.removeAttribute('open')
+		onOk(reasonSelector.value, blob)
+		if(tempCanvas){
+		tempCanvas.remove()
+		}
+		setImageBtn.classList.remove('report-set-image')
 	}
-	if(options !== undefined){
+
+	if(!imagePreview.src.includes("/textures/preview_image_placeholder.png")){
+		okButton.style.display = "initial"
+		okButton.onclick = onClick
+	}
+
+	imageContext.addEventListener("click", function() {
+		dialog.removeAttribute('open')
+		takeImageBtn.style.display ='block'
+	})
+
+	takeImageBtn.addEventListener("click", function() 
+	{	
+		var tempCanvas = document.createElement('canvas')
+		tempCanvas.id = "temp-canvas"
+		tempCanvas.width = 512
+		tempCanvas.height = 288
+
+		let ctx = tempCanvas.getContext('2d')
+		ctx.drawImage(canvas, 0, 0, 512, 288)
+
+		setImageBtn.classList.add('report-set-image')
+		takeImageBtn.style.display='none'
+		dialog.setAttribute('open','open')
+		okButton.style.display = 'initial'
+
+		tempCanvas.toBlob(function(imageBlob) {
+			imagePreview.src = URL.createObjectURL(imageBlob)
+			blob = imageBlob
+			okButton.onclick = onClick		
+		});			
+	})
+
+	if(!dialog.hasAttribute('open'))
+	{	
+		dialog.setAttribute('open','open');
+		closeButton.onclick = function(event) { dialog.removeAttribute('open'); options?reasonSelector.selectedIndex = 0:null; }
+	}
+}
+
+function showOptionsDialog(title, subtitle, options, onOk)
+{
+	let dialog = document.getElementById('popup')
+	let titleElement = document.getElementById('popup-title')
+	let descriptionElement = document.getElementById('popup-description')
+	let reasonSelector = document.getElementById('popup-reason')
+	let closeButton = document.getElementById('popup-button-cancel')
+	let okButton = document.getElementById('popup-button-ok')
+	let imageContext = document.getElementById('popup-thumbnail')
+	let takeImageBtn  = document.getElementById('report-take-image')
+	let tempCanvas = document.getElementById('temp-canvas')
+
+	takeImageBtn.style.display="none";
+	imageContext.style.display = "none"
+	titleElement.innerHTML = title
+	descriptionElement.innerHTML = subtitle
+	okButton.style.display="initial"
+	dialog.removeAttribute('open');//have to do this so thumbnail doesnt override the onOk
+	tempCanvas?tempCanvas.remove():tempCanvas=undefined
 
 		reasonSelector.style.display='block';
 		reasonSelector.innerHTML = ""
@@ -1071,7 +1104,6 @@ function showOptionsDialog(title, subtitle, options, onOk, imageRequired, reason
 			option.value = key
 			reasonSelector.appendChild(option)
 		}
-	}
 	if(!dialog.hasAttribute('open'))
 	{	
 		// show the dialog 
@@ -1081,10 +1113,7 @@ function showOptionsDialog(title, subtitle, options, onOk, imageRequired, reason
 		okButton.onclick = function(event) {
 				if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
 				dialog.removeAttribute('open');
-				if(options !== undefined){
-					showOptionsDialog("Report Thumbnail", "Take a photo for the report in the map", undefined, onOk, true, reasonSelector.value)
-					reasonSelector.selectedIndex = 0;
-				}
+					showImageDialog("Report Thumbnail", "Take a photo for the report in the map", onOk)
 			}
 	}
 }
