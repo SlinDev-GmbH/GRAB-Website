@@ -133,7 +133,7 @@ export default {
         if (type == "hand" && this.clonedGroup) {
           this.activeCosmetics[type] = playerResponseBody.active_customizations.items ? (playerResponseBody.active_customizations.items[type] == undefined ? "player_basic_hand" : playerResponseBody.active_customizations.items[type]) : undefined
         }
-        if (this.activeCosmetics[type] !== undefined) {
+        if (this.activeCosmetics[type] !== undefined && this.activeCosmetics[type] !== "default") {
           renderPromises.push(await this.renderPlayer(this.activeCosmetics[type], type));
         }
       }
