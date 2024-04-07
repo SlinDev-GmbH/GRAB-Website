@@ -347,7 +347,7 @@
                 text-align: center;
                 border: none;
             }
-            #hideButton, #unverifyButton, #verifySkipSuccessButton, #reportButton   {
+            #hideButton, #unverifyButton, #verifySkipSuccessButton, #reportButton {
                 height: 30px;
                 width: fit-content;
                 padding-right: 20px;
@@ -358,6 +358,26 @@
                 border: none;
                 border-radius: 15px;
                 cursor: pointer;
+            }
+
+            #favoriteButton, #unfavoriteButton {
+                height: 30px;
+                width: fit-content;
+                padding-right: 20px;
+                padding-left: 20px;
+                font-weight: bold;
+                background-color: #FFAE00;
+                color: white;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+                margin-top: 5px;
+                margin-bottom: 15px;
+                display: none;
+            }
+
+            #unfavoriteButton {
+                background-color: red;
             }
 
             #startButton  {
@@ -525,7 +545,9 @@
         <div id="players rated count">players rated count</div>
         <div id="players liked count">players liked count</div>
         <div id="average time">average time</div>
-        <button id="reportButton" style="display: none; margin-top: 5px;">Report</button>
+        <button id="reportButton" style="display: none; margin-block: 5px;">Report</button>
+        <button id="favoriteButton">Favorite</button>
+        <button id="unfavoriteButton">Unfavorite</button>
         <br>
         <button id="startButton" class="startButton"></button>
         <button id="finishButton" class="finishButton"></button>

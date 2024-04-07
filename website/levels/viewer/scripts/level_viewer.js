@@ -195,7 +195,7 @@ function init()
 			const app = createApp(App)
 			app.use(pinia)
 			const userStore = useUserStore(pinia)
-			let { accessToken, list, listIndex } = userStore;
+			let { accessToken, list, listIndex, favoriteLevels } = userStore;
 
 			var titleLabel = document.getElementById("title");
 			var creatorsLabel = document.getElementById("creators");
@@ -957,8 +957,45 @@ function init()
 					: timeLabel.innerHTML = "average time: <b>N/a</b>"
 
 				if(userStore.isLoggedIn){
-					var reportButton = document.getElementById("reportButton")
-					reportButton.style.display='block'
+					let favoriteButton = document.getElementById("favoriteButton");
+					let unfavoriteButton = document.getElementById("unfavoriteButton");
+					
+					if (userStore.favoriteLevels.includes(detailResponseBody.identifier)) {
+						unfavoriteButton.style.display = 'inline';
+					} else {
+						favoriteButton.style.display = 'inline';
+					}
+
+					favoriteButton.addEventListener("click", () => {
+						(async () => {
+							const response = await fetch(config.SERVER_URL + 'add_favorite_level?level_id=' + detailResponseBody.identifier + '&access_token=' + userStore.accessToken)
+							if(response.status != 200){
+								const responseBody = await response.text();
+								confirm("Error: " + responseBody);
+							} else {
+								favoriteButton.style.display = 'none';
+								unfavoriteButton.style.display = 'inline';
+								userStore.favoriteLevels.push(detailResponseBody.identifier);
+							}
+						})();
+					});
+
+					unfavoriteButton.addEventListener("click", () => {
+						(async () => {
+							const response = await fetch(config.SERVER_URL + 'remove_favorite_level?level_id=' + detailResponseBody.identifier + '&access_token=' + userStore.accessToken)
+							if(response.status != 200){
+								const responseBody = await response.text();
+								confirm("Error: " + responseBody);
+							} else {
+								favoriteButton.style.display = 'inline';
+								unfavoriteButton.style.display = 'none';
+								userStore.favoriteLevels.splice(userStore.favoriteLevels.indexOf(detailResponseBody.identifier), 1);
+							}
+						})();
+					});
+
+					let reportButton = document.getElementById("reportButton");
+					reportButton.style.display = 'inline';
 					levelIdentifier = detailResponseBody.data_key.split(':')
 					levelIdentifier.splice(0, 1)
 					levelIdentifier = levelIdentifier.join('/')
