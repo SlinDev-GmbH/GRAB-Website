@@ -100,7 +100,22 @@
                 cursor: pointer;
 
             }
+ 	    #report-take-image{
+                display: none;
+                width: 120px;
+                height:  30px;
+                font-weight: bold;
+                border-radius: 0.75em;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: blue;
+                color: #FFFFFF;
+                text-align: center;
+                border: none;
+                float: right;
+                margin-right: 1em;
 
+            }
             .moderationinfo {
                 position: relative;
                 text-align: left;
@@ -451,7 +466,44 @@
 			{
 				display: block;
 			}
-
+            #popup-thumbnail{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                border-radius: 10px;
+                border: 3px solid grey;
+                overflow: hidden;
+                width:  97.5%;
+            }
+            #popup-report-image{
+                filter: brightness(1); 
+                transition: filter 0.3s ease; 
+                width: 100%;
+            }
+            #popup-thumbnail:hover  #popup-report-image {
+                filter: brightness(0.5);
+            }
+            #report-set-image{
+                position: absolute;
+                background: blue;
+                color: white;
+                cursor: pointer;
+                border: none;
+                transform: scale(2); /* Scale button by 2x */
+                border-radius: 5px;
+            }
+            #report-set-image span {
+                transform: scale(0.75); 
+                display: inline-block;
+            }
+            .report-set-image {
+                opacity: 0;
+                transition: opacity 0.3s ease; 
+            }
+            #popup-thumbnail:hover .report-set-image{
+                opacity: 1;
+            }
             .previewImage {
                 border-radius: 15px;
                 width: 100%;
@@ -515,6 +567,18 @@
 				<button id="popup-button-ok">OK</button>
 			</div>
 		</div>
+        <div class="popup" id="popup-2">
+			<div class="popup-inner">
+                <div id="popup-thumbnail">
+                    <img src="./textures/preview_image_placeholder.png" id="popup-report-image">
+                    <button id="report-set-image"><span>Set Image</span></button>
+                </div>
+                <br>
+				<div class="cell-title" id="popup-title-2"></div><br>
+				<div class="cell-description" id="popup-description-2"></div><br>
+				<button id="popup-button-cancel-2">Cancel</button>
+				<button id="popup-button-ok-2">OK</button>
+		</div>
         <div id="buttons" class="buttons">
         <form>
             <input type="button" id="back-button" class="back-button" value="User Levels">
@@ -524,6 +588,7 @@
             <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
             <input type="button" id="leaderboard-button" value="Leaderboard">
             <input type="button" id="download-button" class="download-button" value="Download as GLTF">
+            <input type="button" id="report-take-image" class="report-take-image" value="Take Image">
         </form>
         </div>
         
