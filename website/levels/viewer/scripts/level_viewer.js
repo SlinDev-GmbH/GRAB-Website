@@ -1038,7 +1038,6 @@ function init()
 	});
 }
 
-
 function showImageDialog(title, subtitle, onOk){
 	let dialog = document.getElementById('popup-2')
 	let titleElement = document.getElementById('popup-title-2')
@@ -1061,10 +1060,10 @@ function showImageDialog(title, subtitle, onOk){
 	function onClick(){
 		dialog.removeAttribute('open')
 		onOk(reasonSelector.value, blob)
-		if(tempCanvas){
-		tempCanvas.remove()
-		}
 		setImageBtn.classList.remove('report-set-image')
+		if(tempCanvas){
+			tempCanvas.remove()
+		}
 	}
 
 	if(!imagePreview.src.includes("/textures/preview_image_placeholder.png")){
@@ -1122,20 +1121,19 @@ function showOptionsDialog(title, subtitle, options, onOk)
 	descriptionElement.innerHTML = subtitle
 	tempCanvas?tempCanvas.remove():tempCanvas=undefined
 
-		reasonSelector.style.display='block';
-		reasonSelector.innerHTML = ""
+	reasonSelector.style.display='block';
+	reasonSelector.innerHTML = ""
 
-		let selectOption = document.createElement("option")
-		selectOption.innerHTML = "- Select -"
-		reasonSelector.appendChild(selectOption)
-
-		for(let key in options)
-		{
-			let option = document.createElement("option")
-			option.innerHTML = options[key]
-			option.value = key
-			reasonSelector.appendChild(option)
-		}
+	let selectOption = document.createElement("option")
+	selectOption.innerHTML = "- Select -"
+	reasonSelector.appendChild(selectOption)
+	for(let key in options)
+	{
+		let option = document.createElement("option")
+		option.innerHTML = options[key]
+		option.value = key
+		reasonSelector.appendChild(option)
+	}
 	if(!dialog.hasAttribute('open'))
 	{	
 		// show the dialog 
