@@ -174,9 +174,12 @@ export default {
     <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
-    <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
-    <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
+    <div class="interactions">
+      <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
+      <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
+    </div>
     <a target="_blank" :href="viewerURL + (this.listType == 'tab_verify_queue' ? '&verify_queue' : '')" class="play-button" @click="setListIndex(index)">OPEN</a>
+
     <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
   </div>
 </template>
@@ -301,5 +304,17 @@ export default {
   width: 100%;
   height: auto;
   border-radius: 10px;
+}
+
+.interactions {
+  display: flex;
+  width: 27%;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8%;
+  align-items: center;
+  position: absolute;
+  bottom: 5%;
+  left: 3%;
 }
 </style>

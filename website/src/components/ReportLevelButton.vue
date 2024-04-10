@@ -31,12 +31,9 @@ export default {
 
 <style scoped>
 .report-level-button {
-  width: 7%;
-  height: 7%;
-  aspect-ratio: 1/1;
-  cursor: pointer;
-  position: absolute;
-  bottom: 5%;
-  left: 15%;
+    width: 30px;
+    height: 30px;
+    aspect-ratio: 1/1;
+    cursor: pointer;
 }
 </style>

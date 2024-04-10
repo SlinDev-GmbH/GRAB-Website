@@ -976,24 +976,20 @@ function init()
 
 			loadLevelNodes(decoded.levelNodes, scene);
 
-			//Creating these as text elements to prevent embeded html to be rendered by the browser
-			const titleTitleNode = document.createTextNode('title: ');
-			titleLabel.appendChild(titleTitleNode);
 			const titleFormattingNode = document.createElement('b');
 			titleLabel.appendChild(titleFormattingNode);
 			const titleNode = document.createTextNode(decoded.title);
 			titleFormattingNode.appendChild(titleNode);
 
-			const creatorsTitleNode = document.createTextNode('creators: ');
-			creatorsLabel.appendChild(creatorsTitleNode);
 			const creatorsFormattingNode = document.createElement('i');
 			creatorsLabel.appendChild(creatorsFormattingNode);
-			const creatorsNode = document.createTextNode(decoded.creators);
+			const creatorsNode = document.createTextNode('by ' + decoded.creators);
 			creatorsFormattingNode.appendChild(creatorsNode);
 
-			const descriptionNode = document.createTextNode('description: ' + decoded.description);
+			const descriptionNode = document.createTextNode(decoded.description);
 			descriptionLabel.appendChild(descriptionNode);
-			const complexityNode = document.createTextNode('complexity: ' + decoded.complexity + ' (real: ' + realComplexity + ')');
+			const complexityNode = document.createTextNode('complexity: ' + realComplexity);
+			complexityLabel.title = decoded.complexity;
 			complexityLabel.appendChild(complexityNode);
 			const checkpointsNode = document.createTextNode('checkpoints: ' + decoded.maxCheckpointCount);
 			checkpointsLabel.appendChild(checkpointsNode);
@@ -1001,9 +997,13 @@ function init()
 			const creationDate = new Date(detailResponseBody.creation_timestamp);
 			const updatedDate = new Date(detailResponseBody.update_timestamp);
 			let dateString = "created: " + creationDate.toDateString()
-			if(creationDate.toDateString() !== updatedDate.toDateString()) dateString += " (updated: " + updatedDate.toDateString() + ")"
 			const dateNode = document.createTextNode(dateString);
 			dateLabel.appendChild(dateNode);
+			if(creationDate.toDateString() !== updatedDate.toDateString()) {
+				const updateNode = document.createTextNode("updated: " + updatedDate.toDateString());
+				dateLabel.appendChild(document.createElement("br"));
+				dateLabel.appendChild(updateNode);
+			}
 
 			//Show OK stamp on levels that have the tag
 			if("tags" in detailResponseBody && detailResponseBody.tags.length > 0)
@@ -1033,7 +1033,6 @@ function init()
 				let linebreak = document.createElement("br");
 				infoNode.prepend(linebreak);
 			}
-			
 
 			//Get level statistics
 			(async () => {
@@ -1044,28 +1043,19 @@ function init()
 				let response = await fetch(config.SERVER_URL + 'statistics/' + levelIdentifier);
 				let responseBody = await response.json();
 
-				var totalPlayedLabel = document.getElementById("total played count");
-				totalPlayedLabel.innerHTML = "total played count: <b>" + responseBody.total_played_count + "</b>"
-
 				var totalFinishedLabel = document.getElementById("total finished count");
-				totalFinishedLabel.innerHTML = "total finished count: <b>" + responseBody.total_finished_count + "</b>"
-
-				var playersPlayedLabel = document.getElementById("players played count");
-				playersPlayedLabel.innerHTML = "players played count: <b>" + responseBody.played_count + "</b>"
+				totalFinishedLabel.innerHTML = "total finished: <b>" + responseBody.total_finished_count + ' / ' + responseBody.total_played_count + "</b>"
 
 				var playersFinishedLabel = document.getElementById("players finished count");
-				playersFinishedLabel.innerHTML = "players finished count: <b>" + responseBody.finished_count + "</b>"
-
-				var playersRatedLabel = document.getElementById("players rated count");
-				playersRatedLabel.innerHTML = "players rated count: <b>" + responseBody.rated_count + "</b>"
+				playersFinishedLabel.innerHTML = "players finished: <b>" + responseBody.finished_count + ' / ' + responseBody.played_count + "</b>"
 
 				var playersLikedLabel = document.getElementById("players liked count");
-				playersLikedLabel.innerHTML = "players liked count: <b>" + responseBody.liked_count + "</b>"
+				playersLikedLabel.innerHTML = "players liked: <b>" + responseBody.liked_count + " / " + responseBody.rated_count + "</b>"
 
 				var timeLabel = document.getElementById("average time");
 				responseBody.average_time
-					? timeLabel.innerHTML = "average time: <b>" + responseBody.average_time + "</b>"
-					: timeLabel.innerHTML = "average time: <b>N/a</b>"
+					? timeLabel.innerHTML = "average time: <b>" + Math.round(responseBody.average_time*100)/100 + "s</b>"
+					: timeLabel.innerHTML = "average time: <b>N/a</b>";
 
 				if(userStore.isLoggedIn){
 					let favoriteButton = document.getElementById("favoriteButton");
