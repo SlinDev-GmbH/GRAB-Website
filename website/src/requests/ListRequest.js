@@ -3,8 +3,11 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
   let wantsAccessToken = false
   if(listType === 'tab_newest')
   {
-    requestURL += '&type=' + (tag ? tag + '_' : '') + 'newest' + (difficulty ? '_' + difficulty : '')
-    if(searchTerm && searchTerm.length > 0) requestURL += '&type=search&search_term=' + searchTerm
+    if (searchTerm && searchTerm.length > 0) {
+      requestURL += '&type=search&search_term=' + searchTerm;
+    } else {
+      requestURL += '&type=' + (tag ? tag + '_' : '') + 'newest' + (difficulty ? '_' + difficulty : '')
+    }
   }
   else if(listType === 'tab_ok_newest')
   {
