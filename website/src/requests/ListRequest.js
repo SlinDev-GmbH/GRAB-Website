@@ -1,14 +1,14 @@
-export async function listRequest(server, accessToken, listType, difficulty, searchTerm, maxLevelFormatVersion, userID, nextPage) {
+export async function listRequest(server, accessToken, listType, difficulty, tag, searchTerm, maxLevelFormatVersion, userID, nextPage) {
   let requestURL = server + 'list?max_format_version=' + maxLevelFormatVersion
   let wantsAccessToken = false
   if(listType === 'tab_newest')
   {
-    requestURL += '&type=newest' + (difficulty ? '_' + difficulty : '')
+    requestURL += '&type=' + (tag ? tag + '_' : '') + 'newest' + (difficulty ? '_' + difficulty : '')
     if(searchTerm && searchTerm.length > 0) requestURL += '&type=search&search_term=' + searchTerm
   }
   else if(listType === 'tab_ok_newest')
   {
-    requestURL += '&type=ok_newest' + (difficulty ? '_' + difficulty : '')
+    requestURL += '&type=ok_' + (tag ? tag + '_' : '') + 'newest' + (difficulty ? '_' + difficulty : '')
   }
   else if(listType === 'tab_my_levels' || listType === 'tab_other_user')
   {

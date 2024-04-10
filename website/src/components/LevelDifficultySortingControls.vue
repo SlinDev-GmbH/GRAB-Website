@@ -1,17 +1,25 @@
 <script>
 export default {
 
+  props: {
+    currentTab: String,
+    isLoading: Boolean
+  },
+
   methods: {
     applyFilter(filter) {
-      const previous = document.querySelector(".active-filter");
+      if (this.isLoading) {
+        return;
+      }
+      const previous = document.querySelector(".active-difficulty-filter");
       if (previous) {
-        previous.classList.remove('active-filter');
+        previous.classList.remove('active-difficulty-filter');
         if (previous.id == `filter-${filter}`) {
           this.$emit('filter', '');
           return;
         }
       }
-      document.getElementById(`filter-${filter}`).classList.add('active-filter');
+      document.getElementById(`filter-${filter}`).classList.add('active-difficulty-filter');
       this.$emit('filter', filter)
     }
   },
@@ -22,13 +30,22 @@ export default {
 
   emits: [
     'filter'
-  ]
+  ],
+  
+  watch: {
+    async currentTab(type) {
+      const current = document.querySelector(".active-difficulty-filter");
+      if (current) {
+        current.classList.remove('active-difficulty-filter');
+      }
+    },
+  }
 }
 </script>
 
 
 <template>
-  <div class="user-tab-title-container">
+  <div class="difficulty-filter-container">
     <div class="filter" id="filter-unrated" @click="applyFilter('unrated')">unrated</div>
     <div class="filter" id="filter-easy" @click="applyFilter('easy')">easy</div>
     <div class="filter" id="filter-medium" @click="applyFilter('medium')">medium</div>
@@ -40,7 +57,7 @@ export default {
 
 
 <style scoped>
-.user-tab-title-container {
+.difficulty-filter-container {
   width: 100%;
   margin-top: 10px;
   border-radius: 10px;
@@ -79,7 +96,7 @@ export default {
 #filter-impossible {
   color: #6307a4;
 }
-.active-filter {
+.active-difficulty-filter {
   background-color: rgba(58, 170, 231, 0.4);
 }
 </style>
