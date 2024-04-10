@@ -299,6 +299,72 @@ function init()
 				const unverifyButton = document.getElementById("unverifyButton");
 				const verifySkipButton = document.getElementById("verifySkipButton");
 				const verifySkipSuccessButton = document.getElementById("verifySkipSuccessButton");
+				const tagButton = document.getElementById("tagButton");
+				const tagMenu = document.getElementById("tagMenu");
+				const tagMenuInner = document.getElementById("tagMenuInner");
+				let levelTags = [];
+				if("tags" in detailResponseBody && detailResponseBody.tags.length > 0) {
+					levelTags = detailResponseBody.tags;
+				}
+
+				tagButton.style.display = "block";
+				tagButton.addEventListener("click", async () => {
+					tagMenuInner.innerHTML = "";
+					const levelBrowserResponse = await fetch(config.SERVER_URL + 'get_level_browser?version=1');
+					const levelBrowserResponseBody = await levelBrowserResponse.text();
+					if(levelBrowserResponse.status != 200) {
+						alert(levelBrowserResponseBody);
+					}
+					const levelBrowser = JSON.parse(levelBrowserResponseBody);
+					const tags = levelBrowser.tags;
+					const tagCheckboxes = [];
+					for (const tag of tags) {
+						const tagDiv = document.createElement("div");
+						
+						const checkbox = document.createElement("input");
+						checkbox.type = "checkbox";
+						checkbox.id = `tag-${tag}`;
+						checkbox.name = `tag-${tag}`;
+						tagDiv.appendChild(checkbox);
+
+						const label = document.createElement("label");
+						label.innerHTML = tag;
+						label.htmlFor = `tag-${tag}`;
+						tagDiv.appendChild(label);
+
+						tagCheckboxes.push(checkbox);
+						tagMenuInner.appendChild(tagDiv);
+
+						if (levelTags.includes(tag)) {
+							checkbox.checked = true;
+						}
+					}
+					const submitTagsButton = document.createElement("button");
+					submitTagsButton.id = "submitTagsButton";
+					submitTagsButton.innerHTML = "Submit Tags";
+					tagMenuInner.appendChild(submitTagsButton);
+					submitTagsButton.addEventListener("click", async () => {
+						let checkedTags = [];
+						for(const checkbox of tagCheckboxes) {
+							if (checkbox.checked) {
+								checkedTags.push(checkbox.name.split("-")[1]);
+							}
+						}
+						if (levelTags.includes("ok")) {
+							checkedTags.push("ok");
+						}
+						levelTags = checkedTags;
+						let tagString = levelTags.join(",");
+						const response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
+						const responseBody = await response.text();
+						if (responseBody == "Success") {
+							tagMenu.style.display = "none";
+						} else {
+							confirm(responseBody);
+						}
+					});
+					tagMenu.style.display = "flex";
+				});
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";
 				if (window.location.href.includes('verify_queue')) {
@@ -319,7 +385,9 @@ function init()
 				}
 				verifyButton.addEventListener("click", function() {
 					(async () => {
-						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=ok&access_token=' + accessToken);
+						levelTags.push("ok");
+						let tagString = levelTags.join(",");
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
 						let responseBody = await response.text();
 						if (responseBody == "Success") {
 							verifyButton.style.display = "none";
@@ -341,7 +409,9 @@ function init()
 				});
 				unverifyButton.addEventListener("click", function() {
 					(async () => {
-						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=&access_token=' + accessToken);
+						levelTags.splice(levelTags.indexOf("ok"), 1);
+						let tagString = levelTags.join(",");
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
 						let responseBody = await response.text();
 						if (responseBody == "Success") {
 							verifyButton.style.display = "block";
