@@ -8,7 +8,8 @@ import UserTitle from './UserTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
 import Featured from './Featured.vue'
-import LevelSortingControls from './LevelSortingControls.vue'
+import LevelDifficultySortingControls from './LevelDifficultySortingControls.vue'
+import LevelTagSortingControls from './LevelTagSortingControls.vue'
 
 export default {
   components: {
@@ -18,7 +19,8 @@ export default {
     ScrollList,
     LoginButton,
     Featured,
-    LevelSortingControls
+    LevelDifficultySortingControls,
+    LevelTagSortingControls,
   },
 
   data() {
@@ -27,6 +29,8 @@ export default {
       searchTerm: '',
       userID: null,
       difficultyFilter: '',
+      tagFilter: '',
+      isLoading: false
     }
   },
 
@@ -48,6 +52,7 @@ export default {
     tabChanged(query) {
       this.tabActive = query.tab
       this.difficultyFilter = ''
+      this.tagFilter = ''
       if('search' in query) this.searchTerm = query['search']
       else this.searchTerm = ''
       if('user_id' in query) this.userID = query['user_id']
@@ -71,8 +76,17 @@ export default {
     },
 
     difficultyChanged(filter) {
-      console.log(filter);
+      this.isLoading = true;
       this.difficultyFilter = filter;
+    },
+
+    tagChanged(filter) {
+      this.isLoading = true;
+      this.tagFilter = filter;
+    },
+
+    loaded() {
+      this.isLoading = false;
     }
   }
 }
@@ -85,13 +99,14 @@ export default {
     <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
-    <LevelSortingControls v-if="showLevelTitle" @filter="difficultyChanged" />
+    <LevelDifficultySortingControls v-if="showLevelTitle" :currentTab="tabActive" :isLoading="isLoading" @filter="difficultyChanged" />
+    <LevelTagSortingControls v-if="showLevelTitle" :currentTab="tabActive" :isLoading="isLoading" @filter="tagChanged" />
     <LevelTitle v-if="showLevelTitle" :tab-active="tabActive"/>
   </header>
   <main>
     <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
     <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
-    <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)"/>
+    <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :tag="tagFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)" @loaded="loaded"/>
   </main>
 </template>
 

@@ -12,11 +12,12 @@ export default {
     CardUser
   },
 
-  emits: ['tabChanged'],
+  emits: ['tabChanged', 'loaded'],
 
   props: {
     listType: String,
     difficulty: String,
+    tag: String,
     searchTerm: String,
     otherUserID: String
   },
@@ -91,6 +92,13 @@ export default {
       await this.loadMore()
     },
 
+    async tag(type) {
+      if(this.isInitialLoad && this.loading) return
+      this.items = []
+      this.nextPage = null
+      await this.loadMore()
+    },
+
     async searchTerm(type) {
       if(this.isInitialLoad && this.loading) return
       this.items = []
@@ -101,8 +109,7 @@ export default {
 
   methods: {
     async loadLevels() {
-      console.log(this.listType);
-      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.difficulty, this.searchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
+      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.difficulty, this.tag, this.searchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
       if(result !== false) {
         if(result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp
         else this.nextPage = null
@@ -125,6 +132,7 @@ export default {
       const userStore = useUserStore()
       userStore.setList(this.items)
       this.loading = false
+      this.$emit('loaded')
       this.isInitialLoad = false
     },
 
