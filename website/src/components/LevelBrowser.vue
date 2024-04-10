@@ -127,6 +127,12 @@ header {
   display: block;
 }
 
+@media screen and (max-width: 500px) {
+  .logo {
+    padding-bottom: 5px;
+  }
+}
+
 .access-token-button {
   width: 120px;
   height:  30px;

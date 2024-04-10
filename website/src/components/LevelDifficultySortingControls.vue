@@ -67,11 +67,14 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 7px;
+  row-gap: 0;
+  flex-wrap: wrap;
+  padding-block: 4px;
 }
 .filter {
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 0 5px;
+  margin: 0 2px;
   border-radius: 5px;
   cursor: pointer;
 }

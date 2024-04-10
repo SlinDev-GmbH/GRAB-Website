@@ -53,5 +53,6 @@ export default {
 <style scoped>
 .level-tab-title {
   float: right;
+  padding-top: 3px;
 }
 </style>
