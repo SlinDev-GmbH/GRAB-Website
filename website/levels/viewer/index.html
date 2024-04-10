@@ -599,6 +599,21 @@
                 color: #555; /* Change hover color as needed */
             }
 
+            #tags {
+                display: flex;
+                flex-direction: row;
+                gap: 2px;
+                padding-top: 2px;
+            }
+            
+            .tag {
+                font-style: italic;
+                color: #000000ca;
+                background-color: #00000018;
+                padding: 0 8px;
+                border-radius: 50px;
+            }
+
         </style>
     </head>
     <body>
@@ -653,6 +668,7 @@
         <div id="info" class="info">
         <br>
         <div id="title"></div>
+        <div id="tags"></div>
         <div id="creators"></div>
         <div id="description"></div>
         <div id="complexity"></div>

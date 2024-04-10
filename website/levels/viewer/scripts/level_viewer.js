@@ -199,6 +199,7 @@ function init()
 			let { accessToken, list, listIndex, favoriteLevels } = userStore;
 
 			var titleLabel = document.getElementById("title");
+			var tagsLabel = document.getElementById("tags");
 			var creatorsLabel = document.getElementById("creators");
 			var descriptionLabel = document.getElementById("description");
 			var complexityLabel = document.getElementById("complexity");
@@ -216,6 +217,14 @@ function init()
 			let detailResponseBody = await detailResponse.json();
 			userID = levelIdentifierParts[0];
 			console.log(userID);
+
+			if("tags" in detailResponseBody && detailResponseBody.tags.length > 0) {
+				detailResponseBody.tags.forEach(tag => {
+					if (tag !== 'ok') {
+						tagsLabel.innerHTML += '<span class="tag">' + tag + '</span>';
+					}
+				});
+			}
 
 			if(detailResponseBody.hidden === true && !userStore.isAdmin)
 			{

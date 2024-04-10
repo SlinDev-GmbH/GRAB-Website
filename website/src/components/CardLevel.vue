@@ -44,7 +44,14 @@ export default {
       return ''
     },
 
-     hasImage() {
+    tags() {
+      if(this.item.tags && this.item.tags.length > 0) {
+        return this.item.tags.filter(t => t !== 'ok')
+      }
+      return []
+    },
+
+    hasImage() {
       if(this.item.images && this.item.images.thumb)
       {
         return true
@@ -67,29 +74,29 @@ export default {
       {
         if("difficulty" in this.item.statistics && "total_played" in this.item.statistics)
         {
-          if(this.item.statistics.difficulty !== 1.0 && this.item.statistics.total_played > 0)
+          if(this.item.statistics.difficulty_string)
           {
-            if(this.item.statistics.difficulty == 0)
+            if(this.item.statistics.difficulty_string == "impossible")
             {
               difficulty = "impossible"
               difficultyColor = "#7f007f"
             }
-            else if(this.item.statistics.difficulty < 0.01)
+            else if(this.item.statistics.difficulty_string == "veryhard")
             {
               difficulty = "very hard"
               difficultyColor = "#EA0000"
             }
-            else if(this.item.statistics.difficulty < 0.1)
+            else if(this.item.statistics.difficulty_string == "hard")
             {
               difficulty = "hard"
               difficultyColor = "#F19400"
             }
-            else if(this.item.statistics.difficulty < 0.4)
+            else if(this.item.statistics.difficulty_string == "medium")
             {
               difficulty = "medium"
               difficultyColor = "#E1C800"
             }
-            else
+            else if(this.item.statistics.difficulty_string == "easy")
             {
               difficulty = "easy"
               difficultyColor = "#2BBA84"
@@ -153,8 +160,12 @@ export default {
   <div class="level-card" :style="{'background-color': cardColor}">
     <img v-if="hasImage && !isModerationCell" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
     <img v-if="hasImage && isModerationCell" class="thumbnail" :src="this.$images_server_url + this.moderationItem.image" width="512" height="288" />
-    <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div><div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
+    <div v-if="hasStatistics" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div>
+    <div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
+    <div class="tags">
+      <span v-if="tags != []" v-for="tag in tags" class="tag">{{ tag }}</span>  
+    </div>
     <div class="creators">{{ creators }}</div>
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
@@ -207,6 +218,22 @@ export default {
 .creators {
   font-size: 15px;
   font-style: italic;
+}
+
+.tags {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  padding-top: 2px;
+}
+
+.tag {
+  font-size: 9px;
+  font-style: italic;
+  color: #001b29ca;
+  background-color: #cfeaf6;
+  padding: 0 8px;
+  border-radius: 50px;
 }
 
 .description {
