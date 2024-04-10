@@ -72,7 +72,7 @@ export default {
             if(this.item.statistics.difficulty == 0)
             {
               difficulty = "impossible"
-              difficultyColor = "#6307a4"
+              difficultyColor = "#7f007f"
             }
             else if(this.item.statistics.difficulty < 0.01)
             {

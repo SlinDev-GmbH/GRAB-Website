@@ -94,7 +94,7 @@ export default {
   color: #EA0000;
 }
 #filter-impossible {
-  color: #6307a4;
+  color: #7f007f;
 }
 .active-difficulty-filter {
   background-color: rgba(58, 170, 231, 0.4);
