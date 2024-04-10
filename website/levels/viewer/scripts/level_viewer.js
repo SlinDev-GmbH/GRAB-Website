@@ -403,7 +403,7 @@ function init()
 						}
 					});
 
-					tagMenu.style.display = "flex";
+					tagMenu.style.display = "grid";
 				});
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";

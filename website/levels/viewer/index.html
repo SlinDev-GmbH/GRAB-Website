@@ -500,17 +500,27 @@
                 background-color: green;
             }
             #tagMenu {
+                position: fixed;
+                top:0;
+                left: 0;
+                width: 100vw;
+                height: 100svh;
+                display: none;
+                place-content: center;
                 height: fit-content;
                 padding-bottom: 30px;
+                z-index: 1002;
             }
             .popup
 			{
 				position: fixed;
-				display: none;
-				left: 40%;
-				width: 20%;
-				top: 30%;
-				height: 20%;
+                top:0;
+                left: 0;
+                width: 100vw;
+                height: 100svh;
+                display: none;
+                place-content: center;
+                height: fit-content;
 				z-index:1002;
 				color: #000000;
 			}
@@ -525,7 +535,7 @@
 
 			.popup[open="open"]
 			{
-				display: block;
+				display: grid;
 			}
             #popup-thumbnail{
                 display: flex;
@@ -643,7 +653,7 @@
 				<button id="popup-button-ok">OK</button>
 			</div>
 		</div>
-        <div class="popup" id="tagMenu">
+        <div id="tagMenu">
             <div class="popup-inner" id="tagMenuInner">
 
             </div>
