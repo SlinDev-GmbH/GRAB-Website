@@ -69,7 +69,12 @@ export default {
         {
           if(this.item.statistics.difficulty !== 1.0 && this.item.statistics.total_played > 0)
           {
-            if(this.item.statistics.difficulty < 0.01)
+            if(this.item.statistics.difficulty == 0)
+            {
+              difficulty = "impossible"
+              difficultyColor = "#6307a4"
+            }
+            else if(this.item.statistics.difficulty < 0.01)
             {
               difficulty = "very hard"
               difficultyColor = "#EA0000"

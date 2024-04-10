@@ -71,7 +71,7 @@ export default {
         if (section.list_key.startsWith('builtin:')) {
           return false
         }
-        if (['ok', 'newest'].includes(section.list_key)) {
+        if (['ok_newest', 'newest'].includes(section.list_key)) {
           return false
         }
       }
@@ -103,7 +103,7 @@ export default {
     <h2 v-if="this.currentSection !== this.featured" class="section-title">{{ this.currentSection.hasOwnProperty("title_short") ? this.currentSection.title_short : this.currentSection.title }}</h2>
   </div>
   <div v-if="isList">
-    <ScrollList :listType="this.currentSection.list_key" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
+    <ScrollList :listType="this.currentSection.list_key" :difficulty="''" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
   </div>
   <div v-else-if="isSection" class="sections">
     <div class="section-element-title" v-for="section in this.currentSection.sections">
