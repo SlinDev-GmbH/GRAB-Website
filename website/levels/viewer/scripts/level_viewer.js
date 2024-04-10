@@ -362,6 +362,22 @@ function init()
 							checkbox.checked = true;
 						}
 					}
+					const tagCount = tagCheckboxes.length;
+					if (tagCount % 3 !== 0) {
+						for (let i = 1; i < tagCount % 3; i++) {
+							tagMenuInner.appendChild(document.createElement("div"));
+						}
+                    }
+					const cancelTagsButton = document.createElement("button");
+					cancelTagsButton.id = "cancelTagsButton";
+					cancelTagsButton.innerHTML = "Cancel";
+					tagMenuInner.appendChild(cancelTagsButton);
+					cancelTagsButton.addEventListener("click", async () => {
+						tagMenu.style.display = "none";
+					});
+
+					tagMenuInner.appendChild(document.createElement("div"));
+
 					const submitTagsButton = document.createElement("button");
 					submitTagsButton.id = "submitTagsButton";
 					submitTagsButton.innerHTML = "Submit Tags";
@@ -386,6 +402,7 @@ function init()
 							confirm(responseBody);
 						}
 					});
+
 					tagMenu.style.display = "flex";
 				});
 				verifyButton.style.display = "block";
