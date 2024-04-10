@@ -16,6 +16,7 @@ export default {
 
   props: {
     listType: String,
+    difficulty: String,
     searchTerm: String,
     otherUserID: String
   },
@@ -83,6 +84,13 @@ export default {
       await this.loadMore()
     },
 
+    async difficulty(type) {
+      if(this.isInitialLoad && this.loading) return
+      this.items = []
+      this.nextPage = null
+      await this.loadMore()
+    },
+
     async searchTerm(type) {
       if(this.isInitialLoad && this.loading) return
       this.items = []
@@ -93,7 +101,8 @@ export default {
 
   methods: {
     async loadLevels() {
-      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.searchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
+      console.log(this.listType);
+      const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.difficulty, this.searchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
       if(result !== false) {
         if(result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp
         else this.nextPage = null

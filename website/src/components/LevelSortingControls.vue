@@ -1,0 +1,85 @@
+<script>
+export default {
+
+  methods: {
+    applyFilter(filter) {
+      const previous = document.querySelector(".active-filter");
+      if (previous) {
+        previous.classList.remove('active-filter');
+        if (previous.id == `filter-${filter}`) {
+          this.$emit('filter', '');
+          return;
+        }
+      }
+      document.getElementById(`filter-${filter}`).classList.add('active-filter');
+      this.$emit('filter', filter)
+    }
+  },
+
+  mounted() {
+    this.$emit('filter', '');
+  },
+
+  emits: [
+    'filter'
+  ]
+}
+</script>
+
+
+<template>
+  <div class="user-tab-title-container">
+    <div class="filter" id="filter-unrated" @click="applyFilter('unrated')">unrated</div>
+    <div class="filter" id="filter-easy" @click="applyFilter('easy')">easy</div>
+    <div class="filter" id="filter-medium" @click="applyFilter('medium')">medium</div>
+    <div class="filter" id="filter-hard" @click="applyFilter('hard')">hard</div>
+    <div class="filter" id="filter-veryhard" @click="applyFilter('veryhard')">very hard</div>
+    <div class="filter" id="filter-impossible" @click="applyFilter('impossible')">impossible</div>
+  </div>
+</template>
+
+
+<style scoped>
+.user-tab-title-container {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 10px;
+  background-color: white;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.filter {
+  padding: 2px 5px;
+  margin: 2px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.filter:hover {
+  background-color: rgba(58, 170, 231, 0.4);
+}
+#filter-unrated {
+  color: #969696;
+}
+#filter-easy {
+  color: #2BBA84;
+}
+#filter-medium {
+  color: #E1C800;
+}
+#filter-hard {
+  color: #F19400;
+}
+#filter-veryhard {
+  color: #EA0000;
+}
+#filter-impossible {
+  color: #6307a4;
+}
+.active-filter {
+  background-color: rgba(58, 170, 231, 0.4);
+}
+</style>
