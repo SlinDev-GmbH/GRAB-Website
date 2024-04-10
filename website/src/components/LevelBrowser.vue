@@ -42,6 +42,10 @@ export default {
       const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels']
       return options.includes(this.tabActive)
     },
+    showSortingControls() {
+      const options = ['tab_newest', 'tab_ok_newest']
+      return options.includes(this.tabActive)
+    },
     showUserTitle() {
       const options = ['tab_my_levels', 'tab_other_user']
       return options.includes(this.tabActive)
@@ -99,8 +103,8 @@ export default {
     <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
     <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
-    <LevelDifficultySortingControls v-if="showLevelTitle" :currentTab="tabActive" :isLoading="isLoading" @filter="difficultyChanged" />
-    <LevelTagSortingControls v-if="showLevelTitle" :currentTab="tabActive" :isLoading="isLoading" @filter="tagChanged" />
+    <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" @filter="difficultyChanged" />
+    <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" @filter="tagChanged" />
     <LevelTitle v-if="showLevelTitle" :tab-active="tabActive"/>
   </header>
   <main>
