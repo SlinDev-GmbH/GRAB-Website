@@ -132,7 +132,7 @@
                 display:block;
             }
 
-            #buttons form input {
+            #buttons form input, #buttons form button {
                 cursor: pointer;
             }
 
@@ -361,7 +361,7 @@
                 text-align: center;
                 border: none;
             }
-            #hideButton, #unverifyButton, #verifySkipSuccessButton, #reportButton {
+            #hideButton, #unverifyButton, #verifySkipSuccessButton {
                 height: 30px;
                 width: fit-content;
                 padding-right: 20px;
@@ -372,6 +372,21 @@
                 border: none;
                 border-radius: 15px;
                 cursor: pointer;
+            }
+
+            #reportButton {
+                height: 30px;
+                width: fit-content;
+                padding-right: 20px;
+                padding-left: 20px;
+                font-weight: bold;
+                background-color: red;
+                color: white;
+                border: none;
+                border-radius: 15px;
+                cursor: pointer;
+                display: none;
+                margin-block: 5px;
             }
 
             #favoriteButton, #unfavoriteButton {
@@ -386,7 +401,7 @@
                 border-radius: 15px;
                 cursor: pointer;
                 margin-top: 5px;
-                margin-bottom: 15px;
+                margin-bottom: 10px;
                 display: none;
             }
 
@@ -441,13 +456,14 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
+            #verifySkipButton, #verifySkipSuccessButton {
+                margin-top: 5px;
+            }
             #tagButton {
-                height: 30px;
                 font-weight: bold;
                 width: fit-content;
-                padding-right: 20px;
-                padding-left: 20px;
-                margin-top: 5px;
+                padding: 0 8px;
+                min-height: 15px;
                 background-color: green;
                 color: white;
                 border: none;
@@ -621,9 +637,11 @@
 
             #tags {
                 display: flex;
-                flex-direction: row;
+                flex-direction: row-reverse;
+                justify-content: flex-end;
                 gap: 2px;
                 padding-top: 2px;
+                margin-bottom: 2px;
             }
             
             .tag {
@@ -634,6 +652,20 @@
                 border-radius: 50px;
             }
 
+            #title {
+                font-weight: bold;
+                color: #000000;
+                font-size: 20px;
+            }
+            #creators, #description, #date {
+                margin-bottom: 5px;
+            }
+            #description {
+                font-size: 14px;
+            }
+            #hideForm {
+                margin-bottom: 5px;
+            }
         </style>
     </head>
     <body>
@@ -688,22 +720,22 @@
         <div id="info" class="info">
         <br>
         <div id="title"></div>
-        <div id="tags"></div>
+        <div id="tags">
+            <button id="tagButton" style="display: none;">Edit Tags</button>
+        </div>
         <div id="creators"></div>
         <div id="description"></div>
         <div id="complexity"></div>
         <div id="checkpoints"></div>
-        <br>
         <div id="date"></div>
-        <br>
-        <div id="total played count">total played count</div>
-        <div id="total finished count">total finished count</div>
-        <div id="players played count">players played count</div>
-        <div id="players finished count">players finished count</div>
-        <div id="players rated count">players rated count</div>
-        <div id="players liked count">players liked count</div>
-        <div id="average time">average time</div>
-        <button id="reportButton" style="display: none; margin-block: 5px;">Report</button>
+        <div id="statistics">
+            <div id="total finished count">total finished</div>
+            <div id="players finished count">players finished</div>
+            <div id="players liked count">players liked</div>
+            <div id="average time">average time</div>
+        </div>
+
+        <button id="reportButton">Report</button>
         <button id="favoriteButton">Favorite</button>
         <button id="unfavoriteButton">Unfavorite</button>
         <br>
@@ -721,7 +753,6 @@
             <button id="unverifyButton" style="display: none;">Unverify</button>
             <button id="verifySkipButton" style="display: none;">Skip</button>
             <button id="verifySkipSuccessButton" style="display: none;">Skipped</button>
-            <button id="tagButton" style="display: none;">Edit Tags</button>
             <div id="hidecontainer" style="display: none;">
                 <div id="reports" style="display: none;">
                     <b><p id="reportsTitle">Reports:</p></b>
@@ -729,7 +760,7 @@
                 </div>
                 <br>
                 <b>Hide Level</b>
-                <form>
+                <form id="hideForm">
                     <select id="hideReason" style="width: 70%;">
                         <option value="">- Reason -</option>
                         <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
@@ -741,14 +772,11 @@
                         <option id="no_punish" value="no_punish">Don't punish</option>
                     </select>
                 </form>
-                <br>
                 <button id="hideButton">Hide</button>
                 <button id="approveButton">Approve</button>
-                <br><br>
+                <br>
             </div>
         </div>
-        <br>
-        <br>
     </div>    
     <br>
     <input type="range" id="time-slider" min="0" max="0" step="0.01" value="0">
