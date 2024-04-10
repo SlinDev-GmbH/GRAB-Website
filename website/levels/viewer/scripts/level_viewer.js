@@ -327,6 +327,20 @@ function init()
 						checkbox.name = `tag-${tag}`;
 						tagDiv.appendChild(checkbox);
 
+						checkbox.addEventListener("change", (e) => {
+							if (e.target.checked) {
+								let currentChecked = 0;
+								for(const checkbox of tagCheckboxes) {
+                                    if (checkbox.checked) {
+                                        currentChecked++;
+                                    }
+                                }
+								if (currentChecked > 2) {
+                                    e.target.checked = false;
+                                }
+							}
+						});
+
 						const label = document.createElement("label");
 						label.innerHTML = tag;
 						label.htmlFor = `tag-${tag}`;
