@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores/user'
 
 export default {
   props: {
-    tabActive: String
+    tagString: String
   },
 
   data() {
@@ -16,16 +16,16 @@ export default {
   methods: {
     async updateCounter() {
       this.count = undefined
-      if(this.tabActive === 'tab_favorite_levels')
+      if(this.tagString === 'favorite_levels')
       {
         const userStore = useUserStore()
         this.count = userStore.favoriteLevels.length
       }
       else
       {
-        const currentTab = this.tabActive
-        const result = await getLevelCountRequest(this.$api_server_url, this.tabActive.replace('tab_', ''))
-        if(result !== false && currentTab === this.tabActive) this.count = result
+        const currentTab = this.tagString
+        const result = await getLevelCountRequest(this.$api_server_url, this.tagString)
+        if(result !== false && currentTab === this.tagString) this.count = result
       }
     }
   },
@@ -35,7 +35,7 @@ export default {
   },
 
   watch: {
-    tabActive(newTab) {
+    tagString(newTab) {
       this.updateCounter()
     }
   }
@@ -45,7 +45,7 @@ export default {
 
 <template>
   <div v-if="count" class="level-tab-title">
-    Level count: {{ count }}
+    {{ count }} level{{ count > 1 ? 's' : '' }}
   </div>
 </template>
 
