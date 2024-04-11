@@ -79,7 +79,7 @@ export default {
       <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
     </div>
     <div v-if="count" class="user-tab-count">
-      Level count: {{ count }}
+      {{ count }} level{{ count > 1 ? 's' : '' }}
     </div>
   </div>
 </template>

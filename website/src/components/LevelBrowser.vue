@@ -49,6 +49,10 @@ export default {
     showUserTitle() {
       const options = ['tab_my_levels', 'tab_other_user']
       return options.includes(this.tabActive)
+    },
+    tagString() {
+      if (this.tabActive === 'tab_favorite_levels') return 'favorite_levels'
+      return (this.tabActive == 'tab_ok_newest' ? 'ok_' : '') + (this.tagFilter == '' ? '' : this.tagFilter + '_') + 'newest' + (this.difficultyFilter == '' ? '' : '_' + this.difficultyFilter)
     }
   },
 
@@ -105,7 +109,7 @@ export default {
     <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
     <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" @filter="difficultyChanged" />
     <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" @filter="tagChanged" />
-    <LevelTitle v-if="showLevelTitle" :tab-active="tabActive"/>
+    <LevelTitle v-if="showLevelTitle" :tagString="tagString"/>
   </header>
   <main>
     <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
