@@ -81,12 +81,13 @@ export default {
           }
         }
 
+        const userID = this.identifier.split(':')[0]
         if(!noPunish)
         {
-          const userID = this.identifier.split(':')[0]
           if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason)) return
-          if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
         }
+
+        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
       }
       else if(this.config === 'level_report')
       {

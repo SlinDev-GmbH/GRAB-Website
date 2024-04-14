@@ -6,6 +6,7 @@ import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
+import HideTipLevelButton from './HideTipLevelButton.vue'
 import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
@@ -16,6 +17,7 @@ export default {
     VerifyLevelButton,
     SkipLevelButton,
     HideLevelButton,
+    HideTipLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
     ReportLevelButton
@@ -172,6 +174,7 @@ export default {
     <VerifyLevelButton v-if="isVerifier" :level-info="item"/>
     <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
     <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <div class="interactions">
