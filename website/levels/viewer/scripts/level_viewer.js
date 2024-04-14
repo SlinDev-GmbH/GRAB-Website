@@ -493,7 +493,21 @@ function init()
 							hideContainer.style.display = "none";
 						}
 
-						if (reason !== "no_punish") {
+						let noPunish = (reason === 'no_punish')
+						if(reason === 'level_tips')
+						{
+							if("creation_timestamp" in detailResponseBody)
+							{
+								const timestamp = detailResponseBody.creation_timestamp
+								const banDate = new Date('April 15, 2024 00:00:00');
+								if(timestamp < banDate)
+								{
+									noPunish = true
+								}
+							}
+						}
+
+						if(!noPunish) {
 							let extra = ''
 							if (reason === "level_glitch") {
 								extra += "?reason=message&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
