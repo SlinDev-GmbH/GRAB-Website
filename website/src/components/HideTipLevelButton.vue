@@ -34,10 +34,10 @@ export default {
       }
 
       const userID = this.level_id.split(':')[0]
-      /*if(!noPunish)
+      if(!noPunish)
       {
         if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, "level_tips")) return
-      }*/
+      }
       
       if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
       this.$emit('handled', true)
