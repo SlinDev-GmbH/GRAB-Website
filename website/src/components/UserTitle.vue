@@ -5,6 +5,7 @@ import MakeCreatorButton from './MakeCreatorButton.vue'
 
 import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
+import { getUserCurrencyRequest } from '../requests/GetUserCurrencyRequest.js'
 
 export default {
 
@@ -17,7 +18,8 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['userID'])
+    ...mapState(useUserStore, ['userID']),
+    ...mapState(useUserStore, ['accessToken'])
   },
 
   data() {
@@ -27,6 +29,7 @@ export default {
       count: undefined,
       isVerified: false,
       isModerator: false,
+      currencyData: undefined,
       loaded: false
     }
   },
@@ -39,9 +42,13 @@ export default {
       this.isVerified = false
       this.isModerator = false
       this.loaded = false
+      this.currencyData = undefined
 
       const currentUserID = this.otherUserID? this.otherUserID : this.userID
       if(!currentUserID) return
+      if (this.userID == currentUserID) {
+        this.currencyData = await getUserCurrencyRequest(this.$api_server_url, this.accessToken);
+      }
       const userInfo = await getUserInfoRequest(this.$api_server_url, currentUserID)
       if(userInfo === false || currentUserID !== (this.otherUserID? this.otherUserID : this.userID)) return
       console.log(userInfo)
@@ -82,11 +89,22 @@ export default {
       {{ count }} level{{ count > 1 ? 's' : '' }}
     </div>
   </div>
+  <div v-if="currencyData" class="user-tab-currency-container">
+    <div class="user-tab-currency">
+      {{ currencyData.currency }} coin{{ currencyData.currency > 1 ? 's' : '' }}
+    </div>
+    <div class="user-tab-total-tips">
+      ({{ currencyData.tips_total }} tip{{ currencyData.tips_total > 1 ? 's' : '' }})
+    </div>
+    <div v-if="currencyData.tips && currencyData.tips > 0" class="user-tab-unclaimed-tips">
+      {{ currencyData.tips }} unclaimed tip{{ currencyData.tips > 1 ? 's' : '' }}!
+    </div>
+  </div>
 </template>
 
 
 <style scoped>
-.user-tab-title-container {
+.user-tab-title-container, .user-tab-currency-container {
   width: 100%;
   height: 50px;
   margin-bottom: 10px;
@@ -107,6 +125,27 @@ export default {
   vertical-align: middle;
   line-height: 50px;
   float: right;
+}
+.user-tab-currency {
+  vertical-align: middle;
+  line-height: 50px;
+  float: left;
+  font-weight: bold;
+  font-size: 16px;
+  margin-right: 5px;
+}
+.user-tab-total-tips {
+  vertical-align: middle;
+  line-height: 49px;
+  float: left;
+  margin-top: 1px;
+  font-size: 12px;
+}
+.user-tab-unclaimed-tips {
+  vertical-align: middle;
+  line-height: 50px;
+  float: right;
+  font-weight: 600;
 }
 .creator-icon {
   width: 20px;
