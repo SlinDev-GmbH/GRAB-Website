@@ -435,131 +435,68 @@ export default {
 
       return group
     },
-
-    adjustPositionForCategory(
-      category,
-      group,
-      file,
-      files,
-      activeCosmetics,
-      scene
-    ) {
-      if (category) {
-        if (["head", "head/hat", "head/glasses"].includes(category)) {
-          group.position.y += 0.2
-        }
-        if ("head" === category) {
+    adjustPositionForCategory(category, group, file, files, activeCosmetics, scene) {        
+        if (category === "head" && activeCosmetics) {
+          group.position.set(0, 0.2, 0);
           if (activeCosmetics["head/glasses"]) {
-            let referenceGroup = scene.getObjectByName(
-              files[activeCosmetics["head/glasses"]].name
-            )
-            referenceGroup.position.set(0, 0.2, 0)
-            if (
-              files[file].attachment_points &&
-              files[file].attachment_points.glasses
-            ) {
-              if (files[file].attachment_points.glasses.scale) {
-                referenceGroup.scale.set(
-                  files[file].attachment_points.glasses.scale,
-                  files[file].attachment_points.glasses.scale,
-                  files[file].attachment_points.glasses.scale
-                )
-              }
-              referenceGroup.position.z -= Number(
-                files[file].attachment_points.glasses.position[2]
-              )
+            const referenceGroup = scene.getObjectByName(files[activeCosmetics["head/glasses"]].name);
+            referenceGroup.position.set(0, 0.2, 0);
+            if (files[file].attachment_points && files[file].attachment_points.glasses) {
+              this.updateGroup(referenceGroup, files[file].attachment_points.glasses);
             }
-            if (activeCosmetics["head/glasses"].attachment_point_overrides) {
-              referenceGroup.position.x -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]].position[0]
-              )
-              referenceGroup.position.y += Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]].position[1]
-              )
-              referenceGroup.position.z -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]].position[2]
-              )
+            if (files[activeCosmetics["head/glasses"]].attachment_point_overrides) {
+              this.updatePosition(referenceGroup, files[activeCosmetics["head/glasses"]].attachment_point_overrides[activeCosmetics["head"]], "head/glasses");
             }
           }
           if (activeCosmetics["head/hat"]) {
-            let referenceGroup = scene.getObjectByName(
-              files[activeCosmetics["head/hat"]].name
-            )
-            referenceGroup.position.set(0, 0.2, 0)
-            if (
-              files[file].attachment_points &&
-              files[file].attachment_points.hat
-            ) {
-              if (files[file].attachment_points.hat.scale) {
-                referenceGroup.scale.set(
-                  files[file].attachment_points.hat.scale,
-                  files[file].attachment_points.hat.scale,
-                  files[file].attachment_points.hat.scale
-                )
-              }
-              referenceGroup.position.y += Number(
-                files[file].attachment_points.hat.position[1]
-              )
+            const referenceGroup = scene.getObjectByName(files[activeCosmetics["head/hat"]].name);
+            referenceGroup.position.set(0, 0.2, 0);
+            if (files[file].attachment_points && files[file].attachment_points.hat) {
+              this.updateGroup(referenceGroup, files[file].attachment_points.hat);
+            }
+            if (files[activeCosmetics["head/hat"]].attachment_point_overrides) {
+              this.updatePosition(referenceGroup, files[activeCosmetics["head/hat"]].attachment_point_overrides[activeCosmetics["head"]]);
             }
           }
-        }
-        if (files[activeCosmetics["head"]].attachment_points) {
-          if ("head/glasses" === category) {
-            if (files[activeCosmetics["head"]].attachment_points.glasses) {
-              if (files[activeCosmetics["head"]].attachment_points.glasses.scale) {
-                group.scale.set(
-                  files[activeCosmetics["head"]].attachment_points.glasses.scale,
-                  files[activeCosmetics["head"]].attachment_points.glasses.scale,
-                  files[activeCosmetics["head"]].attachment_points.glasses.scale
-                )
-              }
-              group.position.z -= Number(
-                files[activeCosmetics["head"]].attachment_points.glasses.position[2]
-              )
+        } else if (category === "head/glasses" || category === "head/hat") {
+          group.position.set(0, 0.2, 0);
+          if (files[activeCosmetics["head"]].attachment_points) {
+            if (files[activeCosmetics["head"]].attachment_points[category.split("/")[1]]) {
+              this.updateGroup(group, files[activeCosmetics["head"]].attachment_points[category.split("/")[1]]);
             }
             if (files[file].attachment_point_overrides) {
-              group.position.x -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]].position[0]
-              )
-              group.position.y += Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]].position[1]
-              )
-              group.position.z -= Number(
-                files[file].attachment_point_overrides[activeCosmetics["head"]].position[2]
-              )
+              this.updatePosition(group, files[file].attachment_point_overrides[activeCosmetics["head"]]);
             }
           }
-          if ("head/hat" === category) {
-            if (files[activeCosmetics["head"]].attachment_points.hat) {
-              if (files[activeCosmetics["head"]].attachment_points.hat.scale) {
-                group.scale.set(
-                  files[activeCosmetics["head"]].attachment_points.hat.scale,
-                  files[activeCosmetics["head"]].attachment_points.hat.scale,
-                  files[activeCosmetics["head"]].attachment_points.hat.scale
-                )
-              }
-              group.position.y += Number(
-                files[activeCosmetics["head"]].attachment_points.hat.position[1]
-              )
-            }
-          }
+        } else if (category === "grapple/hook") {
+          group.position.set(0.5, -1.0, 0);
+          group.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+        } else if (category === "checkpoint") {
+          group.position.set(-0.5, -1.5, 0);
+          group.rotation.set(0, Math.PI, 0);
         }
-        if ("grapple/hook" === category) {
-          group.position.x = 0.5
-          group.position.y = -1.0
-          group.rotation.z+=Math.PI
-          group.rotation.x-=Math.PI/2
-        }
-
-        if ("checkpoint" === category) {
-          group.position.x = -0.5
-          group.position.y = -1.5
-          group.rotation.y += Math.PI
-        }
-      }
-      return group
+      return group;
     },
-
+    
+    updateGroup(group, attachmentPoint) {
+      if (attachmentPoint.scale) {
+        group.scale.set(attachmentPoint.scale, attachmentPoint.scale, attachmentPoint.scale);
+      }
+      if (attachmentPoint.position) {
+        group.position.sub(new THREE.Vector3().fromArray(attachmentPoint.position));
+      }
+    },
+    
+    updatePosition(group, attachmentPointOverride, category) {
+      if (attachmentPointOverride && attachmentPointOverride.position) {
+        group.position.set(0,0.2,0)
+        group.position.sub(new THREE.Vector3().fromArray(attachmentPointOverride.position))
+        category==="head/glasses"?group.position.set(-attachmentPointOverride.position[0],-attachmentPointOverride.position[1],-attachmentPointOverride.position[2]):undefined;
+      }
+      if (attachmentPointOverride && attachmentPointOverride.scale) {
+        group.scale.set(attachmentPointOverride.scale, attachmentPointOverride.scale, attachmentPointOverride.scale)
+      }
+    },
     handleAttachmentPoints(files, file, group) {
       if (files[file].materials.indexOf("default_primary_color") !== -1) {
         group.children[
