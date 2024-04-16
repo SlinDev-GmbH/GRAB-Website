@@ -445,7 +445,7 @@ export default {
               this.updateGroup(referenceGroup, files[file].attachment_points.glasses);
             }
             if (files[activeCosmetics["head/glasses"]].attachment_point_overrides) {
-              this.updatePosition(referenceGroup, files[activeCosmetics["head/glasses"]].attachment_point_overrides[activeCosmetics["head"]], "head/glasses");
+              this.updatePosition(referenceGroup, files[activeCosmetics["head/glasses"]].attachment_point_overrides[activeCosmetics["head"]]);
             }
           }
           if (activeCosmetics["head/hat"]) {
@@ -485,16 +485,27 @@ export default {
       if (attachmentPoint.position) {
         group.position.sub(new THREE.Vector3().fromArray(attachmentPoint.position));
       }
+      if(attachmentPoint.scale == undefined){
+        group.scale.set(1,1,1);
+      }
+      if(attachmentPoint.position == undefined){
+        group.position.set(0,0.2,0)
+      }
     },
     
-    updatePosition(group, attachmentPointOverride, category) {
+    updatePosition(group, attachmentPointOverride) {
       if (attachmentPointOverride && attachmentPointOverride.position) {
         group.position.set(0,0.2,0)
-        group.position.sub(new THREE.Vector3().fromArray(attachmentPointOverride.position))
-        category==="head/glasses"?group.position.set(-attachmentPointOverride.position[0],-attachmentPointOverride.position[1],-attachmentPointOverride.position[2]):undefined;
+        group.position.add(new THREE.Vector3(-attachmentPointOverride.position[0],attachmentPointOverride.position[1],-attachmentPointOverride.position[2]))
       }
       if (attachmentPointOverride && attachmentPointOverride.scale) {
         group.scale.set(attachmentPointOverride.scale, attachmentPointOverride.scale, attachmentPointOverride.scale)
+      }
+      if(attachmentPointOverride == undefined || attachmentPointOverride.scale == undefined){
+        group.scale.set(1,1,1);
+      }
+      if(attachmentPointOverride && attachmentPointOverride.position == undefined|| attachmentPointOverride==undefined){
+        group.position.set(0,0.2,0)
       }
     },
     handleAttachmentPoints(files, file, group) {
