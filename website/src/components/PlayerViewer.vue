@@ -19,6 +19,8 @@ export default {
       playerPrim_Color: null,
       playerSec_Color: null,
       visorColor: null,
+      darkPrimColor:null,
+      darkSecColor:null,
       selectedPrimaryDiv: null,
       primaryOpened: null,
       selectedSecondaryDiv: null,
@@ -83,7 +85,6 @@ export default {
   },
 
   created() {
-    // non responsive so three.js works
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -262,13 +263,19 @@ export default {
 
         this.selectedPrimaryDiv = e.target
         this.playerPrim_Color = e.target.style.backgroundColor
+        this.visorColor_primary = `rgb(${Math.ceil(
+          parseInt(rgbValue[0], 10) / 2
+        )},${Math.ceil(parseInt(rgbValue[1], 10) / 2)},${Math.ceil(
+          parseInt(rgbValue[2], 10) / 2
+        )})`
+
         if (this.editMode == true) {
           this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
           this.userInfo.active_customizations.player_color_primary = { "color": this.grabColorArray }
           setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
           console.log("setCustomizations");
         }
-        this.changeMeshColors(e.target.style.backgroundColor, undefined, undefined)
+        this.changeMeshColors(e.target.style.backgroundColor, undefined,  this.visorColor_primary)
         this.primaryOpened = false
       }
       if (this.secondaryOpened == true) {
@@ -397,6 +404,15 @@ export default {
         } else if (obj.name === "default_secondary_color_visor" && visorColor) {
           obj.material.color.set(visorColor)
         }
+        else if (obj.name === "default_secondary_color_darkened" && visorColor) {
+          obj.material.color.set(this.darkSecColor)
+        }
+        else if (obj.name === "default_primary_color_darkened" && visorColor) {
+          obj.material.color.set(this.darkPrimColor)
+        }
+        else if (obj.name === "default_primary_color_visor" && visorColor) {
+          obj.material.color.set(this.visorColor)
+        }
       })
       return group
     },
@@ -438,27 +454,22 @@ export default {
     adjustPositionForCategory(category, group, file, files, activeCosmetics, scene) {        
         if (category === "head" && activeCosmetics) {
           group.position.set(0, 0.2, 0);
-          if (activeCosmetics["head/glasses"]) {
-            const referenceGroup = scene.getObjectByName(files[activeCosmetics["head/glasses"]].name);
-            referenceGroup.position.set(0, 0.2, 0);
-            if (files[file].attachment_points && files[file].attachment_points.glasses) {
-              this.updateGroup(referenceGroup, files[file].attachment_points.glasses);
-            }
-            if (files[activeCosmetics["head/glasses"]].attachment_point_overrides) {
-              this.updatePosition(referenceGroup, files[activeCosmetics["head/glasses"]].attachment_point_overrides[activeCosmetics["head"]]);
-            }
-          }
-          if (activeCosmetics["head/hat"]) {
-            const referenceGroup = scene.getObjectByName(files[activeCosmetics["head/hat"]].name);
-            referenceGroup.position.set(0, 0.2, 0);
-            if (files[file].attachment_points && files[file].attachment_points.hat) {
-              this.updateGroup(referenceGroup, files[file].attachment_points.hat);
-            }
-            if (files[activeCosmetics["head/hat"]].attachment_point_overrides) {
-              this.updatePosition(referenceGroup, files[activeCosmetics["head/hat"]].attachment_point_overrides[activeCosmetics["head"]]);
+
+          for(var item in activeCosmetics){
+            if(item.includes("head/")){
+              if (activeCosmetics[item]) {
+                  const referenceGroup = scene.getObjectByName(files[activeCosmetics[item]].name);
+                  referenceGroup.position.set(0, 0.2, 0);
+                if (files[file].attachment_points && files[file].attachment_points.glasses) {
+                  this.updateGroup(referenceGroup, files[file].attachment_points.glasses);
+                }
+                if (files[activeCosmetics[item]].attachment_point_overrides) {
+                  this.updatePosition(referenceGroup, files[activeCosmetics[item]].attachment_point_overrides[activeCosmetics["head"]]);
+                }
+              }
             }
           }
-        } else if (category === "head/glasses" || category === "head/hat") {
+        } else if (category&&category.includes("head/")) {
           group.position.set(0, 0.2, 0);
           if (files[activeCosmetics["head"]].attachment_points) {
             if (files[activeCosmetics["head"]].attachment_points[category.split("/")[1]]) {
@@ -479,52 +490,35 @@ export default {
     },
     
     updateGroup(group, attachmentPoint) {
+      group.position.set(0,0.2,0)
+      group.scale.set(1,1,1);
       if (attachmentPoint.scale) {
         group.scale.set(attachmentPoint.scale, attachmentPoint.scale, attachmentPoint.scale);
       }
       if (attachmentPoint.position) {
         group.position.sub(new THREE.Vector3().fromArray(attachmentPoint.position));
       }
-      if(attachmentPoint.scale == undefined){
-        group.scale.set(1,1,1);
-      }
-      if(attachmentPoint.position == undefined){
-        group.position.set(0,0.2,0)
-      }
     },
     
     updatePosition(group, attachmentPointOverride) {
+      group.position.set(0,0.2,0)
+      group.scale.set(1,1,1);
       if (attachmentPointOverride && attachmentPointOverride.position) {
-        group.position.set(0,0.2,0)
         group.position.add(new THREE.Vector3(-attachmentPointOverride.position[0],attachmentPointOverride.position[1],-attachmentPointOverride.position[2]))
       }
       if (attachmentPointOverride && attachmentPointOverride.scale) {
         group.scale.set(attachmentPointOverride.scale, attachmentPointOverride.scale, attachmentPointOverride.scale)
       }
-      if(attachmentPointOverride == undefined || attachmentPointOverride.scale == undefined){
-        group.scale.set(1,1,1);
-      }
-      if(attachmentPointOverride && attachmentPointOverride.position == undefined|| attachmentPointOverride==undefined){
-        group.position.set(0,0.2,0)
-      }
+  
     },
     handleAttachmentPoints(files, file, group) {
-      if (files[file].materials.indexOf("default_primary_color") !== -1) {
-        group.children[
-          files[file].materials.indexOf("default_primary_color")
-        ].name = "default_primary_color"
+      for(let material in files[file].materials){
+        if (files[file].materials.indexOf(files[file].materials[material]) !== -1) {
+          group.children[
+            files[file].materials.indexOf(files[file].materials[material])
+          ].name = files[file].materials[material]
+        }
       }
-      if (files[file].materials.indexOf("default_secondary_color") !== -1) {
-        group.children[
-          files[file].materials.indexOf("default_secondary_color")
-        ].name = "default_secondary_color"
-      }
-      if (files[file].materials.indexOf("default_secondary_color_visor") !== -1) {
-        group.children[
-          files[file].materials.indexOf("default_secondary_color_visor")
-        ].name = "default_secondary_color_visor"
-      }
-
       if (
         files[file].materials.indexOf("default_primary_color") == -1 &&
         files[file].primaryColor
@@ -644,20 +638,12 @@ export default {
     },
 
     applyMaterialIndices(group, item, files) {
-      if (files[item].materials.indexOf("default_primary_color") !== -1) {
-        group.children[
-          files[item].materials.indexOf("default_primary_color")
-        ].name = "default_primary_color"
-      }
-      if (files[item].materials.indexOf("default_secondary_color") !== -1) {
-        group.children[
-          files[item].materials.indexOf("default_secondary_color")
-        ].name = "default_secondary_color"
-      }
-      if (files[item].materials.indexOf("default_secondary_color_visor") !== -1) {
-        group.children[
-          files[item].materials.indexOf("default_secondary_color_visor")
-        ].name = "default_secondary_color_visor"
+      for(let material in files[item].materials){
+          if (files[item].materials.indexOf(files[item].materials[material]) !== -1) {
+            group.children[
+            files[item].materials.indexOf(files[item].materials[material])
+          ].name = files[item].materials[material]
+        }
       }
       return group
     },
@@ -1053,6 +1039,16 @@ export default {
     changeMeshColors(primaryColor, secondaryColor, visorColor_) {
       this.scene.traverse((child) => {
         if (child instanceof THREE.Group) {
+          function halfColor(color){
+            var rgbArray = color.substring(4, color.length-1).split(",");
+            var r = parseInt(rgbArray[0]);
+            var g = parseInt(rgbArray[1]);
+            var b = parseInt(rgbArray[2]);
+            r = Math.floor(r * 0.5);
+            g = Math.floor(g * 0.5);
+            b = Math.floor(b * 0.5);
+            return "rgb(" + r + "," + g + "," + b + ")";
+          }
           child.children.forEach((e) => {
             if (e.name === "default_primary_color" && primaryColor) {
               e.material.color.set(primaryColor);
@@ -1065,6 +1061,18 @@ export default {
             if (e.name === "default_secondary_color_visor" && visorColor_) {
               e.material.color.set(visorColor_);
               this.visorColor = visorColor_;
+            }
+            if (e.name === "default_primary_color_visor" && visorColor_) {
+              e.material.color.set(halfColor(primaryColor));
+              this.visorColor = halfColor(primaryColor)
+            }
+            if (e.name === "default_primary_color_darkened" && visorColor_) {
+              e.material.color.set(halfColor(primaryColor));
+              this.darkPrimColor = halfColor(primaryColor)
+            }     
+            if (e.name === "default_secondary_color_darkened" && visorColor_) {
+              e.material.color.set(halfColor(secondaryColor));
+              this.darkSecColor = halfColor(secondaryColor)
             }
           });
         }
