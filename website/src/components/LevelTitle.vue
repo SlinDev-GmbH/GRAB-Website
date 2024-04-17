@@ -23,11 +23,10 @@ export default {
       }
       else if(this.tagString === 'verify_queue'){
         const userStore = useUserStore()
-        console.log(userStore.list.length)
         this.count = userStore.list.length
       }
       else
-      { console.log(this.tagString)
+      {
         const currentTab = this.tagString
         const result = await getLevelCountRequest(this.$api_server_url, this.tagString)
         if(result !== false && currentTab === this.tagString) this.count = result
