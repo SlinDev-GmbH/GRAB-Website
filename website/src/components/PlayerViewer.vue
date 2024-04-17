@@ -18,9 +18,6 @@ export default {
       userID: null,
       playerPrim_Color: null,
       playerSec_Color: null,
-      visorColor: null,
-      darkPrimColor:null,
-      darkSecColor:null,
       selectedPrimaryDiv: null,
       primaryOpened: null,
       selectedSecondaryDiv: null,
@@ -116,10 +113,21 @@ export default {
     await this.renderPlayer("player_basic_body", undefined);
     if (this.userID) {
       let playerResponseBody = await getUserInfoRequest(this.$api_server_url, this.userID);
-      this.playerPrim_Color = playerResponseBody.active_customizations.player_color_primary ?
-        playerResponseBody.active_customizations.player_color_primary.color : undefined;
-      this.playerSec_Color = playerResponseBody.active_customizations.player_color_secondary ?
-        playerResponseBody.active_customizations.player_color_secondary.color : undefined;
+      const getColor = (colorObj) => {
+      if (!colorObj) return { r: 1, g: 1, b: 1 }; // Default to white
+        const [r = 1, g = 1, b = 1] = colorObj.color || [];
+        return { r, g, b };
+      };
+    
+      const primaryColor = getColor(playerResponseBody.active_customizations.player_color_primary);
+      const secondaryColor = getColor(playerResponseBody.active_customizations.player_color_secondary);
+      const primary = this.LinearToGamma({ ...primaryColor, a: 1 });
+      const secondary = this.LinearToGamma({ ...secondaryColor, a: 1 });
+      const toRGB = (color) => `rgb(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)})`;
+      
+      this.playerPrim_Color = toRGB(primary);
+      this.playerSec_Color = toRGB(secondary);
+
       let renderPromises = [];
       for (var type in this.activeCosmetics) {
         if (playerResponseBody.active_customizations.items && playerResponseBody.active_customizations.items[type] !== undefined) {
@@ -139,76 +147,11 @@ export default {
         }
       }
     await Promise.all(renderPromises).then(() => {
-      this.changeMeshColors(
-        `rgb(${Math.floor(
-          this.LinearToGamma({
-            r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
-            g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
-            b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
-            a: 1,
-          }).r * 255
-        )},${Math.floor(
-          this.LinearToGamma({
-            r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
-            g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
-            b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
-            a: 1,
-          }).g * 255
-        )},${Math.floor(
-          this.LinearToGamma({
-            r: this.playerPrim_Color?this.playerPrim_Color[0]:1,
-            g: this.playerPrim_Color?this.playerPrim_Color[1]:1,
-            b: this.playerPrim_Color?this.playerPrim_Color[2]:1,
-            a: 1,
-          }).b * 255
-        )})`,
-        `rgb(${Math.floor(
-          this.LinearToGamma({
-            r: this.playerSec_Color?this.playerSec_Color[0]:1,
-            g: this.playerSec_Color?this.playerSec_Color[1]:0,
-            b: this.playerSec_Color?this.playerSec_Color[2]:0,
-            a: 1,
-          }).r * 255
-        )},${Math.floor(
-          this.LinearToGamma({
-            r: this.playerSec_Color?this.playerSec_Color[0]:1,
-            g: this.playerSec_Color?this.playerSec_Color[1]:0,
-            b: this.playerSec_Color?this.playerSec_Color[2]:0,
-            a: 1,
-          }).g * 255
-        )},${Math.floor(
-          this.LinearToGamma({
-            r: this.playerSec_Color?this.playerSec_Color[0]:1,
-            g: this.playerSec_Color?this.playerSec_Color[1]:0,
-            b: this.playerSec_Color?this.playerSec_Color[2]:0,
-            a: 1,
-          }).b * 255
-        )})`,
-        `#${parseInt(
-          Math.floor((this.LinearToGamma({
-            r: this.playerSec_Color?this.playerSec_Color[0]:1,
-            g: this.playerSec_Color?this.playerSec_Color[1]:0,
-            b: this.playerSec_Color?this.playerSec_Color[2]:0,
-            a: 1,
-          }).r * 255) / 2)
-        ).toString(16).padStart(2, "0")}${parseInt(
-          Math.floor((this.LinearToGamma({
-            r: this.playerSec_Color?this.playerSec_Color[0]:1,
-            g: this.playerSec_Color?this.playerSec_Color[1]:0,
-            b: this.playerSec_Color?this.playerSec_Color[2]:0,
-            a: 1,
-          }).g * 255) / 2)
-        ).toString(16).padStart(2, "0")}${parseInt(
-          Math.floor((this.LinearToGamma({
-            r: this.playerSec_Color?this.playerSec_Color[0]:1,
-            g: this.playerSec_Color?this.playerSec_Color[1]:0,
-            b: this.playerSec_Color?this.playerSec_Color[2]:0,
-            a: 1,
-          }).b * 255) / 2 )
-        ).toString(16).padStart(2, "0")}`);
+      this.changeMeshColors(this.playerPrim_Color,this.playerSec_Color)
         if (this.isLoggedIn) {
           if (this.userID && this.userID === this.userInfo.user_id) {
             this.editMode = true;
+            document.getElementById("setCustomizations").style.display="block"
             console.log("Editing mode")
             let ownedProducts = this.userInfo.owned_products
             for (var pack in this.products) {
@@ -263,19 +206,12 @@ export default {
 
         this.selectedPrimaryDiv = e.target
         this.playerPrim_Color = e.target.style.backgroundColor
-        this.visorColor_primary = `rgb(${Math.ceil(
-          parseInt(rgbValue[0], 10) / 2
-        )},${Math.ceil(parseInt(rgbValue[1], 10) / 2)},${Math.ceil(
-          parseInt(rgbValue[2], 10) / 2
-        )})`
 
         if (this.editMode == true) {
           this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
           this.userInfo.active_customizations.player_color_primary = { "color": this.grabColorArray }
-          setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
-          console.log("setCustomizations");
         }
-        this.changeMeshColors(e.target.style.backgroundColor, undefined,  this.visorColor_primary)
+        this.changeMeshColors(e.target.style.backgroundColor, undefined)
         this.primaryOpened = false
       }
       if (this.secondaryOpened == true) {
@@ -285,17 +221,10 @@ export default {
         if (this.editMode == true) {
           this.grabColorArray = JSON.parse(e.target.getAttribute('data-grab_color'));
           this.userInfo.active_customizations.player_color_secondary = { "color": this.grabColorArray }
-          setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
-          console.log("setCustomizations");
         }
         this.selectedSecondaryDiv = e.target
-        this.visorColor = `rgb(${Math.ceil(
-          parseInt(rgbValue[0], 10) / 2
-        )},${Math.ceil(parseInt(rgbValue[1], 10) / 2)},${Math.ceil(
-          parseInt(rgbValue[2], 10) / 2
-        )})`
         this.playerSec_Color = e.target.style.backgroundColor
-        this.changeMeshColors(undefined, e.target.style.backgroundColor, this.visorColor)
+        this.changeMeshColors(undefined, e.target.style.backgroundColor)
         this.secondaryOpened = false
       }
       this.backTracker = this.displayCategoryList(
@@ -395,23 +324,25 @@ export default {
       scenes.push(scene)
     },
 
-    applyColors(group, playerPrim_Color, playerSec_Color, visorColor) {
+    applyColors(group, playerPrim_Color, playerSec_Color) {
       group.children.forEach((obj) => {
         if (obj.name === "default_primary_color" && playerPrim_Color) {
           obj.material.color.set(playerPrim_Color)
+          this.playerPrim_Color = playerPrim_Color
         } else if (obj.name === "default_secondary_color" && playerSec_Color) {
           obj.material.color.set(playerSec_Color)
-        } else if (obj.name === "default_secondary_color_visor" && visorColor) {
-          obj.material.color.set(visorColor)
+          this.playerSec_Color = playerSec_Color
+        } else if (obj.name === "default_secondary_color_visor" && playerSec_Color) {
+          obj.material.color.set(this.halfColor(playerSec_Color))
         }
-        else if (obj.name === "default_secondary_color_darkened" && visorColor) {
-          obj.material.color.set(this.darkSecColor)
+        else if (obj.name === "default_secondary_color_darkened" && playerSec_Color) {
+          obj.material.color.set(this.halfColor(playerSec_Color))
         }
-        else if (obj.name === "default_primary_color_darkened" && visorColor) {
-          obj.material.color.set(this.darkPrimColor)
+        else if (obj.name === "default_primary_color_darkened" && playerPrim_Color) {
+          obj.material.color.set(this.halfColor(playerPrim_Color))
         }
-        else if (obj.name === "default_primary_color_visor" && visorColor) {
-          obj.material.color.set(this.visorColor)
+        else if (obj.name === "default_primary_color_visor" && playerPrim_Color) {
+          obj.material.color.set(this.halfColor(playerSec_Color))
         }
       })
       return group
@@ -988,7 +919,6 @@ export default {
             this.files,
             this.playerPrim_Color,
             this.playerSec_Color,
-            this.visorColor
           );
           group = this.handleAttachmentPoints(this.files, item, group);
           scene2.add(group);
@@ -996,6 +926,9 @@ export default {
       })(scene2);
 
       return scene2;
+    },
+    setCustomizations(){
+      setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
     },
     
     updateSize() {
@@ -1015,31 +948,31 @@ export default {
       this.render();
       requestAnimationFrame(this.animates);
     },
-    
     render() {
       this.updateSize();
       this.renderer2.setScissorTest(false);
       this.renderer2.clear();
       this.renderer2.setScissorTest(true);
       this.scenes.forEach((scene2) => {
-        scene2.children[0].rotation.y = Date.now() * 0.001;
-        let element = scene2.userData.element;
-        let rect = element.getBoundingClientRect();
-        let width = rect.right - rect.left;
-        let height = rect.bottom - rect.top;
-        let left = rect.left;
-        let bottom = this.renderer2.domElement.clientHeight - rect.bottom;
+      scene2.children[0].rotation.y = Date.now() * 0.001;
+      let element = scene2.userData.element;
+      let rect = element.getBoundingClientRect();
+      let width = rect.right - rect.left;
+      let height = rect.bottom - rect.top;
+      let left = rect.left;
+      let bottom = this.renderer2.domElement.clientHeight - rect.bottom;
+
+      let isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      if (isVisible) {
         this.renderer2.setViewport(left, bottom, width, height);
         this.renderer2.setScissor(left, bottom, width, height);
         let camera = scene2.userData.camera;
         this.renderer2.render(scene2, camera);
-      });
+      }
+    });
+
     },
-      
-    changeMeshColors(primaryColor, secondaryColor, visorColor_) {
-      this.scene.traverse((child) => {
-        if (child instanceof THREE.Group) {
-          function halfColor(color){
+    halfColor(color){
             var rgbArray = color.substring(4, color.length-1).split(",");
             var r = parseInt(rgbArray[0]);
             var g = parseInt(rgbArray[1]);
@@ -1048,7 +981,10 @@ export default {
             g = Math.floor(g * 0.5);
             b = Math.floor(b * 0.5);
             return "rgb(" + r + "," + g + "," + b + ")";
-          }
+    },
+    changeMeshColors(primaryColor, secondaryColor) {
+      this.scene.traverse((child) => {
+        if (child instanceof THREE.Group) {
           child.children.forEach((e) => {
             if (e.name === "default_primary_color" && primaryColor) {
               e.material.color.set(primaryColor);
@@ -1058,21 +994,17 @@ export default {
               e.material.color.set(secondaryColor);
               this.playerSec_Color = secondaryColor;
             }
-            if (e.name === "default_secondary_color_visor" && visorColor_) {
-              e.material.color.set(visorColor_);
-              this.visorColor = visorColor_;
+            if (e.name === "default_secondary_color_visor" && secondaryColor) {
+              e.material.color.set(this.halfColor(secondaryColor));
             }
-            if (e.name === "default_primary_color_visor" && visorColor_) {
-              e.material.color.set(halfColor(primaryColor));
-              this.visorColor = halfColor(primaryColor)
+            if (e.name === "default_primary_color_visor" && primaryColor) {
+              e.material.color.set(this.halfColor(primaryColor));
             }
-            if (e.name === "default_primary_color_darkened" && visorColor_) {
-              e.material.color.set(halfColor(primaryColor));
-              this.darkPrimColor = halfColor(primaryColor)
+            if (e.name === "default_primary_color_darkened" && primaryColor) {
+              e.material.color.set(this.halfColor(primaryColor));
             }     
-            if (e.name === "default_secondary_color_darkened" && visorColor_) {
-              e.material.color.set(halfColor(secondaryColor));
-              this.darkSecColor = halfColor(secondaryColor)
+            if (e.name === "default_secondary_color_darkened" && secondaryColor) {
+              e.material.color.set(this.halfColor(secondaryColor));
             }
           });
         }
@@ -1080,7 +1012,6 @@ export default {
     },
 
     handlePreviewButtonClick(previewButton, item, type) {
-      // previously equipped button
       const toggledButton = document.getElementById(this.activeCosmetics[type]);
 
       if (toggledButton) {
@@ -1122,8 +1053,6 @@ export default {
           );
           if (this.editMode && this.userInfo) {
             this.userInfo.active_customizations.items[type] = undefined;
-            setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations);
-            console.log("setCustomizations");
           }
         }
       } else {
@@ -1163,7 +1092,6 @@ export default {
             group,
             this.playerPrim_Color,
             this.playerSec_Color,
-            this.visorColor
           );
           this.scene.add(group);
           if ("hand" === type) {
@@ -1177,11 +1105,9 @@ export default {
           }
           if (this.editMode && this.userInfo && this.ownedItems.includes(file)) {
             this.userInfo.active_customizations.items[type] = file;
-            setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
             console.log("setCustomizations");
           } else if (this.editMode && this.userInfo && ['default', 'player_basic_hand'].includes(file)) {
             this.userInfo.active_customizations.items[type] = undefined;
-            setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
             console.log("setCustomizations");
           }
           resolve();
@@ -1245,12 +1171,15 @@ export default {
 
   }
 }
+
+
 </script>
 
 <template>
   <main id="body1" class="scopedAlternative">
     <button class="buttons" id="download" @click="downloadPlayerPic">↓ .png</button>
     <button class="buttons" id="export" @click="exportAsGLTF">↓ .gltf</button>
+    <button class="buttons" id="setCustomizations" @click="setCustomizations">↪ set items</button>
     <a class="buttons" id="back" @click="handleGoBack">Back</a>
     <div id="player-container">
       <canvas class="player-model" id="player-model"></canvas>
@@ -1520,6 +1449,12 @@ main.scopedAlternative * {
   width: 110px;
   top: 6em;
 }
+.scopedAlternative #setCustomizations {
+  display: none;
+  z-index: 3;
+  width: 110px;
+  top: 8.5em;
+}
 
 .scopedAlternative #back {
   z-index: 3;
@@ -1542,6 +1477,7 @@ body:has(.scopedAlternative) {
 .scopedAlternative ::-webkit-scrollbar {
   width: 0;
 }
+
 
 @media screen and (max-width: 1002px) {
   main.scopedAlternative {
