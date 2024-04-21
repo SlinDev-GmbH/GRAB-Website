@@ -61,7 +61,7 @@ export default {
       this.$emit('close')
       if(this.config === 'level_hide')
       {
-        if(!await hideLevelRequest(this.$api_server_url, this.accessToken, this.identifier)) return
+        if(!await hideLevelRequest(this.$api_server_url, this.accessToken, this.identifier)) return //Hide the level and reset reports on it
 
         let noPunish = (reason === 'no_punish')
         if(reason === 'level_tips')
@@ -87,7 +87,7 @@ export default {
           if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason)) return
         }
 
-        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
+        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return //This just resets reports on the user (since a moderation action is being taken on them alread)
       }
       else if(this.config === 'level_report')
       {
