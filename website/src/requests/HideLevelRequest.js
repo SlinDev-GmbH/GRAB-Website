@@ -5,8 +5,8 @@ export async function hideLevelRequest(server, accessToken, levelID) {
   const responseBody = await response.text();
   if(response.status != 200 || responseBody !== 'Success') {
     confirm("Error: " + responseBody);
-    if(response !== 'Scheduled for deletion!') return false
-    else return true
+    if(responseBody === 'Scheduled for deletion!') return true
+    return false
   }
 
   return true
