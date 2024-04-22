@@ -21,6 +21,10 @@ export default {
         const userStore = useUserStore()
         this.count = userStore.favoriteLevels.length
       }
+      else if(this.tagString === 'verify_queue'){
+        const userStore = useUserStore()
+        this.count = userStore.list.length
+      }
       else
       {
         const currentTab = this.tagString
