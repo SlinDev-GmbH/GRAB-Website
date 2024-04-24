@@ -39,7 +39,7 @@ export default {
     ...mapState(useUserStore, ['isModerator']),
     ...mapState(useUserStore, ['accessToken']),
     showLevelTitle() {
-      const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels','tab_verify_queue']
+      const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels', 'tab_verify_queue', 'tab_reported_levels', 'tab_featured']
       return options.includes(this.tabActive)
     },
     showSortingControls() {
@@ -51,8 +51,10 @@ export default {
       return options.includes(this.tabActive)
     },
     tagString() {
-      if (this.tabActive === 'tab_favorite_levels') return 'favorite_levels'
-      if (this.tabActive === 'tab_verify_queue') return 'verify_queue'
+      const passthroughOptions = ['tab_verify_queue', 'tab_reported_levels', 'tab_featured']
+      if(passthroughOptions.includes(this.tabActive)) return this.tabActive
+      
+      if(this.tabActive === 'tab_favorite_levels') return 'favorite_levels'
       return (this.tabActive == 'tab_ok_newest' ? 'ok_' : '') + (this.tagFilter == '' ? '' : this.tagFilter + '_') + 'newest' + (this.difficultyFilter == '' ? '' : '_' + this.difficultyFilter)
     }
   },

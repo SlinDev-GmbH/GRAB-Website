@@ -13,6 +13,14 @@ export default {
     }
   },
 
+  computed: {
+    listLevelCount()
+    {
+      const userStore = useUserStore()
+      return userStore.list.length
+    }
+  },
+
   methods: {
     async updateCounter() {
       this.count = undefined
@@ -20,10 +28,6 @@ export default {
       {
         const userStore = useUserStore()
         this.count = userStore.favoriteLevels.length
-      }
-      else if(this.tagString === 'verify_queue'){
-        const userStore = useUserStore()
-        this.count = userStore.list.length
       }
       else
       {
@@ -48,8 +52,11 @@ export default {
 
 
 <template>
-  <div v-if="count" class="level-tab-title">
-    {{ count }} level{{ count > 1 ? 's' : '' }}
+  <div v-if="count > 0" class="level-tab-title">
+      {{ count }} level{{ count > 1 ? 's' : '' }}
+  </div>
+  <div v-else class="level-tab-title">
+    {{ listLevelCount }} level{{ listLevelCount > 1 ? 's' : '' }}
   </div>
 </template>
 
