@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import { FreeControls } from './free_controls.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import * as SHADERS from './shaders.js';
-import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
+import * as SHADERS from './shaders.js';import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
 import * as protobuf from 'protobufjs'
 
@@ -1123,6 +1121,7 @@ function init()
 								hatespeech: "Offensive Language",
 								loweffort: "Very low effort level",
 								glitch: "Requires to use a Glitch to finish",
+								tips: "Asking for Tips",
 								other: "Other"
 							}
 							let onOk = function(value) {
