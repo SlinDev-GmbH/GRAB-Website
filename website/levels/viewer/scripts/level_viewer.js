@@ -97,7 +97,7 @@ function init()
 
 	THREE.ColorManagement.enabled = true;
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.outputColorSpace = THREE.SRGBColorSpace;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
@@ -1125,7 +1125,7 @@ function init()
 								glitch: "Requires to use a Glitch to finish",
 								other: "Other"
 							}
-							let onOk = function(value) {
+							let onOk = function(value, image) {
 								(async () => {
 									let response = await fetch(config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' +  userStore.accessToken + '&reason=' + value, {
 										method: 'POST',
