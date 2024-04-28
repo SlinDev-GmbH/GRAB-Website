@@ -301,13 +301,8 @@ function init()
 				}
 			}
 
-			let moderationContainer = document.getElementById("moderationcontainer")
-			if(userStore.isVerifier === true)
+			if(userStore.isLoggedIn && (userStore.isVerifier || userStore.userID === userID))
 			{
-				const verifyButton = document.getElementById("verifyButton");
-				const unverifyButton = document.getElementById("unverifyButton");
-				const verifySkipButton = document.getElementById("verifySkipButton");
-				const verifySkipSuccessButton = document.getElementById("verifySkipSuccessButton");
 				const tagButton = document.getElementById("tagButton");
 				const tagMenu = document.getElementById("tagMenu");
 				const tagMenuInner = document.getElementById("tagMenuInner");
@@ -402,6 +397,16 @@ function init()
 
 					tagMenu.style.display = "grid";
 				});
+			}
+
+			let moderationContainer = document.getElementById("moderationcontainer")
+			if(userStore.isVerifier === true)
+			{
+				const verifyButton = document.getElementById("verifyButton");
+				const unverifyButton = document.getElementById("unverifyButton");
+				const verifySkipButton = document.getElementById("verifySkipButton");
+				const verifySkipSuccessButton = document.getElementById("verifySkipSuccessButton");
+
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";
 				if (window.location.href.includes('verify_queue')) {
