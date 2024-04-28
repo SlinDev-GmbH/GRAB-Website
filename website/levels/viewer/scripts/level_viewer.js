@@ -311,7 +311,7 @@ function init()
 				const tagButton = document.getElementById("tagButton");
 				const tagMenu = document.getElementById("tagMenu");
 				const tagMenuInner = document.getElementById("tagMenuInner");
-				let levelTags = [];
+				let levelUserTags = [];
 				if("tags" in detailResponseBody && detailResponseBody.tags.length > 0) {
 					levelTags = detailResponseBody.tags;
 				}
@@ -389,12 +389,9 @@ function init()
 								checkedTags.push(checkbox.name.split("-")[1]);
 							}
 						}
-						if (levelTags.includes("ok")) {
-							checkedTags.push("ok");
-						}
-						levelTags = checkedTags;
-						let tagString = levelTags.join(",");
-						const response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
+						levelTags = checkedTags
+						let tagString = checkedTags.join(",");
+						const response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?user_tags=' + tagString + '&access_token=' + accessToken);
 						const responseBody = await response.text();
 						if (responseBody == "Success") {
 							tagMenu.style.display = "none";
@@ -430,9 +427,7 @@ function init()
 							return;
 						}
 						isLoadingVerification = true;
-						levelTags.push("ok");
-						let tagString = levelTags.join(",");
-						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?mod_tags=ok' + '&access_token=' + accessToken);
 						let responseBody = await response.text();
 						if (responseBody == "Success") {
 							verifyButton.style.display = "none";
@@ -459,9 +454,7 @@ function init()
                             return;
                         }
 						isLoadingVerification = true;
-						levelTags.splice(levelTags.indexOf("ok"), 1);
-						let tagString = levelTags.join(",");
-						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
+						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?mod_tags=' + '&access_token=' + accessToken);
 						let responseBody = await response.text();
 						if (responseBody == "Success") {
 							verifyButton.style.display = "block";
