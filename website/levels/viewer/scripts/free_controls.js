@@ -15,9 +15,10 @@ class FreeControls extends THREE.EventDispatcher {
 
 		}
 
+		this.current_angleX = 0
 		this.object = object;
 		this.domElement = domElement;
-
+		this.maxPolarAngle = Math.PI;
 		// API
 
 		this.movementSpeed = 10.0;
@@ -230,16 +231,31 @@ class FreeControls extends THREE.EventDispatcher {
 			this.moveVector.y = ( - this.moveState.down + this.moveState.up );
 			this.moveVector.z = ( - this.moveState.forward + this.moveState.back );
 		};
-
 		this.updateRotationVector = function () {
-			this.rotationVector.x = ( - this.moveState.pitchDown + this.moveState.pitchUp );
-			this.rotationVector.y = ( - this.moveState.yawRight + this.moveState.yawLeft );
-
-			this.moveState.pitchDown = 0;
-			this.moveState.pitchUp = 0;
-			this.moveState.yawRight = 0;
-			this.moveState.yawLeft = 0;
-		};
+				const pitchChange = (-this.moveState.pitchDown + this.moveState.pitchUp);
+				const newAngleX = this.current_angleX + pitchChange;
+				
+				if (newAngleX >= -180 && newAngleX <= 180) {
+					this.current_angleX = newAngleX;
+					this.rotationVector.x = pitchChange;
+				} else if (newAngleX < -180) {
+					const overshoot = newAngleX + 180;
+					this.current_angleX = -180;
+					this.rotationVector.x = pitchChange - overshoot;
+				} else if (newAngleX > 180) {
+					const overshoot = newAngleX - 180;
+					this.current_angleX = 180;
+					this.rotationVector.x = pitchChange - overshoot;
+				}
+				this.rotationVector.y = (-this.moveState.yawRight + this.moveState.yawLeft);
+				
+				this.moveState.pitchDown = 0;
+				this.moveState.pitchUp = 0;
+				this.moveState.yawRight = 0;
+				this.moveState.yawLeft = 0;
+			};
+			
+		
 
 		this.getContainerDimensions = function(){
 			if(this.domElement != document)
