@@ -12,7 +12,8 @@ export default {
 
   data() {
     return {
-      isVerified: false
+      isVerified: false,
+      isLoading: false
     }
   },
 
@@ -27,17 +28,20 @@ export default {
   methods: {
     async toggleVerifyLevel()
     {
+      if (this.isLoading) return
+      this.isLoading = true
       let newTags = this.levelInfo?.tags ?? []
       if(this.isVerified) newTags = newTags.filter(e => e !== 'ok');
       else newTags.push('ok')
       const oldState = this.isVerified
       this.isVerified = !this.isVerified
-      if(!await setLevelTagsRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier, newTags))
+      if(!await setLevelTagsRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier, newTags)) 
       {
         //Reset to previous state if an error was encountered
         this.isVerified = oldState
         return
       }
+      this.isLoading = false
 
       await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)
     }
