@@ -461,8 +461,13 @@ function init()
 						}
 					})();
 				});
+				let wasSkipped = false;
 				verifySkipButton.addEventListener("click", function() {
 					(async () => {
+						if (wasSkipped) {
+							return;
+						}
+						wasSkipped = true;
 						let response = await fetch(config.SERVER_URL + 'remove_from_verification_queue/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=&access_token=' + accessToken);
 						let responseBody = await response.text();
 						if (responseBody == "Success") {
