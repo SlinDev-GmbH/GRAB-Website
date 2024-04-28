@@ -206,6 +206,8 @@ class FreeControls extends THREE.EventDispatcher {
 			scope.eulerVector.y += scope.rotationVector.y * rotMult;
 			scope.eulerVector.z = 0.0;
 
+			scope.eulerVector.x = Math.min(Math.max(scope.eulerVector.x, -Math.PI * 0.5), Math.PI * 0.5);
+
 			scope.object.quaternion.setFromEuler(scope.eulerVector);
 
 			scope.rotationVector.x = 0.0;
