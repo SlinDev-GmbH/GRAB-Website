@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { FreeControls } from './free_controls.js';
-import * as SHADERS from './shaders.js';import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import * as SHADERS from './shaders.js';
+import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
 import * as protobuf from 'protobufjs'
 
