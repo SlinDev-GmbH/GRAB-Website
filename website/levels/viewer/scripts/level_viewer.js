@@ -1137,6 +1137,7 @@ function init()
 								hatespeech: "Offensive Language",
 								loweffort: "Very low effort level",
 								glitch: "Requires to use a Glitch to finish",
+								tips: "Asking for Tips",
 								other: "Other"
 							}
 							let onOk = function(value, image) {
