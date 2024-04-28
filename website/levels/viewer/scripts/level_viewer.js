@@ -423,8 +423,13 @@ function init()
 						}
 					}
 				}
+				let isLoadingVerification = false;
 				verifyButton.addEventListener("click", function() {
 					(async () => {
+						if (isLoadingVerification) {
+							return;
+						}
+						isLoadingVerification = true;
 						levelTags.push("ok");
 						let tagString = levelTags.join(",");
 						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
@@ -445,10 +450,15 @@ function init()
 						} else {
 							confirm(responseQueueBody);
 						}
+						isLoadingVerification = false;
 					})();
 				});
 				unverifyButton.addEventListener("click", function() {
 					(async () => {
+						if (isLoadingVerification) {
+                            return;
+                        }
+						isLoadingVerification = true;
 						levelTags.splice(levelTags.indexOf("ok"), 1);
 						let tagString = levelTags.join(",");
 						let response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=' + tagString + '&access_token=' + accessToken);
@@ -459,10 +469,16 @@ function init()
 						} else {
 							confirm(responseBody);
 						}
+						isLoadingVerification = false;
 					})();
 				});
+				let wasSkipped = false;
 				verifySkipButton.addEventListener("click", function() {
 					(async () => {
+						if (wasSkipped) {
+							return;
+						}
+						wasSkipped = true;
 						let response = await fetch(config.SERVER_URL + 'remove_from_verification_queue/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?tags=&access_token=' + accessToken);
 						let responseBody = await response.text();
 						if (responseBody == "Success") {

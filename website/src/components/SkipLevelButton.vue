@@ -11,7 +11,8 @@ export default {
 
   data() {
     return {
-      isSkipped: false
+      isSkipped: false,
+      isLoading: false
     }
   },
 
@@ -22,8 +23,11 @@ export default {
   methods: {
     async skipLevel()
     {
+      if (this.isLoading) return
+      this.isLoading = true
       await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)
       this.isSkipped = true
+      this.isLoading = false
     }
   }
 }
