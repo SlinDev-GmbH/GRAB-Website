@@ -308,7 +308,7 @@ function init()
 				const tagMenuInner = document.getElementById("tagMenuInner");
 				let levelUserTags = [];
 				if("tags" in detailResponseBody && detailResponseBody.tags.length > 0) {
-					levelTags = detailResponseBody.tags;
+					levelUserTags = detailResponseBody.tags;
 				}
 
 				tagButton.style.display = "block";
@@ -353,7 +353,7 @@ function init()
 						tagCheckboxes.push(checkbox);
 						tagMenuInner.appendChild(tagDiv);
 
-						if (levelTags.includes(tag)) {
+						if (levelUserTags.includes(tag)) {
 							checkbox.checked = true;
 						}
 					}
@@ -384,7 +384,7 @@ function init()
 								checkedTags.push(checkbox.name.split("-")[1]);
 							}
 						}
-						levelTags = checkedTags
+						levelUserTags = checkedTags
 						let tagString = checkedTags.join(",");
 						const response = await fetch(config.SERVER_URL + 'tag/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1] + '?user_tags=' + tagString + '&access_token=' + accessToken);
 						const responseBody = await response.text();
