@@ -26,7 +26,8 @@ export default {
     return {
       items: [],
       loading: false,
-      isInitialLoad: true
+      isInitialLoad: true,
+      activeLoad: null
     }
   },
 
@@ -55,7 +56,7 @@ export default {
       this.$emit('tabChanged', query)
     }
     else {
-      if(this.loading === false) this.loadMore();
+      this.loadMore();
     }
   },
 
@@ -120,13 +121,29 @@ export default {
     },
 
     async loadMore() {
+      if(this.loading && 
+        this.listType === this.activeLoad?.listType && 
+        this.difficulty === this.activeLoad?.difficulty && 
+        this.tag === this.activeLoad?.tag && 
+        this.searchTerm === this.activeLoad?.searchTerm && 
+        this.otherUserID === this.activeLoad?.otherUserID) return
+
       this.loading = true
 
-      const activeListType = this.listType
-      const activeSearchTerm = this.searchTerm
+      this.activeLoad = {
+        listType: this.listType,
+        difficulty: this.difficulty,
+        tag: this.tag,
+        searchTerm: this.searchTerm,
+        otherUserID: this.otherUserID
+      }
 
       const levels = await this.loadLevels()
-      if(activeSearchTerm !== this.searchTerm || activeListType !== this.listType) return
+      if(this.activeLoad.searchTerm !== this.searchTerm || 
+        this.activeLoad.listType !== this.listType ||
+        this.activeLoad.difficulty!== this.difficulty ||
+        this.activeLoad.tag!== this.tag ||
+        this.activeLoad.otherUserID!== this.otherUserID) return
 
       this.items = [...this.items, ...levels]
       const userStore = useUserStore()
