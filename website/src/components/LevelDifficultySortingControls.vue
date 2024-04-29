@@ -3,7 +3,8 @@ export default {
 
   props: {
     currentTab: String,
-    isLoading: Boolean
+    isLoading: Boolean,
+    currentValue: String,
   },
 
   methods: {
@@ -25,21 +26,24 @@ export default {
   },
 
   mounted() {
-    this.$emit('filter', '');
+    // this.$emit('filter', '');
+    if (this.currentValue) {
+      document.getElementById(`filter-${this.currentValue}`).classList.add('active-difficulty-filter');
+    }
   },
 
   emits: [
     'filter'
   ],
   
-  watch: {
-    async currentTab(type) {
-      const current = document.querySelector(".active-difficulty-filter");
-      if (current) {
-        current.classList.remove('active-difficulty-filter');
-      }
-    },
-  }
+  // watch: {
+  //   async currentTab(type) {
+  //     const current = document.querySelector(".active-difficulty-filter");
+  //     if (current) {
+  //       current.classList.remove('active-difficulty-filter');
+  //     }
+  //   },
+  // }
 }
 </script>
 

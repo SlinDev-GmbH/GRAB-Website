@@ -12,7 +12,8 @@ export default {
 
   props: {
     currentTab: String,
-    isLoading: Boolean
+    isLoading: Boolean,
+    currentValue: String,
   },
 
   methods: {
@@ -42,7 +43,7 @@ export default {
   },
 
   async mounted() {
-    this.$emit('filter', '');
+    // this.$emit('filter', '');
     // add tag buttons
     let featured = await this.loadFeatured();
     this.tags = featured.tags;
@@ -53,21 +54,21 @@ export default {
     'filter'
   ],
 
-  watch: {
-    async currentTab(type) {
-      const current = document.querySelector(".active-tag-filter");
-      if (current) {
-        current.classList.remove('active-tag-filter');
-      }
-    },
-  }
+  // watch: {
+  //   async currentTab(type) {
+  //     const current = document.querySelector(".active-tag-filter");
+  //     if (current) {
+  //       current.classList.remove('active-tag-filter');
+  //     }
+  //   },
+  // }
 }
 </script>
 
 
 <template>
   <div class="tag-filter-container">
-    <div v-if="loaded" v-for="tag in tags" class="filter" :id="'filter-'+tag" @click="applyFilter(tag)">{{ tag }}</div>
+    <div v-if="loaded" v-for="tag in tags" :class="'filter' + (tag === currentValue ? ' active-tag-filter' : '')" :id="'filter-'+tag" @click="applyFilter(tag)">{{ tag }}</div>
   </div>
 </template>
 
