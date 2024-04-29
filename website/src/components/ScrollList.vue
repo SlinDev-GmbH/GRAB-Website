@@ -55,7 +55,7 @@ export default {
       this.$emit('tabChanged', query)
     }
     else {
-      this.loadMore();
+      if(this.loading === false) this.loadMore();
     }
   },
 
