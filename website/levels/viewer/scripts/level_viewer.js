@@ -1009,6 +1009,10 @@ function init()
 			const titleNode = document.createTextNode(decoded.title);
 			titleFormattingNode.appendChild(titleNode);
 
+			if (detailResponseBody.scheduled_for_deletion) {
+				document.getElementById("scheduled_for_deletion").style.display = "flex";
+			}
+
 			const creatorsFormattingNode = document.createElement('i');
 			creatorsLabel.appendChild(creatorsFormattingNode);
 			const creatorsNode = document.createTextNode('by ' + decoded.creators);
