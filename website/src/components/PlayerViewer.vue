@@ -35,9 +35,9 @@ export default {
           name: "Head Basic",
           category: "Heads",
           materials: [
-            "default_primary_color",
-            "default_secondary_color",
-            "default_secondary_color_visor",
+            {type: "default_primary_color"},
+            {type: "default_secondary_color"},
+            {type: "default_secondary_color_visor"},
           ],
           type:"head",
           previewRotation: [180, 0, 0],
@@ -47,7 +47,7 @@ export default {
           file: "../../cosmetics/body/body.sgm",
           name: "Body Basic",
           category: undefined,
-          materials: ["default_secondary_color", "default_primary_color"],
+          materials: [{type: "default_secondary_color"}, {type: "default_primary_color"}],
         },
         player_basic_hand: {
           file: "../../cosmetics/hand/hand_claw.sgm",
@@ -55,9 +55,9 @@ export default {
           category: "Hands",
           type:"hand",
           materials: [
-            "default_primary_color",
-            "default_secondary_color",
-            "default_secondary_color_visor",
+            {type: "default_primary_color"},
+            {type: "default_secondary_color"},
+            {type: "default_secondary_color_visor"},
           ],
           previewRotation: [180, 0, 0],
         },
@@ -265,32 +265,14 @@ export default {
     processItemsAndSections(sectionItems, catalogSection, files, items) {
       for (var item in sectionItems) {
         for (var cosmeticItem in items) {
-          let preview_rotation = items[cosmeticItem].preview_rotation
-          let materialList = []
-          for (var e in items[cosmeticItem].materials_v2) {
-            if (items[cosmeticItem].materials_v2[e].type) {
-              materialList.push(items[cosmeticItem].materials_v2[e].type)
-            } else {
-              materialList.push(items[cosmeticItem].materials_v2[e])
-            }
-          }
-
           if (sectionItems[item] === cosmeticItem) {
             files[cosmeticItem] = {
               file: "/" + items[cosmeticItem].file + ".sgm",
               name: items[cosmeticItem].title,
               category: catalogSection.title,
-              primaryColor: items[cosmeticItem].colors
-                ? items[cosmeticItem].colors[0]
-                : undefined,
-              secondaryColor: items[cosmeticItem].colors
-                ? items[cosmeticItem].colors[1]
-                  ? items[cosmeticItem].colors[1]
-                  : undefined
-                : undefined,
-              materials: materialList,
+              materials: items[cosmeticItem].materials_v2,
               type: items[cosmeticItem].type,
-              previewRotation: preview_rotation,
+              previewRotation: items[cosmeticItem].preview_rotation,
               attachment_points: items[cosmeticItem].attachment_points
                 ? items[cosmeticItem].attachment_points
                 : undefined,
@@ -324,32 +306,45 @@ export default {
       scenes.push(scene)
     },
 
-    applyColors(group, playerPrim_Color, playerSec_Color) {
-      group.children.forEach((obj) => {
-        if (obj.name === "default_primary_color" && playerPrim_Color) {
-          obj.material.color.set(playerPrim_Color)
-          this.playerPrim_Color = playerPrim_Color
-        } else if (obj.name === "default_secondary_color" && playerSec_Color) {
-          obj.material.color.set(playerSec_Color)
-          this.playerSec_Color = playerSec_Color
-        } else if (obj.name === "default_secondary_color_visor" && playerSec_Color) {
-          obj.material.color.set(this.halfColor(playerSec_Color))
+    applyColors(group, file, files) {
+      group.children.forEach((obj, index) => {
+        if (obj.name === "default_primary_color" && this.playerPrim_Color) {
+          obj.material.color.set(this.playerPrim_Color)
+        } else if (obj.name === "default_secondary_color" && this.playerSec_Color) {
+          obj.material.color.set(this.playerSec_Color)
+        } else if (obj.name === "default_secondary_color_visor" && this.playerSec_Color) {
+          obj.material.color.set(this.halfColor(this.playerSec_Color))
         }
-        else if (obj.name === "default_secondary_color_darkened" && playerSec_Color) {
-          obj.material.color.set(this.halfColor(playerSec_Color))
+        else if (obj.name === "default_secondary_color_darkened" && this.playerSec_Color) {
+          obj.material.color.set(this.halfColor(this.playerSec_Color))
         }
-        else if (obj.name === "default_primary_color_darkened" && playerPrim_Color) {
-          obj.material.color.set(this.halfColor(playerPrim_Color))
+        else if (obj.name === "default_primary_color_darkened" && this.playerPrim_Color) {
+          obj.material.color.set(this.halfColor(this.playerPrim_Color))
         }
-        else if (obj.name === "default_primary_color_visor" && playerPrim_Color) {
-          obj.material.color.set(this.halfColor(playerSec_Color))
+        else if (obj.name === "default_primary_color_visor" && this.playerPrim_Color) {
+          obj.material.color.set(this.halfColor(this.playerSec_Color))
+        }
+        else if (obj.name === "default_color") {
+          function rgbFormat(colorObject) {
+            return {
+                r: colorObject[0],
+                g: colorObject[1],
+                b: colorObject[2],
+                a: colorObject.a
+            };
+          }
+          
+          let rgbFormated = rgbFormat({...files[file].materials[index].diffuseColor, a:1});
+
+          const toRGB = (color) => `rgb(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)})`;
+          obj.material.color.set(toRGB(this.LinearToGamma(rgbFormated)))
         }
       })
       return group
     },
 
     async createGroupFromMeshes(meshes, materials, file, files) {
-      const group = new THREE.Group()
+      let group = new THREE.Group()
       group.name = files[file].name 
       const threeMaterials = materials.map((material) => {
         const color = material.colors[0][0]
@@ -358,7 +353,7 @@ export default {
         }
         return new THREE.MeshStandardMaterial(matOptions)
       })
-
+      
       meshes.forEach((mesh) => {
         const geometry = new THREE.BufferGeometry()
         const positions = []
@@ -379,7 +374,12 @@ export default {
         const threeMesh = new THREE.Mesh(geometry, threeMaterials[mesh.material_id])
         group.add(threeMesh)
       })
-
+      group = this.applyMaterialIndices(group, file, files)
+      group = this.applyColors(
+            group,
+            file,
+            files
+          );
       return group
     },
     adjustPositionForCategory(category, group, file, files, activeCosmetics, scene) {        
@@ -442,103 +442,7 @@ export default {
       }
   
     },
-    handleAttachmentPoints(files, file, group) {
-      for(let material in files[file].materials){
-        if (files[file].materials.indexOf(files[file].materials[material]) !== -1) {
-          group.children[
-            files[file].materials.indexOf(files[file].materials[material])
-          ].name = files[file].materials[material]
-        }
-      }
-      if (
-        files[file].materials.indexOf("default_primary_color") == -1 &&
-        files[file].primaryColor
-      ) {
-        group.children[0].material.color.set(
-          `#${Math.round(files[file].primaryColor[0] * 255).toString(16)
-            .padStart(2, "0")}${Math.round(files[file].primaryColor[1] * 255).toString(16)
-            .padStart(2, "0")}${Math.round(files[file].primaryColor[2] * 255).toString(16)
-            .padStart(2, "0")}`
-        )
-      }
-      if (
-        files[file].materials.indexOf("default_secondary_color") == -1 &&
-        files[file].secondaryColor
-      ) {
-        group.children[1].material.color.set(
-          `#${Math.round(files[file].secondaryColor[0] * 255).toString(16)
-            .padStart(2, "0")}${Math.round(files[file].secondaryColor[1] * 255).toString(16)
-            .padStart(2, "0")}${Math.round(files[file].secondaryColor[2] * 255).toString(16)
-            .padStart(2, "0")}`
-        )
-      }
-      return group
-    },
 
-    createThreeGroup(
-      meshes,
-      materials,
-      item,
-      files,
-      playerPrim_Color,
-      playerSec_Color,
-      visorColor
-    ) {
-      let group = new THREE.Group()
-      const threeMaterials = materials.map((material) =>
-        this.createThreeMaterial(material)
-      )
-
-      meshes.forEach((mesh) => {
-        const geometry = this.createThreeGeometry(mesh)
-        const threeMesh = new THREE.Mesh(
-          geometry,
-          threeMaterials[mesh.material_id]
-        )
-        group.add(threeMesh)
-      })
-
-      group = this.applyPreviewRotation(group, item, files)
-      group = this.applyMaterialsAndColors(
-        group,
-        item,
-        files,
-        playerPrim_Color,
-        playerSec_Color,
-        visorColor
-      )
-
-      return group
-    },
-
-    createThreeMaterial(material) {
-      const color = material.colors[0][0]
-      return new THREE.MeshStandardMaterial({
-        color: new THREE.Color(color[0], color[1], color[2]),
-      })
-    },
-
-    createThreeGeometry(mesh) {
-      const geometry = new THREE.BufferGeometry()
-      const positions = []
-      const normals = []
-      const uvs = []
-
-      mesh.vertices.forEach((vertex) => {
-        positions.push(...vertex[0])
-        normals.push(...vertex[1])
-        if (vertex[2].length > 0) {
-          uvs.push(...vertex[2][0])
-        }
-      })
-
-      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3))
-      geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3))
-      geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2))
-      geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1))
-
-      return geometry
-    },
 
     applyPreviewRotation(group, item, files) {
       if (files[item].previewRotation !== undefined) {
@@ -549,35 +453,13 @@ export default {
       }
       return group
     },
-
-    applyMaterialsAndColors(
-      group,
-      item,
-      files,
-      playerPrim_Color,
-      playerSec_Color,
-      visorColor
-    ) {
-      group.name = files[item].name
-      if (files[item].category == "hand") {
-        group.rotation.x += Math.PI / 2
-      }
-      group = this.applyMaterialIndices(group, item, files)
-      group = this.applyColors(group, playerPrim_Color, playerSec_Color, visorColor)
-
-      return group
-    },
-
     applyMaterialIndices(group, item, files) {
       for(let material in files[item].materials){
-          if (files[item].materials.indexOf(files[item].materials[material]) !== -1) {
-            group.children[
-            files[item].materials.indexOf(files[item].materials[material])
-          ].name = files[item].materials[material]
-        }
-      }
+            group.children[material].name = files[item].materials[material].type?files[item].materials[material].type:files[item].materials[material]
+    }
       return group
     },
+
 
     createPreviewButton(item, activeCosmetics, owned_products, type) {
       const previewButton = document.createElement("button")
@@ -732,27 +614,13 @@ export default {
       return backTracker
     },
 
-    LinearToGamma(color) {
-      let { r, g, b } = color;
-
-      if(r <= 0.0031308) {
-        r = r * 12.92 
-      } else {
-        r = 1.055 * Math.pow(r, 1.0/2.4) - 0.055
-      }
-      if (g <= 0.0031308) {
-        g = g * 12.92
-      } else {
-        g = 1.055 * Math.pow(g, 1.0/2.4) - 0.055
-      }
-      if(b <= 0.0031308) {
-        b = b * 12.92
-      } else {
-        b = 1.055 * Math.pow(b, 1.0/2.4) - 0.055
-      }
-      
-      return {r: r, g: g, b: b, a: color.a}
-    },
+  LinearToGamma(linearRGB) {
+    let {r, g, b} = linearRGB;
+    r = (r <= 0.0031308) ? 12.92 * r : 1.055 * Math.pow(r, 1 / 2.4) - 0.055;
+    g = (g <= 0.0031308) ? 12.92 * g : 1.055 * Math.pow(g, 1 / 2.4) - 0.055;
+    b = (b <= 0.0031308) ? 12.92 * b : 1.055 * Math.pow(b, 1 / 2.4) - 0.055;
+    return {r:r, g:g, b:b, a:1}
+},
 
     ConvertHSVToRGB(h, s, v, alpha) {
       let hi = h * 3.0 / Math.PI
@@ -835,7 +703,7 @@ export default {
         this.secondaryOpened = true;
       }
     },
-
+    
     handleHeadClick(e) {
       this.backTracker = this.displayCategoryList(
         3,
@@ -902,30 +770,23 @@ export default {
       );
     },
     
-    setupThreeScene(item) {
-      const scene2 = new THREE.Scene();
-      scene2.userData.element = document.querySelector(".scene");
-      const camera2 = new THREE.PerspectiveCamera(55, 1, 1, 1000);
-      camera2.position.z += 2;
-      scene2.userData.camera = camera2;
-      ((scene2) => {
-        const sgmLoader2 = new SGMLoader();
-        sgmLoader2.load(this.files[item].file, ([meshes, materials]) => {
-          let group;
-          group = this.createThreeGroup(
-            meshes,
-            materials,
-            item,
-            this.files,
-            this.playerPrim_Color,
-            this.playerSec_Color,
-          );
-          group = this.handleAttachmentPoints(this.files, item, group);
-          scene2.add(group);
-        });
-      })(scene2);
+  setupThreeScene(file) {
+    const scene2 = new THREE.Scene();
+    scene2.userData.element = document.querySelector(".scene");
+    const camera2 = new THREE.PerspectiveCamera(55, 1, 1, 1000);
+    camera2.position.z += 2;
+    scene2.userData.camera = camera2;
+    ((scene2) => {
+      const sgmLoader2 = new SGMLoader();
+      let group;
+      sgmLoader2.load(this.files[file].file, async ([meshes, materials]) => { // Making the callback async
+        group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
+        group = this.applyPreviewRotation(group, file, this.files)
+        scene2.add(group);
+      });
 
-      return scene2;
+    })(scene2);
+    return scene2;
     },
     setCustomizations(){
       setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
@@ -982,29 +843,25 @@ export default {
             b = Math.floor(b * 0.5);
             return "rgb(" + r + "," + g + "," + b + ")";
     },
-    changeMeshColors(primaryColor, secondaryColor) {
+    changeMeshColors() {
       this.scene.traverse((child) => {
         if (child instanceof THREE.Group) {
           child.children.forEach((e) => {
-            if (e.name === "default_primary_color" && primaryColor) {
-              e.material.color.set(primaryColor);
-              this.playerPrim_Color = primaryColor;
+            if (e.name === "default_primary_color" && this.playerPrim_Color) {
+              e.material.color.set(this.playerPrim_Color)
+            } else if (e.name === "default_secondary_color" && this.playerSec_Color) {
+              e.material.color.set(this.playerSec_Color)
+            } else if (e.name === "default_secondary_color_visor" && this.playerSec_Color) {
+              e.material.color.set(this.halfColor(this.playerSec_Color))
             }
-            if (e.name === "default_secondary_color" && secondaryColor) {
-              e.material.color.set(secondaryColor);
-              this.playerSec_Color = secondaryColor;
+            else if (e.name === "default_secondary_color_darkened" && this.playerSec_Color) {
+              obj.material.color.set(this.halfColor(this.playerSec_Color))
             }
-            if (e.name === "default_secondary_color_visor" && secondaryColor) {
-              e.material.color.set(this.halfColor(secondaryColor));
+            else if (e.name === "default_primary_color_darkened" && this.playerPrim_Color) {
+              e.material.color.set(this.halfColor(this.playerPrim_Color))
             }
-            if (e.name === "default_primary_color_visor" && primaryColor) {
-              e.material.color.set(this.halfColor(primaryColor));
-            }
-            if (e.name === "default_primary_color_darkened" && primaryColor) {
-              e.material.color.set(this.halfColor(primaryColor));
-            }     
-            if (e.name === "default_secondary_color_darkened" && secondaryColor) {
-              e.material.color.set(this.halfColor(secondaryColor));
+            else if (e.name === "default_primary_color_visor" && this.playerPrim_Color) {
+              e.material.color.set(this.halfColor(this.playerSec_Color))
             }
           });
         }
@@ -1087,12 +944,6 @@ export default {
             this.scene
           );
           group.rotation.y += Math.PI;
-          group = this.handleAttachmentPoints(this.files, file, group);
-          group = this.applyColors(
-            group,
-            this.playerPrim_Color,
-            this.playerSec_Color,
-          );
           this.scene.add(group);
           if ("hand" === type) {
             this.clonedGroup = group.clone()
