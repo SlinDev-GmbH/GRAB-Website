@@ -346,10 +346,12 @@ export default {
     async createGroupFromMeshes(meshes, materials, file, files) {
       let group = new THREE.Group()
       group.name = files[file].name 
+      const toRGB = (color) => `rgb(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)})`;
+
       const threeMaterials = materials.map((material) => {
         const color = material.colors[0][0]
         const matOptions = {
-          color: new THREE.Color(color[0], color[1], color[2]),
+          color: new THREE.Color(toRGB(this.LinearToGamma({r:color[0], g:color[1], b:color[2]}))),
         }
         return new THREE.MeshStandardMaterial(matOptions)
       })
@@ -382,7 +384,8 @@ export default {
           );
       return group
     },
-    adjustPositionForCategory(category, group, file, files, activeCosmetics, scene) {        
+    adjustPositionForCategory(category, group, file, files, activeCosmetics, scene) {    
+          
         if (category === "head" && activeCosmetics) {
           group.position.set(0, 0.2, 0);
 
@@ -1011,7 +1014,7 @@ export default {
         canvas: this.canvas,
         alpha: true,
         transparent: true,
-        antialias: true,
+        antialias: true
       });
       this.renderer2.setPixelRatio(window.devicePixelRatio);
     },
