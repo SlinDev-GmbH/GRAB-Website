@@ -226,7 +226,7 @@ function init()
 				});
 			}
 
-			if(detailResponseBody.hidden === true && !userStore.isAdmin)
+			if(detailResponseBody.hidden === true && !userStore.isSuperModerator)
 			{
 				//Don't load hidden levels unless this is an admin
 				titleLabel.innerHTML = '<b>NOT AVAILABLE</b>';
@@ -489,7 +489,7 @@ function init()
 				});
 			}
 
-			if(userStore.isAdmin)
+			if(userStore.isSuperModerator)
 			{
 				const hideContainer = document.getElementById("hidecontainer");
 				hideContainer.style.display = "block";

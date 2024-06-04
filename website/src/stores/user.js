@@ -28,6 +28,11 @@ export const useUserStore = defineStore('user', {
       if (!state.isLoggedIn) return false
       return state.user.info.is_moderator === true
     },
+    isSuperModerator: (state) => {
+      if (!state.isLoggedIn) return false
+      const superModIDs = ["29sgp24f1uorbc6vq8d2k", "2ak0ysv35egakgfilswpy"]
+      return (state.user.info.is_moderator === true && superModIDs.includes(state.user.info.user_id)) || state.user.info.is_admin === true
+    },
     isAdmin: (state) => {
       if (!state.isLoggedIn) return false
       return state.user.info.is_admin === true

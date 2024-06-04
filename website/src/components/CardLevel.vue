@@ -131,6 +131,7 @@ export default {
 
     ...mapState(useUserStore, ['isVerifier']),
     ...mapState(useUserStore, ['isAdmin']),
+    ...mapState(useUserStore, ['isSuperModerator']),
     ...mapState(useUserStore, ['isLoggedIn'])
   },
 
@@ -177,9 +178,9 @@ export default {
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isVerifier" :level-info="item"/>
     <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
-    <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideLevelButton v-if="isSuperModerator && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
-    <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <UnhideLevelButton v-if="isSuperModerator && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <div class="interactions">
       <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>

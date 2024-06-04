@@ -7,7 +7,6 @@ import ScrollList from './ScrollList.vue'
 
 export default {
   computed: {
-    ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['accessToken']),
     isSection() {
       return this.currentSection.hasOwnProperty('sections')

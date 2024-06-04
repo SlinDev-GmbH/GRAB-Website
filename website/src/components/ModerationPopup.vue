@@ -34,7 +34,7 @@ export default {
           {reason: 'level_tips', title: 'Asking for Tips'},
           {reason: 'level_other', title: 'Other'}]
 
-          if(this.isAdmin && this.config === "level_hide") {
+          if(this.isSuperModerator && this.config === "level_hide") {
             reasons.push({reason: 'no_punish', title: 'Don\'t punish'})
           }
 
@@ -52,7 +52,7 @@ export default {
     },
 
     ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isAdmin'])
+    ...mapState(useUserStore, ['isSuperModerator'])
   },
 
   methods: {

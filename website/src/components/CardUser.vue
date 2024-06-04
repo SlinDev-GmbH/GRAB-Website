@@ -37,10 +37,10 @@ export default {
     },
 
     isUserModerationCell() {
-      return this.moderationItem === null && this.isAdmin
+      return this.moderationItem === null && this.isSuperModerator
     },
 
-    ...mapState(useUserStore, ['isAdmin'])
+    ...mapState(useUserStore, ['isSuperModerator'])
   },
 
   methods: {
