@@ -19,7 +19,8 @@ export default {
   data() {
     return {
       currentSelection: '',
-      banDuration: undefined
+      banDuration: undefined,
+      message: ''
     }
   },
 
@@ -82,9 +83,10 @@ export default {
         }
 
         const userID = this.identifier.split(':')[0]
-        if(!noPunish)
+
+        if(!noPunish || this.message)
         {
-          if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason)) return
+          if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason, 0, this.message)) return
         }
 
         if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return //This just resets reports on the user (since a moderation action is being taken on them alread)
@@ -123,6 +125,7 @@ export default {
               </option>
             </select>
 
+            <textarea v-if="config==='level_hide'" v-model="message" id="message" placeholder="Optional Message"></textarea>
             <input v-if="config==='user_ban'" v-model="banDuration" type="number" style="width: 70%" placeholder="Duration (days)">
           </form>
         </div>
@@ -137,6 +140,15 @@ export default {
 </template>
 
 <style scoped>
+
+#message {
+  width: 100%;
+  height: 60px;
+  resize: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .modal-mask {
   position: fixed;
   z-index: 9998;
