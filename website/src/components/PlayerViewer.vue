@@ -29,6 +29,7 @@ export default {
       grabColorArray: null,
       categoryState: null,
       editMode: null,
+      nonExistentFiles: [],
       files: {
         default: {
           file: "../../cosmetics/head/head/head.sgm",
@@ -42,6 +43,12 @@ export default {
           type:"head",
           previewRotation: [180, 0, 0],
           attachment_points: { glasses: { position: [0, 0, 0] } }, //really weird condition
+        },
+        player_basic_rope:{
+          file: "../../cosmetics/grapple/hook/grapple_rope_preview.sgm",
+          name: "Rope Basic",
+          category: "rope",
+          materials: [{type:"default_color"}],
         },
         player_basic_body: {
           file: "../../cosmetics/body/body.sgm",
@@ -110,6 +117,7 @@ export default {
     controls.addEventListener("end", () => (document.body.style.cursor = "auto"));
     await this.renderPlayer("default", "head");
     await this.renderPlayer("player_basic_hand", "hand");
+    await this.renderPlayer("player_basic_rope", "rope");
     await this.renderPlayer("player_basic_body", undefined);
     if (this.userID) {
       let playerResponseBody = await getUserInfoRequest(this.$api_server_url, this.userID);
@@ -131,13 +139,20 @@ export default {
       let renderPromises = [];
       for (var type in this.activeCosmetics) {
         if (playerResponseBody.active_customizations.items && playerResponseBody.active_customizations.items[type] !== undefined) {
+          let response = await fetch(this.files[playerResponseBody.active_customizations.items[type]].file, { method: 'HEAD' });
+          
+          if(!response.ok){
+            this.nonExistentFiles.push(this.files[playerResponseBody.active_customizations.items[type]].file)
+            continue;
+          }
+
           if (this.activeCosmetics[type] !== undefined) {
             scene.remove(scene.getObjectByName(this.files[this.activeCosmetics[type]].name));
             if (type == "hand") {
                 scene.remove(scene.getObjectByName(this.files[this.activeCosmetics[type]].name));
             }
           }
-          this.activeCosmetics[type] = playerResponseBody.active_customizations.items[type]
+            this.activeCosmetics[type] = playerResponseBody.active_customizations.items[type]
         }
         if (type == "hand" && this.clonedGroup) {
           this.activeCosmetics[type] = playerResponseBody.active_customizations.items ? (playerResponseBody.active_customizations.items[type] == undefined ? "player_basic_hand" : playerResponseBody.active_customizations.items[type]) : undefined
@@ -271,6 +286,7 @@ export default {
               name: items[cosmeticItem].title,
               category: catalogSection.title,
               materials: items[cosmeticItem].materials_v2,
+              rope: items[cosmeticItem].rope?items[cosmeticItem].rope:undefined,
               type: items[cosmeticItem].type,
               previewRotation: items[cosmeticItem].preview_rotation,
               attachment_points: items[cosmeticItem].attachment_points
@@ -355,7 +371,7 @@ export default {
         }
         return new THREE.MeshStandardMaterial(matOptions)
       })
-      
+
       meshes.forEach((mesh) => {
         const geometry = new THREE.BufferGeometry()
         const positions = []
@@ -384,6 +400,18 @@ export default {
           );
       return group
     },
+    computeGroupBoundingBox(group) {
+      let box = new THREE.Box3();
+      group.traverse(function (child) {
+          if (child.isMesh) {
+              child.geometry.computeBoundingBox();
+              const childBox = child.geometry.boundingBox.clone();
+              childBox.applyMatrix4(child.matrixWorld);
+              box.union(childBox);
+          }
+      });
+      return box;
+  },
     adjustPositionForCategory(category, group, file, files, activeCosmetics, scene) {    
           
         if (category === "head" && activeCosmetics) {
@@ -414,16 +442,44 @@ export default {
             }
           }
         } else if (category === "grapple/hook") {
-          group.position.set(0.5, -1.0, 0);
+          let scene_rope = this.scene.getObjectByName("Rope Basic");
+          let scene_geo = this.computeGroupBoundingBox(scene_rope);
+          let grapple_size = new THREE.Vector3();
+          scene_geo.getSize(grapple_size);
+
+          let groupBoundingBox = this.computeGroupBoundingBox(group);
+          let hook_size = new THREE.Vector3();
+          groupBoundingBox.getSize(hook_size);
+
+          group.position.copy(scene_rope.position);
+          group.position.y += (grapple_size.z) + (hook_size.z /2);
           group.rotation.set(Math.PI / 2, Math.PI, Math.PI);
+
+          files[file].rope !==undefined?this.updateRope(files[file].rope, true):this.updateRope(undefined, false);
         } else if (category === "checkpoint") {
           group.position.set(-0.5, -1.5, 0);
           group.rotation.set(0, Math.PI, 0);
+        } else if(category=="rope"){
+          group.position.set(0.5, -1.5, 0);
         }
       return group;
     },
+    updateRope(ropeData, hasData){
+      let scene_rope = this.scene.getObjectByName("Rope Basic")
+      if(hasData==true){
+        let diffuseColorData = ropeData.materials_v2[0].diffuseColor;
+        let diffuseColor = this.LinearToGamma({
+          r: diffuseColorData[0],
+          g: diffuseColorData[1],
+          b: diffuseColorData[2],
+        })
+        scene_rope.children[0].material.color.set(`rgb(${Math.floor(diffuseColor.r*255)},${Math.floor(diffuseColor.g*255)},${Math.floor(diffuseColor.b*255)})`)
+    }else if(hasData==false){
+      scene_rope.children[0].material.color.set("rgb(115, 89, 62)")
+    }
     
-    updateGroup(group, attachmentPoint) {
+    },
+    updateGroup(group, attachmentPoint, rope) {
       group.position.set(0,0.2,0)
       group.scale.set(1,1,1);
       if (attachmentPoint.scale) {
@@ -451,15 +507,17 @@ export default {
       if (files[item].previewRotation !== undefined) {
         const [rx, ry, rz] = files[item].previewRotation.map(Number)
         group.rotation.x += (ry * Math.PI) / 180
-        group.rotation.y += (rx * Math.PI) / 180
-        group.rotation.z += (rz * Math.PI) / 180
+        group.rotation.y += (rx * Math.PI)/180
+        group.rotation.z += rz*Math.PI
       }
       return group
     },
     applyMaterialIndices(group, item, files) {
       for(let material in files[item].materials){
-            group.children[material].name = files[item].materials[material].type?files[item].materials[material].type:files[item].materials[material]
-    }
+            if(group.children[material] !== undefined){
+                  group.children[material].name = files[item].materials[material].type?files[item].materials[material].type:files[item].materials[material]
+            }
+          }
       return group
     },
 
@@ -779,16 +837,28 @@ export default {
     const camera2 = new THREE.PerspectiveCamera(55, 1, 1, 1000);
     camera2.position.z += 2;
     scene2.userData.camera = camera2;
-    ((scene2) => {
-      const sgmLoader2 = new SGMLoader();
+    (async (scene2) => {
+      const sgmLoader2 = new SGMLoader()
       let group;
-      sgmLoader2.load(this.files[file].file, async ([meshes, materials]) => { // Making the callback async
-        group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
-        group = this.applyPreviewRotation(group, file, this.files)
-        scene2.add(group);
-      });
+         let modelPath = this.files[file].file
+         if(this.nonExistentFiles.includes(modelPath)){
+            document.getElementById(modelPath).remove()
+          return;
+         };
+          let response = await fetch(modelPath, { method: 'HEAD' });
 
-    })(scene2);
+          if(!response.ok) {
+            document.getElementById(modelPath).remove()
+            this.nonExistentFiles.push(modelPath)
+            console.error("Model " + modelPath + " not found. Not rendering. (including any subsequent attempts until reload)")
+            return;
+          }
+        sgmLoader2.load(this.files[file].file, async ([meshes, materials]) => { // Making the callback async
+          group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
+          group = this.applyPreviewRotation(group, file, this.files)
+          scene2.add(group);
+        });
+      })(scene2);
     return scene2;
     },
     setCustomizations(){
@@ -986,6 +1056,15 @@ export default {
       const template = `<div class="description">Scene $</div><div class="scene"></div>`;
       const content = document.getElementById("content");
 
+      this.renderer2 = new THREE.WebGLRenderer({
+        canvas: this.canvas,
+        alpha: true,
+        transparent: true,
+        antialias: true
+      });
+      this.renderer2.setPixelRatio(window.devicePixelRatio);
+
+
       for (const item in this.files) {
         if (this.files[item].category === category) {
           const element = document.createElement("div");
@@ -1009,14 +1088,6 @@ export default {
           this.loadLight(this.scenes, scene2);
         }
       }
-
-      this.renderer2 = new THREE.WebGLRenderer({
-        canvas: this.canvas,
-        alpha: true,
-        transparent: true,
-        antialias: true
-      });
-      this.renderer2.setPixelRatio(window.devicePixelRatio);
     },
 
     handleGoBack() {
