@@ -2,6 +2,7 @@
 import { useUserStore } from '@/stores/user'
 import { mapState } from 'pinia'
 import MakeCreatorButton from './MakeCreatorButton.vue'
+import GiftCosmeticButton from './GiftCosmeticButton.vue'
 
 import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
@@ -10,7 +11,8 @@ import { getUserCurrencyRequest } from '../requests/GetUserCurrencyRequest.js'
 export default {
 
   components: {
-    MakeCreatorButton
+    MakeCreatorButton,
+    GiftCosmeticButton
   },
 
   props: {
@@ -19,6 +21,7 @@ export default {
 
   computed: {
     ...mapState(useUserStore, ['userID']),
+    ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['accessToken'])
   },
 
@@ -84,6 +87,7 @@ export default {
     <div class="user-buttons">
       <MakeCreatorButton v-if="loaded && !isVerified" :userID="identifier"/>
       <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
+      <GiftCosmeticButton v-if="loaded" :userID="identifier"/>
     </div>
     <div v-if="count" class="user-tab-count">
       {{ count }} level{{ count > 1 ? 's' : '' }}
