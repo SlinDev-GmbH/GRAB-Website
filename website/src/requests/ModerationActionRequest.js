@@ -1,7 +1,10 @@
-export async function moderationActionRequest(server, accessToken, userID, reason, duration=undefined) {
+export async function moderationActionRequest(server, accessToken, userID, reason, duration=undefined, message=undefined) {
   let extra = ''
   if(reason === "level_glitch") {
     extra += "?reason=message&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again."
+  }
+  else if (message !== undefined && message !== "") {
+    extra += '?reason=message&type=message&message=' + message
   }
   else {
     extra += '?reason=' + reason

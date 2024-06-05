@@ -1,7 +1,10 @@
 <script>
 import CardLevel from './CardLevel.vue'
 import CardUser from './CardUser.vue'
+
 import { listRequest } from '../requests/ListRequest.js'
+import { resetReportsRequest } from '../requests/ResetReportsRequest'
+import { moderationActionRequest } from '../requests/ModerationActionRequest'
 
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
@@ -164,6 +167,38 @@ export default {
 
     async showOtherUserLevels(userID) {
       this.$emit('tabChanged', {tab: 'tab_other_user', user_id: userID})
+    },
+
+    bestReason(item) {
+      let bestReason = ''
+      let bestReasonScore = 0
+      for(var key in item)
+      {
+        if(key.startsWith('reported_score_'))
+        {
+          if(item[key] > bestReasonScore)
+          {
+            bestReasonScore = item[key]
+            bestReason = key.slice(15)
+          }
+        }
+      }
+      return bestReason
+    },
+
+    async punishAllUsers() {
+      let successes = 0;
+      for (const item of this.items) {
+        console.log(item);
+        let success = 1;
+        const userID = item?.object_info?.user_id;
+        const reason = this.bestReason(item);
+        if(!userID) break;
+        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, 'user_' + reason)) {success = 0};
+        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) {success = 0};
+        successes += success;
+      }
+      alert(successes + ' users punished');
     }
   },
 
@@ -180,6 +215,7 @@ export default {
 
 <template>
   <img v-if="otherUserID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.png" />
+  <button v-if="listType == 'tab_reported_users'" id="punish-all-button" @click="punishAllUsers">Punish All</button>
   <div class="grid-container">
     <div v-for="(item, index) in items" :key="index" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
@@ -212,5 +248,16 @@ img.rick {
   top: 0;
   left: 0;
   z-index: -1;
+}
+
+#punish-all-button {
+  font-weight: bold;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 10px 20px;
+  margin-block: 5px;
 }
 </style>
