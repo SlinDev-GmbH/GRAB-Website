@@ -3,7 +3,7 @@ import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
 import { giftCosmeticRequest } from '../requests/GiftCosmeticRequest.js'
-import { getShopProductsRequest } from '../requests/getShopProductsRequest.js'
+import { getShopProductsRequest } from '../requests/GetShopProductsRequest.js'
 
 export default {
   props: {
