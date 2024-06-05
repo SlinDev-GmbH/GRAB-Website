@@ -1,9 +1,7 @@
 <script>
-import { GetLevelReportInfoRequest } from "../requests/GetLevelReportInfoRequest.js";
-
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
-
+import VLazyImage from "v-lazy-image";
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
@@ -19,6 +17,7 @@ export default {
     VerifyLevelButton,
     SkipLevelButton,
     HideLevelButton,
+    VLazyImage,
     HideTipLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
@@ -36,8 +35,7 @@ export default {
 
   data() {
     return {
-      cardColor: 'white',
-      imageKeys: []
+      cardColor: 'white'
     }
   },
 
@@ -134,16 +132,11 @@ export default {
 
     ...mapState(useUserStore, ['isVerifier']),
     ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isSuperModerator']),
-    ...mapState(useUserStore, ['isLoggedIn']),
-    ...mapState(useUserStore, ['accessToken'])
+    ...mapState(useUserStore, ['isLoggedIn'])
   },
 
-  async created() {
-    if(this.item.hidden === true) this.cardColor = 'lightcoral';
-    if (this.hasImage && this.isModerationCell) {
-      this.imageKeys = await this.getReportImages();
-    }
+  created() {
+    if(this.item.hidden === true) this.cardColor = 'lightcoral'
   },
 
   methods: {
@@ -165,19 +158,6 @@ export default {
     setListIndex(index) {
       const userStore = useUserStore()
       userStore.setListIndex(index)
-    },
-
-    async getReportImages() {
-      const report_info = await GetLevelReportInfoRequest(this.$api_server_url, this.item.identifier, this.accessToken);
-      const keys = [];
-      if ("images" in report_info) {
-        for (let i in report_info.images) {
-          if (report_info.images[i].key) {
-            keys.push('https://grab-images.slin.dev/' + report_info.images[i].key);
-          }
-        }
-      }
-      return keys;
     }
   }
 }
@@ -185,10 +165,8 @@ export default {
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
-    <img v-if="hasImage && !isModerationCell" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
-    <div v-if="hasImage && isModerationCell" :class="'moderation-images' + (this.imageKeys.length > 1 ? ' moderation-images-multiple' : '')">
-      <img v-for="image in this.imageKeys" class="thumbnail" :src="image" width="512" height="288" />
-    </div>
+    <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
+    <v-lazy-image  v-if="hasImage && isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.moderationItem.image" width="512" height="288" />
     <div v-if="hasStatistics && hasDifficulty" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div>
     <div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
     <div class="title">{{ item.title }}</div>
@@ -200,9 +178,9 @@ export default {
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isVerifier" :level-info="item"/>
     <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
-    <HideLevelButton v-if="isSuperModerator && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
-    <UnhideLevelButton v-if="isSuperModerator && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <UnhideLevelButton v-if="isAdmin && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <div class="interactions">
       <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
@@ -215,34 +193,6 @@ export default {
 </template>
 
 <style scoped>
-
-.moderation-images {
-  position: relative;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0%;
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-  overflow-y: hidden;
-  overflow-x: scroll;
-  display: flex;
-  flex-direction: row;
-}
-
-.moderation-images-multiple::after {
-  content: "...";
-  display: block;
-  width: 100%;
-  height: 100%;
-  margin-top: 30%;
-  position: absolute;
-  color: #0007;
-  font-size: 60px;
-  text-align: center;
-}
-
 .level-card {
   width: 100%;
   height: 100%;
@@ -354,12 +304,14 @@ export default {
   margin-left: auto;
   margin-right: auto;
   margin-top: 0%;
+  margin-button: 0%;
+  paadding-right: 20px;
   display: block;
   object-fit: contain;
   object-position: center;
   width: 100%;
   height: auto;
-  /* border-radius: 10px; */
+  border-radius: 10px;
 }
 
 .interactions {
