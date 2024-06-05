@@ -4,6 +4,7 @@ import { GetLevelReportInfoRequest } from "../requests/GetLevelReportInfoRequest
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
+import VLazyImage from 'v-lazy-image'
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
@@ -18,6 +19,7 @@ export default {
     ReportModerationTools,
     VerifyLevelButton,
     SkipLevelButton,
+    VLazyImage,
     HideLevelButton,
     HideTipLevelButton,
     UnhideLevelButton,
@@ -185,9 +187,9 @@ export default {
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
-    <img v-if="hasImage && !isModerationCell" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
+    <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
     <div v-if="hasImage && isModerationCell" :class="'moderation-images' + (this.imageKeys.length > 1 ? ' moderation-images-multiple' : '')">
-      <img v-for="image in this.imageKeys" class="thumbnail" :src="image" width="512" height="288" />
+      <v-lazy-image v-for="image in this.imageKeys" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" width="512" height="288" />
     </div>
     <div v-if="hasStatistics && hasDifficulty" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div>
     <div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
