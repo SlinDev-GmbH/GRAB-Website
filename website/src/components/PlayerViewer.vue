@@ -786,7 +786,6 @@ export default {
         this.categoryState
       );
       this.renderCosmetics(e.target.id);
-      this.animates();
     },
 
     handleBackClick() {
@@ -840,27 +839,27 @@ export default {
     (async (scene2) => {
       const sgmLoader2 = new SGMLoader()
       let group;
-         let modelPath = this.files[file].file
-         if(this.nonExistentFiles.includes(modelPath)){
-            document.getElementById(modelPath).remove()
-          return;
-         };
-          let response = await fetch(modelPath, { method: 'HEAD' });
+      let modelPath = this.files[file].file
+      if(this.nonExistentFiles.includes(modelPath)){
+         document.getElementById(modelPath).remove()
+       return;
+      };
+      let response = await fetch(modelPath, { method: 'HEAD' });
 
-          if(!response.ok) {
-            document.getElementById(modelPath).remove()
-            this.nonExistentFiles.push(modelPath)
-            console.error("Model " + modelPath + " not found. Not rendering. (including any subsequent attempts until reload)")
-            return;
-          }
-        sgmLoader2.load(this.files[file].file, async ([meshes, materials]) => { // Making the callback async
-          group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
-          group = this.applyPreviewRotation(group, file, this.files)
-          scene2.add(group);
-        });
-      })(scene2);
+      if(!response.ok) {
+        document.getElementById(modelPath).remove()
+        this.nonExistentFiles.push(modelPath)
+        console.error("Model " + modelPath + " not found. Not rendering. (including any subsequent attempts until reload)")
+        return;
+      }
+      sgmLoader2.load(this.files[file].file, async ([meshes, materials]) => { // Making the callback async
+        group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
+        group = this.applyPreviewRotation(group, file, this.files)
+        scene2.add(group);
+      });
+    })(scene2);
     return scene2;
-    },
+  },
     setCustomizations(){
       setActiveCustomizationsRequest(this.$api_server_url, this.accessToken, this.userInfo.active_customizations)
     },
@@ -878,31 +877,28 @@ export default {
       requestAnimationFrame(this.renderLoop);
     },
     
-    animates() {
-      this.render();
-      requestAnimationFrame(this.animates);
-    },
     render() {
       this.updateSize();
-      this.renderer2.setScissorTest(false);
+      this.canvas.style.transform = `translateY(${window.scrollY}px)`;
       this.renderer2.clear();
       this.renderer2.setScissorTest(true);
       this.scenes.forEach((scene2) => {
-      scene2.children[0].rotation.y = Date.now() * 0.001;
-      let element = scene2.userData.element;
-      let rect = element.getBoundingClientRect();
-      let width = rect.right - rect.left;
-      let height = rect.bottom - rect.top;
-      let left = rect.left;
-      let bottom = this.renderer2.domElement.clientHeight - rect.bottom;
+        let element = scene2.userData.element;
+        let rect = element.getBoundingClientRect();
 
-      let isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-      if (isVisible) {
+					if ( rect.bottom < 0 || rect.top  > this.renderer2.domElement.clientHeight ||
+						 rect.right  < 0 || rect.left > this.renderer2.domElement.clientWidth ) {
+						return;
+					}
+
+        let width = rect.right - rect.left;
+        let height = rect.bottom - rect.top;
+        let left = rect.left;
+        let bottom = this.renderer2.domElement.clientHeight - rect.bottom;
         this.renderer2.setViewport(left, bottom, width, height);
         this.renderer2.setScissor(left, bottom, width, height);
         let camera = scene2.userData.camera;
-        this.renderer2.render(scene2, camera);
-      }
+        this.renderer2.render(scene2, camera)
     });
 
     },
@@ -1056,15 +1052,6 @@ export default {
       const template = `<div class="description">Scene $</div><div class="scene"></div>`;
       const content = document.getElementById("content");
 
-      this.renderer2 = new THREE.WebGLRenderer({
-        canvas: this.canvas,
-        alpha: true,
-        transparent: true,
-        antialias: true
-      });
-      this.renderer2.setPixelRatio(window.devicePixelRatio);
-
-
       for (const item in this.files) {
         if (this.files[item].category === category) {
           const element = document.createElement("div");
@@ -1088,6 +1075,13 @@ export default {
           this.loadLight(this.scenes, scene2);
         }
       }
+      this.renderer2 = new THREE.WebGLRenderer({
+        canvas: this.canvas,
+        alpha:true,
+        antialias: true
+      });
+      this.renderer2.setPixelRatio(window.devicePixelRatio);
+      this.renderer2.setAnimationLoop( this.render );
     },
 
     handleGoBack() {
