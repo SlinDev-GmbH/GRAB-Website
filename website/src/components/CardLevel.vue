@@ -361,7 +361,7 @@ export default {
   object-position: center;
   width: 100%;
   height: auto;
-  /* border-radius: 10px; */
+  border-radius: 5px;
 }
 
 .interactions {

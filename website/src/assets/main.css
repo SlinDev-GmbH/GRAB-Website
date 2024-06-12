@@ -1,6 +1,32 @@
-@import './base.css';
+:root {
+  --color-background: #4BA0D6;
+  --color-background-soft: var(--vt-c-white-soft);
+  --color-background-mute: var(--vt-c-white-mute);
 
-#app {
+  --color-border: var(--vt-c-divider-light-2);
+  --color-border-hover: var(--vt-c-divider-light-1);
+
+  --color-heading: var(--vt-c-text-light-1);
+  --color-text: var(--vt-c-text-light-1);
+}
+a {
+  text-decoration: none;
+}
+
+body:not(:has(#homepage)) {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition: color 0.5s, background-color 0.5s;
+  line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app:not(:has(#homepage)) {
   max-width: 940px;
   margin: 0 auto;
   padding: 2rem;
@@ -8,15 +34,230 @@
   font-weight: normal;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+:root {
+    --dark: #1e1e1e;
+    --light: #ffffff;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+/* resets */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    font-weight: normal;
+    box-sizing: border-box;
+}
+#homepage {
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    &, body:has(#homepage) {
+        display: flex;
+        flex-direction: column;
+        min-height: 100svh;
+
+        background-color: var(--light);
+
+        color: var(--dark);
+        font-family: 'Nunito', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+
+    /* header */
+    header {
+        color: var(--light);
+        text-align: center;
+        padding: 32px 32px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+        background-image: url(../img/header.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+    header img {
+        width: 80%;
+        height: auto;
+        max-width: 400px;
+    }
+    header h2 {
+        max-width: 90%;
+    }
+    header a {
+        text-align: center;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        background-color: transparent;
+        color: var(--light);
+        border: 3px solid var(--light);
+        transition: all 0.1s ease-in-out;
+    }
+    header a:hover {
+        background-color: var(--light);
+        color: var(--dark);
+    }
+    header .buttons {
+        padding: 0;
+        justify-content: center;
+    }
+
+    /* content */
+    main {
+        margin: 0 auto;
+        max-width: 800px;
+        padding: 32px;
+    }
+    #trailer-video {
+        aspect-ratio: 560 / 315;
+        width: 100%;
+        border-radius: 10px;
+        background-color: #5a9d70;
+    }
+    #trailer {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    strong {
+        font-weight: 800;
+    }
+    section {
+        padding: 32px 0;
+    }
+    .section-fade {
+        opacity: 0;
+        transform: translateY(5vh);
+        transition: opacity 0.3s ease-out, transform 0.5s ease-out;
+        will-change: opacity, visibility;
+    }
+    .section-fade.section-visible {
+        opacity: 1;
+        transform: none;
+    }
+    section a {
+        text-align: center;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        transition: all 0.1s ease-in-out;
+        background-color: var(--light);
+        border: 3px solid var(--dark);
+        color: var(--dark);
+    }
+    section a:hover {
+        background-color: var(--dark);
+        color: var(--light);
+    }
+    .buttons {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem 0 0;
+    }
+    .buttons-mid {
+        justify-content: center;
+    }
+
+    /* footer */
+    footer {
+        background-color: var(--dark);
+        color: var(--light);
+        text-align: center;
+        font-size: 0.8em;
+        padding-inline: 4.5rem;
+    }
+    footer > nav {
+        margin-inline: auto;
+        padding: 64px 32px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 4.5rem;
+        row-gap: 1.5rem;
+    }
+    footer > nav > nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: 4.5rem;
+        row-gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    #copy {
+        margin-right: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+        min-width: fit-content;
+    }
+
+    #players {
+        margin-top: auto;
+        height: 200px;
+        display: flex;
+        flex-direction: row;
+        place-content: center;
+    }
+    #players div {
+        height: 100%;
+        width: 100%;
+        margin-inline: auto;
+        padding-inline: 1rem;
+        max-width: 900px;
+        display: flex;
+        flex-direction: row;
+        place-content: space-between;
+    }
+    #players img {
+        height: 100%;
+    }
+
+    @media screen and (max-width: 680px) {
+        header h2 {
+            font-size: 1.2rem;
+        }
+    }
+    @media screen and (max-width: 1080px) {
+        footer {
+            padding-inline: 1.5rem;
+        }
+        footer > nav > nav {
+            column-gap: 1.5rem;
+            row-gap: 0.5rem;
+            padding-block: 1.5rem;
+        }
+        footer > nav {
+            padding-block: 1.5rem;
+        }
+    }
+    @media screen and (max-width: 580px) {
+        footer > nav {
+            flex-direction: column-reverse;
+            padding-inline: 0.5rem;
+        }
+        #copy {
+            flex-direction: row;
+            justify-content: center;
+            width: 100%;
+            gap: 1rem;
+        }
+        #players {
+            height: 120px;
+        }
+    }
 }

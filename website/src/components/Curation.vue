@@ -1,9 +1,12 @@
 <script>
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
+
 import CurationControls from './CurationControls.vue'
 import NewCurationButton from './NewCurationButton.vue'
 import RemoveCurationButton from './RemoveCurationButton.vue'
+import Terms from './Terms.vue'
+
 import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
 export default {
@@ -11,6 +14,7 @@ export default {
 	CurationControls,
 	NewCurationButton,
 	RemoveCurationButton,
+	Terms,
   },
 
   computed: {
@@ -75,6 +79,7 @@ export default {
 		<select id="typeSelector" @change="handleTypeChange"></select>
 	</div>
 	<CurationControls :type="type"/>
+	<Terms/>
 </template>
 
 <style scoped>
