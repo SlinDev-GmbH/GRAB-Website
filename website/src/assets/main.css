@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 :root {
   --color-background: #4BA0D6;
   --color-background-soft: var(--vt-c-white-soft);
@@ -34,7 +35,6 @@ body:not(:has(#homepage)) {
   font-weight: normal;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 :root {
     --dark: #1e1e1e;
     --light: #ffffff;
