@@ -40,7 +40,7 @@ export default {
 <template>
   <div id="homepage">
   <header>
-      <img src="img/logo.png" alt="GRAB Logo">
+      <img src="./../assets/logo.png" alt="GRAB Logo">
       <div class="buttons">
           <a href="https://www.meta.com/experiences/4104088956355944/" aria-label="Get GRAB on Meta">GET GRAB!</a>
           <a href="/levels" aria-label="Browse GRAB levels">BROWSE LEVELS</a>
@@ -85,8 +85,8 @@ export default {
   </main>
   <div id="players">
       <div>
-          <img src="img/player.png" title="Player by BlackCat508" alt="GRAB player">
-          <img src="img/editor.png" title="Builder by BlackCat508" alt="GRAB builder">
+          <img src="./../assets/player.png" title="Player by BlackCat508" alt="GRAB player">
+          <img src="./../assets/editor.png" title="Builder by BlackCat508" alt="GRAB builder">
       </div>
   </div>
   <footer>

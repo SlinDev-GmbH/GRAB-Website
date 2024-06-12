@@ -80,7 +80,7 @@ body:not(:has(#homepage)) {
         justify-content: space-between;
         align-items: center;
         gap: 2rem;
-        background-image: url(../img/header.png);
+        background-image: url(./../assets/header.png);
         background-repeat: no-repeat;
         background-position: center;
         background-size: cover;
@@ -121,7 +121,10 @@ body:not(:has(#homepage)) {
         aspect-ratio: 560 / 315;
         width: 100%;
         border-radius: 10px;
-        background-color: #5a9d70;
+        background-image: url(https://files.slindev.com/videos/grab_trailer_cover.jpg);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
     }
     #trailer {
         display: flex;
