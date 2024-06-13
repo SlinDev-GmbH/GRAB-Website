@@ -135,6 +135,7 @@ export default {
   }
   .section-button {
     cursor: pointer;
+    font-weight: 400;
   }
   .section-title, .section-element-title {
     color: white;
