@@ -106,30 +106,52 @@ export default {
 </script>
 
 <template>
-  <header>
-    <a href="/">
-      <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
-    </a>
-    <LoginButton />
-    <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
-    <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
-    <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
-    <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
-    <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
-    <LevelTitle v-if="showLevelTitle" :tagString="tagString"/>
-  </header>
-  <main>
-    <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
-    <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
-    <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :tag="tagFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)" @loaded="loaded"/>
-  </main>
-  <Terms/>
+  <div id="level-browser">
+    <header>
+      <a href="/">
+        <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
+      </a>
+      <LoginButton />
+      <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
+      <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
+      <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
+      <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
+      <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
+      <LevelTitle v-if="showLevelTitle" :tagString="tagString"/>
+    </header>
+    <main>
+      <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
+      <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
+      <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :tag="tagFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)" @loaded="loaded"/>
+    </main>
+    <Terms/>
+  </div>
 </template>
 
 <style scoped>
 
+#level-browser {
+  padding: 2rem;
+  font-weight: normal;
+  
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 header {
   padding-bottom: 30px;
+}
+
+header, main {
+  max-width: 940px;
+  margin: 0 auto;
 }
 
 .logo {

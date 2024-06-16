@@ -69,20 +69,54 @@ export default {
 </script>
 
 <template>
-  <a class="back-button" href="/levels">Back</a>
-  <h1>Curated Level Lists</h1>
-	<div v-if="isAdmin" id="buttonWrapper">
-		<NewCurationButton @handled="handleTypeListUpdate"/>
-		<RemoveCurationButton @handled="handleTypeListUpdate"/>
+	<div id="curation">
+		<header>
+			<a class="back-button" href="/levels">Back</a>
+			<h1>Curated Level Lists</h1>
+			<div v-if="isAdmin" id="buttonWrapper">
+				<NewCurationButton @handled="handleTypeListUpdate"/>
+				<RemoveCurationButton @handled="handleTypeListUpdate"/>
+			</div>
+			<div id="typeSelectorWrapper">
+				<select id="typeSelector" @change="handleTypeChange"></select>
+			</div>
+		</header>
+		<main>
+			<CurationControls :type="type"/>
+		</main>
+		<Terms/>
 	</div>
-	<div id="typeSelectorWrapper">
-		<select id="typeSelector" @change="handleTypeChange"></select>
-	</div>
-	<CurationControls :type="type"/>
-	<Terms/>
 </template>
 
 <style scoped>
+
+#curation {
+  padding: 2rem;
+  font-weight: normal;
+  
+  height: 100vh;
+  max-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  line-height: 1.6;
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  display: grid;
+  grid-template-rows: 20vh 70vh;
+}
+
+main {
+	display: flex;
+	flex-direction: row;
+	height: 70vh;
+	max-width: 1000px;
+	margin: 0 auto;
+}
+
 ::-webkit-scrollbar {
 	display: none;
 }
@@ -97,11 +131,10 @@ body {
 	font-family: 'Roboto', sans-serif;
 }
 h1 {
-	margin-bottom: 20px;
+	margin: 0;
 	text-align: center;
 	font-size: 32px;
-	padding-top: 15px;
-	padding-bottom: 15px;
+	padding: 0;
 }
 select:focus-visible {
 	outline: none;
@@ -121,6 +154,8 @@ select:focus-visible {
 	border-radius: 10px;
 	border: 2px solid #ccc;
 	flex: 1;
+	max-width: 1000px;
+	margin: 0 auto;
 }
 #buttonWrapper {
 	display: flex;
