@@ -181,6 +181,7 @@ export default {
     float: right;
     width: 30%;
     padding-right: 16px;
+    height: fit-content;
 }
 #controls input {
     margin: 10px;
@@ -202,12 +203,13 @@ export default {
     background-color: red;
 }
 #levelList {
-  float: left;
   font-size: 20px;
   text-align: center;
   border-radius: 10px;
   width: 70%;
   margin-left: 0;
   padding-left: 16px;
+  overflow-y: scroll;
+  max-height: 100%;
 }
 </style>

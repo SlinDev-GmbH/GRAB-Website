@@ -1384,7 +1384,7 @@ main.scopedAlternative * {
 .scopedAlternative #back {
   z-index: 3;
   width: 110px;
-  padding-block: 3px;
+  padding-block: 6px;
   height: auto;
   background-color: red;
 }
