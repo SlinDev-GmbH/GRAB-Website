@@ -110,7 +110,7 @@ export default {
     </div>
   </div>
   <div v-if="loaded && (isSuperModerator || isAdmin)" class="user-tab-moderation-container">
-    <UserModerationTools v-if="loaded && isSuperModerator" :user-info="userInfo"/>
+    <UserModerationTools v-if="loaded && (isSuperModerator || isAdmin)" :user-info="userInfo" :user-page="true"/>
   </div>
 </template>
 
