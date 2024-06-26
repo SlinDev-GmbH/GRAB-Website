@@ -36,5 +36,9 @@ export default {
 <style scoped>
 #remove-list-button {
     background-color: red;
+    width: fit-content;
+    height: 40px;
+    display: flex;
+    align-items: center;
 }
 </style>

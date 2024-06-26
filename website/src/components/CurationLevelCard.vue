@@ -49,36 +49,6 @@ export default {
 </template>
 
 <style scoped>
-.open-button {
-  display: block;
-  width: 100%;
-  line-height: 30px;
-  border: none;
-  border-radius: 10px;
-  background-color:#00BC87;
-  color: #FFFFFF;
-  font-weight: bold;
-  font-size: 15px;
-  text-align:center;
-  text-decoration: none;
-  margin: auto 0;
-}
-
-.user-button {
-  display: block;
-  width: 100%;
-  line-height: 30px;
-  border: none;
-  border-radius: 10px;
-  background-color:#4642BE;
-  color: #FFFFFF;
-  font-weight: bold;
-  font-size: 15px;
-  text-align:center;
-  text-decoration: none;
-  margin: auto 0;
-}
-
 .level-card {
   width: 100%;
   background-color: #ffffff;
@@ -94,7 +64,7 @@ export default {
 }
 
 .info {
-  max-width: 60%;
+  max-width: 55%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -108,7 +78,31 @@ export default {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  width: 10%;
+  width: 15%;
+}
+
+.buttons a {
+  display: block;
+  width: 100%;
+  line-height: 30px;
+  border: none;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 15px;
+  text-align:center;
+  text-decoration: none;
+  margin: auto 0;
+  overflow-x: hidden;
+  white-space: nowrap;
+}
+
+.open-button {
+  background-color:#00BC87;
+}
+
+.user-button {
+  background-color:#4642BE;
 }
 
 .title {
@@ -116,6 +110,11 @@ export default {
   font-size: 20px;
   font-style: bold;
   line-height: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: left;
 }
 
@@ -123,6 +122,11 @@ export default {
   font-size: 15px;
   font-style: italic;
   text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .description {

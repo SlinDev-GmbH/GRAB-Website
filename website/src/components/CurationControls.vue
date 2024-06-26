@@ -24,7 +24,8 @@ export default {
     return {
       selected: 0,
       oldLevelList: [],
-      levelList: []
+      levelList: [],
+      sendButtonText: "Send"
     }
   },
 
@@ -96,23 +97,43 @@ export default {
 				alert("No access token!");
 				return;
 			}
+
+      this.sendButtonText = "Sending..";
+      let requests = [];
+
       for (let i = 0; i < this.levelList.length; i++) {
         let levelId = this.levelList[i]["identifier"];
         let position = this.oldLevelList.findIndex(obj => obj.identifier === levelId);
         if (position !== i) {
-          AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type, i.toString().padStart(8, '0'));
-          console.log(levelId, this.type, i.toString().padStart(8, '0'));
+          requests.push(
+            AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type, i.toString().padStart(8, '0'))
+          );
         }
       }
       for (let i = 0; i < this.oldLevelList.length; i++) {
         let levelId = this.oldLevelList[i]["identifier"];
         let position = this.levelList.findIndex(obj => obj.identifier === levelId);
         if (position === -1) {
-          RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type);
-          console.log(levelId, this.type);
+          requests.push(
+            RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type)
+          );
         }
       }
-      this.oldLevelList = this.levelList.slice();
+
+      if (requests.length === 0) {
+        alert("No changes to send!");
+        return;
+      }
+
+      Promise.all(requests).then(() => {
+        this.oldLevelList = this.levelList.slice();
+        this.sendButtonText = "Sent!";
+        setTimeout(() => {
+          this.sendButtonText = "Send";
+        }, 2000);
+      }).catch(() => {
+        alert("Error!");
+      });
 		},
 
     setSelected(index) {
@@ -149,12 +170,13 @@ export default {
     </div>
   </div>
   <div id="controls">
+    <span id="count">{{ levelList.length }} levels</span>
     <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
     <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
-    <input type="button" value="Move Level Up" id="move-up-button" @click="moveLevelUp"/><br />
-    <input type="button" value="Move Level Down" id="move-down-button" @click="moveLevelDown"/><br />
+    <input type="button" value="Move Up" id="move-up-button" @click="moveLevelUp"/><br />
+    <input type="button" value="Move Down" id="move-down-button" @click="moveLevelDown"/><br />
     <br>
-    <input type="button" value="Send" id="send-button" @click="sendUpdates"/>
+    <input type="button" :value="sendButtonText" id="send-button" @click="sendUpdates"/>
   </div>
 </template>
 
@@ -168,30 +190,22 @@ export default {
 #controls input {
     font-size: 20px;
     padding: 10px;
-    margin-left: 10px;
-    width: 20%;
     color: #fff;
     cursor: pointer;
     font-weight: bold;
     border: none;
     border-radius: 15px;
+    width: 100%;
+    margin-right: 0;
+    background-color: #555;
+    margin-top: 10px;
 }
 #controls {
     text-align: center;
-    float: right;
-    width: 30%;
-    padding-right: 16px;
-    height: fit-content;
-}
-#controls input {
-    margin: 10px;
     width: 100%;
-    margin-right: 0;
-    margin-left: 20px;
-    background-color: #555;
-}
-#controls input:nth-child(1), #levelList .level-card:nth-child(1) {
-    margin-top: 0;
+    height: fit-content;
+    padding-inline: 10px;
+    gap: 10px;
 }
 #controls #send-button {
     background-color: #00bc87;
@@ -206,10 +220,16 @@ export default {
   font-size: 20px;
   text-align: center;
   border-radius: 10px;
-  width: 70%;
-  margin-left: 0;
-  padding-left: 16px;
   overflow-y: scroll;
+  height: 100%;
+  width: 100%;
   max-height: 100%;
+}
+#count {
+  font-size: 18px;
+  text-align: center;
+  margin-top: 20px;
+  margin-inline: auto;
+  text-align: center;
 }
 </style>
