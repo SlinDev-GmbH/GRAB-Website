@@ -839,19 +839,18 @@ export default {
     (async (scene2) => {
       const sgmLoader2 = new SGMLoader()
       let group;
-      let modelPath = this.files[file].file
-      if(this.nonExistentFiles.includes(modelPath)){
-         document.getElementById(modelPath).remove()
-       return;
-      };
+      let modelPath = this.files[file].file  
       let response = await fetch(modelPath, { method: 'HEAD' });
-
       if(!response.ok) {
         document.getElementById(modelPath).remove()
         this.nonExistentFiles.push(modelPath)
         console.error("Model " + modelPath + " not found. Not rendering. (including any subsequent attempts until reload)")
         return;
       }
+      if(this.nonExistentFiles.includes(modelPath)){
+         document.getElementById(modelPath).remove()
+       return;
+      };
       sgmLoader2.load(this.files[file].file, async ([meshes, materials]) => { // Making the callback async
         group = await this.createGroupFromMeshes(meshes, materials, file, this.files);
         group = this.applyPreviewRotation(group, file, this.files)
