@@ -22,7 +22,8 @@ export default {
   emits: ['handled'],
 
   props: {
-    userInfo : Object
+    userInfo : Object,
+    userPage : Boolean
   },
 
   data() {
@@ -76,7 +77,7 @@ export default {
       <button class="moderation-approve-button" @click="removeModerationAction">Remove Strike</button>
     </div>
     <br>
-    <div class="promote-buttons">
+    <div class="promote-buttons" v-if="!userPage">
       <button v-if="!this.userInfo.is_verifier && !this.userInfo.is_moderator" class="moderation-verifier-button" @click="makeVerifier">Make Verifier</button>
       <MakeCreatorButton v-if="!this.userInfo.is_creator" :userID="this.userInfo.user_id" />
     </div>

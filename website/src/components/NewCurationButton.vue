@@ -36,5 +36,9 @@ export default {
 <style scoped>
 #add-new-list-button {
     background-color: #00bc87;
+    width: fit-content;
+    height: 40px;
+    display: flex;
+    align-items: center;
 }
 </style>

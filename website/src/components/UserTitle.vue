@@ -3,6 +3,7 @@ import { useUserStore } from '@/stores/user'
 import { mapState } from 'pinia'
 import MakeCreatorButton from './MakeCreatorButton.vue'
 import GiftCosmeticButton from './GiftCosmeticButton.vue'
+import UserModerationTools from './UserModerationTools.vue'
 
 import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
@@ -12,7 +13,8 @@ export default {
 
   components: {
     MakeCreatorButton,
-    GiftCosmeticButton
+    GiftCosmeticButton,
+    UserModerationTools
   },
 
   props: {
@@ -22,6 +24,7 @@ export default {
   computed: {
     ...mapState(useUserStore, ['userID']),
     ...mapState(useUserStore, ['isAdmin']),
+    ...mapState(useUserStore, ['isSuperModerator']),
     ...mapState(useUserStore, ['accessToken'])
   },
 
@@ -33,7 +36,8 @@ export default {
       isVerified: false,
       isModerator: false,
       currencyData: undefined,
-      loaded: false
+      loaded: false,
+      userInfo: undefined
     }
   },
 
@@ -55,6 +59,7 @@ export default {
       const userInfo = await getUserInfoRequest(this.$api_server_url, currentUserID)
       if(userInfo === false || currentUserID !== (this.otherUserID? this.otherUserID : this.userID)) return
       console.log(userInfo)
+      this.userInfo = userInfo
       this.identifier = userInfo.user_id
       this.count = userInfo.user_level_count
       this.name = userInfo.user_name
@@ -104,11 +109,14 @@ export default {
       {{ currencyData.tips }} unclaimed tip{{ currencyData.tips > 1 ? 's' : '' }}!
     </div>
   </div>
+  <div v-if="loaded && (isSuperModerator || isAdmin)" class="user-tab-moderation-container">
+    <UserModerationTools v-if="loaded && (isSuperModerator || isAdmin)" :user-info="userInfo" :user-page="true"/>
+  </div>
 </template>
 
 
 <style scoped>
-.user-tab-title-container, .user-tab-currency-container {
+.user-tab-title-container, .user-tab-currency-container, .user-tab-moderation-container {
   width: 100%;
   height: 50px;
   margin-bottom: 10px;
@@ -116,6 +124,12 @@ export default {
   background-color: white;
   padding-left: 10px;
   padding-right: 10px;
+}
+.user-tab-moderation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 .user-tab-name {
