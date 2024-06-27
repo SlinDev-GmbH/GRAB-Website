@@ -24,6 +24,7 @@ export default {
       secondaryOpened: null,
       backTracker: null,
       canvas: null,
+      owned_items:[],
       renderer2: null,
       picker: null,
       grabColorArray: null,
@@ -69,7 +70,6 @@ export default {
           previewRotation: [180, 0, 0],
         },
       },
-      ownedItems: [],
       activeCosmetics: {
         "hand": undefined,
         "head/glasses": undefined,
@@ -168,14 +168,6 @@ export default {
             this.editMode = true;
             document.getElementById("setCustomizations").style.display="block"
             console.log("Editing mode")
-            let ownedProducts = this.userInfo.owned_products
-            for (var pack in this.products) {
-              if (ownedProducts.includes(pack)) {
-                for (var product in this.products[pack].items) {
-                  this.ownedItems.push(this.products[pack].items[product])
-                }
-              }
-            }
           }
         }
       });
@@ -190,9 +182,19 @@ export default {
       let catalogResponse = await getShopCatalogRequest(this.$api_server_url);
       let catalog = catalogResponse[3].sections
       this.products = await getShopProductsRequest(this.$api_server_url);
-      if (this.userInfo && !this.userInfo.active_customizations || this.userInfo && !this.userInfo.active_customizations.items && this.userInfo.active_customizations) {
-        this.userInfo.active_customizations = { items: {} }
-      }
+      if (this.userInfo){
+
+        if(!this.userInfo.active_customizations || !this.userInfo.active_customizations.items && this.userInfo.active_customizations){
+          this.userInfo.active_customizations = { items: {} }
+        }
+
+        for(let product in this.userInfo.owned_products){
+            if (this.products[this.userInfo.owned_products[product]]){
+              this.owned_items = this.owned_items.concat(this.products[this.userInfo.owned_products[product]].items);
+            }
+        }
+      } 
+      
       for (let category in catalog) {
           if (catalog[category].title == "Head") {
             for (let index in catalog[category].sections) {
@@ -279,6 +281,7 @@ export default {
 
     processItemsAndSections(sectionItems, catalogSection, files, items) {
       for (var item in sectionItems) {
+
         for (var cosmeticItem in items) {
           if (sectionItems[item] === cosmeticItem) {
             files[cosmeticItem] = {
@@ -296,7 +299,8 @@ export default {
                 .attachment_point_overrides
                 ? items[cosmeticItem].attachment_point_overrides
                 : undefined,
-                attachment_offset: items[cosmeticItem].attachment_offset_v2? items[cosmeticItem].attachment_offset_v2:undefined
+                attachment_offset: items[cosmeticItem].attachment_offset_v2? items[cosmeticItem].attachment_offset_v2:undefined,
+              owned: this.owned_items.includes(cosmeticItem)
               }
           }
         }
@@ -943,7 +947,7 @@ export default {
         if (previewButton.id !== toggledButton.id) {
           toggledButton.innerHTML = "Preview";
           toggledButton.style.backgroundColor = "#00FF00";
-          if (this.ownedItems.includes(item) || (['default', 'player_basic_hand'].includes(item) && this.editMode)) {
+          if (this.owned_items.includes(item) || (['default', 'player_basic_hand'].includes(item) && this.editMode)) {
             toggledButton.innerHTML = "Equip";
             toggledButton.style.backgroundColor = "#00FF00";
           }
@@ -1022,7 +1026,7 @@ export default {
             group.position.set(0.3, -0.75, 0.1)
             group.rotation.x += Math.PI / 2
           }
-          if (this.editMode && this.userInfo && this.ownedItems.includes(file)) {
+          if (this.editMode && this.userInfo && this.owned_items.includes(file)) {
             this.userInfo.active_customizations.items[type] = file;
             console.log("setCustomizations");
           } else if (this.editMode && this.userInfo && ['default', 'player_basic_hand'].includes(file)) {
@@ -1052,7 +1056,7 @@ export default {
       const content = document.getElementById("content");
 
       for (const item in this.files) {
-        if (this.files[item].category === category) {
+        if (this.files[item].category === category && this.files[item].owned == true) {
           const element = document.createElement("div");
           element.id = this.files[item].file;
           element.className = "list-item";
@@ -1060,7 +1064,7 @@ export default {
           const previewButton = this.createPreviewButton(
             item,
             this.activeCosmetics,
-            this.ownedItems,
+            this.owned_items,
             this.files[item].type
           );
           previewButton.addEventListener("click", () =>
