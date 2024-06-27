@@ -1054,9 +1054,10 @@ export default {
       this.setupUI();
       const template = `<div class="description">Scene $</div><div class="scene"></div>`;
       const content = document.getElementById("content");
-
+      let owns_catalogues_items=0;
       for (const item in this.files) {
         if (this.files[item].category === category && this.files[item].owned == true) {
+          owns_catalogues_items++;
           const element = document.createElement("div");
           element.id = this.files[item].file;
           element.className = "list-item";
@@ -1078,13 +1079,15 @@ export default {
           this.loadLight(this.scenes, scene2);
         }
       }
-      this.renderer2 = new THREE.WebGLRenderer({
-        canvas: this.canvas,
-        alpha:true,
-        antialias: true
-      });
-      this.renderer2.setPixelRatio(window.devicePixelRatio);
-      this.renderer2.setAnimationLoop( this.render );
+      if(owns_catalogues_items > 0){
+          this.renderer2 = new THREE.WebGLRenderer({
+          canvas: this.canvas,
+          alpha:true,
+          antialias: true
+        });
+        this.renderer2.setPixelRatio(window.devicePixelRatio);
+        this.renderer2.setAnimationLoop( this.render );
+      }
     },
 
     handleGoBack() {
@@ -1110,17 +1113,17 @@ export default {
     <div id="customizations">
         <span id="back-btn" style="display: none;" @click="handleBackClick">Back</span>
         <div id="categories-content">
-            <span id="cosmetics" @click="handleCosmeticsClick">Cosmetics</span>
+            <span v-if="isLoggedIn" id="cosmetics" @click="handleCosmeticsClick">Cosmetics</span>
             <span id="primary" @click="handleColorClick">Change Main Color</span>
             <span id="secondary" @click="handleColorClick">Change Second Color</span>
-            <span id="Head" style="display: none;" @click="handleHeadClick">Head</span>
-            <span class="final" @click="handleFinalClick" id="Body" style="display: none;">Body</span>
-            <span class="final" @click="handleFinalClick" id="Hands" style="display: none;">Hands</span>
-            <span class="final" @click="handleFinalClick" id="Grapples" style="display: none;">Grapples</span>
-            <span class="final" @click="handleFinalClick" id="Checkpoints" style="display: none;">Checkpoints</span>
-            <span class="final" @click="handleFinalClick" id="Heads" style="display: none;">Heads</span>
-            <span class="final" @click="handleFinalClick" id="Hats" style="display: none;">Hats</span>
-            <span class="final" @click="handleFinalClick" id="Facewear" style="display: none;">Facewear</span>
+            <span v-if="isLoggedIn"  id="Head" style="display: none;" @click="handleHeadClick">Head</span>
+            <span v-if="isLoggedIn" class="final" @click="handleFinalClick" id="Body" style="display: none;">Body</span>
+            <span v-if="isLoggedIn" class="final" @click="handleFinalClick" id="Hands" style="display: none;">Hands</span>
+            <span v-if="isLoggedIn" class="final" @click="handleFinalClick" id="Grapples" style="display: none;">Grapples</span>
+            <span v-if="isLoggedIn"  class="final" @click="handleFinalClick" id="Checkpoints" style="display: none;">Checkpoints</span>
+            <span v-if="isLoggedIn"  class="final" @click="handleFinalClick" id="Heads" style="display: none;">Heads</span>
+            <span v-if="isLoggedIn" class="final" @click="handleFinalClick" id="Hats" style="display: none;">Hats</span>
+            <span v-if="isLoggedIn" class="final" @click="handleFinalClick" id="Facewear" style="display: none;">Facewear</span>
         </div>
         <div id="content"></div>
     </div>
