@@ -16,7 +16,7 @@
     "protobufjs": "^7.2.5",
     "three": "^0.157.0",
     "v-lazy-image": "^2.1.1",
-    "vue": "^3.2.47",
+    "vue": "^3.4.30",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
