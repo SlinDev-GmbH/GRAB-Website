@@ -35,7 +35,6 @@ export default {
       isLoading: false
     }
   },
-
   computed: {
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['isModerator']),
@@ -100,6 +99,15 @@ export default {
 
     loaded() {
       this.isLoading = false;
+    }
+  },
+  watch: {
+    '$route.query': {
+      handler(newQuery) {
+        this.tabActive = newQuery.tab || 'tab_newest'
+        this.searchTerm = newQuery.search || ''
+        this.userID = newQuery.user_id || null
+      },
     }
   }
 }
