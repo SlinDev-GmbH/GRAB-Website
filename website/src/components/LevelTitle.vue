@@ -53,10 +53,10 @@ export default {
 
 <template>
   <div v-if="count > 0" class="level-tab-title">
-      {{ count }} level{{ count > 1 ? 's' : '' }}
+      {{ count }} level{{ count != 1 ? 's' : '' }}
   </div>
   <div v-else class="level-tab-title">
-    {{ listLevelCount }} level{{ listLevelCount > 1 ? 's' : '' }}
+    {{ listLevelCount }} level{{ listLevelCount != 1 ? 's' : '' }}
   </div>
 </template>
 

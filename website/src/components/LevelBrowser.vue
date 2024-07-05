@@ -109,6 +109,9 @@ export default {
         this.userID = newQuery.user_id || null
       },
     }
+  },
+  created() {
+    document.title = 'GRAB Levels'
   }
 }
 </script>
