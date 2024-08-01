@@ -288,7 +288,7 @@ function init()
 					userStore.setListIndex(listIndex - 1);
 				});
 				document.addEventListener("keydown", function(event) {
-					if (event.shiftKey && event.key === 'Tab && previousListItem) {
+					if (event.shiftKey && event.key === 'Tab' && previousListItem) {
 						location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
 						userStore.setListIndex(listIndex - 1);
 					} else if (event.key === 'Tab' && nextListItem) {
