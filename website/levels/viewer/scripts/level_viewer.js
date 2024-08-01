@@ -288,12 +288,12 @@ function init()
 					userStore.setListIndex(listIndex - 1);
 				});
 				document.addEventListener("keydown", function(event) {
-					if (event.key === '2') {
-						location.href = "/levels/viewer/?level=" + nextListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
-						userStore.setListIndex(listIndex + 1);
-					} else if (event.key === '1' && previousListItem) {
+					if (event.shiftKey && event.key === 'Tab && previousListItem) {
 						location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
 						userStore.setListIndex(listIndex - 1);
+					} else if (event.key === 'Tab' && nextListItem) {
+						location.href = "/levels/viewer/?level=" + nextListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+						userStore.setListIndex(listIndex + 1);
 					}
 				});
 				if ((nextListItem && document.referrer.includes(nextListItem.identifier)) || (previousListItem && document.referrer.includes(previousListItem.identifier)) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
