@@ -187,18 +187,25 @@ export default {
     },
 
     async punishAllUsers() {
-      let successes = 0;
-      for (const item of this.items) {
-        console.log(item);
-        let success = 1;
+      const promises = this.items.map(async (item) => {
         const userID = item?.object_info?.user_id;
         const reason = this.bestReason(item);
-        if(!userID) break;
-        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, 'user_' + reason)) {success = 0};
-        if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) {success = 0};
-        successes += success;
-      }
+        
+        if (!userID) return { success: 0 };
+        
+        const [actionSuccess, reportsSuccess] = await Promise.all([
+          moderationActionRequest(this.$api_server_url, this.accessToken, userID, 'user_' + reason),
+          resetReportsRequest(this.$api_server_url, this.accessToken, userID)
+        ]);
+
+        const success = actionSuccess && reportsSuccess ? 1 : 0;
+        return { success };
+      });
+
+      const results = await Promise.all(promises);
+      const successes = results.reduce((total, result) => total + result.success, 0);
       alert(successes + ' users punished');
+      this.items = [];
     }
   },
 
