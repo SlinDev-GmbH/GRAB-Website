@@ -21,6 +21,7 @@ import modelPyramidURL from '../models/pyramid.gltf'
 import modelPrismURL from '../models/prism.gltf'
 import modelStartEndURL from '../models/start_end.gltf'
 import modelSignURL from '../models/sign.gltf'
+import modelConeURL from '../models/cone.gltf'
 
 import textureDefaultURL from '../textures/default.png'
 import textureGrabbableURL from '../textures/grabbable.png'
@@ -122,6 +123,8 @@ function init()
 	shapePromises.push(getGeometryForModel(modelCylinderURL));
 	shapePromises.push(getGeometryForModel(modelPyramidURL));
 	shapePromises.push(getGeometryForModel(modelPrismURL));
+	shapePromises.push(getGeometryForModel(modelConeURL));
+
 	let shapePromise = Promise.all(shapePromises).then(function(result){
 		for(let shape of result)
 		{
@@ -593,6 +596,16 @@ function init()
 							moderationImageElement.onclick = function() {
 								console.log(image.camera_position)
 								camera.position.set(-image.camera_position[0], image.camera_position[1], -image.camera_position[2]);
+								let quaternion = new THREE.Quaternion()
+								quaternion.x = image.camera_rotation[1]
+								quaternion.y = image.camera_rotation[2]
+								quaternion.z = image.camera_rotation[3]
+								quaternion.w = image.camera_rotation[0]
+
+								let euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
+								controls.eulerVector.x = euler.x
+								controls.eulerVector.y = (euler.y+Math.PI)
+								controls.updateRotationVector();
 							}
 							moderationContainer.appendChild(moderationImageElement);
 						}
@@ -889,6 +902,11 @@ function init()
 						object.position.y = node.levelNodeStart.position.y
 						object.position.z = -node.levelNodeStart.position.z
 
+						object.quaternion.x = node.levelNodeStart.rotation.x
+						object.quaternion.y = -node.levelNodeStart.rotation.y
+						object.quaternion.z = node.levelNodeStart.rotation.z
+						object.quaternion.w = -node.levelNodeStart.rotation.w
+
 						object.scale.x = node.levelNodeStart.radius * 2.0;
 						object.scale.z = node.levelNodeStart.radius * 2.0;
 
@@ -897,11 +915,18 @@ function init()
 
 						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
 						
+						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'XYZ');
+						euler.y += Math.PI;
+						cameraRotation = [0, euler.y];
+
 						var goToStartLabel = document.getElementById("startButton");
 						goToStartLabel.innerHTML = "Go to Start"
 						goToStartLabel.style.cursor="pointer";
 						goToStartLabel.onclick = function() {
 							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+							controls.eulerVector.x = 0
+							controls.eulerVector.y = euler.y
+							controls.updateRotationVector();
 						}
 					}
 					else if(node.levelNodeFinish)
