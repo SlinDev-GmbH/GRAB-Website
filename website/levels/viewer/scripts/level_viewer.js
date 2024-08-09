@@ -46,6 +46,7 @@ let materials = [];
 let objectMaterials = [];
 let isFogEnabled = true;
 let isSliderDragging = false;
+let isSliderPlaying = true;
 let particles = [];
 let particlesPositions = [];
 let particlesDirections = [];
@@ -977,8 +978,8 @@ function init()
 
 				if(animatedObjects.length > 0)
 				{
-					const slider = document.getElementById("time-slider")
-					slider.style.display = "block"
+					const slider = document.getElementById("animation-controls")
+					slider.style.display = "flex"
 				}
 
 				let cameraPositionFromUrl = urlParams.get('camera_position');
@@ -1344,20 +1345,29 @@ function onWindowResize()
 }
 
 document.getElementById('time-slider').addEventListener('input', function (){
-	isSliderDragging=true
+	isSliderDragging = true
 });
-
 document.getElementById('time-slider').addEventListener('mouseup', function(){
     isSliderDragging = false
 });
 document.getElementById('time-slider').addEventListener('touchend', function(){
     isSliderDragging = false
 });
+document.getElementById('play-pause').addEventListener('click', function(){
+    isSliderPlaying = !isSliderPlaying
+	if (isSliderPlaying) {
+		document.getElementById("pause").style.display = "flex";
+		document.getElementById("play").style.display = "none";
+	} else {
+		document.getElementById("play").style.display = "flex";
+		document.getElementById("pause").style.display = "none";
+	}
+});
 
 function animation()
 {
 	const delta = clock.getDelta();
-	if(isSliderDragging==true)
+	if(isSliderDragging)
 	{
 		for (let object of animatedObjects)
 		{
@@ -1365,12 +1375,12 @@ function animation()
 		} 
 		animationTime=parseInt(document.getElementById('time-slider').value)
 	}
-	else
+	else if (isSliderPlaying)
 	{
-		controls.update(delta);
 		animationTime += delta;
 		document.getElementById('time-slider').value = animationTime
 	}
+	controls.update(delta);
 
 	for(let object of animatedObjects)
 	{

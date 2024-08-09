@@ -59,20 +59,6 @@
                 display: block;
                 max-height: 87.5%;
             }
-             #time-slider {
-                -webkit-appearance: none;
-                width: 100%;
-                height:2.1%;
-                border-radius: 5px;
-                background: #d3d3d3;
-                outline: none;
-                opacity: 0.7;
-                position: relative;
-                bottom: 0px;
-                -webkit-transition: .2s;
-                transition: opacity .2s;
-                display: none;
-            }
 
             #info-container {
                 position: absolute;
@@ -81,26 +67,8 @@
                 height: 100%;
                 max-width: 30%;
             }
-
-            #time-slider::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                background: #04AA6D;
-                cursor: pointer;
-            }
-
-            #time-slider::-moz-range-thumb {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                background: #04AA6D;
-                cursor: pointer;
-
-            }
- 	        #report-take-image{
+            
+            #report-take-image{
                 display: none;
                 width: 120px;
                 height:  30px;
@@ -677,6 +645,78 @@
                 width: 20px;
                 height: 20px;
             }
+
+            #animation-controls {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                padding: 15px;
+                display: none;
+
+                button {
+                    width: 20px;
+                    height: 20px;
+                    min-width: 20px;
+                    min-height: 20px;
+                    border-radius: 50%;
+                    background: #FFAE00;
+                    color: #ffffff;
+                    cursor: pointer;
+                    border: none;
+                    padding: 0;
+                }
+                svg {
+                    width: 100%;
+                    height: 100%;
+                }
+                #play {
+                    display: none;
+                }
+
+                #time-slider{
+                    appearance: none;
+                    -webkit-appearance: none;
+                    width: 100%;
+                    height: 20px;
+                    border-radius: 15px;
+                    background: #ffffff40;
+                    outline: none;
+                    padding-inline: 2px;
+
+                    &::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        appearance: none;
+                        width: 16px;
+                        height: 16px;
+                        border-radius: 50%;
+                        background: #4642BE;
+                        cursor: pointer;
+                    }
+                    &::-moz-range-thumb {
+                        -webkit-appearance: none;
+                        appearance: none;
+                        width: 16px;
+                        height: 16px;
+                        border-radius: 50%;
+                        background: #4642BE;
+                        cursor: pointer;
+                    }
+                    &::-webkit-slider-runnable-track {
+                        width: 100%;
+                        height: 15px;
+                        background: #d3d3d3;
+                        border-radius: 15px;
+                    }
+                    &::-moz-range-track {
+                        width: 100%;
+                        height: 15px;
+                        background: #d3d3d3;
+                        border-radius: 15px;
+                    }
+                }
+            }
         </style>
     </head>
     <body>
@@ -712,8 +752,8 @@
 				<div class="cell-description" id="popup-description-2"></div><br>
 				<button id="popup-button-cancel-2">Cancel</button>
 				<button id="popup-button-ok-2">OK</button>
-		</div>
-	</div>
+            </div>
+        </div>
         <div id="buttons" class="buttons">
         <form>
             <input type="button" id="back-button" class="back-button" value="User Levels">
@@ -728,77 +768,86 @@
         </div>
         
         <div id='info-container'>
-        <div id="info" class="info">
-        <br>
-        <div id="scheduled_for_deletion">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-            </svg>
-            SCHEDULED FOR DELETION
-        </div>
-        <div id="title"></div>
-        <div id="tags">
-            <button id="tagButton" style="display: none;">Edit Tags</button>
-        </div>
-        <div id="creators"></div>
-        <div id="description"></div>
-        <div id="complexity"></div>
-        <div id="checkpoints"></div>
-        <div id="date"></div>
-        <div id="statistics">
-            <div id="total finished count">total finished</div>
-            <div id="players finished count">players finished</div>
-            <div id="players liked count">players liked</div>
-            <div id="average time">average time</div>
-        </div>
+            <div id="info" class="info">
+                <br>
+                <div id="scheduled_for_deletion">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                    </svg>
+                    SCHEDULED FOR DELETION
+                </div>
+                <div id="title"></div>
+                <div id="tags">
+                    <button id="tagButton" style="display: none;">Edit Tags</button>
+                </div>
+                <div id="creators"></div>
+                <div id="description"></div>
+                <div id="complexity"></div>
+                <div id="checkpoints"></div>
+                <div id="date"></div>
+                <div id="statistics">
+                    <div id="total finished count">total finished</div>
+                    <div id="players finished count">players finished</div>
+                    <div id="players liked count">players liked</div>
+                    <div id="average time">average time</div>
+                </div>
 
-        <button id="reportButton">Report</button>
-        <button id="favoriteButton">Favorite</button>
-        <button id="unfavoriteButton">Unfavorite</button>
-        <br>
-        <button id="startButton" class="startButton"></button>
-        <button id="finishButton" class="finishButton"></button>
-        <br>
-        <div id="listButtons" style="display: none;">
-            <button id="prevListItem">Back</button>
-            <button id="nextListItem">Next</button>
-            <p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
-        </div>
-        <br>
-        <div id="moderationcontainer" class="moderationinfo">
-            <button id="verifyButton" style="display: none;">Verify</button>
-            <button id="unverifyButton" style="display: none;">Unverify</button>
-            <button id="verifySkipButton" style="display: none;">Skip</button>
-            <button id="verifySkipSuccessButton" style="display: none;">Skipped</button>
-            <div id="hidecontainer" style="display: none;">
-                <div id="reports" style="display: none;">
-                    <b><p id="reportsTitle">Reports:</p></b>
-                    <div id="reportlist"></div>
+                <button id="reportButton">Report</button>
+                <button id="favoriteButton">Favorite</button>
+                <button id="unfavoriteButton">Unfavorite</button>
+                <br>
+                <button id="startButton" class="startButton"></button>
+                <button id="finishButton" class="finishButton"></button>
+                <br>
+                <div id="listButtons" style="display: none;">
+                    <button id="prevListItem">Back</button>
+                    <button id="nextListItem">Next</button>
+                    <p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
                 </div>
                 <br>
-                <b>Hide Level</b>
-                <form id="hideForm">
-                    <select id="hideReason" style="width: 70%;">
-                        <option value="">- Reason -</option>
-                        <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
-                        <option id="level_violence" value="level_violence">Detailed Violence</option>
-                        <option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
-                        <option id="level_tips" value="level_tips">Asking for Tips</option>
-                        <option id="level_loweffort" value="level_loweffort">Very low effort level</option>
-                        <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
-                        <option id="level_other" value="level_other">Other</option>
-                        <option id="no_punish" value="no_punish">Don't punish</option>
-                    </select>
-                </form>
-                <button id="hideButton">Hide</button>
-                <button id="approveButton">Approve</button>
-                <br>
+                <div id="moderationcontainer" class="moderationinfo">
+                    <button id="verifyButton" style="display: none;">Verify</button>
+                    <button id="unverifyButton" style="display: none;">Unverify</button>
+                    <button id="verifySkipButton" style="display: none;">Skip</button>
+                    <button id="verifySkipSuccessButton" style="display: none;">Skipped</button>
+                    <div id="hidecontainer" style="display: none;">
+                        <div id="reports" style="display: none;">
+                            <b><p id="reportsTitle">Reports:</p></b>
+                            <div id="reportlist"></div>
+                        </div>
+                        <br>
+                        <b>Hide Level</b>
+                        <form id="hideForm">
+                            <select id="hideReason" style="width: 70%;">
+                                <option value="">- Reason -</option>
+                                <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
+                                <option id="level_violence" value="level_violence">Detailed Violence</option>
+                                <option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
+                                <option id="level_tips" value="level_tips">Asking for Tips</option>
+                                <option id="level_loweffort" value="level_loweffort">Very low effort level</option>
+                                <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
+                                <option id="level_other" value="level_other">Other</option>
+                                <option id="no_punish" value="no_punish">Don't punish</option>
+                            </select>
+                        </form>
+                        <button id="hideButton">Hide</button>
+                        <button id="approveButton">Approve</button>
+                        <br>
+                    </div>
+                </div>
+            </div>
+            <div id="animation-controls">
+                <button id="play-pause">
+                    <svg id="play" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
+                    </svg>
+                    <svg id="pause" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+                    </svg>
+                </button>
+                <input type="range" id="time-slider" min="0" max="0" step="0.01" value="0">
             </div>
         </div>
-    </div>    
-    <br>
-    <input type="range" id="time-slider" min="0" max="0" step="0.01" value="0">
-</div>
 
         <div id="overlay" class="overlay"></div>
         <div id="leaderboard" class="leaderboard">
