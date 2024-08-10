@@ -13,6 +13,7 @@ import HideTipLevelButton from './HideTipLevelButton.vue'
 import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
+import UnscheduleDeletionButton from './UnscheduleDeletionButton.vue'
 
 export default {
   components: {
@@ -24,7 +25,8 @@ export default {
     HideTipLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
-    ReportLevelButton
+    ReportLevelButton,
+    UnscheduleDeletionButton
   },
 
   emit: ['more'],
@@ -200,11 +202,12 @@ export default {
     <div class="creators">{{ creators }}</div>
     <div class="more-button" @click="showMoreLevels">More Levels</div>
     <div class="description">{{ item.description }}</div>
-    <VerifyLevelButton v-if="isVerifier" :level-info="item"/>
+    <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue'" :level-info="item"/>
     <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
-    <HideLevelButton v-if="isSuperModerator && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideLevelButton v-if="isSuperModerator && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton v-if="isSuperModerator && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <UnscheduleDeletionButton v-if="isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <div class="interactions">
       <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
