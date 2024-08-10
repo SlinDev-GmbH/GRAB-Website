@@ -1,6 +1,7 @@
 <script>
 import CardLevel from './CardLevel.vue'
 import CardUser from './CardUser.vue'
+import CardLog from './CardLog.vue'
 
 import { listRequest } from '../requests/ListRequest.js'
 import { resetReportsRequest } from '../requests/ResetReportsRequest'
@@ -12,7 +13,8 @@ import { useUserStore } from '@/stores/user'
 export default {
   components: {
     CardLevel,
-    CardUser
+    CardUser,
+    CardLog
   },
 
   emits: ['tabChanged', 'loaded'],
@@ -223,9 +225,10 @@ export default {
 <template>
   <img v-if="otherUserID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.png" />
   <button v-if="listType == 'tab_reported_users'" id="punish-all-button" @click="punishAllUsers">Punish All</button>
-  <div class="grid-container">
+  <div class="grid-container" :style="listType == 'tab_audit' ? 'grid-template-columns: 1fr' : ''">
     <div v-for="(item, index) in items" :key="index" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
+      <CardLog v-else-if="listType == 'tab_audit'" :item="item" />
       <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :index="index" :listType="listType" @more="showOtherUserLevels" />
     </div>
   </div>

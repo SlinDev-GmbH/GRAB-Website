@@ -38,6 +38,7 @@ export default {
   computed: {
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['isModerator']),
+    ...mapState(useUserStore, ['isSuperModerator']),
     ...mapState(useUserStore, ['accessToken']),
     showLevelTitle() {
       const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels', 'tab_verify_queue', 'tab_reported_levels', 'tab_featured']
@@ -124,7 +125,7 @@ export default {
       </a>
       <LoginButton />
       <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
-      <button v-if="isAdmin" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
+      <button v-if="isSuperModerator" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
       <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
       <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
       <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
