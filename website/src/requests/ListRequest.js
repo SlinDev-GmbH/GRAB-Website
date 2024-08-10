@@ -59,6 +59,10 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
   {
     requestURL += '&type=deletionqueue'
     wantsAccessToken = true
+  } else if (listType === 'tab_audit')
+  {
+    requestURL = server + 'report_list?type=audit'
+    wantsAccessToken = true
   }
 
   if(nextPage) requestURL += '&page_timestamp=' + nextPage
