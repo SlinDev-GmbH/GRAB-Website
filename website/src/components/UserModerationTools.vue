@@ -4,26 +4,27 @@ import { useUserStore } from '@/stores/user'
 
 import ModerationInfo from './ModerationInfo.vue'
 import ModerationPopup from './ModerationPopup.vue'
-import MakeCreatorButton from './MakeCreatorButton.vue'
+import SetCreatorButton from './SetCreatorButton.vue'
+import SetVerifierButton from './SetVerifierButton.vue'
+import SetModeratorButton from './SetModeratorButton.vue'
 
 import { moderationActionRequest } from '../requests/ModerationActionRequest'
 import { removeModerationActionRequest } from '../requests/RemoveModerationActionRequest'
-
-import { setUserInfoAdmin } from '../requests/SetUserInfoAdmin'
-
 
 export default {
   components: {
     ModerationInfo,
     ModerationPopup,
-    MakeCreatorButton,
+    SetCreatorButton,
+    SetVerifierButton,
+    SetModeratorButton
   },
 
   emits: ['handled'],
 
   props: {
-    userInfo : Object,
-    userPage : Boolean
+    userInfo: Object,
+    userPage: Boolean
   },
 
   data() {
@@ -42,26 +43,15 @@ export default {
 
   methods: {
     handledModerationPopup(handled) {
-      if(handled === true)
-      {
+      if (handled === true) {
         this.$emit('handled', true)
       }
     },
 
-    async removeModerationAction()
-    {
+    async removeModerationAction() {
       const userID = this.userInfo.user_id
-      if(!await removeModerationActionRequest(this.$api_server_url, this.accessToken, userID)) return
+      if (!await removeModerationActionRequest(this.$api_server_url, this.accessToken, userID)) return
       this.$emit('handled', false)
-    },
-
-    async makeVerifier()
-    {
-      if(confirm("Do you really want to make this user a Verifier?"))
-      {
-        const userID = this.userInfo.user_id
-        await setUserInfoAdmin(this.$api_server_url, this.accessToken, userID, true)
-      }
     }
   }
 }
@@ -78,8 +68,9 @@ export default {
     </div>
     <br>
     <div class="promote-buttons" v-if="!userPage">
-      <button v-if="!this.userInfo.is_verifier && !this.userInfo.is_moderator" class="moderation-verifier-button" @click="makeVerifier">Make Verifier</button>
-      <MakeCreatorButton v-if="!this.userInfo.is_creator" :userID="this.userInfo.user_id" />
+      <SetCreatorButton :userID="this.userInfo.user_id" :isCreator="this.userInfo.is_creator"/>
+      <SetVerifierButton :userID="this.userInfo.user_id" :isVerifier="this.userInfo.is_verifier"/>
+      <SetModeratorButton :userID="this.userInfo.user_id" :isModerator="this.userInfo.is_moderator"/>
     </div>
   </div>
 
@@ -132,16 +123,6 @@ export default {
   background-color: green;
   color: white;
   border: none;
-  border-radius: 15px;
-  cursor: pointer;
-}
-.moderation-verifier-button {
-  padding-block: 5px;
-  font-weight: bold;
-  background-color: green;
-  color: white;
-  border: none;
-  font-size: 12px;
   border-radius: 15px;
   cursor: pointer;
 }
