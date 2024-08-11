@@ -99,6 +99,9 @@ export default {
     <div v-if="count" class="user-tab-count">
       {{ count }} level{{ count > 1 ? 's' : '' }}
     </div>
+    <div class="user-buttons">
+      <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
+    </div>
   </div>
   <div v-if="currencyData" class="user-tab-currency-container">
     <div class="user-tab-currency">
@@ -113,7 +116,6 @@ export default {
   </div>
   <div class="user-tab-admin-container" v-if="loaded && isAdmin">
     <div class="user-buttons">
-      <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
       <SetCreatorButton v-if="loaded" :userID="identifier" :isCreator="isVerified"/>
       <SetVerifierButton v-if="loaded" :userID="identifier" :isVerifier="isVerifier"/>
       <SetModeratorButton v-if="loaded" :userID="identifier" :isModerator="isModerator"/>
