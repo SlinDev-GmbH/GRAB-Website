@@ -34,7 +34,7 @@ message AmbienceSettings
 	float sunAzimuth = 4;
 	float sunSize = 5;
 
-	float fogDDensity = 6;
+	float fogDensity = 6;
 }
 
 enum LevelNodeShape
@@ -51,6 +51,7 @@ enum LevelNodeShape
 	CYLINDER = 1002;
 	PYRAMID = 1003;
 	PRISM = 1004;
+	CONE = 1005;
 }
 
 enum LevelNodeMaterial
@@ -103,8 +104,11 @@ message LevelNodeStatic
 	Vector scale = 4;
 	Quaternion rotation = 5;
 
-	Color color = 6;
+	Color color1 = 6;
+	Color color2 = 9; //Used for colored lava blocks, blending between the two colors, but also used for specularity on colored default blocks!
+
 	bool isNeon = 7;
+	bool isTransparent = 8;
 }
 
 message LevelNodeCrumbling

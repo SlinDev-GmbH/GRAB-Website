@@ -69,6 +69,7 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, s
 		"diffuseColor": { value: [1.0, 1.0, 1.0] },
 		"worldNormalMatrix": { value: new THREE.Matrix3() },
 		"neonEnabled": { value: neonEnabled },
+		"transparentEnabled": { value: 0.0 },
 		"fogEnabled": { value: 1.0 },
 		"specularColor": { value: specularColor}
 	};
@@ -822,12 +823,25 @@ function init()
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
 
-						if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color)
+						if(node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.color1)
 						{
-							newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color.r, node.levelNodeStatic.color.g, node.levelNodeStatic.color.b]
+							newMaterial.uniforms.diffuseColor.value = [node.levelNodeStatic.color1.r, node.levelNodeStatic.color1.g, node.levelNodeStatic.color1.b]
 
-							const specularFactor = Math.sqrt(node.levelNodeStatic.color.r * node.levelNodeStatic.color.r + node.levelNodeStatic.color.g * node.levelNodeStatic.color.g + node.levelNodeStatic.color.b * node.levelNodeStatic.color.b) * 0.15
-							newMaterial.uniforms.specularColor.value = [specularFactor, specularFactor, specularFactor, 16.0]
+							let specularFactor = Math.sqrt(node.levelNodeStatic.color1.r * node.levelNodeStatic.color1.r + node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g + node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b) * 0.15;
+							let specularColor = [specularFactor, specularFactor, specularFactor, 16.0];
+							if (node.levelNodeStatic.color2) {
+								specularColor = [node.levelNodeStatic.color2.r, node.levelNodeStatic.color2.g, node.levelNodeStatic.color2.b, node.levelNodeStatic.color2.a];
+							}
+							newMaterial.uniforms.specularColor.value = specularColor;
+
+							if (node.levelNodeStatic.isTransparent) {
+								newMaterial.transparent = true;
+                                newMaterial.uniforms.transparentEnabled.value = 1.0;
+							}
+						}
+
+						if (node.levelNodeStatic.material === root.COD.Types.LevelNodeMaterial.LAVA && node.levelNodeStatic.color1 && node.levelNodeStatic.color2) {
+							// TODO: colored lava
 						}
 
 						object = new THREE.Mesh(shapes[node.levelNodeStatic.shape-1000], newMaterial)

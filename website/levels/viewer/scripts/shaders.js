@@ -64,6 +64,7 @@ export const levelFS = `
     uniform float tileFactor;
     uniform vec3 diffuseColor;
     uniform float neonEnabled;
+	uniform float transparentEnabled;
     uniform float fogEnabled;
 
     uniform vec2 cameraFogDistance;
@@ -130,6 +131,10 @@ export const levelFS = `
             float fogAmount = clamp((1.0 - exp(-distanceToCamera * cameraFogDistance.x)) * cameraFogDistance.y, 0.0, 1.0);
             color.rgb = mix(color.rgb, fogColor, fogAmount * fogAmount);
         }
+
+		if(transparentEnabled > 0.5) {
+			color.a = 0.5;
+		}
 
         gl_FragColor = color;
 
