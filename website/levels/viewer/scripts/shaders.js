@@ -66,6 +66,8 @@ export const levelFS = `
     uniform float neonEnabled;
 	uniform float transparentEnabled;
     uniform float fogEnabled;
+	uniform float isLava;
+	uniform float isColoredLava;
 
     uniform vec2 cameraFogDistance;
     uniform vec3 cameraFogColor0;
@@ -94,6 +96,14 @@ export const levelFS = `
         }
 
         color.rgb *= diffuseColor;
+
+		if (isColoredLava > 0.5) {
+			vec3 blendValues = vec3(color.b);
+			color.rgb = mix(diffuseColor.rgb, specularColor.rgb, blendValues.b);
+			color.rgb += blendValues.g * 0.1 - (1.0 - blendValues.r) * 0.2;
+		} else if (isLava > 0.5) {
+			color.rgb = vec3(color.rg, 0);
+		}
 
         vec3 cameraToVertex = vWorldPosition - cameraPosition;
 	    float distanceToCamera = length(cameraToVertex);
