@@ -55,7 +55,7 @@ export default {
 
 <style scoped>
 .gift-button {
-  padding-block: 4px;
+  padding: 5px 10px;
   font-weight: bold;
   background-color: green;
   color: white;
