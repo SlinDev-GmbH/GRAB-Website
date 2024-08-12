@@ -6,6 +6,8 @@ import SetVerifierButton from './SetVerifierButton.vue'
 import SetModeratorButton from './SetModeratorButton.vue'
 import GiftCosmeticButton from './GiftCosmeticButton.vue'
 import UserModerationTools from './UserModerationTools.vue'
+import PurchaseHistory from './PurchaseHistory.vue'
+import ModerationHistory from './ModerationHistory.vue'
 
 import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
@@ -18,7 +20,9 @@ export default {
     SetVerifierButton,
     SetModeratorButton,
     GiftCosmeticButton,
-    UserModerationTools
+    UserModerationTools,
+    PurchaseHistory,
+    ModerationHistory
   },
 
   props: {
@@ -42,7 +46,9 @@ export default {
       isModerator: false,
       currencyData: undefined,
       loaded: false,
-      userInfo: undefined
+      userInfo: undefined,
+      showPurchaseHistory: false,
+      showModerationHistory: false
     }
   },
 
@@ -120,11 +126,15 @@ export default {
       <SetVerifierButton v-if="loaded" :userID="identifier" :isVerifier="isVerifier"/>
       <SetModeratorButton v-if="loaded" :userID="identifier" :isModerator="isModerator"/>
       <GiftCosmeticButton v-if="loaded" :userID="identifier"/>
+      <button class="history-button" @click="this.showPurchaseHistory = !this.showPurchaseHistory">Purchase History</button>
+      <button class="history-button" @click="this.showModerationHistory = !this.showModerationHistory">Moderation History</button>
     </div>
   </div>
   <div v-if="loaded && (isSuperModerator || isAdmin)" class="user-tab-moderation-container">
     <UserModerationTools v-if="loaded && (isSuperModerator || isAdmin)" :user-info="userInfo" :user-page="true"/>
   </div>
+  <PurchaseHistory v-if="showPurchaseHistory && loaded && isAdmin" :userID="identifier" :show="showPurchaseHistory"/>
+  <ModerationHistory v-if="showModerationHistory && loaded && isAdmin" :userID="identifier" :show="showModerationHistory"/>
 </template>
 
 
@@ -212,6 +222,16 @@ export default {
 
 .player-button {
   padding: 2px 5px 1px 5px;
+  font-weight: bold;
+  background-color: #4642BE;
+  color: white;
+  border: none;
+  font-size: 12px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+.history-button {
+  padding: 5px 10px;
   font-weight: bold;
   background-color: #4642BE;
   color: white;

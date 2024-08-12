@@ -120,9 +120,11 @@ export default {
 <template>
   <div id="level-browser">
     <header>
-      <a href="/">
-        <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
-      </a>
+      <div class="home-link-wrapper">
+        <a href="/" class="home-link">
+          <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
+        </a>
+      </div>
       <LoginButton />
       <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
       <button v-if="isSuperModerator" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
@@ -167,11 +169,24 @@ header, main {
 }
 
 .logo {
-  margin: 0 auto;
-  padding-bottom: 30px;
+  width: 100%;
   height: auto;
-  max-width: 50%;
-  display: block;
+}
+.home-link {
+  width: fit-content;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  max-width: 400px;
+}
+.home-link-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding-bottom: 30px;
 }
 
 @media screen and (max-width: 500px) {
