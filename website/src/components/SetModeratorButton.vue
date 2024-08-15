@@ -17,7 +17,7 @@ export default {
 
   methods: {
     async toggleModerator() {
-      await setModerator(this.$api_server_url, this.userID, this.accessToken, !this.isModerator);
+      await setModerator(this.$api_server_url, this.accessToken, this.userID, !this.isModerator);
     }
   }
 }

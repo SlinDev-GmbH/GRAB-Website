@@ -17,7 +17,7 @@ export default {
 
   methods: {
     async toggleVerifier() {
-      await setVerifier(this.$api_server_url, this.userID, this.accessToken, !this.isVerifier);
+      await setVerifier(this.$api_server_url, this.accessToken, this.userID, !this.isVerifier);
     }
   }
 }

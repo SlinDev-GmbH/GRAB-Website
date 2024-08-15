@@ -17,7 +17,7 @@ export default {
 
   methods: {
     async toggleCreator() {
-      await setCreator(this.$api_server_url, this.userID, this.accessToken, !this.isCreator);
+      await setCreator(this.$api_server_url, this.accessToken, this.userID, !this.isCreator);
     }
   }
 }
