@@ -826,7 +826,7 @@ function init()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
 
 						// Transparent
-						if (node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED && node.levelNodeStatic.isTransparent) {
+						if ((node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.DEFAULT_COLORED || node.levelNodeStatic.material == root.COD.Types.LevelNodeMaterial.LAVA) && node.levelNodeStatic.isTransparent) {
 							newMaterial.transparent = true;
 							newMaterial.uniforms.transparentEnabled.value = 1.0;
 						}
