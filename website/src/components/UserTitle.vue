@@ -4,6 +4,7 @@ import { mapState } from 'pinia'
 import SetCreatorButton from './SetCreatorButton.vue'
 import SetVerifierButton from './SetVerifierButton.vue'
 import SetModeratorButton from './SetModeratorButton.vue'
+import SetComplexityOverrideButton from './SetComplexityOverrideButton.vue'
 import GiftCosmeticButton from './GiftCosmeticButton.vue'
 import UserModerationTools from './UserModerationTools.vue'
 import PurchaseHistory from './PurchaseHistory.vue'
@@ -22,7 +23,8 @@ export default {
     GiftCosmeticButton,
     UserModerationTools,
     PurchaseHistory,
-    ModerationHistory
+    ModerationHistory,
+    SetComplexityOverrideButton
   },
 
   props: {
@@ -126,6 +128,7 @@ export default {
       <SetVerifierButton v-if="loaded" :userID="identifier" :isVerifier="isVerifier"/>
       <SetModeratorButton v-if="loaded" :userID="identifier" :isModerator="isModerator"/>
       <GiftCosmeticButton v-if="loaded" :userID="identifier"/>
+      <SetComplexityOverrideButton v-if="loaded" :userID="identifier"/>
       <button class="history-button" @click="this.showPurchaseHistory = !this.showPurchaseHistory">Purchase History</button>
       <button class="history-button" @click="this.showModerationHistory = !this.showModerationHistory">Moderation History</button>
     </div>
