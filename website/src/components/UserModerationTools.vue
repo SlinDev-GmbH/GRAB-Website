@@ -59,8 +59,8 @@ export default {
 
 <template>
   <div class="moderation-tools">
-    <div v-if="userInfo.moderation_info" class="moderation-title">Current Strike:</div>
-    <ModerationInfo v-if="userInfo.moderation_info" :info="userInfo.moderation_info"/>
+    <div v-if="userInfo.moderation_info && !userPage" class="moderation-title">Current Strike:</div>
+    <ModerationInfo v-if="userInfo.moderation_info && !userPage" :info="userInfo.moderation_info"/>
     <br>
     <div class="punish-buttons">
       <button class="moderation-hide-button" @click="showModerationPopup=true">Punish</button>
