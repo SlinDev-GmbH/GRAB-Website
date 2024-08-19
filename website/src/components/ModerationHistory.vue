@@ -23,7 +23,7 @@ export default {
 
   async mounted() {
     if (this.show) {
-      this.history = (await getUserModerationHistoryRequest(this.$api_server_url, this.accessToken, this.otherUserID)).reverse();
+      this.history = (await getUserModerationHistoryRequest(this.$api_server_url, this.accessToken, this.userID)).reverse();
     }
   },
 
