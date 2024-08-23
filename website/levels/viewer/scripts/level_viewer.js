@@ -706,7 +706,7 @@ function init()
 					material.uniforms["cameraFogColor0"] = { value: [decoded.ambienceSettings.skyHorizonColor.r, decoded.ambienceSettings.skyHorizonColor.g, decoded.ambienceSettings.skyHorizonColor.b] }
 					material.uniforms["cameraFogColor1"] = { value: [decoded.ambienceSettings.skyZenithColor.r, decoded.ambienceSettings.skyZenithColor.g, decoded.ambienceSettings.skyZenithColor.b] }
 					material.uniforms["sunSize"] = { value: decoded.ambienceSettings.sunSize }
-					density = decoded.ambienceSettings.fogDDensity
+					density = decoded.ambienceSettings.fogDensity
 				}
 				else
 				{
