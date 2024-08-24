@@ -1,5 +1,5 @@
 export async function getShopItemsRequest(server) {
-  const response = await fetch(server + 'get_shop_items?version=2')
+  const response = await fetch(server + 'get_shop_items?version=3')
   const responseBody = await response.text();
   if(response.status != 200) {
       return false
