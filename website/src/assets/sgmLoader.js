@@ -145,10 +145,10 @@ class SGMLoader extends THREE.Loader {
           const uv = readFloat32Array(2);
           uvs.push(uv);
         }
-        const color = texdataCount === 4 ? readFloat32Array(4) : null;
-        const tangent = hasTangents ? readFloat32Array(4) : null;
-        const weights = hasBones ? readFloat32Array(4) : null;
-        const bones = hasBones ? readFloat32Array(4) : null;
+        const color = texdataCount === 4 ? readFloat32Array(4) : [];
+        const tangent = hasTangents ? readFloat32Array(4) : [];
+        const weights = hasBones ? readFloat32Array(4) : [];
+        const bones = hasBones ? readFloat32Array(4) : [];
         vertices.push([position, normal, uvs, color, tangent, weights, bones]);
       }
 
@@ -189,6 +189,7 @@ class SGMLoader extends THREE.Loader {
         const positions = [];
         const normals = [];
         const uvs = [];
+        const colors = [];
 
         mesh.vertices.forEach((vertex) => {
             positions.push(...vertex[0]);
@@ -196,11 +197,17 @@ class SGMLoader extends THREE.Loader {
             if (vertex[2].length > 0) {
                 uvs.push(...vertex[2][0]);
             }
+            if (vertex[3].length > 0) {
+                colors.push(...vertex[3]);
+            }
         });
         geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
         geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
         geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 4));
         geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1));
+
+        if(colors.length > 0) threeMaterials[mesh.material_id].vertexColors = true
         const threeMesh = new THREE.Mesh(geometry, threeMaterials[mesh.material_id]);
         group.add(threeMesh);
     });
