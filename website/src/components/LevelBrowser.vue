@@ -122,7 +122,7 @@ export default {
     <header>
       <div class="home-link-wrapper">
         <a href="/" class="home-link">
-          <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
+          <img alt="GRAB logo" class="logo" src="/logo.webp" />
         </a>
       </div>
       <LoginButton />
