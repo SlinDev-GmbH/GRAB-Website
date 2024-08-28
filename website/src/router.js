@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import StartPage from './components/StartPage.vue'
 import LevelBrowser from './components/LevelBrowser.vue'
-import PlayerViewer from './components/PlayerViewer.vue'
+import PlayerViewer from '../player-viewer/PlayerViewer.vue'
 import Curation from './components/Curation.vue'
 
 const routes = [
