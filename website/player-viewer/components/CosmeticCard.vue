@@ -20,7 +20,7 @@ export default {
     },
     computed: {
         hasDualEquip() {
-            return ['grapple.hook', 'body/badge'].includes(this.itemObject.type);
+            return ['grapple/hook', 'body/badge'].includes(this.itemObject.type);
         },
         filterType() {
             const filterMap = {
@@ -31,6 +31,7 @@ export default {
                 "Body": "body",
                 "Neck": "body/neck",
                 "Badge": "body/badge",
+                "Hands": "hand",
                 "Checkpoint": "checkpoint",
                 "Grapples": "grapple/hook"
             };
@@ -48,9 +49,15 @@ export default {
             if (side) {
                 return Object.keys(activeModels).some(key => {
                     const model = this.player.activeModels[key];
+                    if (model.name === this.itemName) {
+                        if (key.includes(side)) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
                     model ? model.name === this.itemName && key.includes(side) : false
-                }
-                );
+                });
             } else {
                 return Object.values(activeModels).some(model =>
                     model ? model.name === this.itemName : false
@@ -58,7 +65,6 @@ export default {
             }
 
         },
-
         equip(side = undefined) {
             const type = side ? `${this.itemObject.type}/${side}` : this.itemObject.type;
             this.player.loadModel(this.itemName, type)
@@ -77,8 +83,8 @@ export default {
             const camera = new THREE.PerspectiveCamera(55, 1, 1, 1000);
             camera.position.z += 2;
 
-            scene.userData.element = this.$refs.scene //what repeat 2x???!?!?
-            scene.userData.camera = camera;
+            scene.userData.element = this.$refs.scene 
+            scene.userData.camera = camera
             scene.userData.primary_color = this.primaryColor;
             scene.userData.secondary_color = this.secondaryColor;
 
@@ -86,7 +92,7 @@ export default {
             (async (scene) => {
                 const sgmLoader = new SGMLoader()
 
-                sgmLoader.load(this.itemObject.file, (model) => { // Making the callback async
+                sgmLoader.load(this.itemObject.file, (model) => { 
                     model = MeshUtils.applyMaterialIndices(model, this.itemObject);
                     model = MeshUtils.applyColors(scene, this.itemObject, model);
                     model = this.applyPreviewRotation(model)
@@ -102,7 +108,7 @@ export default {
         applyPreviewRotation(model) {
             if (this.itemObject.preview_rotation !== undefined) {
                 const [rx, ry, rz] = this.itemObject.preview_rotation.map(Number)
-                let rotation = new THREE.Euler(ry * (-Math.PI / 180), rx * (-Math.PI / 180), rz)
+                let rotation = new THREE.Euler(ry * (Math.PI / 180), rx * (Math.PI / 180), rz * (Math.PI / 180))
 
                 model.rotation.copy(rotation)
             }
@@ -114,17 +120,18 @@ export default {
 }
 </script>
 <template>
-    <div v-show="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && !itemName.includes('rotation')" class="cosmetic-card">
+    <div v-show="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation'))"
+        class="cosmetic-card">
         <h3>{{ itemObject.title }}</h3>
         <div class="scene" ref="scene"></div>
-        <div v-if="hasDualEquip">
-            <button v-if="isEquipped('left')" @click="unequip('left')" class="btn-unequip">Un-equip Left</button> <!--if you indent it looks weird-->
+        <div v-if="hasDualEquip" class="btns-container">
+            <button v-if="isEquipped('left')" @click="unequip('left')" class="btn-unequip">Un-equip Left</button>
             <button v-else @click="equip('left')" class="btn-preview">Preview Left</button>
 
             <button v-if="isEquipped('right')" @click="unequip('right')" class="btn-unequip">Un-equip Right</button>
             <button v-else @click="equip('right')" class="btn-preview">Preview Right</button>
         </div>
-        <div v-else>
+        <div v-else class="btns-container">
             <button v-if="isEquipped()" @click="unequip()" class="btn-unequip">Un-equip</button>
             <button v-else @click="equip()" class="btn-preview">Preview</button>
         </div>
@@ -136,39 +143,49 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    background-color: #fff3;
+    background-color: #6e6e6e15;
     border-radius: 15px;
     width: 100%;
     height: 160px;
     padding: 0.5rem;
-    box-shadow: 0 1px 5px 0px #00000020;
 }
 
 .cosmetic-card h3 {
     margin: 0;
     font-size: 1em;
     text-align: center;
+    color: #0f6db3;
     padding: 5px 10px;
 }
 
+.btns-container {
+
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+
+}
+
 button {
-    width: 70%;
-    border-radius: 2em;
+    width: 80%;
+    border-radius: 10px;
     text-align: center;
     margin: 0 auto;
     color: white;
     border: none;
     cursor: pointer;
-    padding-block: 3px;
+    padding-block: 5px;
+    padding-inline: 15px;
     z-index: 2;
 }
 
 .btn-preview {
-    background-color: #00bc87;
+    background-color: #27df61;
 }
 
 .btn-equip {
-    background-color: #00bc87;
+    background-color: #27df61;
 }
 
 .btn-unequip {
