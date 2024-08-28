@@ -9,12 +9,16 @@ import { getShopItemsRequest } from '../src/requests/GetShopItemsRequest.js';
 import { getUserInfoRequest } from '../src/requests/GetUserInfoRequest.js';
 import { Player } from '../src/assets/Player.js';
 import PlayerToolsContent from './components/PlayerToolsContent.vue'
+import MeshUtils from '../src/assets/MeshUtils.js';
 
 /* LIST
 Future:
     player.head = new model(file);
     player.neck = new model(file);
     etc
+Colors for changing player are reactive
+Make attachment stuff better somehow, aka get gud pleb
+Refind neat verision of code for player positioning
 */
 export default {
     data() {
@@ -36,16 +40,16 @@ export default {
     },
 
     computed: {
-        ...mapState(useUserStore, ['accessToken', 'isLoggedIn' ]),
+        ...mapState(useUserStore, ['accessToken', 'isLoggedIn']),
     },
 
     created() {
         this.scene = null;
         this.camera = null;
         this.renderer = null;
-        
-        const user_id = new URLSearchParams(window.location.search).get('user_id');
-        this.ToolsButtons[0].href = `https://grabvr.quest/levels?tab=tab_other_user&user_id=${user_id}`;
+
+        const user_id = new URLSearchParams(window.location.search).get('user_id')
+        this.ToolsButtons[0].href = `https://grabvr.quest/levels?tab=tab_other_user&user_id=${user_id}`
     },
     async mounted() {
         const items = await getShopItemsRequest(this.$api_server_url)
@@ -56,16 +60,18 @@ export default {
             this.playerInfo = userData
             this.playerItems = userData.active_customizations.items
         }
+        
         const { scene, camera, renderer } = await this.initScene();
-        this.scene = scene;
-        this.camera = camera;
-        this.renderer = renderer;
+        this.scene = scene
+        this.camera = camera
+        this.renderer = renderer
+
         this.render();
         this.initPlayer();
     },
 
     methods: {
-
+        //main player rendering
         async initScene() {
             const renderer = new THREE.WebGLRenderer({
                 canvas: document.getElementById("player-renderer"), //idk why but things are broken when it not this element, maybe I have skill issue
@@ -78,26 +84,24 @@ export default {
             renderer.setPixelRatio(window.devicePixelRatio)
             renderer.setSize(400, 450)
 
-            //scene
             const scene = new THREE.Scene()
-            //lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
             directionalLight.position.set(0, 1, -2);
-            scene.add(ambientLight, directionalLight)
 
-            //camera + controls
+            const AmbientLight = new THREE.AmbientLight(0xffffff, 0.5);
+
+            scene.add(AmbientLight, directionalLight)
+
             const camera = new THREE.PerspectiveCamera(55, 400 / 450, 1, 1000)
-            camera.position.set(0, 0, -3.5);
+            camera.position.set(0, 0, -3.5)
 
-            const controls = new OrbitControls(camera, renderer.domElement);
-            controls.enablePan = false;
-            controls.maxPolarAngle = Math.PI;
-            controls.addEventListener("start", () => (document.body.style.cursor = "none"));
-            controls.addEventListener("end", () => (document.body.style.cursor = "auto"));
+            const controls = new OrbitControls(camera, renderer.domElement)
+            controls.enablePan = false
+            controls.maxPolarAngle = Math.PI
+            controls.addEventListener("start", () => (document.body.style.cursor = "none"))
+            controls.addEventListener("end", () => (document.body.style.cursor = "auto"))
 
-            //canvas for cosmetic item cards
-           
             return { scene, camera, renderer }
         },
 
@@ -105,9 +109,7 @@ export default {
             this.renderer.render(this.scene, this.camera);
             requestAnimationFrame(this.render);
         },
-        
 
-        //init plauyer
         initPlayer() {
             this.scene.userData.primary_color = this.playerInfo.active_customizations.player_color_primary.color
             this.scene.userData.secondary_color = this.playerInfo.active_customizations.player_color_secondary.color
@@ -117,7 +119,7 @@ export default {
                 this.player.loadModel(this.playerItems[itemType], itemType)
             }
         },
-       
+
         /*
          :3     Ԑ: 
         */
@@ -125,24 +127,32 @@ export default {
         //tools:
 
         exportPNG() {
-            const canvas = document.getElementById('player-renderer');
-            const link = document.createElement('a');
-            link.download = `${this.playerInfo.user_name}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
+            const canvas = document.getElementById('player-renderer')
+            const link = document.createElement('a')
+            link.download = `${this.playerInfo.user_name}.png`
+            link.href = canvas.toDataURL()
+            link.click()
         },
         exportGLTF() {
             const exporter = new GLTFExporter();
             exporter.parse(this.scene, (gltf) => {
-                const blob = new Blob([JSON.stringify(gltf)], { type: 'text/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${this.playerInfo.user_name}.gltf`;
-                link.click();
-            }, (error) => console.error('An error happened', error));
+                const blob = new Blob([JSON.stringify(gltf)], { type: 'text/json' })
+                const link = document.createElement('a')
+                link.href = URL.createObjectURL(blob)
+                link.download = `${this.playerInfo.user_name}.gltf`
+                link.click()
+            }, (error) => console.error('An error happened', error))
         },
 
-
+        changeColor(colorObject) {
+            if (colorObject.page === "primary") {
+                this.scene.userData.primary_color = colorObject.color
+            }
+            if (colorObject.page === "secondary") {
+                this.scene.userData.secondary_color = colorObject.color
+            }
+            MeshUtils.applyColorsToAll(this.scene)
+        }
 
     }
 }
@@ -161,8 +171,9 @@ export default {
             <canvas id="player-renderer"></canvas>
         </div>
 
-        <PlayerToolsContent v-if="itemsList && player && playerInfo" :player="player" :playerInfo="playerInfo" :itemsList="itemsList" />
-        
+        <PlayerToolsContent v-if="itemsList && player && playerInfo" :player="player" :playerInfo="playerInfo"
+            :itemsList="itemsList" @changeColor="changeColor($event)" />
+
         <canvas id="canvas"></canvas>
 
     </main>
@@ -170,12 +181,14 @@ export default {
 
 <style scoped>
 #player-viewer {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 700;
     background-image: linear-gradient(#84c1f0, #e1f6ff, #84c1f0);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-attachment: fixed;
+
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+
     display: flex;
     justify-content: space-evenly;
     align-items: center;
@@ -184,7 +197,7 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
     margin: 0;
-    gap: 30px;
+    column-gap: 30px;
 }
 
 .user-tools {
@@ -225,12 +238,22 @@ export default {
     height: 450px;
 }
 
+@media screen and (max-width: 1001px) {
+
+    /* when the menu wraps */
+    #player-renderer {
+        height: 40svh !important;
+        width: calc(calc(40svh / 450) * 400) !important;
+    }
+}
+
 #canvas {
     position: fixed;
     left: 0px;
     width: 100%;
     height: 100%;
     z-index: 1;
+    pointer-events: none;
 }
 
 ::-webkit-scrollbar {
