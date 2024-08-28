@@ -101,7 +101,7 @@ export default {
               <a href="https://slindev.com/terms" aria-label="End user license agreement">EULA</a>
               <a href="https://slindev.com" aria-label="SlinDev website">SLINDEV</a>
               <a href="https://www.youtube.com/@grabvrgame" aria-label="GRAB YouTube channel">YOUTUBE</a>
-              <a href="https://www.tiktok.com/@grabvr_official" aria-label="GRAB TikTok channel">TIKTOK</a>
+              <a href="https://www.tiktok.com/@grabvrgame" aria-label="GRAB TikTok channel">TIKTOK</a>
           </nav>
       </nav>
   </footer>
