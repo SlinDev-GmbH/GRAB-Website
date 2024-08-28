@@ -223,7 +223,6 @@ export default {
 
 
 <template>
-  <img v-if="otherUserID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.png" />
   <button v-if="listType == 'tab_reported_users'" id="punish-all-button" @click="punishAllUsers">Punish All</button>
   <div class="grid-container" :style="listType == 'tab_audit' ? 'grid-template-columns: 1fr' : ''">
     <div v-for="(item, index) in items" :key="index" class="grid-item">
@@ -249,15 +248,6 @@ export default {
 
 .loading {
   margin: 20px 0;
-}
-
-img.rick {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
 }
 
 #punish-all-button {

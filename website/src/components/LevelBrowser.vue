@@ -119,10 +119,11 @@ export default {
 
 <template>
   <div id="level-browser">
+    <img v-if="showUserTitle && userID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.webp" />
     <header>
       <div class="home-link-wrapper">
         <a href="/" class="home-link">
-          <img alt="GRAB logo" class="logo" src="../assets/logo.png" />
+          <img alt="GRAB logo" class="logo" src="/logo.webp" />
         </a>
       </div>
       <LoginButton />
@@ -234,5 +235,14 @@ header, main {
   position: absolute;
   cursor: pointer;
   padding-block: 3px;
+}
+
+img.rick {
+  width: 100vw;
+  height: 100svh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  object-fit: cover;
 }
 </style>

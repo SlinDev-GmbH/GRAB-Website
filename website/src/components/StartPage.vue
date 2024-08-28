@@ -40,7 +40,7 @@ export default {
 <template>
   <div id="homepage">
   <header>
-      <img src="./../assets/logo.png" alt="GRAB Logo">
+      <img src="/logo.webp" alt="GRAB Logo">
       <div class="buttons">
           <a href="https://www.meta.com/experiences/4104088956355944/" aria-label="Get GRAB on Meta">GET GRAB!</a>
           <a href="/levels" aria-label="Browse GRAB levels">BROWSE LEVELS</a>
@@ -101,7 +101,7 @@ export default {
               <a href="https://slindev.com/terms" aria-label="End user license agreement">EULA</a>
               <a href="https://slindev.com" aria-label="SlinDev website">SLINDEV</a>
               <a href="https://www.youtube.com/@grabvrgame" aria-label="GRAB YouTube channel">YOUTUBE</a>
-              <a href="https://www.tiktok.com/@grabvr_official" aria-label="GRAB TikTok channel">TIKTOK</a>
+              <a href="https://www.tiktok.com/@grabvrgame" aria-label="GRAB TikTok channel">TIKTOK</a>
           </nav>
       </nav>
   </footer>
