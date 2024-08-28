@@ -105,7 +105,7 @@ class SGMLoader extends THREE.Loader {
         for (let k = 0; k < imageCount; k++) {
           const usageHint = readUInt8();
           const texname = readString().replace('*', 'png');
-          console.log(texname)
+          //console.log(texname)
           images.push([texname, usageHint]);
         }
         uvData.push(images);
