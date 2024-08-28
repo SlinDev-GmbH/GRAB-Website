@@ -40,7 +40,9 @@ export default {
         }
     },
     mounted() {
-        this.setupThreeScene();
+        if(!this.itemObject.type.includes('currency') && !this.itemName.includes('rotation') ){
+            this.setupThreeScene();
+        }
     },
     methods: {
         isEquipped(side = null) {
@@ -120,7 +122,7 @@ export default {
 }
 </script>
 <template>
-    <div v-show="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation'))"
+    <div v-if="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation'))"
         class="cosmetic-card">
         <h3>{{ itemObject.title }}</h3>
         <div class="scene" ref="scene"></div>
