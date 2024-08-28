@@ -6,7 +6,7 @@ class SGMLoader extends THREE.Loader {
   }
   
 
-  load(file, onLoad, onError, scene) {
+  load(baseUrl, file, onLoad, onError, scene) {
     const loader = new THREE.FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
@@ -14,7 +14,7 @@ class SGMLoader extends THREE.Loader {
     loader.setWithCredentials(this.withCredentials);
 
     loader.load(
-      '../../public/'+file+'.sgm',
+      baseUrl + file + '.sgm',
       (data) => {
         try {
           const result = this.parse(data);
@@ -26,7 +26,7 @@ class SGMLoader extends THREE.Loader {
           } else {
             console.error(error);
           }
-          this.manager.itemError('../../public'+file);
+          this.manager.itemError(baseUrl + file);
         }
       }
     );

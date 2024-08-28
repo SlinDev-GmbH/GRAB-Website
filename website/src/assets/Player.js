@@ -3,7 +3,8 @@ import MeshUtils from './MeshUtils';
 import { SGMLoader } from "./sgmLoader";
 
 class Player {
-    constructor(scene, itemsList) {
+    constructor(baseUrl, scene, itemsList) {
+        this.baseUrl = baseUrl
         this.scene = scene;
         this.activeModels = {};
         this.itemsList = itemsList;
@@ -73,7 +74,7 @@ class Player {
         const item = this.itemsList[targetname] || this.defaults[itemtype];
         const file = item.file || targetname;
 
-        loader.load(file, (model) => {
+        loader.load(this.baseUrl, file, (model) => {
             model = MeshUtils.applyMaterialIndices(model, item)
             model = MeshUtils.applyColors(this.scene, item, model)
             model = MeshUtils.adjustGroupForCategory(model, itemtype)

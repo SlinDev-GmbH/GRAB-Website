@@ -94,7 +94,7 @@ export default {
             (async (scene) => {
                 const sgmLoader = new SGMLoader()
 
-                sgmLoader.load(this.itemObject.file, (model) => { 
+                sgmLoader.load(import.meta.env.BASE_URL, this.itemObject.file, (model) => { 
                     model = MeshUtils.applyMaterialIndices(model, this.itemObject);
                     model = MeshUtils.applyColors(scene, this.itemObject, model);
                     model = this.applyPreviewRotation(model)
