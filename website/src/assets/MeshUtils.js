@@ -2,10 +2,6 @@ import * as THREE from 'three';
 
 class MeshUtils {
 
-  static linearToGamma(color) {
-    return color.map(c => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055);
-  }
-
   static halfColor(color) {
     return color.multiplyScalar(0.5);
   }
@@ -13,7 +9,7 @@ class MeshUtils {
   static getColorFromInput(colorInput) {
     return colorInput instanceof THREE.Color
       ? colorInput
-      : new THREE.Color(...(Array.isArray(colorInput) ? MeshUtils.linearToGamma(colorInput) : [colorInput]));
+      : new THREE.Color(...(Array.isArray(colorInput) ? colorInput : [colorInput]));
   }
 
   static applyColors(scene, item, group) {
@@ -21,7 +17,7 @@ class MeshUtils {
     const secondaryColor = MeshUtils.getColorFromInput(scene.userData.secondary_color);
 
     const colorMap = {
-      default_color: (index) => new THREE.Color(...MeshUtils.linearToGamma(item.materials[index].diffuseColor)),
+      default_color: (index) => new THREE.Color(...item.materials[index].diffuseColor),
       default_primary_color: () => primaryColor,
       default_secondary_color: () => secondaryColor,
       default_secondary_color_visor: () => MeshUtils.halfColor(secondaryColor.clone()),

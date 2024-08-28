@@ -89,10 +89,10 @@ export default {
 
             const scene = new THREE.Scene()
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
             directionalLight.position.set(0, 1, -2);
 
-            const AmbientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const AmbientLight = new THREE.AmbientLight(0xffffff, 1.0);
 
             scene.add(AmbientLight, directionalLight)
 
