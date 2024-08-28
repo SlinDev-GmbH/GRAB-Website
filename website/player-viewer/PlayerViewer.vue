@@ -1,7 +1,7 @@
 <script>
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
-import * as THREE from "https://unpkg.com/three@0.138.0/build/three.module.js"
+import * as THREE from 'three';
 import { OrbitControls } from "../src/assets/OrbitContols.js";
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 
@@ -73,6 +73,9 @@ export default {
     methods: {
         //main player rendering
         async initScene() {
+
+            THREE.ColorManagement.enabled = true;
+            
             const renderer = new THREE.WebGLRenderer({
                 canvas: document.getElementById("player-renderer"), //idk why but things are broken when it not this element, maybe I have skill issue
                 alpha: true,
