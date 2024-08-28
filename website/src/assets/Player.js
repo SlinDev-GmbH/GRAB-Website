@@ -7,6 +7,7 @@ class Player {
         this.scene = scene;
         this.activeModels = {};
         this.itemsList = itemsList;
+        this.pendingAttachments = {};
         this.defaults = {
             "head": {
                 file: "player/head",
@@ -49,7 +50,7 @@ class Player {
         }
     }
 
-    unequip(type) { //shush bad naming but I have no other names
+    unequip(type) { 
         if (this.defaults[type]) {
             this.loadModel(this.defaults[type].file, type)
         } else {
@@ -57,37 +58,56 @@ class Player {
         }
     }
 
-    HandleModelToScene(model = undefined, itemType){
+    HandleModelToScene(model = undefined, itemType) {
         if (this.activeModels[itemType]) {
-            this.resetAttachments(itemType);
-            this.scene.remove(this.activeModels[itemType]);
+            this.resetAttachments(itemType)
+            this.scene.remove(this.activeModels[itemType])
         }
 
         this.activeModels[itemType] = model;
-        model?this.scene.add(model):undefined
+        model ? this.scene.add(model) : undefined
     }
 
     loadModel(targetname, itemtype) {
         const loader = new SGMLoader();
-        const item = this.itemsList[targetname] || this.defaults[itemtype]
+        const item = this.itemsList[targetname] || this.defaults[itemtype];
         const file = item.file || targetname;
 
         loader.load(file, (model) => {
-            model = MeshUtils.applyMaterialIndices(model, item);
-            model = MeshUtils.applyColors(this.scene, item, model);
-            model = MeshUtils.adjustGroupForCategory(model, itemtype);
+            model = MeshUtils.applyMaterialIndices(model, item)
+            model = MeshUtils.applyColors(this.scene, item, model)
+            model = MeshUtils.adjustGroupForCategory(model, itemtype)
 
             model.name = targetname;
 
-            model = this.setupAttachments(model, item.attachment_point ? itemtype + '/' + item.attachment_point : itemtype);
-            
-            this.adjustAttachments(model, item);
+            model = this.setupAttachments(model, item.attachment_point ? itemtype + '/' + item.attachment_point : itemtype)
 
             this.HandleModelToScene(model, itemtype)
-   
 
+            this.applyPendingAttachments(model, itemtype)
+
+            this.adjustAsChildModel(itemtype)
         });
     }
+    
+    applyPendingAttachments(model, itemtype) {
+        if (this.pendingAttachments[itemtype]) {
+            this.adjustAttachments(model, this.itemsList[model.name]);
+            delete this.pendingAttachments[itemtype];
+        }
+    }
+
+    adjustAsChildModel(itemtype) {
+        for (let parentType in this.activeModels) {
+            const parentModel = this.activeModels[parentType];
+            const parentItem = this.itemsList[parentModel.name];
+            if (parentItem && parentItem.attachment_points && parentItem.attachment_points[itemtype.split('/').pop()]) {
+                this.adjustAttachments(parentModel, parentItem);
+                break;
+            }
+        }
+    }
+
 
     resetAttachments(itemtype) {
         for (let attachmentType in this.activeModels) {
@@ -97,30 +117,34 @@ class Player {
         }
     }
 
-    adjustAttachments(parentModel, item, type) {
+    adjustAttachments(parentModel, item) {
         if (item.attachment_points) {
             for (let [attachmentType, point] of Object.entries(item.attachment_points)) {
                 const fullAttachmentType = `${item.type}/${attachmentType}`;
                 const childModel = this.activeModels[fullAttachmentType];
 
                 if (childModel) {
-                    childModel.restore();
-
-                    const override = item.attachment_point_overrides?.[parentModel.name];
-                    if (override) {
-                        if (override.position) childModel.position.copy(new THREE.Vector3(...override.position));
-                        if (override.scale) childModel.scale.set(override.scale, override.scale, override.scale);
-                    } else {
-                        if (point.position) childModel.position.copy(new THREE.Vector3(...point.position));
-                        if (point.rotation) childModel.rotation.copy(new THREE.Euler(...point.rotation));
-
-                        if (point.scale) childModel.scale.set(point.scale, point.scale, point.scale);
-                    }
+                    this.applyAttachment(childModel, parentModel, point);
+                } else {
+                    // Queue the attachment for later
+                    this.pendingAttachments[fullAttachmentType] = { parentModel, point, attachmentType };
                 }
             }
         }
-        if (item.attachment_offset_v2){
-            parentModel.position.z -=(item.attachment_offset_v2)
+        if (item.attachment_offset_v2) {
+            parentModel.position.z -= (item.attachment_offset_v2)
+        }
+    }
+    applyAttachment(childModel, parentModel, point) {
+        childModel.restore();
+        const override = this.itemsList[childModel.name].attachment_point_overrides?.[parentModel.name];
+        if (override) {
+            if (override.position) childModel.position.copy(new THREE.Vector3(...override.position));
+            if (override.scale) childModel.scale.set(override.scale, override.scale, override.scale);
+        } else {
+            if (point.position) childModel.position.copy(new THREE.Vector3(...point.position));
+            if (point.rotation) childModel.rotation.copy(new THREE.Euler(...point.rotation));
+            if (point.scale) childModel.scale.set(point.scale, point.scale, point.scale);
         }
     }
 
@@ -128,31 +152,33 @@ class Player {
         let { position, rotation } = this.handleAttachments(type);
         let initialPosition, initialRotation;
 
-        // Handle rotation if provided
         if (rotation) {
             rotation = new THREE.Euler(
                 (rotation.x * Math.PI) / 180, // Convert to radians
                 (rotation.y * Math.PI) / 180,
                 (rotation.z * Math.PI) / 180
             );
-            model.rotation.copy(rotation); // Set the rotation directly
+            model.rotation.copy(rotation);
         }
-        initialRotation = model.rotation.clone(); // Clone after modifications
+        initialRotation = model.rotation.clone();
 
-        // Handle position if provided
         if (position) {
-            position = new THREE.Vector3(...position);
-            model.position.add(position); // Add to the current position
+            position = new THREE.Vector3(...position)
+            model.position.add(position)
         }
-        initialPosition = model.position.clone(); // Clone after modifications
+        initialPosition = model.position.clone()
 
         model.restore = () => {
-            if (initialPosition){ model.position.copy(initialPosition);
-                console.log(initialPosition)
-
+            if (initialPosition) {
+                model.position.copy(initialPosition)
             }
-            if (initialRotation) model.rotation.copy(initialRotation);
-            model.scale.set(1, 1, 1);
+
+            if (initialRotation) {
+                model.rotation.copy(initialRotation)
+            }
+
+            model.scale.set(1, 1, 1)
+
             return model;
         };
 
