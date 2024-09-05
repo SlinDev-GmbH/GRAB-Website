@@ -26,6 +26,8 @@ export default {
       if(handled === true)
       {
         this.$emit('handled', true)
+        this.$emit('hideBtn')
+
       }
     },
   }

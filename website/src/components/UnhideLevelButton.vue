@@ -5,6 +5,7 @@ import { useUserStore } from '@/stores/user'
 import { unhideLevelRequest } from '../requests/UnhideLevelRequest'
 
 export default {
+  emits:['handled'],
   props: {
     level_id : String
   },
@@ -15,7 +16,9 @@ export default {
 
   methods: {
     async doModerationAction() {
-      if(!await unhideLevelRequest(this.$api_server_url, this.accessToken, this.level_id)) return
+      if(await unhideLevelRequest(this.$api_server_url, this.accessToken, this.level_id))  {
+        this.$emit('handled', false)
+      } return
     },
   }
 }
