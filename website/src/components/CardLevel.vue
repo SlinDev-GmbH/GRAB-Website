@@ -41,7 +41,8 @@ export default {
   data() {
     return {
       cardColor: 'white',
-      imageKeys: []
+      imageKeys: [],
+      isHidden: this.item.hidden
     }
   },
 
@@ -132,9 +133,6 @@ export default {
       return this.moderationItem !== null
     },
 
-    isHidden() {
-      return this.item.hidden === true
-    },
 
     ...mapState(useUserStore, ['isVerifier']),
     ...mapState(useUserStore, ['isAdmin']),
@@ -151,6 +149,9 @@ export default {
   },
 
   methods: {
+    hideState(){
+      this.isHidden = !this.isHidden
+    },
     didHandleCell(bad) {
       if(bad === true)
       {
@@ -162,7 +163,7 @@ export default {
       }
     },
 
-    showMoreLevels(userID) {
+    showMoreLevels() {
       this.$emit('more', this.item.identifier.split(':')[0])
     },
 
@@ -204,9 +205,9 @@ export default {
     <div class="description">{{ item.description }}</div>
     <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue'" :level-info="item"/>
     <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
-    <HideLevelButton v-if="isSuperModerator && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <HideLevelButton v-show="!isHidden" v-if="!isHidden && isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell" @hideBtn="hideState"/>
     <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
-    <UnhideLevelButton v-if="isSuperModerator && !isModerationCell && isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
+    <UnhideLevelButton  v-show="isHidden" v-if="isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell" @click="hideState"/>
     <UnscheduleDeletionButton v-if="isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
     <div class="interactions">
