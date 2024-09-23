@@ -505,16 +505,9 @@ function init()
 					(async () => {
 						const reason = document.getElementById("hideReason").value;
 						const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1]
+						
+						let noPunish = (reason === 'no_punish');
 
-						const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
-						const hideResponseBody = await hideResponse.text();
-						if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
-							confirm("Error: " + hideResponseBody);
-						} else {
-							hideContainer.style.display = "none";
-						}
-
-						let noPunish = (reason === 'no_punish')
 						if(reason === 'level_tips')
 						{
 							if("creation_timestamp" in detailResponseBody)
@@ -526,6 +519,14 @@ function init()
 									noPunish = true
 								}
 							}
+						}
+						
+						const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {headers: {'Authorization': 'Bearer ' + accessToken}})
+						const hideResponseBody = await hideResponse.text();
+						if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
+							confirm("Error: " + hideResponseBody);
+						} else if(noPunish){ 
+							hideContainer.style.display = "none";
 						}
 
 						if(!noPunish) {
@@ -539,6 +540,8 @@ function init()
 							const moderationResponseBody = await moderationResponse.text();
 							if (moderationResponse.status != 200 || moderationResponseBody !== 'Success') {
 								confirm("Error: " + moderationResponseBody);
+							} else {
+								hideContainer.style.display = "none";
 							}
 							const resetResponse = await fetch(config.SERVER_URL + 'reports_reset/' + levelIdentifierParts[0], {headers: {'Authorization': 'Bearer ' + accessToken}})
 							const resetResponseBody = await resetResponse.text();
