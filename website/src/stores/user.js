@@ -8,7 +8,8 @@ export const useUserStore = defineStore('user', {
     expires: 0,
     favoriteLevels: [],
     list: [],
-    listIndex: null
+    listIndex: null,
+    processedList: {}
   }),
 
   getters: {
@@ -83,6 +84,12 @@ export const useUserStore = defineStore('user', {
       if (!this.favoriteLevels.includes(level_id)) {
         this.favoriteLevels.push(level_id);
       }
+    },
+    getProcessedList(listType){ //reported levels, reported users just so it doesnt reshow 
+      return this.processedList[listType];
+    },
+    pushProcessedList(listType, item){
+      this.processedList[listType].push(item);
     },
     getListItem(index) {
       return this.list[index];
