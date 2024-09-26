@@ -78,9 +78,7 @@ export default {
       const types = ['tab_reported_levels']
       return types.includes(this.listType)
     },
-    ...mapState(useUserStore, ['isLoggedIn']),
-    ...mapState(useUserStore, ['userID']),
-    ...mapState(useUserStore, ['accessToken'])
+    ...mapState(useUserStore, ['isLoggedIn', 'userID', 'accessToken', 'getProcessedList', 'pushProcessedList', 'isAdmin', 'isSuperModerator']),
   },
 
   watch: {
@@ -143,13 +141,16 @@ export default {
         otherUserID: this.otherUserID
       }
 
-      const levels = await this.loadLevels()
+      let levels = await this.loadLevels()
       if(this.activeLoad.searchTerm !== this.searchTerm || 
         this.activeLoad.listType !== this.listType ||
         this.activeLoad.difficulty!== this.difficulty ||
         this.activeLoad.tag!== this.tag ||
         this.activeLoad.otherUserID!== this.otherUserID) return
 
+      const processedItems = this.getProcessedList(this.listType);
+      if (processedItems) levels = levels.filter(item => !processedItems.includes(item));
+      
       this.items = [...this.items, ...levels]
       const userStore = useUserStore()
       userStore.setList(this.items)
@@ -200,6 +201,10 @@ export default {
           resetReportsRequest(this.$api_server_url, this.accessToken, userID)
         ]);
 
+        if (actionSuccess && reportsSuccess) {
+          this.pushProcessedList(this.listType, item);
+        }
+
         const success = actionSuccess && reportsSuccess ? 1 : 0;
         return { success };
       });
@@ -207,7 +212,9 @@ export default {
       const results = await Promise.all(promises);
       const successes = results.reduce((total, result) => total + result.success, 0);
       alert(successes + ' users punished');
-      this.items = [];
+      if(this.listType === "tab_reported_users"){
+        this.items = [];
+      }
     }
   },
 
@@ -223,7 +230,7 @@ export default {
 
 
 <template>
-  <button v-if="listType == 'tab_reported_users'" id="punish-all-button" @click="punishAllUsers">Punish All</button>
+  <button v-if="listType == 'tab_reported_users' && (isAdmin || isSuperModerator)" id="punish-all-button" @click="punishAllUsers">Punish All</button>
   <div class="grid-container" :style="listType == 'tab_audit' ? 'grid-template-columns: 1fr' : ''">
     <div v-for="(item, index) in items" :key="index" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
