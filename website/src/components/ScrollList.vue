@@ -217,7 +217,6 @@ export default {
       const results = await Promise.all(promises);
       const successes = results.reduce((total, result) => total + result.success, 0);
       alert(successes + ' users punished');
-      console.log(this.listType);
       if(this.listType === "tab_reported_users"){
         this.items = [];
       }
