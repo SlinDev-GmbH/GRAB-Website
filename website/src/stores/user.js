@@ -89,6 +89,7 @@ export const useUserStore = defineStore('user', {
       return this.processedList[listType];
     },
     pushProcessedList(listType, item){
+      if(!this.processedList[listType]) this.processedList[listType] = [];
       this.processedList[listType].push(item);
     },
     getListItem(index) {

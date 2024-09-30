@@ -78,7 +78,12 @@ export default {
       const types = ['tab_reported_levels']
       return types.includes(this.listType)
     },
-    ...mapState(useUserStore, ['isLoggedIn', 'userID', 'accessToken', 'getProcessedList', 'pushProcessedList', 'isAdmin', 'isSuperModerator']),
+    ...mapState(useUserStore, 'isLoggedIn'),
+    ...mapState(useUserStore, 'userID'),
+    ...mapState(useUserStore, 'accessToken'),
+    ...mapState(useUserStore, 'isAdmin'),
+    ...mapState(useUserStore, 'isSuperModerator')
+  
   },
 
   watch: {
@@ -148,7 +153,7 @@ export default {
         this.activeLoad.tag!== this.tag ||
         this.activeLoad.otherUserID!== this.otherUserID) return
 
-      const processedItems = this.getProcessedList(this.listType);
+      const processedItems = useUserStore().getProcessedList(this.listType);
       if (processedItems) levels = levels.filter(item => !processedItems.includes(item));
       
       this.items = [...this.items, ...levels]
@@ -202,7 +207,7 @@ export default {
         ]);
 
         if (actionSuccess && reportsSuccess) {
-          this.pushProcessedList(this.listType, item);
+          useUserStore.pushProcessedList(this.listType, item);
         }
 
         const success = actionSuccess && reportsSuccess ? 1 : 0;
@@ -212,6 +217,7 @@ export default {
       const results = await Promise.all(promises);
       const successes = results.reduce((total, result) => total + result.success, 0);
       alert(successes + ' users punished');
+      console.log(this.listType);
       if(this.listType === "tab_reported_users"){
         this.items = [];
       }
