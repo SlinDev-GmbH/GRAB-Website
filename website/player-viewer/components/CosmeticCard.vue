@@ -4,6 +4,11 @@ import MeshUtils from '../../src/assets/MeshUtils';
 import { SGMLoader } from "../../src/assets/sgmLoader";
 
 export default {
+    data() {
+        return {
+            fileExists: false
+        };
+    },
     props: {
         itemName: {
             type: String,
@@ -29,6 +34,7 @@ export default {
                 "Hats": "head/hat",
                 "Facewear": "head/glasses",
                 "Body": "body",
+                "Backpack":"body/backpack",
                 "Neck": "body/neck",
                 "Badge": "body/badge",
                 "Hands": "hand",
@@ -92,17 +98,22 @@ export default {
 
 
             (async (scene) => {
-                const sgmLoader = new SGMLoader()
+                const sgmLoader = new SGMLoader();
 
-                sgmLoader.load(import.meta.env.BASE_URL, this.itemObject.file, (model) => { 
-                    model = MeshUtils.applyMaterialIndices(model, this.itemObject);
-                    model = MeshUtils.applyColors(scene, this.itemObject, model);
-                    model = this.applyPreviewRotation(model)
-                    scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+                sgmLoader.load(import.meta.env.BASE_URL, this.itemObject.file, 
+                    (model) => { 
+                        model = MeshUtils.applyMaterialIndices(model, this.itemObject);
+                        model = MeshUtils.applyColors(scene, this.itemObject, model);
+                        model = this.applyPreviewRotation(model);
+                        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                        scene.add(model);
 
-                    scene.add(model);
-                });
-
+                        this.fileExists = true;  
+                    }, 
+                    () => {
+                        this.fileExists = false;
+                    }
+                );
             })(scene);
             return this.$emit('updateSceneList', scene);
         },
@@ -122,7 +133,7 @@ export default {
 }
 </script>
 <template>
-    <div v-if="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation'))"
+    <div v-show="fileExists && ((itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation')))"
         class="cosmetic-card">
         <h3>{{ itemObject.title }}</h3>
         <div class="scene" ref="scene"></div>

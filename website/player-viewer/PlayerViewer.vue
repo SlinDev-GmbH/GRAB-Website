@@ -195,7 +195,7 @@ export default {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    height: 100svh;
+    height: 100vh;
     width: 100vw;
     flex-direction: row;
     flex-wrap: wrap;
