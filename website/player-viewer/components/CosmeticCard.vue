@@ -29,6 +29,7 @@ export default {
                 "Hats": "head/hat",
                 "Facewear": "head/glasses",
                 "Body": "body",
+                "Backpack":"body/backpack",
                 "Neck": "body/neck",
                 "Badge": "body/badge",
                 "Hands": "hand",
@@ -122,7 +123,7 @@ export default {
 }
 </script>
 <template>
-    <div v-if="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation'))"
+    <div v-show="(itemObject.type === filterType || (filterType === 'All' && !itemObject.type.includes('currency'))) && (isEquipped || !itemName.includes('rotation'))"
         class="cosmetic-card">
         <h3>{{ itemObject.title }}</h3>
         <div class="scene" ref="scene"></div>
