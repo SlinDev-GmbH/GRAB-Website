@@ -105,6 +105,10 @@ export default {
                 let content = document.getElementById("categories-content")
                 let contentRect = content.getBoundingClientRect();
 
+                if (rect.bottom > contentRect.bottom || rect.top < contentRect.top ||
+                    rect.right < 0 || rect.left > this.divRenderer.domElement.clientWidth) {
+                    return;
+                }
 
                 let camera = scene.userData.camera;
 
