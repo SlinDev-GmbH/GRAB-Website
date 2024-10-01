@@ -78,11 +78,11 @@ export default {
       const types = ['tab_reported_levels']
       return types.includes(this.listType)
     },
-    ...mapState(useUserStore, 'isLoggedIn'),
-    ...mapState(useUserStore, 'userID'),
-    ...mapState(useUserStore, 'accessToken'),
-    ...mapState(useUserStore, 'isAdmin'),
-    ...mapState(useUserStore, 'isSuperModerator')
+    ...mapState(useUserStore, ['isLoggedIn']),
+    ...mapState(useUserStore, ['userID']),
+    ...mapState(useUserStore, ['accessToken']),
+    ...mapState(useUserStore, ['isAdmin']),
+    ...mapState(useUserStore, ['isSuperModerator'])
   
   },
 
