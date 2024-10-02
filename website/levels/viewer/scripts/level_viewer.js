@@ -599,18 +599,19 @@ function init()
 							moderationImageElement.appendChild(img);
 							moderationImageElement.appendChild(document.createElement("br"));
 							moderationImageElement.appendChild(document.createElement("br"));
+							//report image (putting this here so I can crtl+f to it later)
 							moderationImageElement.onclick = function() {
 								console.log(image.camera_position)
 								camera.position.set(-image.camera_position[0], image.camera_position[1], -image.camera_position[2]);
 								let quaternion = new THREE.Quaternion()
-								quaternion.x = image.camera_rotation[1]
-								quaternion.y = image.camera_rotation[2]
-								quaternion.z = image.camera_rotation[3]
-								quaternion.w = image.camera_rotation[0]
+								quaternion.x = image.camera_rotation[0]
+								quaternion.y = image.camera_rotation[1]
+								quaternion.z = image.camera_rotation[2]
+								quaternion.w = image.camera_rotation[3]
 
 								let euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
-								controls.eulerVector.x = euler.x
-								controls.eulerVector.y = (euler.y+Math.PI)
+								controls.eulerVector.x = euler.y
+								controls.eulerVector.y = (euler.x+Math.PI)
 								controls.updateRotationVector();
 							}
 							moderationContainer.appendChild(moderationImageElement);
@@ -935,8 +936,8 @@ function init()
 						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
 						
 						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'XYZ');
-						euler.y += Math.PI;
-						cameraRotation = [0, euler.y];
+						euler.x += Math.PI;
+						cameraRotation = [0, euler.x];
 
 						var goToStartLabel = document.getElementById("startButton");
 						goToStartLabel.innerHTML = "Go to Start"
@@ -990,6 +991,8 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
+						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'XYZ');
+
 						let signText = node.levelNodeSign.text
 						if(userStore.isModerator && signText && signText.length > 0)
 						{
@@ -999,7 +1002,16 @@ function init()
 							signTextElement.appendChild(document.createElement("br"));
 							signTextElement.appendChild(document.createElement("br"));
 							signTextElement.onclick = function() {
-								camera.position.set(object.position.x, object.position.y + 1.0, object.position.z);
+
+								controls.eulerVector.x = 0
+								controls.eulerVector.y = euler.y+Math.PI
+								controls.updateRotationVector();
+
+								let offset = new THREE.Vector3(0, 0, -1)
+								offset.applyQuaternion(object.quaternion)
+	
+								camera.position.set(object.position.x, object.position.y, object.position.z);
+								camera.position.add(offset)
 							}
 							moderationContainer.appendChild(signTextElement);
 						}
