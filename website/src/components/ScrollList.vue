@@ -138,6 +138,8 @@ export default {
         otherUserID: this.otherUserID
       }
 
+      const userStore = useUserStore()
+
       if(this.loading && 
         this.listType === this.activeLoad?.listType && 
         this.difficulty === this.activeLoad?.difficulty && 
@@ -158,7 +160,6 @@ export default {
       if (processedItems) levels = levels.filter(item => !processedItems.includes(item));
       
       this.items = [...this.items, ...levels]
-      const userStore = useUserStore()
       userStore.setList(this.items)
       this.loading = false
       this.$emit('loaded')
@@ -198,8 +199,9 @@ export default {
     async punishAllUsers() {
       const promises = this.items.map(async (item) => {
         const userID = item?.object_info?.user_id;
-        const reason = this.bestReason(item);
-        
+        const reason = this.bestReason(item);        
+        const userStore = useUserStore()
+
         if (!userID) return { success: 0 };
         
         const [actionSuccess, reportsSuccess] = await Promise.all([
@@ -208,7 +210,7 @@ export default {
         ]);
 
         if (actionSuccess && reportsSuccess) {
-          useUserStore.pushProcessedList(this.listType, item);
+          userStore.pushProcessedList(this.listType, item);
         }
 
         const success = actionSuccess && reportsSuccess ? 1 : 0;
