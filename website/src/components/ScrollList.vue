@@ -129,6 +129,15 @@ export default {
     },
 
     async loadMore() {
+      
+      this.activeLoad = {
+        listType: this.listType,
+        difficulty: this.difficulty,
+        tag: this.tag,
+        searchTerm: this.searchTerm,
+        otherUserID: this.otherUserID
+      }
+
       if(this.loading && 
         this.listType === this.activeLoad?.listType && 
         this.difficulty === this.activeLoad?.difficulty && 
@@ -137,14 +146,6 @@ export default {
         this.otherUserID === this.activeLoad?.otherUserID) return
 
       this.loading = true
-
-      this.activeLoad = {
-        listType: this.listType,
-        difficulty: this.difficulty,
-        tag: this.tag,
-        searchTerm: this.searchTerm,
-        otherUserID: this.otherUserID
-      }
 
       let levels = await this.loadLevels()
       if(this.activeLoad.searchTerm !== this.searchTerm || 
