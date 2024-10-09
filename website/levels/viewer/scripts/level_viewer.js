@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
@@ -33,6 +35,7 @@ import textureGrapplableLavaURL from '../textures/grapplable_lava.png'
 import textureGrabbableCrumblingURL from '../textures/grabbable_crumbling.png'
 import textureDefaultColoredURL from '../textures/default_colored.png'
 import textureBouncingURL from '../textures/bouncing.png'
+import index from 'v-lazy-image';
 
 let userID = undefined;
 
@@ -45,6 +48,7 @@ let shapes = [];
 let objects = []
 let materials = [];
 let objectMaterials = [];
+let fontLoader;
 let isFogEnabled = true;
 let isSliderDragging = false;
 let isSliderPlaying = true;
@@ -119,6 +123,7 @@ function init()
 
 	textureLoader = new THREE.TextureLoader();
 	gltfLoader = new GLTFLoader();
+	fontLoader = new FontLoader();
 
 	let shapePromises = []
 	shapePromises.push(getGeometryForModel(modelCubeURL));
@@ -990,12 +995,66 @@ function init()
 
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
-
+						
 						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'XYZ');
 
 						let signText = node.levelNodeSign.text
+												
 						if(userStore.isModerator && signText && signText.length > 0)
 						{
+							let letterSize = 0.059 //Size of the text characters
+							function processString(inputStr) {
+								let words = inputStr.split(/\s+/);
+								let currentLineWidth  = 0;
+								let finalStr = '';
+							
+								words.forEach(word => {
+									let wordLength = word.length +1; 
+									let wordWidth = wordLength * letterSize; 
+
+									/* 1.2 is a magical number to represent the width of the sign */
+									if (currentLineWidth  + wordWidth >= 1.2) {
+										currentLineWidth  = wordWidth; 
+										finalStr += "\n" + word + " "; 
+									} else {
+										currentLineWidth  += wordWidth;  
+										finalStr += word + " "; 
+									}
+								});
+
+								return finalStr.trim();  
+							}
+
+							fontLoader.load('./scripts/Roboto_Regular.json', function (font) {
+								const processedText = processString(signText);
+
+								const lines = processedText.split('\n');
+								lines.forEach((line, index) => {
+									const textGeometry = new TextGeometry(line, {
+										font: font,
+										size: letterSize,
+										height: 0.0, 
+										curveSegments: 3, 
+										bevelEnabled: false
+									});
+								
+									const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });							
+									const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+									textGeometry.computeBoundingBox();
+									const boundingBox = textGeometry.boundingBox;
+									const textWidth = boundingBox.max.x - boundingBox.min.x;
+									const textHeight = boundingBox.max.y - boundingBox.min.y;
+
+									const verticalSpacing = (textHeight + (index >= 1 ? 0.1 : 0)) / 2 * (index + 1);
+									textMesh.position.add(new THREE.Vector3(textWidth/2, verticalSpacing, -0.05));  // Adjust these values to place the text on the block
+
+									textMesh.rotation.y = Math.PI;
+									
+									object.add(textMesh);
+							});
+						});
+
 							let signTextElement = document.createElement("div");
 							const signTextNode = document.createTextNode("Sign " + signCounter + ": " + signText);
 							signTextElement.appendChild(signTextNode);
