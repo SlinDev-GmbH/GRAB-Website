@@ -35,7 +35,6 @@ import textureGrapplableLavaURL from '../textures/grapplable_lava.png'
 import textureGrabbableCrumblingURL from '../textures/grabbable_crumbling.png'
 import textureDefaultColoredURL from '../textures/default_colored.png'
 import textureBouncingURL from '../textures/bouncing.png'
-import index from 'v-lazy-image';
 
 let userID = undefined;
 
