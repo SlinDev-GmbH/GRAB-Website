@@ -1034,7 +1034,7 @@ function init()
 										font: font,
 										size: letterSize,
 										height: 0.0, 
-										curveSegments: 3, 
+										curveSegments: 1, 
 										bevelEnabled: false
 									});
 								
@@ -1046,8 +1046,8 @@ function init()
 									const textWidth = boundingBox.max.x - boundingBox.min.x;
 									const textHeight = boundingBox.max.y - boundingBox.min.y;
 
-									const verticalSpacing = (textHeight + (index >= 1 ? 0.1 : 0)) / 2 * (index + 1);
-									textMesh.position.add(new THREE.Vector3(textWidth/2, verticalSpacing, -0.05));  // Adjust these values to place the text on the block
+									const verticalSpacing = (textHeight+ (0.2* (index + 1))  ) / 2 ;
+									textMesh.position.add(new THREE.Vector3(textWidth/2, -verticalSpacing+(0.05 *(lines.length+1)), -0.025));  // Adjust these values to place the text on the block
 
 									textMesh.rotation.y = Math.PI;
 									
