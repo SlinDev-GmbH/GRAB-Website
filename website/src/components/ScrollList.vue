@@ -93,11 +93,10 @@ export default {
       let filter = this.filterType;
       if (filter === "all") return this.items;
 
-      // Sort the items by their reported score for the selected filterType
       return [...this.items].sort((a, b) => {
         const scoreA = a[`reported_score_${filter}`] || 0;
         const scoreB = b[`reported_score_${filter}`] || 0;
-        return scoreB - scoreA; // Sort in descending order
+        return scoreB - scoreA; 
       });
     },
 
@@ -252,10 +251,10 @@ export default {
       if (filter == "all") return true;
       for (let key in item) {
         if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(filter)) {
-          return true; // Show the CardLevel when filterType matches a report reason
+          return true; 
         }
       }
-      return false; // Do not show if no match is found
+      return false; 
     },
 
 
