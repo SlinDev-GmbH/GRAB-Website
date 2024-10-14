@@ -2,6 +2,7 @@
 import CardLevel from './CardLevel.vue'
 import CardUser from './CardUser.vue'
 import CardLog from './CardLog.vue'
+import DropDown from './DropDown.vue'
 
 import { listRequest } from '../requests/ListRequest.js'
 import { resetReportsRequest } from '../requests/ResetReportsRequest'
@@ -14,7 +15,8 @@ export default {
   components: {
     CardLevel,
     CardUser,
-    CardLog
+    CardLog,
+    DropDown
   },
 
   emits: ['tabChanged', 'loaded'],
@@ -32,7 +34,8 @@ export default {
       items: [],
       loading: false,
       isInitialLoad: true,
-      activeLoad: null
+      activeLoad: null,
+      filterChoice: "All"
     }
   },
 
@@ -77,13 +80,31 @@ export default {
     wantsModerationLevelCells() {
       const types = ['tab_reported_levels']
       return types.includes(this.listType)
+    }, 
+    filterType() {
+            return this.filterChoice.toLowerCase();
     },
+    
+    sortedItems() {
+      if (this.listType !== 'tab_reported_levels') {
+        return this.items;
+      }
+
+      let filter = this.filterType;
+      if (filter === "all") return this.items;
+
+      return [...this.items].sort((a, b) => {
+        const scoreA = a[`reported_score_${filter}`] || 0;
+        const scoreB = b[`reported_score_${filter}`] || 0;
+        return scoreB - scoreA; 
+      });
+    },
+
     ...mapState(useUserStore, ['isLoggedIn']),
     ...mapState(useUserStore, ['userID']),
     ...mapState(useUserStore, ['accessToken']),
     ...mapState(useUserStore, ['isAdmin']),
     ...mapState(useUserStore, ['isSuperModerator'])
-  
   },
 
   watch: {
@@ -223,7 +244,20 @@ export default {
       if(this.listType === "tab_reported_users"){
         this.items = [];
       }
-    }
+    },
+
+    filterByReason(item) {
+      let filter = this.filterType;
+      if (filter == "all") return true;
+      for (let key in item) {
+        if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(filter)) {
+          return true; 
+        }
+      }
+      return false; 
+    },
+
+
   },
 
   mounted() {
@@ -239,8 +273,9 @@ export default {
 
 <template>
   <button v-if="listType == 'tab_reported_users' && (isAdmin || isSuperModerator)" id="punish-all-button" @click="punishAllUsers">Punish All</button>
+  <DropDown v-if="listType == 'tab_reported_levels' && (isAdmin || isSuperModerator)" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
   <div class="grid-container" :style="listType == 'tab_audit' ? 'grid-template-columns: 1fr' : ''">
-    <div v-for="(item, index) in items" :key="index" class="grid-item">
+    <div v-for="(item, index) in sortedItems" :key="index" class="grid-item" v-show="listType == 'tab_reported_levels'?filterByReason(item):true" >
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
       <CardLog v-else-if="listType == 'tab_audit'" :item="item" />
       <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :index="index" :listType="listType" @more="showOtherUserLevels" />
