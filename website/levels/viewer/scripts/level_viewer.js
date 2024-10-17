@@ -1024,7 +1024,7 @@ function init()
 								return finalStr.trim();  
 							}
 
-							fontLoader.load(import.meta.env.BASE_URL+'./levels/viewer/scripts/Roboto_Regular.json', function (font) {
+							fontLoader.load('/fonts/Roboto_Regular.json', function (font) {
 								const processedText = processString(signText);
 
 								const lines = processedText.split('\n');
