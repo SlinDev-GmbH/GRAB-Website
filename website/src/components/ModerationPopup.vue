@@ -15,6 +15,7 @@ export default {
     config: String,
     identifier: String
   },
+  inject: ['bestReason'],
 
   data() {
     return {
@@ -55,7 +56,11 @@ export default {
     ...mapState(useUserStore, ['accessToken']),
     ...mapState(useUserStore, ['isSuperModerator'])
   },
-
+  created(){
+    if(this.bestReason){
+      this.currentSelection=(this.config.includes("level_")?'level_':'user_')+this.bestReason;
+    }
+  },
   methods: {
     async doModerationAction() {
       const reason = this.currentSelection;

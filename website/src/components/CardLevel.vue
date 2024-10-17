@@ -3,6 +3,7 @@ import { GetLevelReportInfoRequest } from "../requests/GetLevelReportInfoRequest
 
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
+import { computed } from 'vue'
 
 import VLazyImage from 'v-lazy-image'
 import ReportModerationTools from './ReportModerationTools.vue'
@@ -35,7 +36,8 @@ export default {
     item: Object,
     moderationItem : Object,
     index: Number,
-    listType: String
+    listType: String,
+    bestReason: String
   },
 
   data() {
@@ -43,6 +45,11 @@ export default {
       cardColor: 'white',
       imageKeys: [],
       isHidden: this.item.hidden
+    }
+  },
+  provide(){
+    return {
+      bestReason: (computed(()=>this.bestReason))
     }
   },
 
@@ -132,7 +139,6 @@ export default {
     isModerationCell() {
       return this.moderationItem !== null
     },
-
 
     ...mapState(useUserStore, ['isVerifier']),
     ...mapState(useUserStore, ['isAdmin']),
