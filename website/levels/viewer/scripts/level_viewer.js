@@ -1535,7 +1535,7 @@ function toggleFog()
 	scene.traverse(function(node) {
 		if(node instanceof THREE.Mesh)
 		{
-			if("material" in node && "fogEnabled" in node.material.uniforms)
+			if("material" in node && "uniforms" in node.material && "fogEnabled" in node.material.uniforms)
 			{
 				node.material.uniforms["fogEnabled"].value = fogValue
 			}
