@@ -1124,6 +1124,10 @@ function init()
 			const titleNode = document.createTextNode(decoded.title);
 			titleFormattingNode.appendChild(titleNode);
 
+			const leaderboardTitleNode = document.createElement('b');
+			document.getElementById("leaderboard-title").appendChild(leaderboardTitleNode);
+			leaderboardTitleNode.appendChild(document.createTextNode(decoded.title));
+
 			if (detailResponseBody.scheduled_for_deletion) {
 				document.getElementById("scheduled_for_deletion").style.display = "flex";
 			}
@@ -1646,6 +1650,7 @@ export function exportLevelAsGLTF()
 
 document.getElementById("leaderboard-button").addEventListener("click", openLeaderboard);
 document.getElementById("leaderboard-close").addEventListener("click", closeLeaderboard);
+document.getElementById("overlay").addEventListener("click", closeLeaderboard);
 document.getElementById("applyLeaderboardModifications").addEventListener("click", removeLeaderboardTimes);
 
 function openLeaderboard() {
@@ -1706,6 +1711,12 @@ function displayLeaderboardData(data) {
 		data.forEach((entry, index) => {
 			const row = document.createElement("div");
 			row.className = "leaderboard-row";
+			if (entry.user_id == userID) {
+				row.className += " leaderboard-row-creator";
+			}
+			if (entry.user_id == userStore.userID) {
+				row.className += " leaderboard-row-self";
+			}
 
 			const position = document.createElement("div");
 			position.className = "leaderboard-position";
@@ -1726,7 +1737,7 @@ function displayLeaderboardData(data) {
 			
 			const button = document.createElement("button");
 			button.className = "leaderboard-button";
-			button.textContent = "x";
+			button.innerHTML = "&times;";
 			button.onclick = function () {
 				for (let i = 0; i < removedTimes.length; i++) {
 					if (removedTimes[i][0] === entry.user_id) {

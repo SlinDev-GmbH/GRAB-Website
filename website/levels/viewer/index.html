@@ -226,7 +226,7 @@
             }
 
             .leaderboard-header {
-              font-size: 24px;
+              font-size: 20px;
               font-weight: bold;
               margin-bottom: 10px;
               text-transform: uppercase;
@@ -243,13 +243,14 @@
             .leaderboard-content {
                 max-height: 50vh;
                 overflow-y: scroll;
-                margin-bottom: 15px;
+                border-radius: 5px;
             }
 
             .leaderboard-row {
                 display: flex;
                 justify-content: space-between;
                 padding: 5px 0;
+                border-radius: 5px;
             }
 
             .leaderboard-row:nth-of-type(even) {
@@ -258,6 +259,14 @@
 
             .leaderboard-row:nth-of-type(odd) {
               background-color: #ffffff; /* white */
+            }
+
+            .leaderboard-row.leaderboard-row-creator {
+                background-color: #ffee0050;
+            }
+
+            .leaderboard-row.leaderboard-row-self {
+                background-color: #00aaff50;
             }
 
             .leaderboard-position, .leaderboard-name, .leaderboard-time {
@@ -296,6 +305,7 @@
                 border: none;
                 cursor: pointer;
                 margin-inline: 5px;
+                border-radius: 5px;
             }
             #leaderboard-button {
                 width: 120px;
@@ -851,7 +861,10 @@
 
         <div id="overlay" class="overlay"></div>
         <div id="leaderboard" class="leaderboard">
-            <div class="leaderboard-header">Leaderboard</div>
+            <div class="leaderboard-header">
+                Leaderboard for
+                <span id="leaderboard-title"></span>
+            </div>
             <div id="leaderboard-content" class="leaderboard-content"></div>
             <div class="leaderboard-close" id="leaderboard-close">&times;</div>
             <button id="applyLeaderboardModifications">Confirm</button>
