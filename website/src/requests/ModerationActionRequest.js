@@ -10,7 +10,7 @@ export async function moderationActionRequest(server, accessToken, userID, reaso
     extra += '?reason=' + reason
   }
   if (duration && duration > 0) {
-    extra += '&duration=' + duration
+    extra += '&type=ban&duration=' + duration
   }
   const response = await fetch(server + 'moderation_action/' + userID + extra, {headers: {'Authorization': 'Bearer ' + accessToken}})
   const responseBody = await response.text();
