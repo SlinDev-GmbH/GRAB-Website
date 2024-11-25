@@ -1,5 +1,6 @@
 <script>
 import { GetLevelReportInfoRequest } from "../requests/GetLevelReportInfoRequest.js";
+import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
 
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
@@ -15,6 +16,8 @@ import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
 import UnscheduleDeletionButton from './UnscheduleDeletionButton.vue'
+
+
 
 export default {
   components: {
@@ -192,10 +195,9 @@ export default {
     },
     async fetchFallbackThumbnail(levelIdentifier) {
       try {
-        const response = await fetch(`https://api.slin.dev/grab/v1/details/${levelIdentifier.replace(':','/')}`);
-        const data = await response.json();
-        if (data.images && data.images.thumb) {
-          return `${this.$images_server_url + data.images.thumb.key}`;
+        const response = await GetLevelDetailsRequest(this.$api_server_url, levelIdentifier.replace(':','/'));
+        if (response.images && response.images.thumb) {
+          return `${this.$images_server_url + response.images.thumb.key}`;
         }
       } catch (error) {
         console.error("Error fetching thumbnail:", error);
