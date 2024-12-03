@@ -1,5 +1,6 @@
 <script>
 import { GetLevelReportInfoRequest } from "../requests/GetLevelReportInfoRequest.js";
+import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
 
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
@@ -15,6 +16,8 @@ import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
 import UnscheduleDeletionButton from './UnscheduleDeletionButton.vue'
+
+
 
 export default {
   components: {
@@ -189,16 +192,37 @@ export default {
         }
       }
       return keys;
+    },
+    async fetchFallbackThumbnail(levelIdentifier) {
+      try {
+        const response = await GetLevelDetailsRequest(this.$api_server_url, levelIdentifier.replace(':','/'));
+        if (response.images && response.images.thumb) {
+          return `${this.$images_server_url + response.images.thumb.key}`;
+        }
+      } catch (error) {
+        console.error("Error fetching thumbnail:", error);
+      }
+      return null;
+    },
+    async handleThumbnailError(event) {
+      const fallbackURL = await this.fetchFallbackThumbnail(this.item.identifier);
+      if (fallbackURL) {
+        event.src = fallbackURL;
+      } else {
+        console.warn("Fallback thumbnail not available for:", this.item.identifier);
+      }
     }
-  }
+
+  },
+
 }
 </script>
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
-    <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
+    <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
     <div v-if="hasImage && isModerationCell" :class="'moderation-images' + (this.imageKeys.length > 1 ? ' moderation-images-multiple' : '')">
-      <v-lazy-image v-for="image in this.imageKeys" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" width="512" height="288" />
+    <v-lazy-image v-for="image in this.imageKeys" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" width="512" height="288"  @error="handleThumbnailError"/>
     </div>
     <div v-if="hasStatistics && hasDifficulty" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div>
     <div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
