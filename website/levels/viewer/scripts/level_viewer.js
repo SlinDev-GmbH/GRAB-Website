@@ -35,6 +35,7 @@ import textureGrapplableLavaURL from '../textures/grapplable_lava.png'
 import textureGrabbableCrumblingURL from '../textures/grabbable_crumbling.png'
 import textureDefaultColoredURL from '../textures/default_colored.png'
 import textureBouncingURL from '../textures/bouncing.png'
+import textureSnowURL from '../textures/snow.png'
 
 let userID = undefined;
 
@@ -159,6 +160,7 @@ function init()
 	materials.push(getMaterialForTexture(textureGrabbableCrumblingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.2, 0.2, 0.2, 16.0]));
 	materials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.15, 0.15, 0.15, 10.0]));
 	materials.push(getMaterialForTexture(textureBouncingURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.8, 0.8, 0.8, 64.0]));
+	materials.push(getMaterialForTexture(textureSnowURL, 0.1, SHADERS.levelVS, SHADERS.levelFS, [0.6, 0.6, 0.6, 64.0]));
 
 	let startMaterial = new THREE.ShaderMaterial();
 	startMaterial.vertexShader = SHADERS.startFinishVS;

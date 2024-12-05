@@ -9,6 +9,7 @@ message Level
 	uint32 formatVersion = 1;
 
 	string title = 2;
+	repeated string tags = 9;
 	string creators = 3;
 	string description = 4;
 	uint32 complexity = 5;
