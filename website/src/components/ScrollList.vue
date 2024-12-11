@@ -85,21 +85,6 @@ export default {
             return this.filterChoice.toLowerCase();
     },
     
-    sortedItems() {
-      if (this.listType !== 'tab_reported_levels') {
-        return this.items;
-      }
-
-      let filter = this.filterType;
-      if (filter === "all") return this.items;
-
-      return [...this.items].sort((a, b) => {
-        const scoreA = a[`reported_score_${filter}`] || 0;
-        const scoreB = b[`reported_score_${filter}`] || 0;
-        return scoreB - scoreA; 
-      });
-    },
-
     ...mapState(useUserStore, ['isLoggedIn']),
     ...mapState(useUserStore, ['userID']),
     ...mapState(useUserStore, ['accessToken']),
@@ -269,19 +254,7 @@ export default {
       if(this.listType === "tab_reported_users"){
         this.items = [];
       }
-    },
-
-    filterByReason(item) {
-      let filter = this.filterType;
-      if (filter == "all") return true;
-      for (let key in item) {
-        if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(filter)) {
-          return true; 
-        }
-      }
-      return false; 
-    },
-
+    }
 
   },
 
