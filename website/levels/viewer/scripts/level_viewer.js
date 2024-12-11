@@ -928,10 +928,10 @@ function init()
 						object.position.y = node.levelNodeStart.position.y
 						object.position.z = -node.levelNodeStart.position.z
 
-						object.quaternion.x = node.levelNodeStart.rotation.x
-						object.quaternion.y = -node.levelNodeStart.rotation.y
-						object.quaternion.z = node.levelNodeStart.rotation.z
-						object.quaternion.w = -node.levelNodeStart.rotation.w
+						object.quaternion.x = -node.levelNodeStart.rotation.x
+						object.quaternion.y = node.levelNodeStart.rotation.y
+						object.quaternion.z = -node.levelNodeStart.rotation.z
+						object.quaternion.w = node.levelNodeStart.rotation.w
 
 						object.scale.x = node.levelNodeStart.radius * 2.0;
 						object.scale.z = node.levelNodeStart.radius * 2.0;
@@ -942,7 +942,7 @@ function init()
 						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
 						
 						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'XYZ');
-						euler.x += Math.PI;
+						euler.x-=Math.PI/2
 						cameraRotation = [0, euler.x];
 
 						var goToStartLabel = document.getElementById("startButton");
@@ -1067,10 +1067,14 @@ function init()
 								controls.eulerVector.y = euler.y+Math.PI
 								controls.updateRotationVector();
 
-								let offset = new THREE.Vector3(0, 0, -1)
-								offset.applyQuaternion(object.quaternion)
-	
-								camera.position.set(object.position.x, object.position.y, object.position.z);
+								let offset = new THREE.Vector3(0, 0, -1);
+								if(object.parent && object.parent.quaternion) offset.applyQuaternion(object.parent.quaternion);
+								offset.applyQuaternion(object.quaternion);
+
+								let signPos = new THREE.Vector3(0,0,0);
+								signPos.copy(object.position)
+								if(object.parent.position)signPos.add(object.parent.position);
+								camera.position.copy(signPos);
 								camera.position.add(offset)
 							}
 							moderationContainer.appendChild(signTextElement);
