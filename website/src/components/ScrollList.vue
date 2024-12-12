@@ -85,21 +85,6 @@ export default {
             return this.filterChoice.toLowerCase();
     },
     
-    sortedItems() {
-      if (this.listType !== 'tab_reported_levels') {
-        return this.items;
-      }
-
-      let filter = this.filterType;
-      if (filter === "all") return this.items;
-
-      return [...this.items].sort((a, b) => {
-        const scoreA = a[`reported_score_${filter}`] || 0;
-        const scoreB = b[`reported_score_${filter}`] || 0;
-        return scoreB - scoreA; 
-      });
-    },
-
     ...mapState(useUserStore, ['isLoggedIn']),
     ...mapState(useUserStore, ['userID']),
     ...mapState(useUserStore, ['accessToken']),
@@ -108,6 +93,13 @@ export default {
   },
 
   watch: {
+    filterChoice: {
+      handler() {
+        this.updateVisibleItems();
+      },
+      immediate: true
+    },
+
     async listType(type) {
       if(this.isInitialLoad && this.loading) return
       this.items = []
@@ -138,6 +130,24 @@ export default {
   },
 
   methods: {
+    updateVisibleItems() {
+      let filter = this.filterChoice.toLowerCase();
+
+      this.items.forEach(item => {
+        const matchesFilter = filter === 'all' || this.itemMatchesFilter(item, filter);
+        item.visible = matchesFilter;
+      });
+    },
+
+    itemMatchesFilter(item, filter) {
+      for (let key in item) {
+        if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(filter)) {
+          return true;
+        }
+      }
+      return false;
+    },
+
     async loadLevels() {
       const result = await listRequest(this.$api_server_url, this.accessToken, this.listType, this.difficulty, this.tag, this.searchTerm, this.$max_level_format_version, this.otherUserID? this.otherUserID : this.userID, this.nextPage)
       if(result !== false) {
@@ -180,7 +190,7 @@ export default {
       const processedItems = useUserStore().getProcessedList(this.listType);
       if (processedItems) levels = levels.filter(item => !processedItems.includes(item));
       
-      this.items = [...this.items, ...levels]
+      this.items = [...this.items, ...levels.map(level => ({ ...level, visible: true }))];
       userStore.setList(this.items)
       this.loading = false
       this.$emit('loaded')
@@ -244,19 +254,7 @@ export default {
       if(this.listType === "tab_reported_users"){
         this.items = [];
       }
-    },
-
-    filterByReason(item) {
-      let filter = this.filterType;
-      if (filter == "all") return true;
-      for (let key in item) {
-        if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(filter)) {
-          return true; 
-        }
-      }
-      return false; 
-    },
-
+    }
 
   },
 
@@ -275,7 +273,7 @@ export default {
   <button v-if="listType == 'tab_reported_users' && (isAdmin || isSuperModerator)" id="punish-all-button" @click="punishAllUsers">Punish All</button>
   <DropDown v-if="listType == 'tab_reported_levels' && (isAdmin || isSuperModerator)" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
   <div class="grid-container" :style="listType == 'tab_audit' ? 'grid-template-columns: 1fr' : ''">
-    <div v-for="(item, index) in sortedItems" :key="index" class="grid-item" v-show="listType == 'tab_reported_levels'?filterByReason(item):true" >
+    <div v-for="(item, index) in items" :key="index" v-show="item.visible" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
       <CardLog v-else-if="listType == 'tab_audit'" :item="item" />
       <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :bestReason="bestReason(item)" :index="index" :listType="listType" @more="showOtherUserLevels" />
