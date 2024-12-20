@@ -10,7 +10,6 @@ import UserModerationTools from './UserModerationTools.vue'
 import PurchaseHistory from './PurchaseHistory.vue'
 import ModerationHistory from './ModerationHistory.vue'
 
-import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js'
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
 import { getUserCurrencyRequest } from '../requests/GetUserCurrencyRequest.js'
 

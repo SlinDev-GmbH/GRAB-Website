@@ -8,7 +8,6 @@ import SetCreatorButton from './SetCreatorButton.vue'
 import SetVerifierButton from './SetVerifierButton.vue'
 import SetModeratorButton from './SetModeratorButton.vue'
 
-import { moderationActionRequest } from '../requests/ModerationActionRequest'
 import { removeModerationActionRequest } from '../requests/RemoveModerationActionRequest'
 
 export default {
