@@ -6,7 +6,7 @@ export default {
     ModerationPopup
   },
 
-  emits: ['handled'],
+  emits: ['hide'],
 
   props: {
     level_id : String
@@ -22,9 +22,7 @@ export default {
     handledModerationPopup(handled) {
       if(handled === true)
       {
-        this.$emit('handled', true)
-        this.$emit('hideBtn')
-
+        this.$emit('hide');
       }
     },
   }

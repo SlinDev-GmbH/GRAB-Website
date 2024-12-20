@@ -9,7 +9,7 @@ export default {
     level_id : String
   },
 
-  emits: ['handled'],
+  emits: ['recovered'],
 
   computed: {
     ...mapState(useUserStore, ['accessToken'])
@@ -18,10 +18,8 @@ export default {
   methods: {
     async unscheduleDeletion() {
       if(!await unscheduleDeletionRequest(this.$api_server_url, this.accessToken, this.level_id)) {
-        this.$emit('handled', true);
-        return
+        this.$emit('recovered');
       }
-      this.$emit('handled', false)
     },
   }
 }
