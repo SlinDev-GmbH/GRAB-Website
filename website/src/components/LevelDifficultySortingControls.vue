@@ -65,45 +65,47 @@ export default {
   width: 100%;
   margin-top: 10px;
   border-radius: 10px;
-  background-color: white;
   padding-left: 10px;
   padding-right: 10px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   gap: 7px;
-  row-gap: 0;
   flex-wrap: wrap;
   padding-block: 4px;
 }
 .filter {
-  padding: 0 5px;
-  margin: 0 2px;
-  border-radius: 5px;
+  font-size: 0.9rem;
+  border-radius: var(--rad);
   cursor: pointer;
+  padding: 0.1rem 0.6rem;
+  color: var(--light);
+  background-color: var(--diff-color);
+  border: 2px solid transparent;
+  transition: scale 0.3s linear;
 }
 .filter:hover {
-  background-color: rgba(58, 170, 231, 0.4);
-}
-#filter-unrated {
-  color: #969696;
-}
-#filter-easy {
-  color: #2BBA84;
-}
-#filter-medium {
-  color: #E1C800;
-}
-#filter-hard {
-  color: #F19400;
-}
-#filter-veryhard {
-  color: #EA0000;
-}
-#filter-impossible {
-  color: #7f007f;
+  scale: 1.1;
 }
 .active-difficulty-filter {
-  background-color: rgba(58, 170, 231, 0.4);
+  border: 2px solid var(--light);
+}
+#filter-unrated {
+  --diff-color: #969696;
+}
+#filter-easy {
+  --diff-color: #2BBA84;
+}
+#filter-medium {
+  --diff-color: #E1C800;
+}
+#filter-hard {
+  --diff-color: #F19400;
+}
+#filter-veryhard {
+  --diff-color: #EA0000;
+}
+#filter-impossible {
+  --diff-color: #7f007f;
 }
 </style>

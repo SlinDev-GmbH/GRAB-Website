@@ -83,7 +83,7 @@ export default {
       this.$router.push({ query: query })
     },
 
-    async copyAccessToken(event)
+    async copyAccessToken()
     {
       await navigator.clipboard.writeText(this.accessToken);
     },
@@ -129,9 +129,13 @@ export default {
       <LoginButton />
       <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
       <button v-if="isSuperModerator" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
-      <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
-      <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
-      <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
+      <div class="navigation">
+        <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
+        <div class="sorting">
+          <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
+          <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
+        </div>
+      </div>
       <LevelTitle v-if="showLevelTitle" :tagString="tagString"/>
     </header>
     <main>
@@ -146,18 +150,16 @@ export default {
 <style scoped>
 
 #level-browser {
-  padding: 2rem;
-  font-weight: normal;
-  
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
+  height: 100vh;
+  color: var(--text);
+  background: var(--background);
+  background-image: var(--gradient);
+  font-family: 'Nunito', 'Roboto', sans-serif;
+  font-size: 1rem;
   line-height: 1.6;
-  font-family: 'Roboto', sans-serif;
-  font-size: 15px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-weight: normal;
+  padding: 2rem;
+  overflow-y: scroll;
 }
 
 header {
@@ -165,7 +167,8 @@ header {
 }
 
 header, main {
-  max-width: 940px;
+  max-width: 1400px;
+  padding-inline: 1rem;
   margin: 0 auto;
 }
 
@@ -195,6 +198,14 @@ header, main {
     padding-bottom: 5px;
   }
 }
+@media screen and (max-width: 800px) {
+  .home-link-wrapper {
+    padding-top: 40px;
+  }
+  .logo {
+    width: 80%;
+  }
+}
 
 .access-token-button {
   width: 120px;
@@ -205,11 +216,8 @@ header, main {
   font-weight: bold;
   border-radius: 15px;
   box-sizing: border-box;
-  text-decoration: none;
-  background-color: burlywood;
-  color: #FFFFFF;
+  background-color: var(--hover);
   text-align: center;
-  border: none;
   top: 70px;
   right: 0px;
   position: absolute;
@@ -226,10 +234,9 @@ header, main {
   border-radius: 15px;
   box-sizing: border-box;
   text-decoration: none;
-  background-color: #00BC87;
+  background-color: var(--alt);
   color: #FFFFFF;
   text-align: center;
-  border: none;
   top: 35px;
   right: 0px;
   position: absolute;
@@ -244,5 +251,19 @@ img.rick {
   top: 0;
   left: 0;
   object-fit: cover;
+  opacity: 0.1;
+  mix-blend-mode:luminosity;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+}
+
+.sorting {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>

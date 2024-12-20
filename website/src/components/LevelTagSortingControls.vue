@@ -1,12 +1,16 @@
 <script>
 import { GetLevelBrowserRequest } from '../requests/GetLevelBrowserRequest'
+import DropDown from './DropDown.vue';
 
 export default {
+  components: {
+    DropDown
+  },
 
   data() {
     return {
       tags: [],
-      loaded: false
+      loaded: false,
     }
   },
 
@@ -18,18 +22,11 @@ export default {
 
   methods: {
     applyFilter(filter) {
-      if (this.isLoading) {
+      if (this.isLoading || filter == this.currentValue) {
         return;
       }
-      const previous = document.querySelector(".active-tag-filter");
-      if (previous) {
-        previous.classList.remove('active-tag-filter');
-        if (previous.id == `filter-${filter}`) {
-          this.$emit('filter', '');
-          return;
-        }
-      }
-      document.getElementById(`filter-${filter}`).classList.add('active-tag-filter');
+
+      if (filter == "All") filter = '';
       this.$emit('filter', filter)
     },
 
@@ -43,8 +40,6 @@ export default {
   },
 
   async mounted() {
-    // this.$emit('filter', '');
-    // add tag buttons
     let featured = await this.loadFeatured();
     this.tags = featured.tags;
     this.loaded = true;
@@ -53,32 +48,21 @@ export default {
   emits: [
     'filter'
   ],
-
-  // watch: {
-  //   async currentTab(type) {
-  //     const current = document.querySelector(".active-tag-filter");
-  //     if (current) {
-  //       current.classList.remove('active-tag-filter');
-  //     }
-  //   },
-  // }
 }
 </script>
 
 
 <template>
   <div class="tag-filter-container">
-    <div v-if="loaded" v-for="tag in tags" :class="'filter' + (tag === currentValue ? ' active-tag-filter' : '')" :id="'filter-'+tag" @click="applyFilter(tag)">{{ tag }}</div>
+    <DropDown :options='["All", ...tags]' :defaultChoice='"All"' @changeSelection="applyFilter($event)"/>
   </div>
 </template>
 
 
 <style scoped>
 .tag-filter-container {
-  width: 100%;
   margin-top: 10px;
   border-radius: 10px;
-  background-color: white;
   padding-left: 10px;
   padding-right: 10px;
   display: flex;
@@ -88,6 +72,7 @@ export default {
   row-gap: 0;
   flex-wrap: wrap;
   padding-block: 4px;
+  margin-bottom: auto;
 }
 .filter {
   padding: 0 5px;
@@ -96,9 +81,9 @@ export default {
   cursor: pointer;
 }
 .filter:hover {
-  background-color: rgba(58, 170, 231, 0.4);
+  background-color: var(--hover);
 }
 .active-tag-filter {
-  background-color: rgba(58, 170, 231, 0.4);
+  background-color: var(--hover);
 }
 </style>
