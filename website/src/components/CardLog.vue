@@ -7,7 +7,7 @@ export default {
   computed: {
 
     logType() {
-      let log_type = this.item.request.split("/")[5];
+      let log_type = this.item.request.split(/\/|\?/)[5];
 
       return log_type;
     },
