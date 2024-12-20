@@ -43,7 +43,7 @@ export default {
   },
 
   watch: {
-    tagString(newTab) {
+    tagString() {
       this.updateCounter()
     }
   }
@@ -65,5 +65,6 @@ export default {
 .level-tab-title {
   float: right;
   padding-top: 3px;
+  color: var(--hover);
 }
 </style>
