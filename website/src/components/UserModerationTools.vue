@@ -58,14 +58,13 @@ export default {
 
 <template>
   <div class="moderation-tools">
-    <div v-if="userInfo.moderation_info && !userPage" class="moderation-title">Current Strike:</div>
     <ModerationInfo v-if="userInfo.moderation_info && !userPage" :info="userInfo.moderation_info"/>
-    <br>
-    <div class="punish-buttons">
+
+    <div class="punish-buttons" :style="userPage ? '' : 'padding-top: 0.5em;'">
       <button class="moderation-hide-button" @click="showModerationPopup=true">Punish</button>
-      <button class="moderation-approve-button" @click="removeModerationAction">Remove Strike</button>
+      <button class="moderation-approve-button" @click="removeModerationAction">Pardon</button>
     </div>
-    <br>
+
     <div class="promote-buttons" v-if="!userPage">
       <SetCreatorButton :userID="this.userInfo.user_id" :isCreator="this.userInfo.is_creator"/>
       <SetVerifierButton :userID="this.userInfo.user_id" :isVerifier="this.userInfo.is_verifier"/>
@@ -81,9 +80,10 @@ export default {
 <style scoped>
 .moderation-tools {
   width: 100%;
-  min-height: 0px;
-  padding-top: 5%;
-  padding-bottom: 5%;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .punish-buttons {
@@ -91,6 +91,7 @@ export default {
   flex-direction: row;
   justify-content: center;
   gap: 0.5em;
+  margin-top: auto;
 }
 
 .promote-buttons {
@@ -98,6 +99,7 @@ export default {
   flex-direction: row;
   justify-content: center;
   gap: 0.5em;
+  padding-top: 0.5rem;
 }
 
 .moderation-title {
@@ -105,23 +107,19 @@ export default {
 }
 
 .moderation-hide-button {
-  width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 15px;
   cursor: pointer;
 }
 
 .moderation-approve-button {
-  width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: green;
-  color: white;
-  border: none;
+  background-color: var(--green);
   border-radius: 15px;
   cursor: pointer;
 }
