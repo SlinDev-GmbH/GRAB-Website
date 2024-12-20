@@ -93,11 +93,7 @@ export default {
             return this.filterChoice.toLowerCase();
     },
     
-    ...mapState(useUserStore, ['isLoggedIn']),
-    ...mapState(useUserStore, ['userID']),
-    ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isSuperModerator'])
+    ...mapState(useUserStore, ['isLoggedIn', 'userID', 'accessToken', 'isAdmin', 'isSuperModerator'])
   },
 
   watch: {

@@ -47,8 +47,7 @@ export default {
       return '';
     },
 
-    ...mapState(useUserStore, ['isSuperModerator']),
-    ...mapState(useUserStore, ['isAdmin'])
+    ...mapState(useUserStore, ['isSuperModerator', 'isAdmin'])
   },
 
   methods: {

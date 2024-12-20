@@ -7,15 +7,11 @@ export default {
   computed: {
 
     logType() {
-      let log_type = this.item.request.split(/\/|\?/)[5];
-
-      return log_type;
+      return this.item.request.split(/\/|\?/)[5];
     },
 
     logDetails() {
-      let log_details = this.item.request;
-
-      return log_details;
+      return this.item.request;
     },
 
     logTimeString() {

@@ -18,8 +18,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
   },
 
   methods: {

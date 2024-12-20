@@ -53,8 +53,7 @@ export default {
       }
     },
 
-    ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isSuperModerator'])
+    ...mapState(useUserStore, ['accessToken', 'isSuperModerator'])
   },
   created(){
     if(this.bestReason){

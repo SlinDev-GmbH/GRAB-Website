@@ -20,9 +20,7 @@ export default {
     wantsSearch() {
       return this.tabActive === 'tab_newest' || this.tabActive === 'tab_search_users'
     },
-    ...mapState(useUserStore, ['isLoggedIn']),
-    ...mapState(useUserStore, ['isVerifier']),
-    ...mapState(useUserStore, ['isSuperModerator'])
+    ...mapState(useUserStore, ['isLoggedIn', 'isVerifier', 'isSuperModerator'])
   },
 
   methods: {

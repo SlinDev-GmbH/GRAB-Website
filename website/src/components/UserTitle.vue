@@ -41,10 +41,7 @@ export default {
       return '';
     },
 
-    ...mapState(useUserStore, ['userID']),
-    ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isSuperModerator']),
-    ...mapState(useUserStore, ['accessToken'])
+    ...mapState(useUserStore, ['userID', 'isAdmin', 'isSuperModerator', 'accessToken'])
   },
 
   data() {

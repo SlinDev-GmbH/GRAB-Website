@@ -17,8 +17,6 @@ import ReportLevelButton from './ReportLevelButton.vue'
 import UnscheduleDeletionButton from './UnscheduleDeletionButton.vue'
 import ThumbnailFullscreenButton from './ThumbnailFullscreenButton.vue'
 
-
-
 export default {
   components: {
     ReportModerationTools,

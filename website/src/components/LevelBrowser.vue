@@ -40,11 +40,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isModerator']),
-    ...mapState(useUserStore, ['isSuperModerator']),
-    ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isLoggedIn']),
+    ...mapState(useUserStore, ['isAdmin', 'isModerator', 'isSuperModerator', 'accessToken', 'isLoggedIn']),
+    
     showLevelTitle() {
       const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels', 'tab_verify_queue', 'tab_reported_levels', 'tab_featured']
       return options.includes(this.tabActive)

@@ -26,7 +26,6 @@ export default {
   },
 
   mounted() {
-    // this.$emit('filter', '');
     if (this.currentValue) {
       document.getElementById(`filter-${this.currentValue}`).classList.add('active-difficulty-filter');
     }
@@ -35,18 +34,8 @@ export default {
   emits: [
     'filter'
   ],
-  
-  // watch: {
-  //   async currentTab(type) {
-  //     const current = document.querySelector(".active-difficulty-filter");
-  //     if (current) {
-  //       current.classList.remove('active-difficulty-filter');
-  //     }
-  //   },
-  // }
 }
 </script>
-
 
 <template>
   <div class="difficulty-filter-container">
@@ -58,7 +47,6 @@ export default {
     <div class="filter" id="filter-impossible" @click="applyFilter('impossible')">impossible</div>
   </div>
 </template>
-
 
 <style scoped>
 .difficulty-filter-container {

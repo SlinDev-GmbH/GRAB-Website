@@ -20,8 +20,7 @@ export default {
   },
 
   computed: {
-	...mapState(useUserStore, ['isAdmin']),
-	...mapState(useUserStore, ['accessToken']),
+	  ...mapState(useUserStore, ['isAdmin', 'accessToken']),
   },
 
   data() {
@@ -70,7 +69,6 @@ export default {
 </template>
 
 <style scoped>
-
 #curation {
 	padding: 2rem;
 	font-weight: normal;
