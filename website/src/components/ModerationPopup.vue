@@ -125,7 +125,7 @@ export default {
           <form>
             <select style="width: 70%" v-model="currentSelection">
               <option value="">- Select -</option>
-              <option v-for="(reason) in options" :id="reason.reason" :value="reason.reason">
+              <option v-for="(reason) in options" :id="reason.reason" :value="reason.reason" :key="reason.reason">
               {{ reason.title }}
               </option>
             </select>
@@ -137,7 +137,7 @@ export default {
 
         <div class="modal-footer">
           <button class="modal-default-button" @click="doModerationAction">OK</button>
-          <button class="modal-default-button" @click="$emit('close', false)">CANCEL</button>
+          <button class="modal-cancel-button" @click="$emit('close', false)">CANCEL</button>
         </div>
       </div>
     </div>
@@ -167,36 +167,56 @@ export default {
 }
 
 .modal-container {
-  width: 300px;
+  width: fit-content;
   margin: auto;
   padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
+  background-color: var(--background);
+  border: 2px solid var(--hover);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+  border-radius: 15px;
   transition: all 0.3s ease;
 }
 
-.modal-header h3 {
-  margin-top: 0;
-  color: #42b983;
+.modal-header {
+  color: var(--red);
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .modal-body {
   margin: 20px 0;
 }
 
-.modal-default-button {
-  float: right;
+.modal-body textarea, .modal-body input, .modal-body select {
+  background-color: var(--hover);
+  border-radius: 15px;
+  padding: 0.5rem;
+}
+.modal-body form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-/*
- * The following styles are auto-applied to elements with
- * transition="modal" when their visibility is toggled
- * by Vue.js.
- *
- * You can easily play with the modal transition by editing
- * these styles.
- */
+.modal-default-button {
+  float: right;
+  height: 30px;
+  width: 90px;
+  font-weight: bold;
+  background-color: var(--blue);
+  border-radius: 15px;
+  cursor: pointer;
+}
+.modal-cancel-button {
+  float: right;
+  height: 30px;
+  width: 90px;
+  font-weight: bold;
+  background-color: var(--red);
+  border-radius: 15px;
+  cursor: pointer;
+  margin-right: 5px;
+}
 
 .modal-enter-from {
   opacity: 0;

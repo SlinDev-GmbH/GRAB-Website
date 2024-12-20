@@ -31,18 +31,16 @@ export default {
   .make-verifier-button, .remove-verifier-button {
     padding: 5px 10px;
     font-weight: bold;
-    color: white;
-    border: none;
     font-size: 12px;
     border-radius: 15px;
     cursor: pointer;
   }
 
   .make-verifier-button {
-    background-color: green;
+    background-color: var(--green);
   }
 
   .remove-verifier-button {
-    background-color: red;
+    background-color: var(--red);
   }
 </style>

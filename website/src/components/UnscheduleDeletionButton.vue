@@ -28,24 +28,16 @@ export default {
 </script>
 
 <template>
-  <div class="undelete-level-button-container">
-    <button class="undelete-level-button" @click="unscheduleDeletion">Recover</button>
-  </div>
+  <button class="undelete-level-button" @click="unscheduleDeletion">Recover</button>
 </template>
 
 <style scoped>
   .undelete-level-button {
-    min-width:30%;
     height: 30px;
+    width: 90px;
     font-weight: bold;
-    background-color: green;
-    color: white;
-    border: none;
+    background-color: var(--green);
     border-radius: 15px;
     cursor: pointer;
-  }
-
-  .undelete-level-button-container {
-    margin-top: 5px;
   }
 </style>

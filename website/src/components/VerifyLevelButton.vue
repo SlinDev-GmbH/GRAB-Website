@@ -58,23 +58,18 @@ export default {
 
 <style scoped>
 .moderation-verify-button {
-  min-width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: green;
-  color: white;
-  border: none;
+  background-color: var(--green);
   border-radius: 15px;
   cursor: pointer;
 }
-
 .moderation-unverify-button {
-  min-width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 15px;
   cursor: pointer;
 }

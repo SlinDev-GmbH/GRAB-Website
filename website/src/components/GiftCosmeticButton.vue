@@ -25,12 +25,16 @@ export default {
   methods: {
     async giftCosmetic() {
       await giftCosmeticRequest(this.$api_server_url, this.accessToken, this.userID, this.cosmeticID);
-      this.showModal = false;
+      this.close();
     },
 
     async getCosmeticPacks() {
       const shop = await getShopProductsRequest(this.$api_server_url);
       this.cosmeticPacks = Object.keys(shop);
+    },
+
+    close() {
+      this.showModal = false;
     }
   },
 
@@ -49,7 +53,10 @@ export default {
       <select name="cosmetic-options" id="cosmetic-options" v-model="cosmeticID">
         <option v-for="cosmetic of cosmeticPacks" :key="cosmetic" :value="cosmetic">{{cosmetic}}</option>
       </select>
-      <button class="gift-button" @click="giftCosmetic">Gift Cosmetic</button>
+      <div class="buttons">
+        <button class="cancel-button" @click="close">Cancel</button>
+        <button class="gift-button" @click="giftCosmetic">Gift Cosmetic</button>
+      </div>
     </div>
 </template>
 
@@ -57,12 +64,22 @@ export default {
 .gift-button {
   padding: 5px 10px;
   font-weight: bold;
-  background-color: green;
-  color: white;
-  border: none;
+  background-color: var(--green);
   font-size: 12px;
   border-radius: 15px;
   cursor: pointer;
+}
+.cancel-button {
+  padding: 5px 10px;
+  font-weight: bold;
+  background-color: var(--red);
+  font-size: 12px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+.buttons {
+  display: flex;
+  gap: 10px;
 }
 
 #cosmetic-options {
@@ -70,6 +87,9 @@ export default {
   height: 100%;
   font-size: 12px;
   font-weight: bold;
+  background-color: var(--hover);
+  border-radius: 15px;
+  padding: 0.5rem;
 }
 
 .cosmetic-picker {
@@ -77,15 +97,15 @@ export default {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
+  background-color: var(--background);
   padding: 20px;
-  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  border: 1px solid black;
+  border: 2px solid var(--hover);
   gap: 10px;
+  border-radius: 15px;
 }
 </style>

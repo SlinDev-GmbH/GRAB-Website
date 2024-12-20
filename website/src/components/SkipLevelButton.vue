@@ -34,24 +34,16 @@ export default {
 </script>
 
 <template>
-  <div class="moderation-skip-level-button-container">
-    <button v-if="!isSkipped" class="moderation-skip-level-button" @click="skipLevel">Skip</button>
-  </div>
+  <button v-if="!isSkipped" class="moderation-skip-level-button" @click="skipLevel">Skip</button>
 </template>
 
 <style scoped>
 .moderation-skip-level-button {
-  min-width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 15px;
   cursor: pointer;
-}
-
-.moderation-skip-level-button-container {
-  margin-top: 5px;
 }
 </style>

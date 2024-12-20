@@ -31,18 +31,16 @@ export default {
   .make-creator-button, .remove-creator-button {
     padding: 5px 10px;
     font-weight: bold;
-    color: white;
-    border: none;
     font-size: 12px;
     border-radius: 15px;
     cursor: pointer;
   }
 
   .make-creator-button {
-    background-color: green;
+    background-color: var(--green);
   }
 
   .remove-creator-button {
-    background-color: red;
+    background-color: var(--red);
   }
 </style>

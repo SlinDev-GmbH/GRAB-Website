@@ -32,5 +32,13 @@ export default {
     height: 30px;
     aspect-ratio: 1/1;
     cursor: pointer;
+    background-color: var(--hover);
+    border-radius: 50%;
+    padding: 2px;
+    transition: background-color 0.1s linear, scale 0.1s linear;
+}
+.report-level-button:hover {
+  background-color: var(--active);
+  scale: 1.05;
 }
 </style>
