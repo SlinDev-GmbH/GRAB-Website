@@ -78,6 +78,13 @@ export default {
 .active-difficulty-filter {
   border: 2px solid var(--light);
 }
+@media screen and (max-width: 630px) {
+  .filter {
+    font-size: 0.8rem;
+    padding: 0.05rem 0.5rem;
+  }
+}
+
 #filter-unrated {
   --diff-color: #969696;
 }

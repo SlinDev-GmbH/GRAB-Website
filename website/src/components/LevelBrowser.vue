@@ -210,6 +210,14 @@ header, main {
     width: 80%;
   }
 }
+@media screen and (max-width: 630px) {
+  .home-link-wrapper {
+    padding-bottom: 10px;
+  }
+  .logo {
+    width: 60%;
+  }
+}
 
 .access-token-button {
   width: 120px;

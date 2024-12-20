@@ -72,7 +72,6 @@ export default {
   width: 100%;
 }
 
-/* Style the buttons that are used to open the tab content */
 .tab button {
   background-color: var(--button);
   border-radius: var(--rad);
@@ -86,12 +85,10 @@ export default {
   margin-bottom: 0.4rem;
 }
 
-/* Change background color of buttons on hover */
 .tab button:hover {
   background-color: var(--hover);
 }
 
-/* Create an active/current tablink class */
 .tab button.active {
   background-color: var(--hover);
 }
@@ -104,6 +101,7 @@ export default {
 }
 .search {
   min-width: 15%;
+  padding-inline: 0.4rem;
   float: right;
   transition: all 0.3s linear;
 
@@ -116,6 +114,7 @@ export default {
   position: absolute;
   top: 50%;
   right: 10px;
+  margin-right: 0.4rem;
   transform: translateY(-50%);
   height: 60%;
   aspect-ratio: 1/1;
@@ -123,5 +122,20 @@ export default {
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.5;
+  pointer-events: none;
+}
+@media screen and (max-width: 630px) {
+  .search {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+  .tab button {
+    font-size: 12px;
+    padding: 0.6rem 1.0rem;
+    margin-inline: 0.2rem;
+  }
+  .tab br {
+    display: none;
+  }
 }
 </style>
