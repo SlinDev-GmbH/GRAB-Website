@@ -9,10 +9,10 @@ export default {
   computed: {
     ...mapState(useUserStore, ['accessToken']),
     isSection() {
-      return this.currentSection.hasOwnProperty('sections')
+      return this.currentSection.sections;
     },
     isList() {
-      return this.currentSection.hasOwnProperty('list_key')
+      return this.currentSection.list_key;
     }
   },
 
@@ -55,7 +55,7 @@ export default {
 
     setSection(section) {
       console.log(section);
-      if (section.hasOwnProperty('list_key')) {
+      if (section.list_key) {
         if (section.list_key.startsWith('user:')) {
           const userID = section.list_key.split(':')[1];
           this.tabChanged({tab: 'tab_other_user', user_id: userID});
@@ -66,7 +66,7 @@ export default {
     },
 
     shouldRenderSection(section) {
-      if (section.hasOwnProperty('list_key')) {
+      if (section.list_key) {
         if (section.list_key.startsWith('builtin:')) {
           return false
         }
@@ -74,15 +74,19 @@ export default {
           return false
         }
       }
-      if (section.hasOwnProperty('type') && section.type === 'space') {
+      if (section.type === 'space') {
         return false
       }
       return true
     },
 
     isSpace(section) {
-      return section.hasOwnProperty('type') && section.type === 'space'
+      return section.type === 'space'
     },
+
+    getThumbnail(section) {
+      return this.$images_server_url + section.image;
+    }
   },
 
 
@@ -98,18 +102,33 @@ export default {
 
 <template>
   <div class="section-header">
-    <button v-if="loaded && this.currentSection !== this.featured" @click="this.handleBack">back</button>
+    <button v-if="loaded && this.currentSection !== this.featured" @click="this.handleBack">
+      <img src="./../assets/icon_back.png" alt="back">
+    </button>
     <h2 v-if="this.currentSection !== this.featured" class="section-title">{{ this.currentSection.hasOwnProperty("title_short") ? this.currentSection.title_short : this.currentSection.title }}</h2>
   </div>
   <div v-if="isList">
     <ScrollList :listType="this.currentSection.list_key" :difficulty="''" :tag="''" :searchTerm="''" :otherUserID="null" @tab-changed="(query) => this.tabChanged(query)"/>
   </div>
   <div v-else-if="isSection" class="sections">
-    <div class="section-element-title" v-for="section in this.currentSection.sections">
-      <div class="section-button" v-if="shouldRenderSection(section)" @click="this.setSection(section)">
-        {{ section.title }}
+    <div class="section-element-title" v-for="section in this.currentSection.sections" :key="section.title">
+      <div class="section-button" v-if="shouldRenderSection(section)">
+        <span @click="this.setSection(section)">{{ section.title }}</span>
+        <span class="view-all" @click="this.setSection(section)">View all</span>
       </div>
-      <div v-else-if="isSpace(section)" :style="`height: ${section.size/4}px`"></div>
+      <div v-if="shouldRenderSection(section) && section.list_key" class="featured-list-wrapper horizontal-list">
+        <ScrollList :listType="section.list_key" :difficulty="''" :tag="''" :searchTerm="''" :otherUserID="null" :horizontal="true" @tab-changed="(query) => this.tabChanged(query)"/>
+      </div>
+      <div v-else-if="shouldRenderSection(section) && section.sections">
+        <div class="featured-list-wrapper">
+          <div class="section-list">
+            <div v-for="subsection in section.sections" :key="subsection.title" class="section-card" @click="this.setSection(subsection)">
+              <img v-if="shouldRenderSection(subsection)" :src="getThumbnail(subsection)">
+              <span v-if="shouldRenderSection(subsection)">{{ subsection.title }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,8 +143,6 @@ export default {
   }
   .section-element-title {
     width: 100%;
-    text-align: center;
-    color: #FFFFFF;
     font-size: 20px;
     font-weight: bold;
     border-radius: 15px;
@@ -133,9 +150,26 @@ export default {
     text-decoration: none;
     margin-bottom: 5px;
   }
+  .section-element-title span {
+    padding-inline: 1rem;
+  }
   .section-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .section-button span {
     cursor: pointer;
+  }
+  .view-all {
     font-weight: 400;
+    color: var(--light);
+    opacity: 0.3;
+    transition: opacity 0.2s linear;
+  }
+  .view-all:hover {
+    opacity: 0.7;
   }
   .section-title, .section-element-title {
     color: white;
@@ -147,19 +181,77 @@ export default {
     padding-block: 10px;
   }
   .section-header button {
-    width: 120px;
-    height:  30px;
+    width: 40px;
+    height:  40px;
     font-size: 15px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    border-radius: 15px;
-    box-sizing: border-box;
-    text-decoration: none;
-    background-color: #00BC87;
-    color: #FFFFFF;
-    text-align: center;
-    border: none;
+    border-radius: 50%;
+    background-color: var(--hover);
     cursor: pointer;
+  }
+  .section-header button img {
+    width: 23px;
+    height: 20px;
+    opacity: 0.7;
+    transition: opacity 0.3s linear;
+  }
+  .section-header button:hover img {
+    opacity: 1;
+  }
+  .featured-list-wrapper {
+    overflow-x: scroll;
+    width: 100%;
+    padding: 1rem;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  .horizontal-list {
+    min-height: 220px; /* TODO: better loading animation thing */
+  }
+  .section-list {
+    display: flex;
+    flex-direction: row;
+    width: fit-content;
+    grid-gap: 2rem;
+    margin-bottom: 4rem;
+  }
+  .section-card {
+    width: 300px;
+    display: grid;
+    grid-template-areas: "card";
+    aspect-ratio: 512 / 288;
+    border-radius: 15px;
+    box-shadow: 0 0 0 #0005;
+    transition: box-shadow 0.1s linear, scale 0.2s ease;
+    cursor: pointer;
+  }
+  .section-card img {
+    width: 100%;
+    height: 100%;
+    grid-area: card;
+    border-radius: 15px;
+  }
+  .section-card:hover {
+    box-shadow: 3px 3px 0 #0005;
+    scale: 1.05;
+  }
+  .section-card:not(:has(img)) {
+    display: none;
+  }
+  .section-card span {
+    grid-area: card;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 2px solid var(--light);
+    text-shadow: 1px 1px 0 #000;
+    box-shadow: 3px 3px 0 #000;
+    background-color: #0003;
+    max-width: 90%;
+    text-align: center;
   }
 </style>
