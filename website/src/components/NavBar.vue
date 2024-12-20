@@ -62,7 +62,9 @@ export default {
     <button v-if="isSuperModerator" :class="tabActive==='tab_hidden'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_hidden')" id="tab_hidden">Hidden Levels</button>
     <button v-if="isSuperModerator" :class="tabActive==='tab_deletion_queue'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_deletion_queue')" id="tab_deletion_queue">Deletion Queue</button>
     <button v-if="isSuperModerator" :class="tabActive==='tab_audit'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_audit')" id="tab_audit">Audit Log</button>
-    <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)">
+    <span class="search">
+      <input v-if="wantsSearch" spellcheck="false" type="text" id="search_field" placeholder="Search.." @input="event => changedSearchTerm(event.target.value)">
+    </span>
   </div>
 </template>
 
@@ -70,44 +72,58 @@ export default {
 <style scoped>
 .tab {
   width: 100%;
-  overflow: hidden;
-  background-color: #ffffff;
-  border-radius: 10px;
 }
 
 /* Style the buttons that are used to open the tab content */
 .tab button {
-  background-color: inherit;
+  background-color: var(--button);
+  border-radius: var(--rad);
+  margin-inline: 0.4rem;
   float: left;
-  border: none;
-  outline: none;
   cursor: pointer;
-  padding: 14px 16px;
+  padding: 0.8rem 1.2rem;
   transition: 0.3s;
-  font-weight: medium;
+  font-weight: bold;
   height: 100%;
-  font-size: 14px;
+  margin-bottom: 0.4rem;
 }
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-  background-color: #ddd;
+  background-color: var(--hover);
 }
 
 /* Create an active/current tablink class */
 .tab button.active {
-  background-color: #ccc;
+  background-color: var(--hover);
 }
 
 .tab input[type=text] {
-  float: right;
+  width: 100%;
+  border-radius: var(--rad);
+  padding: 0.8rem 1.2rem;
+  background-color: var(--hover);
+}
+.search {
   min-width: 15%;
-  padding: 6px;
-  border: none;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  border-radius: 5px;
-  margin-right: 8px;
-  font-size: 14px;
+  float: right;
+  transition: all 0.3s linear;
+
+  &:has(:focus) {
+    min-width: min(40%, 400px);
+  }
+}
+.search::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  height: 60%;
+  aspect-ratio: 1/1;
+  background-image: url(./../assets/icon_search.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.5;
 }
 </style>
