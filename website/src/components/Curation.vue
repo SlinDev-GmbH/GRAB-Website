@@ -5,7 +5,7 @@ import { useUserStore } from '@/stores/user'
 import CurationControls from './CurationControls.vue'
 import NewCurationButton from './NewCurationButton.vue'
 import RemoveCurationButton from './RemoveCurationButton.vue'
-import Terms from './Terms.vue'
+import LegalTerms from './LegalTerms.vue'
 
 import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
@@ -14,7 +14,7 @@ export default {
 	CurationControls,
 	NewCurationButton,
 	RemoveCurationButton,
-	Terms,
+	LegalTerms,
   },
 
   computed: {
@@ -84,7 +84,7 @@ export default {
 		<main>
 			<CurationControls :type="type"/>
 		</main>
-		<Terms/>
+		<LegalTerms/>
 	</div>
 </template>
 

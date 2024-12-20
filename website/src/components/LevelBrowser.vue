@@ -10,7 +10,7 @@ import LoginButton from './LoginButton.vue'
 import Featured from './Featured.vue'
 import LevelDifficultySortingControls from './LevelDifficultySortingControls.vue'
 import LevelTagSortingControls from './LevelTagSortingControls.vue'
-import Terms from './Terms.vue'
+import LegalTerms from './LegalTerms.vue'
 
 export default {
   components: {
@@ -22,7 +22,7 @@ export default {
     Featured,
     LevelDifficultySortingControls,
     LevelTagSortingControls,
-    Terms,
+    LegalTerms,
   },
 
   data() {
@@ -143,7 +143,7 @@ export default {
       <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
       <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :tag="tagFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)" @loaded="loaded"/>
     </main>
-    <Terms/>
+    <LegalTerms/>
   </div>
 </template>
 
