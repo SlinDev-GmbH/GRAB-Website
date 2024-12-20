@@ -33,10 +33,12 @@ export default {
 
 <template>
   <div class="level-card">
-    <img v-if="hasImage" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
-    <div class="info">
-      <div class="title">{{ item.title }}</div>
-      <div class="creators">{{ creators }}</div>
+    <div class="details">
+      <img v-if="hasImage" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
+      <div class="info">
+        <div class="title">{{ item.title }}</div>
+        <div class="creators">{{ creators }}</div>
+      </div>
     </div>
     <div class="buttons">
       <a target="_blank" :href=creatorUrl class="user-button">USER</a>
@@ -48,11 +50,18 @@ export default {
 <style scoped>
 .level-card {
   width: 100%;
-  background-color: #ffffff;
+  background-color: var(--button);
   border-radius: 10px;
   padding: 3%;
   margin-block: 10px;
   overflow-wrap: break-word;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px
+}
+.details {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -79,27 +88,26 @@ export default {
 }
 
 .buttons a {
-  display: block;
-  width: 100%;
-  line-height: 30px;
-  border: none;
-  border-radius: 10px;
   color: #FFFFFF;
-  font-weight: bold;
   font-size: 15px;
-  text-align:center;
-  text-decoration: none;
   margin: auto 0;
-  overflow-x: hidden;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  width: 90px;
+  font-weight: bold;
+  border-radius: 15px;
+  cursor: pointer;
 }
 
 .open-button {
-  background-color:#00BC87;
+  background-color: var(--green);
 }
 
 .user-button {
-  background-color:#4642BE;
+  background-color: var(--blue);
 }
 
 .title {
@@ -109,6 +117,7 @@ export default {
   line-height: 0.9;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -121,6 +130,7 @@ export default {
   text-align: left;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -130,6 +140,7 @@ export default {
   font-size: 15px;
   display: -webkit-box;   
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;     
   overflow: hidden;
   padding-top: 10px;
@@ -141,8 +152,24 @@ export default {
   display: block;
   object-fit: contain;
   object-position: center;
-  width: 20%;
+  width: max(20%, 80px);
   height: auto;
   border-radius: 10px;
+}
+
+@media screen and (max-width: 750px) {
+  .level-card {
+    flex-direction: column;
+  }
+  .buttons {
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  .buttons a {
+    font-size: 13px;
+    height: fit-content;
+    padding-block: 2px;
+  }
 }
 </style>

@@ -35,10 +35,14 @@ export default {
 
 <style scoped>
 #add-new-list-button {
-    background-color: #00bc87;
-    width: fit-content;
-    height: 40px;
+    background-color: var(--green);
     display: flex;
     align-items: center;
+    justify-content: center;
+    height: 30px;
+    width: 90px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
 }
 </style>
