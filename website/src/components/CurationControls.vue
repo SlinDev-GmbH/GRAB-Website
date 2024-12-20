@@ -157,7 +157,7 @@ export default {
     window.addEventListener('keydown', this.handleKey);
   },
 
-  destroyed() {
+  unmounted() {
     window.removeEventListener('keydown', this.handleKey);
   },
 }
