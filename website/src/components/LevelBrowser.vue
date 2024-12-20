@@ -7,6 +7,7 @@ import LevelTitle from './LevelTitle.vue'
 import UserTitle from './UserTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
+import CurrencyInfo from './CurrencyInfo.vue'
 import Featured from './Featured.vue'
 import LevelDifficultySortingControls from './LevelDifficultySortingControls.vue'
 import LevelTagSortingControls from './LevelTagSortingControls.vue'
@@ -19,6 +20,7 @@ export default {
     UserTitle,
     ScrollList,
     LoginButton,
+    CurrencyInfo,
     Featured,
     LevelDifficultySortingControls,
     LevelTagSortingControls,
@@ -40,6 +42,7 @@ export default {
     ...mapState(useUserStore, ['isModerator']),
     ...mapState(useUserStore, ['isSuperModerator']),
     ...mapState(useUserStore, ['accessToken']),
+    ...mapState(useUserStore, ['isLoggedIn']),
     showLevelTitle() {
       const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels', 'tab_verify_queue', 'tab_reported_levels', 'tab_featured']
       return options.includes(this.tabActive)
@@ -121,6 +124,7 @@ export default {
   <div id="level-browser">
     <img v-if="showUserTitle && userID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.webp" />
     <header>
+      <CurrencyInfo v-if="isLoggedIn" />
       <div class="home-link-wrapper">
         <a href="/" class="home-link">
           <img alt="GRAB logo" class="logo" src="/logo.webp" />
