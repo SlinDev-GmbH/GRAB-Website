@@ -53,10 +53,9 @@ export default {
   border-radius: 15px;
   box-sizing: border-box;
   text-decoration: none;
-  background-color: #00BC87;
+  background-color: var(--green);
   color: #FFFFFF;
   text-align: center;
-  border: none;
   top: 0px;
   right: 0px;
   position: absolute;
@@ -73,10 +72,9 @@ export default {
   border-radius: 15px;
   box-sizing: border-box;
   text-decoration: none;
-  background-color: #FF0000;
+  background-color: var(--red);
   color: #FFFFFF;
   text-align: center;
-  border: none;
   top: 0px;
   right: 0px;
   position: absolute;
