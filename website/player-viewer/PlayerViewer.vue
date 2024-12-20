@@ -49,7 +49,7 @@ export default {
         this.renderer = null;
 
         const user_id = new URLSearchParams(window.location.search).get('user_id')
-        this.ToolsButtons[0].href = `https://grabvr.quest/levels?tab=tab_other_user&user_id=${user_id}`
+        this.ToolsButtons[0].href = `${window.location.origin}/levels?tab=tab_other_user&user_id=${user_id}`
     },
     async mounted() {
         const items = await getShopItemsRequest(this.$api_server_url)
