@@ -8,7 +8,7 @@ import UserTitle from './UserTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
 import CurrencyInfo from './CurrencyInfo.vue'
-import Featured from './Featured.vue'
+import FeaturedLevels from './FeaturedLevels.vue'
 import LevelDifficultySortingControls from './LevelDifficultySortingControls.vue'
 import LevelTagSortingControls from './LevelTagSortingControls.vue'
 import LegalTerms from './LegalTerms.vue'
@@ -22,7 +22,7 @@ export default {
     ScrollList,
     LoginButton,
     CurrencyInfo,
-    Featured,
+    FeaturedLevels,
     LevelDifficultySortingControls,
     LevelTagSortingControls,
     LegalTerms,
@@ -143,7 +143,7 @@ export default {
     </header>
     <main>
       <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
-      <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
+      <FeaturedLevels v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
       <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :tag="tagFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)" @loaded="loaded"/>
     </main>
     <LegalTerms/>
