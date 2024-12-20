@@ -20,18 +20,14 @@ export default {
 
   data() {
     return {
-      cardColor: 'white'
+      cardColor: 'var(--hover)',
+      copied: false,
+      isPunished: false,
+      isReset: false,
     }
   },
 
   computed: {
-    creators() {
-      if(this.item.creators && this.item.creators.length > 0)
-        return 'by ' + this.item.creators.join(', ')
-
-      return ''
-    },
-
     isReportModerationCell() {
       return this.moderationItem !== null
     },
@@ -40,95 +36,209 @@ export default {
       return this.moderationItem === null && this.isSuperModerator
     },
 
-    ...mapState(useUserStore, ['isSuperModerator'])
+    profileGradient() {
+      const color1 = this.item.active_customizations?.player_color_primary?.color;
+      const color2 = this.item.active_customizations?.player_color_secondary?.color;
+      if (color1 && color1.length == 3 && color2 && color2.length == 3) {
+        const rgb1 = `rgb(${color1[0] * 255}, ${color1[1] * 255}, ${color1[2] * 255})`;
+        const rgb2 = `rgb(${color2[0] * 255}, ${color2[1] * 255}, ${color2[2] * 255})`;
+        return `background-image: linear-gradient(to bottom right, ${rgb1}, ${rgb2})`
+      }
+      return '';
+    },
+
+    ...mapState(useUserStore, ['isSuperModerator']),
+    ...mapState(useUserStore, ['isAdmin'])
   },
 
   methods: {
-    didHandleCell(bad) {
-      if(bad === true)
-      {
-        this.cardColor = 'lightcoral'
-      }
-      else
-      {
-        this.cardColor = 'lightgreen'
+    didPunishOrReset(bad) {
+      if (bad) {
+        this.isPunished = true;
+      } else {
+        this.isReset = true;
       }
     },
 
     showProfile() {
       this.$emit('profile', this.item.user_id)
+    },
+
+    copyId() {
+      navigator.clipboard.writeText(this.item.user_id);
+      this.copied = true;
+      setTimeout(() => {
+        this.copied = false;
+      }, 2000);
     }
   }
 }
 </script>
 
 <template>
-  <div class="user-card" :style="{'background-color': cardColor}">
-    <div class="user-name">{{ item.user_name }}</div>
-    <img v-if="item.is_creator" alt="creator" class="creator-icon" src="./../assets/creator.png" />
-    <img v-if="item.is_moderator" alt="moderator" class="moderator-icon" src="./../assets/moderator.png" />
-    <div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
-    <div v-if="isAdmin" class="user-id">User ID: {{ item.user_id }}</div>
-    <ReportModerationTools v-if="isReportModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
-    <UserModerationTools v-if="isUserModerationCell" :user-info="item" @handled="didHandleCell"/>
-    <div class="profile-button" @click="showProfile">PROFILE</div>
+  <div class="card-container">
+    <div class="user-card" :style="{'background-color': cardColor}" @click="showProfile">
+      <div class="details">
+        <div class="user-name-container">
+          <div class="user-name">
+            <span :style="isPunished ? 'color: var(--red);' : isReset ? 'color: var(--green);' : ''">{{ item.user_name }}</span>
+            <img v-if="item.is_creator" alt="creator" class="creator-icon" src="./../assets/creator.png" />
+            <span v-if="item.is_moderator" title="Moderator" class="moderator-icon">M</span>
+            <span v-if="item.is_admin" title="Developer" class="developer-icon">D</span>
+          </div>
+          <div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
+        </div>
+        <div class="profile-icon" :style="profileGradient"></div>
+      </div>
+    </div>
+    <div v-if="isSuperModerator" class="moderation">
+      <div class="user-id">
+        <span>{{ item.user_id }}</span>
+        <button class="copy" @click="copyId">
+          <img v-show="!copied" src="./../assets/copy.svg">
+          <img v-show="copied" src="./../assets/copied.svg">
+        </button>
+      </div>
+      <div class="actions">
+        <ReportModerationTools v-if="isReportModerationCell" :moderation-item="moderationItem" @handled="didPunishOrReset"/>
+        <UserModerationTools v-if="isUserModerationCell" :user-info="item" @handled="didPunishOrReset"/>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.user-card {
+.card-container {
   width: 100%;
   height: 100%;
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 3%;
-  padding-bottom: 60px;
-  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
+.user-card {
+  width: 100%;
+  height: fit-content;
+  background-color: var(--hover);
+  border-radius: 15px;
+  padding: 0.5rem 1rem;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: box-shadow 0.3s linear, scale 0.3s ease;
+  cursor: pointer;
+}
+.user-card:hover {
+  box-shadow: 3px 3px 0 #0005;
+  scale: 1.05;
+}
+.details {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.actions {
+  justify-self: flex-end;
+  width: 100%;;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto;
+  padding-top: 0.5rem;
+  margin-top: auto;
+}
+.moderation {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-top: 0.5rem;
+  height: 100%;
+  width: 100%;
+}
+.user-name-container {
+  font-size: 20px;
+  font-style: bold;
+}
 .user-name {
   font-size: 20px;
   font-style: bold;
-  line-height: 1.0;
-  display: inline-block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
 }
-
+.level-count {
+  font-size: 15px;
+  opacity: 0.5;
+}
 .user-id {
   font-size: 15px;
   font-style: italic;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
 }
-
-.level-count {
-  font-size: 15px;
-  display: -webkit-box;   
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;     
-  overflow: hidden;
+.user-id span {
+  opacity: 0.5;
 }
-
-.profile-button {
-  display: block;
-  position: absolute;
-  bottom: 5%;
-  width: 40%;
-  left: 30%;
-  line-height: 30px;
-  border: none;
-  border-radius: 10px;
-  background-color:#4642BE;
-  color: #FFFFFF;
-  font-weight: bold;
-  font-size: 15px;
-  text-align:center;
-  text-decoration: none;
+.copy {
   cursor: pointer;
+  background-color: transparent;
+  transition: transform 0.2s ease-in-out;
+  display: grid;
+  place-content: center;
+  padding: 3px;
+  border-radius: 5px;
+}
+.copy:hover {
+  background-color: var(--hover);
+}
+.copy img {
+  height: 1rem;
+  width: 1rem;
 }
 
-.creator-icon, .moderator-icon {
+.profile-icon {
+  height: 60px;
+  width: 60px;
+  aspect-ratio: 1/1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 10px;
+  margin-block: 0.5rem;
+}
+
+.creator-icon {
   width: 20px;
   height: 20px;
-  margin-left: 3px;
-  position: relative;
-  top: 3px;
+}
+
+.moderator-icon {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  background-color: #DE9343;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.developer-icon {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  background-color: #DD3619;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
