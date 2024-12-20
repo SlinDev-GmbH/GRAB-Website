@@ -11,7 +11,6 @@ import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
-import HideTipLevelButton from './HideTipLevelButton.vue'
 import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
@@ -26,7 +25,6 @@ export default {
     SkipLevelButton,
     VLazyImage,
     HideLevelButton,
-    HideTipLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
     ReportLevelButton,
@@ -236,7 +234,6 @@ export default {
     <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue'" :level-info="item"/>
     <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
     <HideLevelButton v-show="!isHidden" v-if="!isHidden && (isSuperModerator || isAdmin) && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell" @hideBtn="hideState"/>
-    <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <UnhideLevelButton  v-show="isHidden" v-if="isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell" @click="hideState"/>
     <UnscheduleDeletionButton v-if="isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
