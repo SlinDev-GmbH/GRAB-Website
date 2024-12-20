@@ -113,7 +113,7 @@ export default {
   <div v-else-if="isSection" class="sections">
     <div class="section-element-title" v-for="section in this.currentSection.sections" :key="section.title">
       <div class="section-button" v-if="shouldRenderSection(section)">
-        <span @click="this.setSection(section)">{{ section.title }}</span>
+        <span class="section-label" @click="this.setSection(section)">{{ section.title }}</span>
         <span class="view-all" @click="this.setSection(section)">View all</span>
       </div>
       <div v-if="shouldRenderSection(section) && section.list_key" class="featured-list-wrapper horizontal-list">
@@ -141,10 +141,12 @@ export default {
     justify-content: center;
     padding: 10px;
   }
+  .section-label {
+    font-weight: bold;
+  }
   .section-element-title {
     width: 100%;
     font-size: 20px;
-    font-weight: bold;
     border-radius: 15px;
     box-sizing: border-box;
     text-decoration: none;

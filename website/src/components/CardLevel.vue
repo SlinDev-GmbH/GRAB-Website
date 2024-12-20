@@ -493,7 +493,6 @@ export default {
 .title {
   padding-top: 5px;
   font-size: 1.2rem;
-  font-style: bold;
   line-height: 0.9;
   margin-left: 1rem;
   margin-top: 5px;
