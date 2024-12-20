@@ -14,6 +14,8 @@ app.config.globalProperties.$images_server_url = config.IMAGES_SERVER_URL
 app.config.globalProperties.$page_url = config.PAGE_URL
 app.config.globalProperties.$max_level_format_version = config.MAX_FORMAT_VERSION
 
+app.config.unwrapInjectedRef = true
+
 app.use(router)
 
 const pinia = createPinia()
