@@ -151,9 +151,13 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  padding-top: 0.5rem;
+  padding-block: 0.5rem;
+  padding-inline: 10px;
   height: 100%;
-  width: 100%;
+  width: calc(100% - 30px);
+  background-color: var(--button);
+  border-radius: 0 0 15px 15px;
+  margin-inline: 10px;
 }
 .user-name-container {
   font-size: 20px;

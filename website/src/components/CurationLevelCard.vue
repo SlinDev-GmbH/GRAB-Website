@@ -181,7 +181,7 @@ export default {
   grid-area: center;
   font-size: 0.8rem;
   white-space: nowrap;
-  background-color: var(--hover);
+  background-color: #0005;
   border-radius: 5rem;
   padding-inline: 0.4rem;
   display: flex;
@@ -192,6 +192,11 @@ export default {
   width: fit-content;
   height: fit-content;
   margin: auto;
+  transition: background-color 0.3s ease, scale 0.3s ease;
+}
+.thumb-wrapper:hover .plays {
+  background-color: var(--background);
+  scale: 1.2;
 }
 .plays img {
   width: 0.65rem;
