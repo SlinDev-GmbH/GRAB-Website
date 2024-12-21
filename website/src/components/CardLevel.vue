@@ -448,7 +448,7 @@ export default {
   gap: 2px;
 }
 .tag {
-  font-size: 13px;
+  font-size: 0.8rem;
   font-style: italic;
   background-color: var(--green);
   padding: 0 8px;
@@ -519,7 +519,7 @@ export default {
   max-height: 1.3rem;
 }
 .hidden-tag {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-style: italic;
   background-color: var(--red);
   padding: 0 8px;
@@ -527,7 +527,7 @@ export default {
   margin-left: 5px;
 }
 .approved-tag {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-style: italic;
   background-color: var(--green);
   padding: 0 8px;

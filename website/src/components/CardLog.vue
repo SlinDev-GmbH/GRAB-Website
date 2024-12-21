@@ -166,7 +166,7 @@ export default {
   line-height: 15px;
   background-color: #4eac36;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: 0.7rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -178,7 +178,7 @@ export default {
   line-height: 15px;
   background-color: #DE9343;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: 0.7rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -190,7 +190,7 @@ export default {
   line-height: 15px;
   background-color: #DD3619;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: 0.7rem;
   font-weight: 600;
   display: flex;
   align-items: center;
