@@ -7,6 +7,7 @@ import NewCurationButton from './NewCurationButton.vue'
 import RemoveCurationButton from './RemoveCurationButton.vue'
 import LegalTerms from './LegalTerms.vue'
 import DropDown from './DropDown.vue'
+import LoginButton from './LoginButton.vue'
 
 import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
@@ -17,10 +18,11 @@ export default {
 	RemoveCurationButton,
 	LegalTerms,
 	DropDown,
+	LoginButton,
   },
 
   computed: {
-	  ...mapState(useUserStore, ['isAdmin', 'accessToken']),
+	  ...mapState(useUserStore, ['isAdmin', 'accessToken', 'isLoggedIn']),
   },
 
   data() {
@@ -48,12 +50,13 @@ export default {
 
 <template>
 	<div id="curation">
-		<a class="back-button" href="/levels">
-			<img src="./../assets/icon_back.png" alt="back">
-		</a>
 		<header>
+			<a class="back-button" href="/levels">
+				<img src="./../assets/icon_back.png" alt="back">
+			</a>
+			<LoginButton/>
 			<h1>Curated Level Lists</h1>
-			<div id="list-control">
+			<div v-if="isLoggedIn" id="list-control">
 				<DropDown :options='typesList.length ? typesList : ["Loading.."]' :defaultChoice='typesList[0] || "Loading.."' :flip='true' @changeSelection="type = $event"/>
 				<div v-if="isAdmin" id="buttonWrapper">
 					<NewCurationButton @handled="handleTypeListUpdate"/>
@@ -62,7 +65,7 @@ export default {
 			</div>
 		</header>
 		<main>
-			<CurationControls :type="type"/>
+			<CurationControls v-if="isLoggedIn" :type="type"/>
 		</main>
 		<LegalTerms/>
 	</div>
@@ -134,7 +137,7 @@ body {
 	font-family: 'Roboto', sans-serif;
 }
 h1 {
-	margin: 0;
+	margin-top: 2rem;
 	text-align: center;
 	font-size: 32px;
 	padding: 0;
@@ -163,8 +166,8 @@ select:focus-visible {
 
 .back-button {
 	position: absolute;
-	top: 10px;
-	left: 10px;
+	top: 0;
+	left: 0;
     width: 40px;
     height:  40px;
     font-size: 15px;

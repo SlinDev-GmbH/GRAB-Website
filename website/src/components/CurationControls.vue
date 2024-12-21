@@ -4,12 +4,12 @@ import { useUserStore } from '@/stores/user'
 import { AddToCuratedListRequest } from '../requests/AddToCuratedListRequest.js'
 import { RemoveFromCuratedListRequest } from '../requests/RemoveFromCuratedListRequest.js'
 import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
-import CurationLevelCard from './CurationLevelCard.vue'
 import { listRequest } from '../requests/ListRequest'
+import CurationLevelCard from './CurationLevelCard.vue'
 
 export default {
   components: {
-    CurationLevelCard
+    CurationLevelCard,
   },
 
   props: {
@@ -121,7 +121,10 @@ export default {
       }
 
       if (requests.length === 0) {
-        alert("No changes to send!");
+        this.sendButtonText = "No changes";
+        setTimeout(() => {
+          this.sendButtonText = "Send";
+        }, 1000);
         return;
       }
 

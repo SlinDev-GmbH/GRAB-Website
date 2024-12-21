@@ -66,10 +66,7 @@ export default {
   methods: {
     tabChanged(query) {
       this.tabActive = query.tab
-      // this.difficultyFilter = ''
-      // this.tagFilter = ''
       if('search' in query) this.searchTerm = query['search']
-      // else this.searchTerm = ''
       if('user_id' in query) this.userID = query['user_id']
       else this.userID = null
       this.$router.push({ query: query})
