@@ -81,6 +81,16 @@ export default {
 			}
 		},
 
+    moveLevelTop() {
+      let index = this.selected;
+      if (index > 0) {
+        let levelId = this.levelList[index];
+        this.levelList.splice(index, 1);
+        this.levelList.unshift(levelId);
+        this.setSelected(0);
+      }
+    },
+
 		moveLevelDown() {
 			let index = this.selected;
 			if (index < this.levelList.length - 1) {
@@ -178,6 +188,7 @@ export default {
     <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/>
     <input type="button" value="Move Up" id="move-up-button" @click="moveLevelUp"/>
     <input type="button" value="Move Down" id="move-down-button" @click="moveLevelDown"/>
+    <input type="button" value="To Top" id="move-top-button" @click="moveLevelTop"/>
     <br>
     <input type="button" :value="sendButtonText" id="send-button" @click="sendUpdates"/>
   </div>
