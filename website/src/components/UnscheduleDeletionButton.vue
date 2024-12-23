@@ -38,4 +38,11 @@ export default {
     border-radius: 15px;
     cursor: pointer;
   }
+  @media screen and (max-width: 600px) {
+  .undelete-level-button {
+    height: 25px;
+    width: 70px;
+    font-size: 0.7rem;
+  }
+}
 </style>

@@ -80,4 +80,12 @@ export default {
   position: absolute;
   cursor: pointer;
 }
+
+@media screen and (max-width: 460px) {
+  .login-button, .logout-button {
+    font-size: 12px;
+    width: 110px;
+    height:  25px;
+  }
+}
 </style>

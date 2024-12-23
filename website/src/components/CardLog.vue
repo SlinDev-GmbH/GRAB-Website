@@ -138,6 +138,7 @@ export default {
   flex-direction: row;
   align-items: center;
   gap: 5px;
+  flex-wrap: wrap;
 }
 .log-actions {
   display: flex;
@@ -211,5 +212,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+@media screen and (max-width: 500px) {
+  .log-type {
+    margin-right: 100%;
+  }
 }
 </style>

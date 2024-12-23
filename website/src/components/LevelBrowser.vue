@@ -172,6 +172,11 @@ header, main {
   padding-inline: 1rem;
   margin: 0 auto;
 }
+@media screen and (max-width: 520px) {
+  header, main {
+    padding-inline: 0.2rem;
+  }
+}
 
 .logo {
   width: 100%;
@@ -194,6 +199,11 @@ header, main {
   padding-bottom: 30px;
 }
 
+@media screen and (max-width: 460px) {
+  #level-browser {
+    padding: 1rem;
+  }
+}
 @media screen and (max-width: 500px) {
   .logo {
     padding-bottom: 5px;
@@ -251,6 +261,20 @@ header, main {
   position: absolute;
   cursor: pointer;
   padding-block: 3px;
+}
+
+@media screen and (max-width: 460px) {
+  .curation-button, .access-token-button {
+    font-size: 12px;
+    width: 110px;
+    height:  25px;
+  }
+  .curation-button {
+    top: 30px;
+  }
+  .access-token-button {
+    top: 60px;
+  }
 }
 
 img.rick {
