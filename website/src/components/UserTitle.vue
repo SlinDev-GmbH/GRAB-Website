@@ -131,11 +131,11 @@ export default {
       <div v-if="loaded && isAdmin" class="history-buttons">
         <button class="history-button" @click="this.showPurchaseHistory = !this.showPurchaseHistory">
           Purchases
-          <img src="./../assets/clock.svg" alt="history">
+          <img src="./../assets/icons/clock.svg" alt="history">
         </button>
         <button class="history-button" @click="this.showModerationHistory = !this.showModerationHistory">
           Moderation
-          <img src="./../assets/clock.svg" alt="history">
+          <img src="./../assets/icons/clock.svg" alt="history">
         </button>
       </div>
     </div>
@@ -143,8 +143,8 @@ export default {
       <div v-if="loaded && isSuperModerator" class="user-id">
         <span>{{ identifier }}</span>
         <button class="copy" @click="copyId">
-          <img v-show="!copied" src="./../assets/copy.svg">
-          <img v-show="copied" src="./../assets/copied.svg">
+          <img v-show="!copied" src="./../assets/icons/copy.svg">
+          <img v-show="copied" src="./../assets/icons/copied.svg">
         </button>
       </div>
       <div v-if="loaded && isSuperModerator" class="user-tab-moderation-container">

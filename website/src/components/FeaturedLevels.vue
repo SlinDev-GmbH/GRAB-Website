@@ -103,7 +103,7 @@ export default {
 <template>
   <div class="section-header">
     <button v-if="loaded && this.currentSection !== this.featured" @click="this.handleBack">
-      <img src="./../assets/icon_back.png" alt="back">
+      <img src="./../assets/icons/back.svg" alt="back">
     </button>
     <h2 v-if="this.currentSection !== this.featured" class="section-title">{{ this.currentSection.hasOwnProperty("title_short") ? this.currentSection.title_short : this.currentSection.title }}</h2>
   </div>

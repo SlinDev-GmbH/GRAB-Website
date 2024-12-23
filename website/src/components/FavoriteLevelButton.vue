@@ -42,8 +42,8 @@ export default {
 </script>
 
 <template>
-    <img v-if="isFavorited" class="favorite-button" @click="removeFavoriteLevel" src="./../assets/star_on.svg" alt="Add to Favorites">
-    <img v-else class="favorite-button" @click="addFavoriteLevel" src="./../assets/star_off.svg" alt="Remove from Favorites">
+    <img v-if="isFavorited" class="favorite-button" @click="removeFavoriteLevel" src="./../assets/icons/star_on.svg" alt="Add to Favorites">
+    <img v-else class="favorite-button" @click="addFavoriteLevel" src="./../assets/icons/star_off.svg" alt="Remove from Favorites">
 </template>
 
 <style scoped>

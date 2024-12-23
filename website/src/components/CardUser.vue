@@ -94,8 +94,8 @@ export default {
       <div class="user-id">
         <span>{{ item.user_id }}</span>
         <button class="copy" @click="copyId">
-          <img v-show="!copied" src="./../assets/copy.svg">
-          <img v-show="copied" src="./../assets/copied.svg">
+          <img v-show="!copied" src="./../assets/icons/copy.svg">
+          <img v-show="copied" src="./../assets/icons/copied.svg">
         </button>
       </div>
       <div class="actions">

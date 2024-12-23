@@ -59,7 +59,7 @@ export default {
       <div class="thumb-wrapper">
         <img v-if="hasImage" class="thumbnail" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" />
         <div v-if="item.statistics" class="plays">
-          <img src="./../assets/icon_plays.png" alt="plays: ">
+          <img src="./../assets/icons/person.svg" alt="plays: ">
           <span>{{ formattedPlays }}</span>
         </div>
       </div>

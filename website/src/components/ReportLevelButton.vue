@@ -19,7 +19,7 @@ export default {
 </script>
 
 <template>
-  <img class="report-level-button" @click="showModerationPopup=true" src="./../assets/report.svg" />
+  <img class="report-level-button" @click="showModerationPopup=true" src="./../assets/icons/report.svg" />
 
   <Teleport to="body">
     <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" config="level_report" :identifier="level_id" alt="Report Level" />

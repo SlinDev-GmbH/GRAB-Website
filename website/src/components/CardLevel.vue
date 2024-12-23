@@ -227,7 +227,7 @@ export default {
       <div class="card-overlay">
         <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/creator.png" width="20" height="20" />
         <div v-if="hasStatistics && item.statistics" class="plays">
-          <img src="./../assets/icon_plays.png" alt="plays: ">
+          <img src="./../assets/icons/person.svg" alt="plays: ">
           <span>{{ formattedPlays }}</span>
         </div>
         <div v-if="hasStatistics && hasDifficulty" :class="`difficulty difficulty-${this.item.statistics?.difficulty_string || 'unrated'}`">{{ difficulty }}</div>
