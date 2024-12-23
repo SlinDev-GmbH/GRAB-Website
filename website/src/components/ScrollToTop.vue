@@ -27,7 +27,7 @@ export default {
 
 <template>
   <button v-if="scrolledFar" class="scroll-to-top" @click="scrollToTop">
-    <img src="./../assets/arrow_up.png" alt="^">
+    <img src="./../assets/icons/up.svg" alt="^">
   </button>
 </template>
 
@@ -43,11 +43,13 @@ export default {
   border-radius: 50%;
   padding: 5px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .scroll-to-top img {
-  width: 60%;
-  height: 60%;
-  filter: invert();
+  width: 75%;
+  height: 75%;
   transition: opacity 0.3s ease;
   opacity: 0.5;
 }

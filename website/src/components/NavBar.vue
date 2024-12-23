@@ -118,7 +118,7 @@ export default {
   transform: translateY(-50%);
   height: 60%;
   aspect-ratio: 1/1;
-  background-image: url(./../assets/icon_search.png);
+  background-image: url(./../assets/icons/search.svg);
   background-size: contain;
   background-repeat: no-repeat;
   opacity: 0.5;

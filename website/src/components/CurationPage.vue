@@ -52,7 +52,7 @@ export default {
 	<div id="curation">
 		<header>
 			<a class="back-button" href="/levels">
-				<img src="./../assets/icon_back.png" alt="back">
+				<img src="./../assets/icons/back.svg" alt="back">
 			</a>
 			<LoginButton/>
 			<h1>Curated Level Lists</h1>

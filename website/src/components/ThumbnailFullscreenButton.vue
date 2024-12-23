@@ -32,7 +32,7 @@ export default {
 <template>
   <div>
     <button class="thumbnail-fullscreen-button" @click="showPopup=true">
-      <img src="./../assets/icon_fullscreen.png" alt="Full Screen">
+      <img src="./../assets/icons/fullscreen.svg" alt="Full Screen">
     </button>
   
     <Teleport v-if="showPopup" to="body">

@@ -15,9 +15,9 @@ import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import imageStampOk from '../../../src/assets/creator.png'
-import imageReport from '../../../src/assets/report.svg'
-import imageFavorite from '../../../src/assets/star_off.svg'
-import imageFavorited from '../../../src/assets/star_on.svg'
+import imageReport from '../../../src/assets/icons/report.svg'
+import imageFavorite from '../../../src/assets/icons/star_off.svg'
+import imageFavorited from '../../../src/assets/icons/star_on.svg'
 
 import modelCubeURL from '../models/cube.gltf'
 import modelSphereURL from '../models/sphere.gltf'
