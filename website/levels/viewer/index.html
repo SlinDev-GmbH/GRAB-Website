@@ -13,59 +13,99 @@
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:image:src" content="__PAGE_PREVIEW_IMAGE_URL__">
         <style>
-            /* roboto-regular - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Roboto';
-              font-style: normal;
-              font-weight: 400;
-              src: url('../../fonts/roboto-v30-latin-regular.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+            
+            /* vars */
+            :root {
+                --red: #CE3017;
+                --green: #09974C;
+                --blue: #275DB4;
+                --yellow: #FFAE00;
+                --hover: #ffffff28;
+
+                --fg: #FFFFFF;
+                --alt: #53AE7A;
+                --bg: #1D1D1D;
+
+                --start: #042F1B;
+                --end: #081A2C;
+
+                --opacity: 0.1;
+                --rad: 30px;
+                --gap: 1rem;
+                --width: 800px;
+                --font: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, 'Roboto', sans-serif;
             }
-            /* roboto-italic - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Roboto';
-              font-style: italic;
-              font-weight: 400;
-              src: url('../../fonts/roboto-v30-latin-italic.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            html {
+                --text: var(--fg);
+                --background: var(--bg);
+                --active: #ffffff55;
+                --button: #85858523;
+                --highlight: var(--alt);
+                --gradient: linear-gradient(45deg, var(--start), var(--end));
             }
-            /* roboto-700 - latin */
-            @font-face {
-              font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
-              font-family: 'Roboto';
-              font-style: normal;
-              font-weight: 700;
-              src: url('../../fonts/roboto-v30-latin-700.woff2') format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+            :root {
+                --dark: #1e1e1e;
+                --light: #ffffff;
+            }
+
+            /* resets */
+            *, *::before, *::after {
+                margin: 0;
+                padding: 0;
+                position: relative;
+                box-sizing: border-box;
+                border: none;
+                outline: none;
+                /*color: var(--text);*/
+                font-family: var(--font);
+                scroll-behavior: smooth;
+            }
+            li {
+                list-style: none;
+            }
+            a {
+                color: var(--highlight);
+                text-decoration: none;
+            }
+            body {
+                background-color: var(--background);
+            }
+
+            * ::-webkit-scrollbar {
+                display: none;
             }
 
             html, body {
-                margin: 0;
-                height: 100%;
-                overflow: hidden;
                 touch-action: pan-x pan-y;
                 user-select: none;
                 -webkit-user-select: none;
                 -moz-user-select: none;
-                font-family: 'Roboto', sans-serif;
+            }
+
+            #canvas {
+                z-index: 0;
             }
 
             .info {
-                background-color: #ffffff40;
-                border-radius: 20px;
-                padding: 0px 15px 0px 15px;
+                background-color: var(--hover);
+                border-radius: 15px;
+                padding: 10px;
                 width: 100%;
+                max-height: calc(90% - 50px);
                 text-align: left;
                 overflow-y: scroll;
-                display: block;
-                max-height: 87.5%;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
             }
-
             #info-container {
-                position: absolute;
+                position: fixed;
                 top: 50px;
                 left: 10px;
-                height: 100%;
-                max-width: 30%;
+                height: calc(100% - 50px);
+                width: 30%;
+                z-index: 1;
             }
             
             #report-take-image{
@@ -84,12 +124,14 @@
                 margin-right: 1em;
             }
             .moderationinfo {
-                position: relative;
-                text-align: left;
                 z-index: 100;
-                display:block;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
             }
 
+
+            /* NAV BUTTONS */
             .buttons {
                 position: absolute;
                 top: 10px;
@@ -103,7 +145,6 @@
             #buttons form input, #buttons form button {
                 cursor: pointer;
             }
-
             .back-button {
                 width: 90px;
                 height:  30px;
@@ -111,308 +152,80 @@
                 border-radius: 2em;
                 box-sizing: border-box;
                 text-decoration: none;
-                background-color: #FFAE00;
+                background-color: var(--yellow);
                 color: #FFFFFF;
                 text-align: center;
                 border: none;
             }
 
-            .fog-button {
+            .fog-button, .copy-button, .location-button, .download-button, .fullscreen-button, #leaderboard-button {
                 width: 120px;
                 height:  30px;
                 font-weight: bold;
                 border-radius: 2em;
                 box-sizing: border-box;
                 text-decoration: none;
-                background-color: #FFAE00;
+                background-color: var(--yellow);
                 color: #FFFFFF;
                 text-align: center;
                 border: none;
                 float: right;
             }
-
-            .copy-button {
-                width: 120px;
-                height:  30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #FFAE00;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
-                float: right;
+            .fullscreen-button {
+                background-color: #00BC87;
             }
-
-            .location-button {
-                width: 120px;
-                height:  30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #FFAE00;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
-                float: right;
-            }
-            
             .download-button {
-                width: 120px;
-                height:  30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #FFAE00;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
-                float: right;
                 display: none;
             }
 
-            .fullscreen-button {
-                width: 120px;
-                height:  30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #00BC87;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
-                float: right;
+            #listButtons {
+                justify-content: space-between;
+                align-items: center;
+                margin: 0 auto;
+                padding: 10px;
+                gap: 10px;
+                border-radius: 10px;
+                background-color: var(--hover);
+                width: 100%;
             }
-
-            .info-stamp-ok {
-                position: absolute;
-                top: 20%;
-                right: 5%;
-                width: 30%;
-                transform: rotate(-20deg);
-                display:block;
+            /* BUTTONS */
+            #listButtons > button, #hideButton, #unverifyButton, #verifySkipSuccessButton, #startButton, #finishButton {
+                width: fit-content;
+                padding: 5px 20px;
+                font-weight: 700;
+                color: var(--text);
+                border-radius: 15px;
+                cursor: pointer;
             }
-
-            .overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
+            #favoriteButton, #unfavoriteButton, #reportButton {
+                display: none;
+                cursor: pointer;
+                background-color: #fff2;
+                width: 25px;
+                height: 25px;
+                padding: 4px;
+                border-radius: 50%;
+                &:hover {
+                    background-color: #fff5;
+                }
+            }
+            #favoriteButton img, #unfavoriteButton img, #reportButton img {
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0, 0, 0, 0.5);
-                z-index: 200;
-                display: none;
             }
 
-            .leaderboard {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 80%;
-                max-height: 70%;
-                max-width: 600px;
-                background-color: white;
-                border-radius: 20px;
-                padding: 20px;
-                text-align: center;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                z-index: 300;
-                display: none;
-            }
-
-            .leaderboard-header {
-              font-size: 20px;
-              font-weight: bold;
-              margin-bottom: 10px;
-              text-transform: uppercase;
-              letter-spacing: 2px;
-            }
-
-            .leaderboard-placeholder {
-              font-size: 16px;
-              font-style: italic;
-              margin-top: 10px;
-              color: #999999;
-            }
-
-            .leaderboard-content {
-                max-height: 50vh;
-                overflow-y: scroll;
-                border-radius: 5px;
-            }
-
-            .leaderboard-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 5px 0;
-                border-radius: 5px;
-            }
-
-            .leaderboard-row:nth-of-type(even) {
-              background-color: #f5f5f5; /* light gray */
-            }
-
-            .leaderboard-row:nth-of-type(odd) {
-              background-color: #ffffff; /* white */
-            }
-
-            .leaderboard-row.leaderboard-row-creator {
-                background-color: #ffee0050;
-            }
-
-            .leaderboard-row.leaderboard-row-self {
-                background-color: #00aaff50;
-            }
-
-            .leaderboard-position, .leaderboard-name, .leaderboard-time {
-              flex: 1;
-              text-align: center;
-              font-size: 18px;
-            }
-
-            .leaderboard-name {
-              font-weight: bold;
-              color: #000000;
-              text-decoration: none;
-            }
-
-            .leaderboard-time {
-              font-style: italic;
-              color: #999999;
-            }
-
-            .leaderboard-close {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                width: 20px;
-                height: 20px;
-                font-size: 20px;
-                cursor: pointer;
-            }
-            .leaderboard-button {
-                font-weight: bold;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #f15a5a;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
-                cursor: pointer;
-                margin-inline: 5px;
-                border-radius: 5px;
-            }
-            #leaderboard-button {
-                width: 120px;
-                height:  30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #FFAE00;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
-                float: right;
-            }
-            #listButtons {
-                display: flex;
-                justify-content: space-between;
-                margin: 0 auto;
-                margin-top: 10px;
-            }
-            #listButtons > button  {
-                cursor: pointer;
-                width: 100px;
-                height: 30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
-                background-color: #FFAE00;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
+            #listButtons > button {
+                background-color: var(--yellow);
             }
             #hideButton, #unverifyButton, #verifySkipSuccessButton {
-                height: 30px;
-                width: fit-content;
-                padding-right: 20px;
-                padding-left: 20px;
-                font-weight: bold;
-                background-color: red;
-                color: white;
-                border: none;
-                border-radius: 15px;
-                cursor: pointer;
+                background-color: var(--red);
             }
 
-            #reportButton {
-                height: 30px;
-                width: fit-content;
-                padding-right: 20px;
-                padding-left: 20px;
-                font-weight: bold;
-                background-color: red;
-                color: white;
-                border: none;
-                border-radius: 15px;
-                cursor: pointer;
-                display: none;
-                margin-block: 5px;
-            }
-
-            #favoriteButton, #unfavoriteButton {
-                height: 30px;
-                width: fit-content;
-                padding-right: 20px;
-                padding-left: 20px;
-                font-weight: bold;
-                background-color: #FFAE00;
-                color: white;
-                border: none;
-                border-radius: 15px;
-                cursor: pointer;
-                margin-top: 5px;
-                margin-bottom: 10px;
-                display: none;
-            }
-
-            #unfavoriteButton {
-                background-color: red;
-            }
-
-            #startButton  {
-                cursor: pointer;
-                width: 100px;
-                height: 30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
+            #startButton {
                 background-color: #00BC87;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
             }
-
             #finishButton  {
-                cursor: pointer;
-                width: 100px;
-                height: 30px;
-                font-weight: bold;
-                border-radius: 2em;
-                box-sizing: border-box;
-                text-decoration: none;
                 background-color: #FA8072;
-                color: #FFFFFF;
-                text-align: center;
-                border: none;
             }
 
             #hideReason {
@@ -434,16 +247,13 @@
                 border-radius: 15px;
                 cursor: pointer;
             }
-            #verifySkipButton, #verifySkipSuccessButton {
-                margin-top: 5px;
-            }
             #tagButton {
                 font-weight: bold;
                 width: fit-content;
                 padding: 0 8px;
                 min-height: 15px;
                 background-color: green;
-                color: white;
+				color: var(--text);
                 border: none;
                 border-radius: 15px;
                 cursor: pointer;
@@ -467,13 +277,14 @@
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 cursor: pointer;
-                width: calc(100% - 20px);
-                height: calc(100% - 10px);
+                width: 100%;
+                height: 100%;
                 padding: 5px 10px;
+				color: var(--text);
             }
             #tagMenuInner input[type="checkbox"]:checked + label {
                 background-color: green;
-                color: white;
+				color: var(--text);
             }
             #tagMenuInner button {
                 width: 100px;
@@ -483,7 +294,7 @@
                 box-sizing: border-box;
                 text-decoration: none;
                 background-color: green;
-                color: white;
+				color: var(--text);
                 border: none;
                 cursor: pointer;
             }
@@ -501,10 +312,130 @@
                 height: 100svh;
                 display: none;
                 place-content: center;
-                height: fit-content;
                 padding-bottom: 30px;
                 z-index: 1002;
             }
+
+
+            .info-stamp-ok {
+                width: 20px;
+                height: 20px;
+            }
+
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 200;
+                display: none;
+            }
+
+            .leaderboard {
+                color: var(--text);
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 80%;
+                max-height: 70%;
+                max-width: 600px;
+                background-color: var(--background);
+                border-radius: 20px;
+                padding: 20px;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 300;
+                display: none;
+            }
+
+            .leaderboard-header {
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+            .leaderboard-placeholder {
+                font-size: 16px;
+                font-style: italic;
+                margin-top: 10px;
+                color: #999999;
+            }
+
+            .leaderboard-content {
+                max-height: 50vh;
+                overflow-y: scroll;
+                border-radius: 5px;
+            }
+
+            .leaderboard-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+                border-radius: 5px;
+            }
+
+            .leaderboard-row:nth-of-type(even) {
+              background-color: var(--button);
+            }
+
+            .leaderboard-row:nth-of-type(odd) {
+              background-color: var(--hover);
+            }
+
+            .leaderboard-row.leaderboard-row-creator {
+                background-color: #ffee0050;
+            }
+
+            .leaderboard-row.leaderboard-row-self {
+                background-color: #00aaff50;
+            }
+
+            .leaderboard-position, .leaderboard-name, .leaderboard-time {
+                flex: 1;
+                text-align: center;
+                font-size: 18px;
+            }
+
+            .leaderboard-name {
+                font-weight: bold;
+                color: var(--text);
+                text-decoration: none;
+            }
+
+            .leaderboard-time {
+                font-style: italic;
+                color: #999999;
+            }
+
+            .leaderboard-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 20px;
+                height: 20px;
+                font-size: 20px;
+                cursor: pointer;
+            }
+            .leaderboard-button {
+                font-weight: bold;
+                box-sizing: border-box;
+                text-decoration: none;
+                background-color: var(--red);
+                color: #FFFFFF;
+                text-align: center;
+                cursor: pointer;
+                border-radius: 5px;
+                width: 20px;
+                height: 20px;
+                margin-block: auto;
+                margin-inline: 10px;
+            }
+
             .popup
 			{
 				position: fixed;
@@ -514,18 +445,26 @@
                 height: 100svh;
                 display: none;
                 place-content: center;
-                height: fit-content;
 				z-index:1002;
-				color: #000000;
+				color: var(--text);
 			}
 
 			.popup-inner
 			{
-				background-color: white;
+				background-color: var(--background);
 				border-radius: 10px;
 				border: 3px solid grey;
 				padding: 10px;
 			}
+            .popup-inner button, .popup-inner input, .popup-inner select, .popup-inner textarea {
+                background-color: #fff3;
+                padding: 5px;
+                border-radius: 10px;
+                color: var(--text);
+                &:hover {
+                    background-color: #fff6;
+                }
+            }
 
 			.popup[open="open"]
 			{
@@ -570,7 +509,7 @@
                 opacity: 1;
             }
             .previewImage {
-                border-radius: 15px;
+                border-radius: 10px;
                 width: 100%;
             }
             #applyLeaderboardModifications {
@@ -591,52 +530,45 @@
 
             .terms-container {
                 position: fixed;
-                bottom: 10px;
-                right: 10px;
-                background-color: #ffffff40;
-                border-radius: 15px;
+                bottom: 0;
+                right: 0;
+                background-color: var(--hover);
+                border-top-left-radius: 10px;
+                padding-inline: 5px;
+                z-index: 1;
             }
 
             .terms-link {
-                display: inline-block;
-                margin-left: 10px;
-                margin-right: 10px;
-                text-decoration: none;
-                color: #000;
-                font-family: 'Roboto', sans-serif;
+                margin-inline: 5px;
+                color: var(--light);
                 font-weight: normal;
-                font-size: 14px;
+                font-size: 13px;
                 transition: color 0.3s;
             }
 
             .terms-link:hover {
-                color: #555; /* Change hover color as needed */
+                color: var(--alt);
             }
 
             #tags {
                 display: flex;
                 flex-direction: row-reverse;
-                justify-content: flex-end;
+                justify-content: center;
                 gap: 2px;
-                padding-top: 2px;
-                margin-bottom: 2px;
+                margin-inline: auto;
             }
             
             .tag {
+                font-size: 0.8rem;
                 font-style: italic;
-                color: #000000ca;
-                background-color: #00000018;
+                background-color: var(--green);
+                color: var(--text);
                 padding: 0 8px;
                 border-radius: 50px;
             }
-
-            #title {
-                font-weight: bold;
-                color: #000000;
+            #title b {
+                font-weight: 700;
                 font-size: 20px;
-            }
-            #creators, #description, #date {
-                margin-bottom: 5px;
             }
             #description {
                 font-size: 14px;
@@ -727,6 +659,76 @@
                     }
                 }
             }
+            #statistics {
+                background-color: var(--hover);
+                padding: 5px;
+                border-radius: 10px;
+            }
+            #signs-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 5px;
+            }
+            #signs-container div {
+                background-color: var(--hover);
+                padding: 5px;
+                border-radius: 10px;
+                cursor: pointer;
+            }
+            #hidecontainer {
+                padding: 5px;
+                border-radius: 10px;
+                background-color: var(--hover);
+            }
+            #thumb-container {
+                border-radius: 10px;
+                width: 100%;
+                display: grid;
+                grid-template-areas: "content";
+                place-content: center;
+                aspect-ratio: 512 / 288;
+            }
+            #thumb-container > * {
+                grid-area: content;
+                width: 100%;
+                height: fit-content;
+            }
+            #main-details {
+                display: flex;
+                gap: 8px;
+                padding: 8px;
+            }
+            #difficulty {
+                font-size: 0.8rem;
+                white-space: nowrap;
+                border-radius: 5rem;
+                padding-inline: 0.4rem;
+                margin-left: auto;
+                background-color: #969696;
+                color: var(--text);
+            }
+            #difficulty.difficulty-impossible {
+                background-color: #7f007f;
+            }
+            #difficulty.difficulty-veryhard {
+                background-color: #EA0000;
+            }
+            #difficulty.difficulty-hard {
+                background-color: #F19400;
+            }
+            #difficulty.difficulty-medium {
+                background-color: #E1C800;
+            }
+            #difficulty.difficulty-easy {
+                background-color: #2BBA84;
+            }
+            .actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px;
+                margin-top: auto;
+            }
         </style>
     </head>
     <body>
@@ -779,22 +781,33 @@
         
         <div id='info-container'>
             <div id="info" class="info">
-                <br>
                 <div id="scheduled_for_deletion">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                     </svg>
                     SCHEDULED FOR DELETION
                 </div>
-                <div id="title"></div>
-                <div id="tags">
-                    <button id="tagButton" style="display: none;">Edit Tags</button>
+                <div id="thumb-container">
+                    <div id="main-details">
+                        <div id="difficulty">unrated</div>
+                    </div>
+                    <div class="actions">
+                        <button id="reportButton"></button>
+                        <div id="tags">
+                            <button id="tagButton" style="display: none;">Edit</button>
+                        </div>
+                        <button id="favoriteButton"></button>
+                        <button id="unfavoriteButton"></button>
+                    </div>
                 </div>
-                <div id="creators"></div>
-                <div id="description"></div>
-                <div id="complexity"></div>
-                <div id="checkpoints"></div>
-                <div id="date"></div>
+                <div id="title"></div>
+                <div class="details-container">
+                    <div id="creators"></div>
+                    <div id="description"></div>
+                    <div id="complexity"></div>
+                    <div id="checkpoints"></div>
+                    <div id="date"></div>
+                </div>
                 <div id="statistics">
                     <div id="total finished count">total finished</div>
                     <div id="players finished count">players finished</div>
@@ -802,19 +815,15 @@
                     <div id="average time">average time</div>
                 </div>
 
-                <button id="reportButton">Report</button>
-                <button id="favoriteButton">Favorite</button>
-                <button id="unfavoriteButton">Unfavorite</button>
-                <br>
-                <button id="startButton" class="startButton"></button>
-                <button id="finishButton" class="finishButton"></button>
-                <br>
+                <div>
+                    <button id="startButton" class="startButton"></button>
+                    <button id="finishButton" class="finishButton"></button>
+                </div>
                 <div id="listButtons" style="display: none;">
                     <button id="prevListItem">Back</button>
                     <button id="nextListItem">Next</button>
                     <p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
                 </div>
-                <br>
                 <div id="moderationcontainer" class="moderationinfo">
                     <button id="verifyButton" style="display: none;">Verify</button>
                     <button id="unverifyButton" style="display: none;">Unverify</button>
@@ -825,7 +834,6 @@
                             <b><p id="reportsTitle">Reports:</p></b>
                             <div id="reportlist"></div>
                         </div>
-                        <br>
                         <b>Hide Level</b>
                         <form id="hideForm">
                             <select id="hideReason" style="width: 70%;">
@@ -842,8 +850,9 @@
                         </form>
                         <button id="hideButton">Hide</button>
                         <button id="approveButton">Approve</button>
-                        <br>
                     </div>
+                    <button id="make-creator-button" class="creatorButton" style="display: none;"><b>Make Creator</b></button>
+                    <div id="signs-container"></div>
                 </div>
             </div>
             <div id="animation-controls">

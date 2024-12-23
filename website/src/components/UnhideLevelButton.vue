@@ -5,7 +5,7 @@ import { useUserStore } from '@/stores/user'
 import { unhideLevelRequest } from '../requests/UnhideLevelRequest'
 
 export default {
-  emits:['handled'],
+  emits:['hide'],
   props: {
     level_id : String
   },
@@ -17,32 +17,26 @@ export default {
   methods: {
     async doModerationAction() {
       if(await unhideLevelRequest(this.$api_server_url, this.accessToken, this.level_id))  {
-        this.$emit('handled', false)
-      } return
+        this.$emit('hide');
+      } return;
     },
   }
 }
 </script>
 
 <template>
-  <div class="moderation-unhide-level-button-container">
+  <div>
     <button class="moderation-unhide-level-button" @click="doModerationAction">Unhide</button>
   </div>
 </template>
 
 <style scoped>
 .moderation-unhide-level-button {
-  min-width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: #ffae00;
-  color: white;
-  border: none;
+  background-color: var(--yellow);
   border-radius: 15px;
   cursor: pointer;
-}
-
-.moderation-unhide-level-button-container {
-  margin-top: 5px;
 }
 </style>

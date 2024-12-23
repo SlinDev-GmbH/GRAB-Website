@@ -1,7 +1,4 @@
 <script>
-import { mapState } from 'pinia'
-import { useUserStore } from '@/stores/user'
-
 import ModerationPopup from './ModerationPopup.vue'
 
 export default {
@@ -9,7 +6,7 @@ export default {
     ModerationPopup
   },
 
-  emits: ['handled'],
+  emits: ['hide'],
 
   props: {
     level_id : String
@@ -25,9 +22,7 @@ export default {
     handledModerationPopup(handled) {
       if(handled === true)
       {
-        this.$emit('handled', true)
-        this.$emit('hideBtn')
-
+        this.$emit('hide');
       }
     },
   }
@@ -35,28 +30,22 @@ export default {
 </script>
 
 <template>
-  <div class="moderation-hide-level-button-container">
+  <div>
     <button class="moderation-hide-level-button" @click="showModerationPopup=true">Hide</button>
+    
+    <Teleport to="body">
+      <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" @handled="handledModerationPopup" config="level_hide" :identifier="level_id" />
+    </Teleport>
   </div>
-
-  <Teleport to="body">
-    <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" @handled="handledModerationPopup" config="level_hide" :identifier="level_id" />
-  </Teleport>
 </template>
 
 <style scoped>
 .moderation-hide-level-button {
-  min-width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 15px;
   cursor: pointer;
-}
-
-.moderation-hide-level-button-container {
-  margin-top: 5px;
 }
 </style>

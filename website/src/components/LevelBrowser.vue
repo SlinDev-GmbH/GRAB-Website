@@ -7,10 +7,12 @@ import LevelTitle from './LevelTitle.vue'
 import UserTitle from './UserTitle.vue'
 import ScrollList from './ScrollList.vue'
 import LoginButton from './LoginButton.vue'
-import Featured from './Featured.vue'
+import CurrencyInfo from './CurrencyInfo.vue'
+import FeaturedLevels from './FeaturedLevels.vue'
 import LevelDifficultySortingControls from './LevelDifficultySortingControls.vue'
 import LevelTagSortingControls from './LevelTagSortingControls.vue'
-import Terms from './Terms.vue'
+import LegalTerms from './LegalTerms.vue'
+import ScrollToTop from './ScrollToTop.vue'
 
 export default {
   components: {
@@ -19,10 +21,12 @@ export default {
     UserTitle,
     ScrollList,
     LoginButton,
-    Featured,
+    CurrencyInfo,
+    FeaturedLevels,
     LevelDifficultySortingControls,
     LevelTagSortingControls,
-    Terms,
+    LegalTerms,
+    ScrollToTop,
   },
 
   data() {
@@ -36,10 +40,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isModerator']),
-    ...mapState(useUserStore, ['isSuperModerator']),
-    ...mapState(useUserStore, ['accessToken']),
+    ...mapState(useUserStore, ['isAdmin', 'isModerator', 'isSuperModerator', 'accessToken', 'isLoggedIn']),
+    
     showLevelTitle() {
       const options = ['tab_newest', 'tab_ok_newest', 'tab_favorite_levels', 'tab_verify_queue', 'tab_reported_levels', 'tab_featured']
       return options.includes(this.tabActive)
@@ -64,10 +66,7 @@ export default {
   methods: {
     tabChanged(query) {
       this.tabActive = query.tab
-      // this.difficultyFilter = ''
-      // this.tagFilter = ''
       if('search' in query) this.searchTerm = query['search']
-      // else this.searchTerm = ''
       if('user_id' in query) this.userID = query['user_id']
       else this.userID = null
       this.$router.push({ query: query})
@@ -83,7 +82,7 @@ export default {
       this.$router.push({ query: query })
     },
 
-    async copyAccessToken(event)
+    async copyAccessToken()
     {
       await navigator.clipboard.writeText(this.accessToken);
     },
@@ -121,6 +120,7 @@ export default {
   <div id="level-browser">
     <img v-if="showUserTitle && userID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.webp" />
     <header>
+      <CurrencyInfo v-if="isLoggedIn" />
       <div class="home-link-wrapper">
         <a href="/" class="home-link">
           <img alt="GRAB logo" class="logo" src="/logo.webp" />
@@ -129,35 +129,38 @@ export default {
       <LoginButton />
       <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
       <button v-if="isSuperModerator" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
-      <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
-      <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
-      <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
+      <div class="navigation">
+        <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
+        <div class="sorting">
+          <LevelDifficultySortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="difficultyFilter" @filter="difficultyChanged" />
+          <LevelTagSortingControls v-if="showSortingControls" :currentTab="tabActive" :isLoading="isLoading" :currentValue="tagFilter" @filter="tagChanged" />
+        </div>
+      </div>
       <LevelTitle v-if="showLevelTitle" :tagString="tagString"/>
     </header>
     <main>
       <UserTitle v-if="showUserTitle" :other-user-i-d="userID"/>
-      <Featured v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
+      <FeaturedLevels v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)"/>
       <ScrollList v-else :list-type="tabActive" :difficulty="difficultyFilter" :tag="tagFilter" :search-term="searchTerm" :other-user-i-d="userID" @tab-changed="(query) => this.tabChanged(query)" @loaded="loaded"/>
     </main>
-    <Terms/>
+    <LegalTerms/>
+    <ScrollToTop/>
   </div>
 </template>
 
 <style scoped>
 
 #level-browser {
-  padding: 2rem;
-  font-weight: normal;
-  
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
+  height: 100vh;
+  color: var(--text);
+  background: var(--background);
+  background-image: var(--gradient);
+  font-family: 'Nunito', 'Roboto', sans-serif;
+  font-size: 1rem;
   line-height: 1.6;
-  font-family: 'Roboto', sans-serif;
-  font-size: 15px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-weight: normal;
+  padding: 2rem;
+  overflow-y: scroll;
 }
 
 header {
@@ -165,7 +168,8 @@ header {
 }
 
 header, main {
-  max-width: 940px;
+  max-width: 1400px;
+  padding-inline: 1rem;
   margin: 0 auto;
 }
 
@@ -195,6 +199,22 @@ header, main {
     padding-bottom: 5px;
   }
 }
+@media screen and (max-width: 800px) {
+  .home-link-wrapper {
+    padding-top: 40px;
+  }
+  .logo {
+    width: 80%;
+  }
+}
+@media screen and (max-width: 630px) {
+  .home-link-wrapper {
+    padding-bottom: 10px;
+  }
+  .logo {
+    width: 60%;
+  }
+}
 
 .access-token-button {
   width: 120px;
@@ -205,11 +225,8 @@ header, main {
   font-weight: bold;
   border-radius: 15px;
   box-sizing: border-box;
-  text-decoration: none;
-  background-color: burlywood;
-  color: #FFFFFF;
+  background-color: var(--hover);
   text-align: center;
-  border: none;
   top: 70px;
   right: 0px;
   position: absolute;
@@ -226,10 +243,9 @@ header, main {
   border-radius: 15px;
   box-sizing: border-box;
   text-decoration: none;
-  background-color: #00BC87;
+  background-color: var(--alt);
   color: #FFFFFF;
   text-align: center;
-  border: none;
   top: 35px;
   right: 0px;
   position: absolute;
@@ -244,5 +260,19 @@ img.rick {
   top: 0;
   left: 0;
   object-fit: cover;
+  opacity: 0.1;
+  mix-blend-mode:luminosity;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: column;
+}
+
+.sorting {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>

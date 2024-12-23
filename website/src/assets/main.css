@@ -1,34 +1,67 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+/* vars */
 :root {
-  --color-background: #4BA0D6;
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+    --red: #CE3017;
+    --green: #09974C;
+    --blue: #275DB4;
+    --yellow: #ffbc2b;
+    --hover: #ffffff28;
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+    --fg: #FFFFFF;
+    --alt: #53AE7A;
+    --bg: #1D1D1D;
 
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
+    --start: #042F1B;
+    --end: #081A2C;
+
+    --opacity: 0.1;
+    --rad: 30px;
+    --gap: 1rem;
+    --width: 800px;
+    --font: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, 'Roboto', sans-serif;
 }
-a {
-  text-decoration: none;
+html {
+    --text: var(--fg);
+    --background: var(--bg);
+    --active: #ffffff55;
+    --button: #85858523;
+    --highlight: var(--alt);
+    --gradient: linear-gradient(45deg, var(--start), var(--end));
 }
-
 :root {
     --dark: #1e1e1e;
     --light: #ffffff;
 }
 
 /* resets */
-*,
-*::before,
-*::after {
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     position: relative;
     box-sizing: border-box;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font);
+    scroll-behavior: smooth;
 }
+li {
+    list-style: none;
+}
+a {
+    color: var(--highlight);
+    text-decoration: none;
+}
+body {
+    background-color: var(--background);
+}
+
+/* homepage */
 #homepage {
+    *, *::before, *::after {
+        color: var(--dark);
+    }
     a {
         text-decoration: none;
         color: inherit;
@@ -70,6 +103,7 @@ a {
     }
     header h2 {
         max-width: 90%;
+        color: var(--light);
     }
     header a {
         text-align: center;
@@ -160,6 +194,9 @@ a {
         text-align: center;
         font-size: 0.8em;
         padding-inline: 4.5rem;
+    }
+    footer a, footer span {
+        color: var(--light);
     }
     footer > nav {
         margin-inline: auto;

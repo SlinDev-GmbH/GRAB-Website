@@ -4,12 +4,12 @@ import { useUserStore } from '@/stores/user'
 import { AddToCuratedListRequest } from '../requests/AddToCuratedListRequest.js'
 import { RemoveFromCuratedListRequest } from '../requests/RemoveFromCuratedListRequest.js'
 import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js'
-import CurationLevelCard from './CurationLevelCard.vue'
 import { listRequest } from '../requests/ListRequest'
+import CurationLevelCard from './CurationLevelCard.vue'
 
 export default {
   components: {
-    CurationLevelCard
+    CurationLevelCard,
   },
 
   props: {
@@ -81,6 +81,16 @@ export default {
 			}
 		},
 
+    moveLevelTop() {
+      let index = this.selected;
+      if (index > 0) {
+        let levelId = this.levelList[index];
+        this.levelList.splice(index, 1);
+        this.levelList.unshift(levelId);
+        this.setSelected(0);
+      }
+    },
+
 		moveLevelDown() {
 			let index = this.selected;
 			if (index < this.levelList.length - 1) {
@@ -121,7 +131,10 @@ export default {
       }
 
       if (requests.length === 0) {
-        alert("No changes to send!");
+        this.sendButtonText = "No changes";
+        setTimeout(() => {
+          this.sendButtonText = "Send";
+        }, 1000);
         return;
       }
 
@@ -157,7 +170,7 @@ export default {
     window.addEventListener('keydown', this.handleKey);
   },
 
-  destroyed() {
+  unmounted() {
     window.removeEventListener('keydown', this.handleKey);
   },
 }
@@ -171,10 +184,11 @@ export default {
   </div>
   <div id="controls">
     <span id="count">{{ levelList.length }} levels</span>
-    <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/><br />
-    <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/><br />
-    <input type="button" value="Move Up" id="move-up-button" @click="moveLevelUp"/><br />
-    <input type="button" value="Move Down" id="move-down-button" @click="moveLevelDown"/><br />
+    <input type="button" value="Add Levels" id="add-levels-button" @click="addLevels"/>
+    <input type="button" value="Remove Level" id="remove-levels-button" @click="removeLevel"/>
+    <input type="button" value="Move Up" id="move-up-button" @click="moveLevelUp"/>
+    <input type="button" value="Move Down" id="move-down-button" @click="moveLevelDown"/>
+    <input type="button" value="To Top" id="move-top-button" @click="moveLevelTop"/>
     <br>
     <input type="button" :value="sendButtonText" id="send-button" @click="sendUpdates"/>
   </div>
@@ -182,39 +196,40 @@ export default {
 
 <style scoped>
 .selected .level-card {
-    background-color: #c3c3c3;
+    background-color: var(--hover);
 }
 .grid-item {
   min-width: 0;
 }
 #controls input {
     font-size: 20px;
-    padding: 10px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
-    border: none;
-    border-radius: 15px;
+    background-color: var(--hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
     width: 100%;
-    margin-right: 0;
-    background-color: #555;
-    margin-top: 10px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
 }
 #controls {
-    text-align: center;
-    width: 100%;
-    height: fit-content;
-    padding-inline: 10px;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  width: 100%;
+  height: fit-content;
+  padding-inline: 10px;
+  gap: 10px;
 }
 #controls #send-button {
-    background-color: #00bc87;
+    background-color: var(--green);
 }
 #controls #add-levels-button {
-    background-color: #00bc87;
+    background-color: var(--green);
 }
 #controls #remove-levels-button {
-    background-color: red;
+    background-color: var(--red);
 }
 #levelList {
   font-size: 20px;
@@ -231,5 +246,12 @@ export default {
   margin-top: 20px;
   margin-inline: auto;
   text-align: center;
+}
+@media screen and (max-width: 750px) {
+  #controls input {
+    font-size: 15px;
+    height: fit-content;
+    padding-block: 5px;
+  }
 }
 </style>

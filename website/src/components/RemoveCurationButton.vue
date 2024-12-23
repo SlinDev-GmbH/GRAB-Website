@@ -35,10 +35,14 @@ export default {
 
 <style scoped>
 #remove-list-button {
-    background-color: red;
-    width: fit-content;
-    height: 40px;
+    background-color: var(--red);
     display: flex;
     align-items: center;
+    justify-content: center;
+    height: 30px;
+    width: 90px;
+    font-weight: bold;
+    border-radius: 15px;
+    cursor: pointer;
 }
 </style>

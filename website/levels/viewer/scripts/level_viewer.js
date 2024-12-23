@@ -14,7 +14,10 @@ import { useUserStore } from '@/stores/user'
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-import imageStampOk from '../../../src/assets/stamp_ok.png'
+import imageStampOk from '../../../src/assets/creator.png'
+import imageReport from '../../../src/assets/report.svg'
+import imageFavorite from '../../../src/assets/star_off.svg'
+import imageFavorited from '../../../src/assets/star_on.svg'
 
 import modelCubeURL from '../models/cube.gltf'
 import modelSphereURL from '../models/sphere.gltf'
@@ -310,7 +313,7 @@ function init()
 					}
 				});
 				if ((nextListItem && document.referrer.includes(nextListItem.identifier)) || (previousListItem && document.referrer.includes(previousListItem.identifier)) || (document.referrer.includes("levels") && !document.referrer.includes("viewer"))) {
-					listButtons.style.display = "block";
+					listButtons.style.display = "flex";
 				}
 			}
 
@@ -412,7 +415,8 @@ function init()
 				});
 			}
 
-			let moderationContainer = document.getElementById("moderationcontainer")
+			let moderationContainer = document.getElementById("moderationcontainer");
+			let signTextContainer = document.getElementById("signs-container");
 			if(userStore.isVerifier === true)
 			{
 				const verifyButton = document.getElementById("verifyButton");
@@ -603,8 +607,6 @@ function init()
 							var img = document.createElement("img");
 							img.src = 'https://grab-images.slin.dev/' + image.key;
 							moderationImageElement.appendChild(img);
-							moderationImageElement.appendChild(document.createElement("br"));
-							moderationImageElement.appendChild(document.createElement("br"));
 							//report image (putting this here so I can crtl+f to it later)
 							moderationImageElement.onclick = function() {
 								console.log(image.camera_position)
@@ -624,14 +626,9 @@ function init()
 						}
 					}
 				})();
-				
-				let linebreak = document.createElement("br");
-				moderationContainer.appendChild(linebreak);
 
-				let creatorButton = document.createElement("button");
-				creatorButton.className = "creatorButton";
-				moderationContainer.appendChild(creatorButton);
-				creatorButton.innerHTML = "<b>Make Creator</b>";
+				let creatorButton = document.getElementById("make-creator-button");
+				creatorButton.style.display = "block";
 				creatorButton.onclick = function () {
 				  	(async () => {
 						let response = await fetch(config.SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
@@ -644,11 +641,6 @@ function init()
 						}
 					})();
 				};
-
-				linebreak = document.createElement("br");
-				moderationContainer.appendChild(linebreak);
-				linebreak = document.createElement("br");
-				moderationContainer.appendChild(linebreak);
 			}
 
 
@@ -946,7 +938,7 @@ function init()
 						cameraRotation = [0, euler.x];
 
 						var goToStartLabel = document.getElementById("startButton");
-						goToStartLabel.innerHTML = "Go to Start"
+						goToStartLabel.innerHTML = "To Start"
 						goToStartLabel.style.cursor="pointer";
 						goToStartLabel.onclick = function() {
 							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
@@ -970,7 +962,7 @@ function init()
 						object.initialRotation = object.quaternion.clone()
 
 						var goToFinishLabel = document.getElementById("finishButton");
-						goToFinishLabel.innerHTML = "Go to Finish"
+						goToFinishLabel.innerHTML = "To Finish"
 						goToFinishLabel.style.cursor="pointer";
 
 						goToFinishLabel.onclick = function() {
@@ -1059,8 +1051,6 @@ function init()
 							let signTextElement = document.createElement("div");
 							const signTextNode = document.createTextNode("Sign " + signCounter + ": " + signText);
 							signTextElement.appendChild(signTextNode);
-							signTextElement.appendChild(document.createElement("br"));
-							signTextElement.appendChild(document.createElement("br"));
 							signTextElement.onclick = function() {
 
 								controls.eulerVector.x = 0
@@ -1077,7 +1067,7 @@ function init()
 								camera.position.copy(signPos);
 								camera.position.add(offset)
 							}
-							moderationContainer.appendChild(signTextElement);
+							signTextContainer.appendChild(signTextElement);
 						}
 
 						signCounter += 1;
@@ -1169,11 +1159,11 @@ function init()
 				{
 					if(tag === "ok")
 					{
-						const infoNode = document.getElementById("info");
+						const detailsContainer = document.getElementById("main-details");
 						let stamp = document.createElement("img");
 						stamp.className = "info-stamp-ok";
 						stamp.src = imageStampOk;
-						infoNode.appendChild(stamp);
+						detailsContainer.prepend(stamp);
 						break;
 					}
 				}
@@ -1181,15 +1171,17 @@ function init()
 
 			if("images" in detailResponseBody && "thumb" in detailResponseBody.images && "key" in detailResponseBody.images.thumb && detailResponseBody.images.thumb.key.length > 0)
 			{
-				const infoNode = document.getElementById("info");
+				const thumbContainer = document.getElementById("thumb-container");
 				let thumbnailImage = document.createElement("img");
 				thumbnailImage.src = "https://grab-images.slin.dev/" + detailResponseBody.images.thumb.key;
 				thumbnailImage.className = "previewImage"
-				infoNode.prepend(thumbnailImage);
-
-				let linebreak = document.createElement("br");
-				infoNode.prepend(linebreak);
+				thumbContainer.prepend(thumbnailImage);
 			}
+
+			// difficulty
+			let difficultyLabel = document.getElementById("difficulty");
+			difficultyLabel.innerText = (detailResponseBody.statistics?.difficulty_string || "unrated").replace("veryhard", "very hard");
+			difficultyLabel.classList.add("difficulty-" + (detailResponseBody.statistics?.difficulty_string || "unrated"));
 
 			//Get level statistics
 			(async () => {
@@ -1217,11 +1209,19 @@ function init()
 				if(userStore.isLoggedIn){
 					let favoriteButton = document.getElementById("favoriteButton");
 					let unfavoriteButton = document.getElementById("unfavoriteButton");
+
+					let favoriteImg = document.createElement("img");
+					favoriteImg.src = imageFavorite;
+					favoriteButton.appendChild(favoriteImg);
+
+					let unfavoritesButton = document.createElement("img");
+					unfavoritesButton.src = imageFavorited;
+					unfavoriteButton.appendChild(unfavoritesButton);
 					
 					if (userStore.favoriteLevels.includes(detailResponseBody.identifier)) {
-						unfavoriteButton.style.display = 'inline';
+						unfavoriteButton.style.display = 'flex';
 					} else {
-						favoriteButton.style.display = 'inline';
+						favoriteButton.style.display = 'flex';
 					}
 
 					favoriteButton.addEventListener("click", () => {
@@ -1232,7 +1232,7 @@ function init()
 								confirm("Error: " + responseBody);
 							} else {
 								favoriteButton.style.display = 'none';
-								unfavoriteButton.style.display = 'inline';
+								unfavoriteButton.style.display = 'flex';
 								userStore.favoriteLevels.push(detailResponseBody.identifier);
 							}
 						})();
@@ -1245,7 +1245,7 @@ function init()
 								const responseBody = await response.text();
 								confirm("Error: " + responseBody);
 							} else {
-								favoriteButton.style.display = 'inline';
+								favoriteButton.style.display = 'flex';
 								unfavoriteButton.style.display = 'none';
 								userStore.favoriteLevels.splice(userStore.favoriteLevels.indexOf(detailResponseBody.identifier), 1);
 							}
@@ -1253,7 +1253,11 @@ function init()
 					});
 
 					let reportButton = document.getElementById("reportButton");
-					reportButton.style.display = 'inline';
+					let reportImg = document.createElement("img");
+					reportImg.src = imageReport;
+					reportButton.appendChild(reportImg);
+
+					reportButton.style.display = 'flex';
 					levelIdentifier = detailResponseBody.data_key.split(':')
 					levelIdentifier.splice(0, 1)
 					levelIdentifier = levelIdentifier.join('/')

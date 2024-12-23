@@ -3,13 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import StartPage from './components/StartPage.vue'
 import LevelBrowser from './components/LevelBrowser.vue'
 import PlayerViewer from '../player-viewer/PlayerViewer.vue'
-import Curation from './components/Curation.vue'
+import CurationPage from './components/CurationPage.vue'
 
 const routes = [
   { path: '/', component: StartPage },
   { path: '/levels', component: LevelBrowser },
   { path: '/player', component: PlayerViewer },
-  { path: '/curation', component: Curation }
+  { path: '/curation', component: CurationPage }
 ]
 
 const router = createRouter({

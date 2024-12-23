@@ -11,13 +11,11 @@ import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
 import HideLevelButton from './HideLevelButton.vue'
-import HideTipLevelButton from './HideTipLevelButton.vue'
 import UnhideLevelButton from './UnhideLevelButton.vue'
 import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
 import UnscheduleDeletionButton from './UnscheduleDeletionButton.vue'
-
-
+import ThumbnailFullscreenButton from './ThumbnailFullscreenButton.vue'
 
 export default {
   components: {
@@ -26,11 +24,11 @@ export default {
     SkipLevelButton,
     VLazyImage,
     HideLevelButton,
-    HideTipLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
     ReportLevelButton,
-    UnscheduleDeletionButton
+    UnscheduleDeletionButton,
+    ThumbnailFullscreenButton
   },
 
   emit: ['more'],
@@ -45,12 +43,17 @@ export default {
 
   data() {
     return {
-      cardColor: 'white',
+      cardColor: 'transparent',
       imageKeys: [],
-      isHidden: this.item.hidden
+      isHidden: this.item.hidden,
+      isApproved: false,
+      isSkipped: false,
+      isRecovered: false,
+      currentModerationImage: 0,
+      imageInterval: undefined,
     }
   },
-  provide(){
+  provide() {
     return {
       bestReason: (computed(()=>this.bestReason))
     }
@@ -59,7 +62,7 @@ export default {
   computed: {
     creators() {
       if(this.item.creators && this.item.creators.length > 0)
-        return 'by ' + this.item.creators.join(', ')
+        return this.item.creators.join(', ')
 
       return ''
     },
@@ -83,6 +86,19 @@ export default {
       return false
     },
 
+    randomGradient() {
+      const randomColor = () => {
+        let r = Math.floor(Math.random() * 256)
+        let g = Math.floor(Math.random() * 256)
+        let b = Math.floor(Math.random() * 256)
+        return `rgb(${r}, ${g}, ${b})`
+      }
+
+      const randomColor1 = randomColor();
+      const randomColor2 = randomColor();
+      return `background-image: linear-gradient(to bottom right, ${randomColor1}, ${randomColor2})`
+    },
+
     hasStatistics() {
       return this.moderationItem? false : true
     },
@@ -92,43 +108,11 @@ export default {
     },
 
     difficulty() {
-      let difficulty = "unrated"
-      let difficultyColor = "#969696"
-      if("statistics" in this.item)
-      {
-        if("difficulty" in this.item.statistics && "total_played" in this.item.statistics)
-        {
-          if(this.item.statistics.difficulty_string)
-          {
-            if(this.item.statistics.difficulty_string == "impossible")
-            {
-              difficulty = "impossible"
-              difficultyColor = "#7f007f"
-            }
-            else if(this.item.statistics.difficulty_string == "veryhard")
-            {
-              difficulty = "very hard"
-              difficultyColor = "#EA0000"
-            }
-            else if(this.item.statistics.difficulty_string == "hard")
-            {
-              difficulty = "hard"
-              difficultyColor = "#F19400"
-            }
-            else if(this.item.statistics.difficulty_string == "medium")
-            {
-              difficulty = "medium"
-              difficultyColor = "#E1C800"
-            }
-            else if(this.item.statistics.difficulty_string == "easy")
-            {
-              difficulty = "easy"
-              difficultyColor = "#2BBA84"
-            }
-          }
-        }
+      let difficulty = this.item.statistics?.difficulty_string || "unrated";
+      if (difficulty == "veryhard") {
+        difficulty = "very hard";
       }
-      return {difficulty: difficulty, color: difficultyColor}
+      return difficulty;
     },
 
     viewerURL() {
@@ -143,15 +127,24 @@ export default {
       return this.moderationItem !== null
     },
 
-    ...mapState(useUserStore, ['isVerifier']),
-    ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isSuperModerator']),
-    ...mapState(useUserStore, ['isLoggedIn']),
-    ...mapState(useUserStore, ['accessToken'])
+    formattedPlays() {
+      if (this.hasStatistics && this.item.statistics) {
+        const plays = this.item.statistics.total_played;
+        if (plays >= 1000000) {
+          return (plays / 1000000).toFixed(1) + 'm';
+        } else if (plays >= 1000) {
+          return (plays / 1000).toFixed(1) + 'k';
+        } else {
+          return plays.toString();
+        }
+      }
+      return 'N/a'
+    },
+
+    ...mapState(useUserStore, ['isVerifier', 'isAdmin', 'isSuperModerator', 'isLoggedIn', 'accessToken'])
   },
 
   async created() {
-    if(this.item.hidden === true) this.cardColor = 'lightcoral';
     if (this.hasImage && this.isModerationCell) {
       this.imageKeys = await this.getReportImages();
     }
@@ -160,16 +153,6 @@ export default {
   methods: {
     hideState(){
       this.isHidden = !this.isHidden
-    },
-    didHandleCell(bad) {
-      if(bad === true)
-      {
-        this.cardColor = 'lightcoral'
-      }
-      else
-      {
-        this.cardColor = 'lightgreen'
-      }
     },
 
     showMoreLevels() {
@@ -212,201 +195,373 @@ export default {
         console.warn("Fallback thumbnail not available for:", this.item.identifier);
       }
     }
-
   },
 
+  mounted() {
+    if (this.hasImage && this.isModerationCell) {
+    this.imageInterval = setInterval(() => {
+      this.currentModerationImage++;
+      if (this.currentModerationImage >= this.imageKeys.length) {
+        this.currentModerationImage = 0;
+      }
+    }, 600);
+  }
+  },
+  unmounted() {
+    if (this.imageInterval) clearInterval(this.imageInterval);
+  }
 }
 </script>
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
-    <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
-    <div v-if="hasImage && isModerationCell" :class="'moderation-images' + (this.imageKeys.length > 1 ? ' moderation-images-multiple' : '')">
-    <v-lazy-image v-for="image in this.imageKeys" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" width="512" height="288"  @error="handleThumbnailError"/>
-    </div>
-    <div v-if="hasStatistics && hasDifficulty" :style="{color: difficulty.color}" class="difficulty">{{ difficulty.difficulty }}</div>
-    <div v-if="hasStatistics && item.statistics" class="plays">plays: {{ item.statistics.total_played }}</div><br v-if="hasStatistics">
-    <div class="title">{{ item.title }}</div>
-    <div class="tags">
-      <span v-if="tags != []" v-for="tag in tags" class="tag">{{ tag }}</span>  
-    </div>
-    <div class="creators">{{ creators }}</div>
-    <div class="more-button" @click="showMoreLevels">More Levels</div>
-    <div class="description">{{ item.description }}</div>
-    <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue'" :level-info="item"/>
-    <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item"/>
-    <HideLevelButton v-show="!isHidden" v-if="!isHidden && (isSuperModerator || isAdmin) && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell" @hideBtn="hideState"/>
-    <HideTipLevelButton v-if="isAdmin && !isModerationCell && !isHidden && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
-    <UnhideLevelButton  v-show="isHidden" v-if="isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @handled="didHandleCell" @click="hideState"/>
-    <UnscheduleDeletionButton v-if="isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @handled="didHandleCell"/>
-    <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @handled="didHandleCell"/>
-    <div class="interactions">
-      <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
-      <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
-    </div>
-    <a target="_blank" :href="viewerURL + (this.listType == 'tab_verify_queue' ? '&verify_queue' : '')" class="play-button" @click="setListIndex(index)">OPEN</a>
+    <div class="card">
+      <div class="card-images">
+        <div :style="randomGradient" class="random-gradient"></div>
+        <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
+        <div v-if="hasImage && isModerationCell" class="moderation-images">
+          <v-lazy-image v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
+        </div>
+      </div>
 
-    <img v-if="hasOKStamp" alt="OK Stamp" class="stamp" src="./../assets/stamp_ok.png" width="453" height="180" />
+      <div class="card-overlay">
+        <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/creator.png" width="20" height="20" />
+        <div v-if="hasStatistics && item.statistics" class="plays">
+          <img src="./../assets/icon_plays.png" alt="plays: ">
+          <span>{{ formattedPlays }}</span>
+        </div>
+        <div v-if="hasStatistics && hasDifficulty" :class="`difficulty difficulty-${this.item.statistics?.difficulty_string || 'unrated'}`">{{ difficulty }}</div>
+      </div>
+      
+      <div class="card-hover">
+        <div class="hover-top">
+          <ThumbnailFullscreenButton v-if="hasImage && !isModerationCell" :imageUrl="this.$images_server_url + this.item.images.full.key" :thumbnailUrl="this.$images_server_url + this.item.images.thumb.key"/>
+          <a target="_blank" :href="viewerURL + (this.listType == 'tab_verify_queue' ? '&verify_queue' : '')" class="play-button" @click="setListIndex(index)">OPEN</a>
+        </div>
+        <div class="hover-middle">
+          <div class="description">{{ item.description }}</div>
+        </div>
+        <div class="hover-bottom">
+          <div class="tags" v-if="tags != []">
+            <span v-for="tag in tags" class="tag" :key="tag">{{ tag }}</span>  
+          </div>
+        </div>
+      </div>
+
+      <div class="card-fixed">
+        <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
+        <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
+      </div>
+    </div>
+    <div class="details">
+      <div class="title" :style="(this.isApproved || this.isRecovered) ? 'color: var(--green)' : (this.isHidden || this.isSkipped || (this.listType === 'tab_deletion_queue' && !isRecovered)) ? 'color: var(--red);' : ''">
+        {{ item.title }}
+        <span v-if="this.isHidden" class="hidden-tag">Hidden</span>
+        <span v-else-if="this.isSkipped" class="hidden-tag">Skipped</span>
+        <span v-else-if="this.isApproved" class="approved-tag">Approved</span>
+        <span v-if="this.listType === 'tab_deletion_queue' && !isRecovered" class="hidden-tag">Deleted</span>
+      </div>
+      <div class="creators">By
+        <span @click="showMoreLevels" :title="creators">
+          {{ creators ? creators : ".." }}
+        </span>
+      </div>
+    </div>
+    <div v-if="!listType.startsWith('curated_')" class="privileged-buttons">
+      <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue' && !isModerationCell" :level-info="item"/>
+      <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item" @skipped="isSkipped=true;"/>
+      
+      <HideLevelButton v-show="!isHidden" v-if="!isHidden && isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @hide="hideState"/>
+      <UnhideLevelButton  v-show="isHidden" v-if="isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @hide="hideState"/>
+      
+      <UnscheduleDeletionButton v-if="!isRecovered && isAdmin && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @recovered="isRecovered=true"/>
+    </div>
+    <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @hide="isHidden=true;" @approve="isApproved=true;"/>
   </div>
 </template>
 
 <style scoped>
-
-.moderation-images {
-  position: relative;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0%;
-  display: block;
+.level-card {
   width: 100%;
-  height: auto;
-  border-radius: 10px;
-  overflow-y: hidden;
+  height: 100%;
+  overflow-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.card {
+  display: grid;
+  grid-template-areas: "card";
+  aspect-ratio: 512 / 288;
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0 0 0 #0005;
+  transition: box-shadow 0.1s linear, scale 0.2s ease;
+}
+.card:hover {
+  box-shadow: 3px 3px 0 #0005;
+  scale: 1.05;
+}
+.card-images, .card-overlay, .card-hover {
+  grid-area: card;
+  width: 100%;
+  height: 100%;
+}
+
+.card-images {
+  display: grid;
+  grid-template-areas: "thumb";
+  border-radius: 15px;
+  overflow: hidden;
+  aspect-ratio: 512 / 288;
+}
+.card-overlay {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 10px;
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s linear;
+}
+.card:hover .card-overlay {
+  visibility: hidden;
+  opacity: 0;
+}
+.card-hover {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #0005;
+  border-radius: 15px;
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  background-size: 100%;
+  background-repeat: no-repeat;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s linear;
+}
+.card:hover .card-hover {
+  visibility: visible;
+  opacity: 1;
+}
+.card-fixed {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  grid-area: card;
+  width: 100%;
+  height: fit-content;
+  margin-top: auto;
+  padding: 10px;
+}
+
+.thumbnail {
+  grid-area: thumb;
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
+  height: 100%;
+}
+.moderation-images {
+  grid-area: thumb;
+  width: 100%;
+  height: 100%;
   overflow-x: scroll;
   display: flex;
   flex-direction: row;
 }
-
-.moderation-images-multiple::after {
-  content: "...";
-  display: block;
+.random-gradient {
+  grid-area: thumb;
   width: 100%;
   height: 100%;
-  margin-top: 30%;
-  position: absolute;
-  color: #0007;
-  font-size: 60px;
-  text-align: center;
 }
 
-.level-card {
-  width: 100%;
+.hover-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 10px;
+  padding-bottom: 0;
+}
+.hover-middle {
+  display: grid;
+  place-content: center;
   height: 100%;
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 3%;
-  padding-bottom: 60px;
-  overflow-wrap: break-word;
+  padding-inline: 1rem;
+}
+.hover-bottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 10px;
+  padding-top: 0;
+  padding-bottom: 1rem;
+  margin-top: auto;
+  min-height: 2rem;
 }
 
+.stamp {
+  width: 1.3rem;
+  height: 1.3rem;
+}
 .difficulty {
-  width: 30%;
-  font-size: 15px;
+  font-size: 0.8rem;
   white-space: nowrap;
-  text-align: left;
-  float: left;
+  border-radius: 5rem;
+  padding-inline: 0.4rem;
+  margin-left: auto;
 }
-
 .plays {
-  width: 45%;
-  font-size: 15px;
+  font-size: 0.8rem;
   white-space: nowrap;
-  text-align: right;
-  float: right;
+  background-color: var(--hover);
+  border-radius: 5rem;
+  padding-inline: 0.4rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
 }
-
-.title {
-  padding-top: 5px;
-  font-size: 20px;
-  font-style: bold;
-  line-height: 0.9;
-}
-
-.creators {
-  font-size: 15px;
-  font-style: italic;
+.plays img {
+  width: 0.65rem;
+  height: 0.8rem;
 }
 
 .tags {
   display: flex;
   flex-direction: row;
   gap: 2px;
-  padding-top: 2px;
 }
-
 .tag {
-  font-size: 9px;
+  font-size: 0.8rem;
   font-style: italic;
-  color: #001b29ca;
-  background-color: #cfeaf6;
+  background-color: var(--green);
   padding: 0 8px;
   border-radius: 50px;
 }
 
-.description {
-  font-size: 15px;
-  display: -webkit-box;   
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;     
-  overflow: hidden;
-  padding-top: 10px;
-}
-
 .play-button {
-  display: block;
-  position: absolute;
-  bottom: 5%;
-  width: 40%;
-  left: 30%;
-  line-height: 30px;
-  border: none;
-  border-radius: 10px;
-  background-color:#00BC87;
-  color: #FFFFFF;
+  background-color: var(--hover);
+  color: var(--light);
   font-weight: bold;
-  font-size: 15px;
-  text-align:center;
-  text-decoration: none;
-}
-
-.more-button {
-  cursor: pointer;
-  display: block;
-  width: fit-content;
-  padding-left: 10px;
-  padding-right: 10px;
-  line-height: 20px;
-  border: none;
-  border-radius: 10px;
-  background-color:#4642BE;
-  color: #FFFFFF;
-  font-weight: bold;
-  font-size: 13px;
-  text-align: center;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.stamp {
-  position: absolute;
-  right: 2%;
-  bottom: 3%;
-  width: 15%;
-  height: auto;
-}
-
-.thumbnail {
-  position: relative;
+  white-space: nowrap;
+  border-radius: 5rem;
+  height: 2rem;
+  padding-inline: 3rem;
   margin-left: auto;
-  margin-right: auto;
-  margin-top: 0%;
-  display: block;
-  object-fit: contain;
-  object-position: center;
-  width: 100%;
-  height: auto;
-  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  place-content: center;
+  transition: background-color 0.1s linear, scale 0.1s linear;
+}
+.play-button:hover {
+  background-color: var(--active);
+  scale: 1.05;
+}
+.description {
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  text-shadow: 1px 1px 0px #000;
+  font-size: 0.74rem;
+  -webkit-box-orient: vertical;
+  max-height: 3.3rem;
 }
 
-.interactions {
+.details {
+  max-width: 100%;
+}
+
+.title {
+  padding-top: 5px;
+  font-size: 1.2rem;
+  line-height: 0.9;
+  margin-left: 1rem;
+  margin-top: 5px;
+}
+.creators {
+  font-size: 1rem;
+  font-style: italic;
+  margin-left: 1rem;
+  margin-top: 5px;
   display: flex;
-  width: 27%;
+  flex-direction: row;
+  gap: 5px;
+}
+.creators span {
+  font-style: normal;
+  cursor: pointer;
+  color: var(--alt);
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  max-height: 1.3rem;
+}
+.hidden-tag {
+  font-size: 0.75rem;
+  font-style: italic;
+  background-color: var(--red);
+  padding: 0 8px;
+  border-radius: 50px;
+  margin-left: 5px;
+}
+.approved-tag {
+  font-size: 0.75rem;
+  font-style: italic;
+  background-color: var(--green);
+  padding: 0 8px;
+  border-radius: 50px;
+  margin-left: 5px;
+}
+
+.privileged-buttons {
+  display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  gap: 8%;
   align-items: center;
-  position: absolute;
-  bottom: 5%;
-  left: 3%;
+  gap: 0.6rem;
+  padding-inline: 10px;
+  padding-top: 5px;
+  margin-top: auto;
+}
+
+.difficulty-impossible {
+  background-color: #7f007f;
+}
+.difficulty-veryhard {
+  background-color: #EA0000;
+}
+.difficulty-hard {
+  background-color: #F19400;
+}
+.difficulty-medium {
+  background-color: #E1C800;
+}
+.difficulty-easy {
+  background-color: #2BBA84;
+}
+.difficulty-unrated {
+  background-color: #969696;
 }
 </style>

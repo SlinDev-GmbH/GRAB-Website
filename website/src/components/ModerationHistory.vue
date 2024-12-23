@@ -75,7 +75,6 @@ export default {
 }
 </script>
 
-
 <template>
   <h3>Moderation History</h3>
   <div class="history">
@@ -91,7 +90,6 @@ export default {
     </div>
   </div>
 </template>
-
 
 <style scoped>
   .history {

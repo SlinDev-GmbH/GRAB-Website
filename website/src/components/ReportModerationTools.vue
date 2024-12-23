@@ -15,7 +15,7 @@ export default {
     ModerationPopup
   },
 
-  emits: ['handled'],
+  emits: ['handled', 'hide', 'approve'],
 
   props: {
     moderationItem : Object
@@ -23,7 +23,9 @@ export default {
 
   data() {
     return {
-      showModerationPopup: false
+      showModerationPopup: false,
+      isPunished: false,
+      isReset: false
     }
   },
 
@@ -65,14 +67,14 @@ export default {
     handledModerationPopup(handled) {
       if(handled === true)
       {
-        this.$emit('handled', true)
+        this.$emit('hide')
       }
     },
 
     async approveLevel()
     {
       if(!await approveLevelRequest(this.$api_server_url, this.accessToken, this.moderationItem.object_info.identifier)) return
-      this.$emit('handled', false)
+      this.$emit('approve')
     },
 
     async punishUser() {
@@ -80,6 +82,7 @@ export default {
       if(!userID) return;
       if(!await moderationActionRequest(this.$api_server_url, this.accessToken, userID, 'user_' + this.bestReason)) return
       if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
+      this.isPunished = true;
       this.$emit('handled', true)
     },
 
@@ -87,6 +90,7 @@ export default {
     {
       const userID = this.moderationItem.object_info.user_id
       if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
+      this.isReset = true;
       this.$emit('handled', false)
     }
   }
@@ -95,18 +99,20 @@ export default {
 
 <template>
   <div class="moderation-tools">
-    <div v-if="moderationItem.object_info.moderation_info" class="moderation-title">Previous Strike:</div>
-    <ModerationInfo v-if="moderationItem.object_info.moderation_info" :info="moderationItem.object_info.moderation_info"/>
+    <ModerationInfo v-if="moderationItem.object_info.moderation_info" :info="moderationItem.object_info.moderation_info" :previous="true"/>
 
-    <div v-if="reports.length" class="moderation-title">Reports:</div>
-    <div v-for="(value) in reports">
-      {{ value[0].slice(15) }}: {{ value[1] }}
+    <div v-if="reports.length && !isReset && !isPunished" class="moderation-title">Reports:</div>
+    <div v-if="!isReset && !isPunished">
+      <div class="report-count" v-for="(value) in reports" :key="value[0]">
+        {{ value[0].slice(15) }}: {{ value[1] }}
+      </div>
     </div>
-    <br>
-    <button v-if="isLevel" class="moderation-hide-button" @click="showModerationPopup=true">Hide</button>
-    <button v-else class="moderation-hide-button" @click="punishUser">Punish</button>
-    <button v-if="isLevel" class="moderation-approve-button" @click="approveLevel">Approve</button>
-    <button v-else class="moderation-approve-button" @click="resetUserReports">Reset</button>
+    <div class="buttons">
+      <button v-if="isLevel" class="moderation-hide-button" @click="showModerationPopup=true">Hide</button>
+      <button v-else class="moderation-hide-button" @click="punishUser">Punish</button>
+      <button v-if="isLevel" class="moderation-approve-button" @click="approveLevel">Approve</button>
+      <button v-else class="moderation-approve-button" @click="resetUserReports">Reset</button>
+    </div>
   </div>
 
   <Teleport to="body">
@@ -117,36 +123,46 @@ export default {
 <style scoped>
 .moderation-tools {
   width: 100%;
-  min-height: 0px;
-  padding-top: 5%;
-  padding-bottom: 5%;
+  display: flex;
+  flex-direction: column;
+  
 }
 
 .moderation-title {
   font-weight: bold;
+  margin-left: 10px;
+  margin-top: 5px;
 }
 
 .moderation-hide-button {
-  width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 15px;
-  margin-left: 17.5%;
-  margin-right: 5%;
   cursor: pointer;
 }
 
 .moderation-approve-button {
-  width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: green;
-  color: white;
-  border: none;
+  background-color: var(--green);
   border-radius: 15px;
   cursor: pointer;
+}
+.buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.5em;
+  padding-top: 0.5em;
+  margin-top: auto;
+}
+
+.report-count {
+  font-size: 0.9rem;
+  line-height: 1.1rem;
+  margin-left: 15px;
 }
 </style>

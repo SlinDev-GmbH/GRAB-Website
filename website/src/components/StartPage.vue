@@ -4,7 +4,6 @@ export default {
     const sections = document.querySelectorAll('.section-fade');
 
     // fade in with observer
-
     const sectionVisible = (entries, observer) => {
         entries.forEach(entry => {
             if (!entry.isIntersecting) return;
@@ -22,7 +21,6 @@ export default {
     });
 
     // fade in with on scroll (observer sometimes doesn't work well on mobile)
-
     document.addEventListener('scroll', () => {
         const pageBottom = window.scrollY + window.innerHeight;
         sections.forEach(section => {
@@ -35,7 +33,6 @@ export default {
   }
 }
 </script>
-
 
 <template>
   <div id="homepage">

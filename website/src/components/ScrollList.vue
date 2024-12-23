@@ -26,7 +26,11 @@ export default {
     difficulty: String,
     tag: String,
     searchTerm: String,
-    otherUserID: String
+    otherUserID: String,
+    horizontal: {
+      type: Boolean,
+      default: false
+    }
   },
 
   data() {
@@ -35,7 +39,11 @@ export default {
       loading: false,
       isInitialLoad: true,
       activeLoad: null,
-      filterChoice: "All"
+      filterChoice: "All",
+      auditFilter: {
+        user_name: "All",
+        log_type: "All"
+      }
     }
   },
 
@@ -85,11 +93,7 @@ export default {
             return this.filterChoice.toLowerCase();
     },
     
-    ...mapState(useUserStore, ['isLoggedIn']),
-    ...mapState(useUserStore, ['userID']),
-    ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isAdmin']),
-    ...mapState(useUserStore, ['isSuperModerator'])
+    ...mapState(useUserStore, ['isLoggedIn', 'userID', 'accessToken', 'isAdmin', 'isSuperModerator'])
   },
 
   watch: {
@@ -99,29 +103,36 @@ export default {
       },
       immediate: true
     },
+    auditFilter: {
+      handler() {
+        this.updateVisibleItems();
+      },
+      immediate: true,
+      deep: true
+    },
 
-    async listType(type) {
+    async listType() {
       if(this.isInitialLoad && this.loading) return
       this.items = []
       this.nextPage = null
       await this.loadMore()
     },
 
-    async difficulty(type) {
+    async difficulty() {
       if(this.isInitialLoad && this.loading) return
       this.items = []
       this.nextPage = null
       await this.loadMore()
     },
 
-    async tag(type) {
+    async tag() {
       if(this.isInitialLoad && this.loading) return
       this.items = []
       this.nextPage = null
       await this.loadMore()
     },
 
-    async searchTerm(type) {
+    async searchTerm() {
       if(this.isInitialLoad && this.loading) return
       this.items = []
       this.nextPage = null
@@ -131,18 +142,22 @@ export default {
 
   methods: {
     updateVisibleItems() {
-      let filter = this.filterChoice.toLowerCase();
-
       this.items.forEach(item => {
-        const matchesFilter = filter === 'all' || this.itemMatchesFilter(item, filter);
-        item.visible = matchesFilter;
+        item.visible = this.itemMatchesFilter(item);
       });
     },
 
-    itemMatchesFilter(item, filter) {
-      for (let key in item) {
-        if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(filter)) {
-          return true;
+    itemMatchesFilter(item) {
+      if (this.listType == 'tab_audit') {
+        return (this.auditFilter.user_name === 'All' || item.userInfo?.user_name == this.auditFilter.user_name) &&
+          (this.auditFilter.log_type === "All" || item.request.split(/\/|\?/)[5] == this.auditFilter.log_type);
+      } else {
+        if (this.filterChoice == "All") return true;
+        for (let key in item) {
+          if (key.startsWith('reported_score_') && key.slice(15).toLowerCase().includes(this.filterChoice.toLowerCase())) {
+            console.log(key);
+            return true;
+          }
         }
       }
       return false;
@@ -198,10 +213,10 @@ export default {
     },
 
     handleScroll() {
-      const scrollY = window.scrollY;
-      const visibleHeight = window.innerHeight;
-      const totalHeight = document.documentElement.scrollHeight;
-      if (scrollY + visibleHeight >= totalHeight && !this.loading && this.nextPage !== undefined) {
+      const levelBrowserElement = this.$parent.$parent.$el;
+      const { scrollTop: scrolledHeight, scrollHeight: fullHeight } = levelBrowserElement;
+      const visibleHeight = levelBrowserElement.getBoundingClientRect().height;
+      if (fullHeight - (scrolledHeight + visibleHeight) < 1 && !this.loading && this.nextPage !== undefined) {
         this.loadMore();
       }
     },
@@ -259,11 +274,11 @@ export default {
   },
 
   mounted() {
-    window.addEventListener('scroll', this.handleScroll);
+    this.$parent.$parent.$el.addEventListener('scroll', this.handleScroll);
   },
 
-  destroyed() {
-    window.removeEventListener('scroll', this.handleScroll);
+  unmounted() {
+    this.$parent.$parent.$el.removeEventListener('scroll', this.handleScroll);
   },
 }
 </script>
@@ -271,8 +286,10 @@ export default {
 
 <template>
   <button v-if="listType == 'tab_reported_users' && (isAdmin || isSuperModerator)" id="punish-all-button" @click="punishAllUsers">Punish All</button>
-  <DropDown v-if="listType == 'tab_reported_levels' && (isAdmin || isSuperModerator)" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
-  <div class="grid-container" :style="listType == 'tab_audit' ? 'grid-template-columns: 1fr' : ''">
+  <DropDown v-if="listType == 'tab_reported_levels' && (isAdmin || isSuperModerator)" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' :flip='true' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
+  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["All", ...new Set(items.map(e=>e.userInfo?.user_name))]' :defaultChoice='"All"' :flip='true' @changeSelection="auditFilter.user_name = $event" style="margin-bottom: 5px;"/>
+  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["All", ...new Set(items.map(e=>e.request.split(/\/|\?/)[5]))]' :defaultChoice='"All"' :flip='true' @changeSelection="auditFilter.log_type = $event" style="margin-bottom: 5px; margin-left: 1rem;"/>
+  <div :class="'grid-container' + (this.horizontal ? ' horizontal-list' : '') + (listType == 'tab_audit' ? ' log-list' : '')">
     <div v-for="(item, index) in items" :key="index" v-show="item.visible" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
       <CardLog v-else-if="listType == 'tab_audit'" :item="item" />
@@ -282,16 +299,36 @@ export default {
   <div v-if="loading" class="loading">Loading more items...</div>
 </template>
 
-
 <style scoped>
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 5px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 2rem;
+}
+@media screen and (max-width: 730px) {
+  .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 0.8rem;
+  }
+}
+.horizontal-list {
+  display: flex;
+  flex-direction: row;
+  width: fit-content;
+}
+.log-list {
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .grid-item {
   min-width: 0;
+}
+.grid-item:not(.log-list .grid-item) {
+  max-width: 450px;
+}
+.horizontal-list .grid-item {
+  width: 300px;
 }
 
 .loading {
@@ -300,9 +337,7 @@ export default {
 
 #punish-all-button {
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 20px;
   cursor: pointer;
   padding: 10px 20px;

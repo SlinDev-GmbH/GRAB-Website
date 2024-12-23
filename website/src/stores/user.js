@@ -1,4 +1,3 @@
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { listRequest } from '../requests/ListRequest';
 
@@ -55,6 +54,20 @@ export const useUserStore = defineStore('user', {
         if (response.status != 200) {
           const responseBody = await response.text()
           console.log(responseBody)
+
+          // redirect may have been too fast, try again in a second
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          let newResponse = await fetch(serverURL + 'get_access_token?service_type=oculus_web_demo&service_user_token=' + authInfo.org_scoped_id + ':' + authInfo.code)
+          if (newResponse.status!= 200) {
+            const newResponseBody = await newResponse.text()
+            console.log(newResponseBody)
+          }
+          else {
+            const newNewResponseBody = await newResponse.json()
+            this.user = newNewResponseBody;
+            this.expires = Date.now() + 2 * 60 * 60 * 1000 //valid for 2 hours
+          }
         }
         else {
           const responseBody = await response.json()

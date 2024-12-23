@@ -9,6 +9,8 @@ export default {
     levelInfo : Object
   },
 
+  emits: ['skipped'],
+
   data() {
     return {
       isSkipped: false,
@@ -23,35 +25,28 @@ export default {
   methods: {
     async skipLevel()
     {
-      if (this.isLoading) return
-      this.isLoading = true
-      await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)
-      this.isSkipped = true
-      this.isLoading = false
+      if (this.isLoading) return;
+      this.isLoading = true;
+      await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier);
+      this.isSkipped = true;
+      this.isLoading = false;
+      this.$emit('skipped');
     }
   }
 }
 </script>
 
 <template>
-  <div class="moderation-skip-level-button-container">
-    <button v-if="!isSkipped" class="moderation-skip-level-button" @click="skipLevel">Skip</button>
-  </div>
+  <button v-if="!isSkipped" class="moderation-skip-level-button" @click="skipLevel">Skip</button>
 </template>
 
 <style scoped>
 .moderation-skip-level-button {
-  min-width:30%;
   height: 30px;
+  width: 90px;
   font-weight: bold;
-  background-color: red;
-  color: white;
-  border: none;
+  background-color: var(--red);
   border-radius: 15px;
   cursor: pointer;
-}
-
-.moderation-skip-level-button-container {
-  margin-top: 5px;
 }
 </style>

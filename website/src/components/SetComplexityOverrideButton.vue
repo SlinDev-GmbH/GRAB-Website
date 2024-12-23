@@ -17,8 +17,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken']),
-    ...mapState(useUserStore, ['isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
   },
 
   methods: {
@@ -45,25 +44,23 @@ export default {
   .complexity-override-button, .complexity-reset-button {
     padding: 5px 10px;
     font-weight: bold;
-    color: white;
-    border: none;
     font-size: 12px;
     border-radius: 15px;
     cursor: pointer;
-    background-color: green;
+    background-color: var(--green);
   }
 
   .complexity-reset-button {
     margin-right: 5px;
-    background-color: red;
+    background-color: var(--red);
   }
   
   .complexity-override-input {
     padding: 5px;
     margin-bottom: 10px;
     width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    background-color: var(--hover);
+    border-radius: 15px;
   }
 
   .complexity-override-popup {
@@ -71,13 +68,15 @@ export default {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
+    background-color: var(--background);
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 15px;
+    border: 2px solid var(--hover);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
   }
+
 </style>

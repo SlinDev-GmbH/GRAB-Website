@@ -5,7 +5,9 @@ import { useUserStore } from '@/stores/user'
 import CurationControls from './CurationControls.vue'
 import NewCurationButton from './NewCurationButton.vue'
 import RemoveCurationButton from './RemoveCurationButton.vue'
-import Terms from './Terms.vue'
+import LegalTerms from './LegalTerms.vue'
+import DropDown from './DropDown.vue'
+import LoginButton from './LoginButton.vue'
 
 import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
@@ -14,19 +16,18 @@ export default {
 	CurationControls,
 	NewCurationButton,
 	RemoveCurationButton,
-	Terms,
+	LegalTerms,
+	DropDown,
+	LoginButton,
   },
 
   computed: {
-	...mapState(useUserStore, ['isAdmin']),
-	...mapState(useUserStore, ['accessToken']),
+	  ...mapState(useUserStore, ['isAdmin', 'accessToken', 'isLoggedIn']),
   },
 
   data() {
 	return {
-	  typeSelector: null,
 	  typesList: [],
-	  selected: 0,
 	  type: ""
 	}
   },
@@ -35,61 +36,42 @@ export default {
 	const result = await GetCuratedListsRequest(this.$api_server_url)
 	if (result) {
 	  this.typesList = result;
-	  this.displayTypeSelector();
-	  this.handleTypeChange();
+	  this.type = this.typesList[0] || "Error";
 	}
-  },
-
-  mounted() {
-	this.typeSelector = document.getElementById("typeSelector");
   },
 
   methods: {
-	async handleTypeChange() {
-	  this.type = this.typeSelector.options[this.typeSelector.selectedIndex].value;
-	},
-
 	handleTypeListUpdate(typesList) {
 		this.typesList = typesList
-		this.displayTypeSelector()
-	},
-
-	displayTypeSelector() {
-		this.typeSelector.innerHTML = '';
-		for (let i = 0; i < this.typesList.length; i++) {
-			let type = this.typesList[i];
-			let option = document.createElement('option');
-			option.value = type;
-			option.text = type;
-			this.typeSelector.appendChild(option);
-		}
 	}
-  }
+  },
 }
 </script>
 
 <template>
 	<div id="curation">
-		<a class="back-button" href="/levels">Back</a>
 		<header>
+			<a class="back-button" href="/levels">
+				<img src="./../assets/icon_back.png" alt="back">
+			</a>
+			<LoginButton/>
 			<h1>Curated Level Lists</h1>
-			<div id="list-control">
+			<div v-if="isLoggedIn" id="list-control">
+				<DropDown :options='typesList.length ? typesList : ["Loading.."]' :defaultChoice='typesList[0] || "Loading.."' :flip='true' @changeSelection="type = $event"/>
 				<div v-if="isAdmin" id="buttonWrapper">
 					<NewCurationButton @handled="handleTypeListUpdate"/>
 					<RemoveCurationButton @handled="handleTypeListUpdate"/>
 				</div>
-				<select id="typeSelector" @change="handleTypeChange"></select>
 			</div>
 		</header>
 		<main>
-			<CurationControls :type="type"/>
+			<CurationControls v-if="isLoggedIn" :type="type"/>
 		</main>
-		<Terms/>
+		<LegalTerms/>
 	</div>
 </template>
 
 <style scoped>
-
 #curation {
 	padding: 2rem;
 	font-weight: normal;
@@ -99,6 +81,7 @@ export default {
 	margin: 0 auto;
 	color: var(--color-text);
 	background: var(--color-background);
+	background-image: var(--gradient);
 	line-height: 1.6;
 	font-family: 'Roboto', sans-serif;
 	font-size: 15px;
@@ -118,13 +101,13 @@ export default {
     justify-content: space-between;
     align-items: center;
 	width: 100%;
-	padding-inline: 2rem;
+	padding-inline: 1rem;
 }
 
 #list-control {
 	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
+	flex-direction: row;
+	justify-content: space-between;
 	align-items: center;
 	width: 100%;
 	padding-bottom: 1rem;
@@ -134,7 +117,7 @@ main {
 	max-width: 1000px;
 	margin: 0 auto;
 	display: grid;
-	grid-template-columns: auto 200px;
+	grid-template-columns: auto min(200px, 30%);
 	width: 100%;
 	height: 100%;
 	max-height: calc(100svh - 150px - 4rem);
@@ -147,14 +130,14 @@ html {
 	padding-bottom: 20px;
 }
 body {
-	background-color: #4BA0D6;
+	background-color: var(--blue);
 	padding-inline: 10px;
 	margin-inline: auto;
 	max-width: 960px;
 	font-family: 'Roboto', sans-serif;
 }
 h1 {
-	margin: 0;
+	margin-top: 2rem;
 	text-align: center;
 	font-size: 32px;
 	padding: 0;
@@ -177,31 +160,31 @@ select:focus-visible {
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	margin-bottom: 10px;
 	width: 100%;
+	gap: 15px;
 }
-.button {
-	font-size: 20px;
-	padding: 10px;
-	margin-left: 10px;
-	width: max(20%, 150px);
-	color: #fff;
-	cursor: pointer;
-	font-weight: bold;
-	border: none;
-	border-radius: 15px;
-}
+
 .back-button {
-	font-size: 20px;
-	padding: 10px 20px;
-	color: #fff;
-	background-color: #00bc87;
-	cursor: pointer;
-	font-weight: bold;
-	border: none;
-	border-radius: 15px;
 	position: absolute;
-	top: 10px;
-	left: 10px;
+	top: 0;
+	left: 0;
+    width: 40px;
+    height:  40px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--hover);
+    cursor: pointer;
+}
+.back-button img {
+    width: 23px;
+    height: 20px;
+    opacity: 0.7;
+    transition: opacity 0.3s linear;
+}
+.back-button:hover img {
+    opacity: 1;
 }
 </style>
