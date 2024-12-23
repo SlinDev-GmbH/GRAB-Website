@@ -466,6 +466,7 @@ export default {
   height: 2rem;
   padding-inline: 3rem;
   margin-left: auto;
+  margin-bottom: auto;
   display: flex;
   flex-direction: column;
   place-content: center;
