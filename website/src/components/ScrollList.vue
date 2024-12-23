@@ -336,6 +336,11 @@ export default {
 .horizontal-list .grid-item {
   width: 300px;
 }
+@media screen and (max-width: 600px) {
+  .horizontal-list .grid-item:not(.log-list .grid-item) {
+    max-width: 200px;
+  }
+}
 
 .loading {
   margin: 20px 0;
