@@ -256,4 +256,25 @@ export default {
     max-width: 90%;
     text-align: center;
   }
+  @media screen and (max-width: 600px) {
+    .section-card {
+      max-width: 200px;
+    }
+    .section-card span {
+      font-size: 1rem;
+    }
+  }
+  @media screen and (max-width: 730px) {
+    .section-list {
+      gap: 0.8rem;
+    }
+  }
+  @media screen and (max-width: 500px) {
+    .section-list {
+      gap: 0.5rem;
+    }
+    .section-card img {
+      border-radius: 10px;
+    }
+  }
 </style>
