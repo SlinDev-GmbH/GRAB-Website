@@ -57,6 +57,13 @@ export default {
   padding: 3px;
   transition: background-color 0.1s linear, scale 0.1s linear;
 }
+@media screen and (max-width: 500px) {
+  .thumbnail-fullscreen-button {
+    width: 20px;
+    height: 20px;
+    padding: 1px;
+  }
+}
 .thumbnail-fullscreen-button:hover {
   background-color: var(--active);
   scale: 1.05;

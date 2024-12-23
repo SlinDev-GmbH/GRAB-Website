@@ -62,4 +62,11 @@ export default {
     background-color: var(--active);
     scale: 1.05;
 }
+@media screen and (max-width: 500px) {
+  .favorite-button {
+    width: 20px;
+    height: 20px;
+    padding: 3px;
+  }
+}
 </style>

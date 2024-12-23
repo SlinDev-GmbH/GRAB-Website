@@ -42,4 +42,12 @@ export default {
   .remove-verifier-button {
     background-color: var(--red);
   }
+  @media screen and (max-width: 600px) {
+    .make-verifier-button, .remove-verifier-button {
+    height: 25px;
+    width: 70px;
+    font-size: 0.6rem;
+    line-height: 1;
+  }
+}
 </style>

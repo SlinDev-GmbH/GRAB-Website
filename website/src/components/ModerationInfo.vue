@@ -111,4 +111,22 @@ export default {
   border-radius: 5px;
   max-width: 100%;
 }
+@media screen and (max-width: 600px) {
+  .type {
+    font-size: 0.8rem;
+  }
+  .strike {
+    font-size: 1rem;
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .reason {
+    font-size: 0.8rem;
+    padding-inline: 0.3rem;
+    line-height: 1rem;
+  }
+  .dates {
+    font-size: 12px;
+  }
+}
 </style>

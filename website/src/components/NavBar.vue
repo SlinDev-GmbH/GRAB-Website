@@ -138,4 +138,14 @@ export default {
     display: none;
   }
 }
+@media screen and (max-width: 400px) {
+  .search input[type=text] {
+    padding-block: 0.6rem;
+  }
+  .tab button {
+    font-size: 11px;
+    padding: 0.4rem 0.8rem;
+    margin-inline: 0.15rem;
+  }
+}
 </style>

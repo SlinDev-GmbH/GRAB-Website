@@ -42,4 +42,12 @@ export default {
   .remove-moderator-button {
     background-color: var(--red);
   }
+  @media screen and (max-width: 600px) {
+    .make-moderator-button, .remove-moderator-button {
+      height: 25px;
+      width: 70px;
+      font-size: 0.6rem;
+      line-height: 1;
+    }
+  }
 </style>

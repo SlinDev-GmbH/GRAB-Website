@@ -244,4 +244,25 @@ export default {
   align-items: center;
   justify-content: center;
 }
+@media screen and (max-width: 600px) {
+  .user-card {
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+  }
+  .user-name {
+    font-size: 16px;
+  }
+  .profile-icon {
+    height: 40px;
+    width: 40px;
+    border-radius: 5px;
+  }
+  .user-id {
+    font-size: 10px;
+  }
+  .moderation {
+    margin-inline: 5px;
+    padding-inline: 5px;
+  }
+}
 </style>

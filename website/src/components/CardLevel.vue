@@ -300,7 +300,7 @@ export default {
   box-shadow: 0 0 0 #0005;
   transition: box-shadow 0.1s linear, scale 0.2s ease;
 }
-.card:hover {
+.card:hover, .card:active {
   box-shadow: 3px 3px 0 #0005;
   scale: 1.05;
 }
@@ -328,7 +328,8 @@ export default {
   opacity: 1;
   transition: opacity 0.3s linear;
 }
-.card:hover .card-overlay {
+.card:hover .card-overlay,
+.card:active .card-overlay {
   visibility: hidden;
   opacity: 0;
 }
@@ -349,7 +350,8 @@ export default {
   opacity: 0;
   transition: opacity 0.3s linear;
 }
-.card:hover .card-hover {
+.card:hover .card-hover, 
+.card:active .card-hover {
   visibility: visible;
   opacity: 1;
 }
@@ -493,7 +495,7 @@ export default {
 .title {
   padding-top: 5px;
   font-size: 1.2rem;
-  line-height: 0.9;
+  line-height: 1;
   margin-left: 1rem;
   margin-top: 5px;
 }
@@ -563,5 +565,81 @@ export default {
 }
 .difficulty-unrated {
   background-color: #969696;
+}
+
+@media screen and (max-width: 700px) {
+  .description {
+    font-size: 0.6rem;
+  }
+  .tag {
+    font-size: 0.7rem;
+    padding: 0 6px;
+  }
+  .card-fixed {
+    padding: 5px;
+  }
+  .hover-middle {
+    padding-inline: 0.5rem;
+  }
+  .hover-top {
+    padding: 5px;
+    padding-bottom: 0;
+  }
+  .play-button {
+    height: 1.7rem;
+    font-size: 0.8rem;
+    padding-inline: 2rem;
+  }
+}
+@media screen and (max-width: 600px) {
+  .privileged-buttons {
+    padding: 0;
+    gap: 5px;
+  }
+}
+@media screen and (max-width: 500px) {
+  .description {
+    font-size: 0.4rem;
+  }
+  .tag {
+    font-size: 0.5rem;
+    padding: 0 3px;
+  }
+  .card-fixed {
+    padding: 3px;
+  }
+  .hover-middle {
+    padding-inline: 0.3rem;
+  }
+  .hover-top {
+    padding: 3px;
+    padding-bottom: 0;
+  }
+  .play-button {
+    height: 1.3rem;
+    font-size: 0.5rem;
+    padding-inline: 1rem;
+  }
+  .difficulty, .plays {
+    font-size: 0.6rem;
+  }
+  .stamp {
+    width: 1rem;
+    height: 1rem;
+  }
+  .card, .card-images, .card-hover {
+    border-radius: 10px;
+  }
+  .title {
+    font-size: 1rem;
+    margin-left: 10px;
+  }
+  .creators {
+    font-size: 0.8rem;
+    margin-left: 10px;
+  }
+  .card-overlay {
+    padding: 0.4rem;
+  }
 }
 </style>

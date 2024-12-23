@@ -55,6 +55,7 @@ a {
 }
 body {
     background-color: var(--background);
+    max-height: 100svh;
 }
 
 /* homepage */
