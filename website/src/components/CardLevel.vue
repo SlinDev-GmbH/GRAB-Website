@@ -224,7 +224,7 @@ export default {
       </a>
 
       <a class="card-overlay" target="_blank" :href="viewerURL">
-        <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/creator.png" width="20" height="20" />
+        <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/icons/checkmark.svg" width="20" height="20" />
         <div v-if="hasStatistics && item.statistics" class="plays">
           <img src="./../assets/icons/person.svg" alt="plays: ">
           <span>{{ formattedPlays }}</span>

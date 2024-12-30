@@ -117,7 +117,7 @@ export default {
       <div>
         <div v-if="name" class="user-tab-name">
           {{ name }}
-          <img v-if="isVerified" alt="Creator" title="Creator" class="creator-icon" src="./../assets/creator.png" />
+          <img v-if="isVerified" alt="Creator" title="Creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
           <span v-if="isModerator" title="Moderator" class="moderator-icon">M</span>
           <span v-if="isDeveloper" title="Developer" class="developer-icon">D</span>
           <div class="user-buttons">
