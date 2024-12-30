@@ -120,15 +120,15 @@ export default {
   <div id="level-browser">
     <img v-if="showUserTitle && userID == '29sgp24f1uorbc6vq8d2k'" class="rick" src="../assets/rick_astley.webp" />
     <header>
-      <CurrencyInfo v-if="isLoggedIn" />
       <div class="home-link-wrapper">
+        <CurrencyInfo v-if="isLoggedIn" />
         <a href="/" class="home-link">
           <img alt="GRAB logo" class="logo" src="/logo.webp" />
         </a>
+        <LoginButton />
+        <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
+        <button v-if="isSuperModerator" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
       </div>
-      <LoginButton />
-      <a v-if="isModerator" class="curation-button" type="button" href="/curation" target="_blank">Curation</a>
-      <button v-if="isSuperModerator" class="access-token-button" type="button" @click="copyAccessToken">Access Token</button>
       <div class="navigation">
         <NavBar :tab-active="tabActive" @tab-changed="(query) => this.tabChanged(query)" @search-changed="(value) => this.searchChanged(value)" :search-term="searchTerm" />
         <div class="sorting">
@@ -159,7 +159,7 @@ export default {
   font-size: 1rem;
   line-height: 1.6;
   font-weight: normal;
-  padding: 2rem;
+  /* padding: 2rem; */
   overflow-y: scroll;
 }
 
@@ -168,14 +168,13 @@ header {
 }
 
 header, main {
-  max-width: 1400px;
-  padding-inline: 1rem;
+  /* this is important for scrolling, trust me */
+  /* max-width: 1400px; */
+  box-sizing: unset;
+  padding-inline: calc((100% - 1400px) / 2);
+  /* padding-inline: 1rem; */
+  border: 1rem solid transparent;
   margin: 0 auto;
-}
-@media screen and (max-width: 520px) {
-  header, main {
-    padding-inline: 0.2rem;
-  }
 }
 
 .logo {
@@ -199,11 +198,6 @@ header, main {
   padding-bottom: 30px;
 }
 
-@media screen and (max-width: 460px) {
-  #level-browser {
-    padding: 1rem;
-  }
-}
 @media screen and (max-width: 500px) {
   .logo {
     padding-bottom: 5px;
