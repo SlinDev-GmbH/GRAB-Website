@@ -6,7 +6,6 @@ import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
 
-import VLazyImage from 'v-lazy-image'
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
@@ -22,7 +21,6 @@ export default {
     ReportModerationTools,
     VerifyLevelButton,
     SkipLevelButton,
-    VLazyImage,
     HideLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
@@ -218,9 +216,9 @@ export default {
     <div class="card">
       <a class="card-images" target="_blank" :href="viewerURL">
         <div :style="randomGradient" class="random-gradient"></div>
-        <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
+        <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
-          <v-lazy-image v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
+          <img v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" loading="lazy" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
         </div>
       </a>
 
