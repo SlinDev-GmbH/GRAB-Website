@@ -116,7 +116,7 @@ export default {
     },
 
     viewerURL() {
-      return '/levels/viewer/?level=' + this.item.identifier
+      return '/levels/viewer/?level=' + this.item.identifier + (this.listType == 'tab_verify_queue' ? '&verify_queue' : '')
     },
 
     hasOKStamp() {
@@ -216,27 +216,27 @@ export default {
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
     <div class="card">
-      <div class="card-images">
+      <a class="card-images" target="_blank" :href="viewerURL">
         <div :style="randomGradient" class="random-gradient"></div>
         <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
           <v-lazy-image v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
         </div>
-      </div>
+      </a>
 
-      <div class="card-overlay">
+      <a class="card-overlay" target="_blank" :href="viewerURL">
         <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/creator.png" width="20" height="20" />
         <div v-if="hasStatistics && item.statistics" class="plays">
           <img src="./../assets/icons/person.svg" alt="plays: ">
           <span>{{ formattedPlays }}</span>
         </div>
         <div v-if="hasStatistics && hasDifficulty" :class="`difficulty difficulty-${this.item.statistics?.difficulty_string || 'unrated'}`">{{ difficulty }}</div>
-      </div>
+      </a>
       
       <div class="card-hover">
         <div class="hover-top">
           <ThumbnailFullscreenButton v-if="hasImage && !isModerationCell" :imageUrl="this.$images_server_url + this.item.images.full.key" :thumbnailUrl="this.$images_server_url + this.item.images.thumb.key"/>
-          <a target="_blank" :href="viewerURL + (this.listType == 'tab_verify_queue' ? '&verify_queue' : '')" class="play-button" @click="setListIndex(index)">OPEN</a>
+          <a target="_blank" :href="viewerURL" class="play-button" @click="setListIndex(index)">OPEN</a>
         </div>
         <div class="hover-middle">
           <div class="description">{{ item.description }}</div>
@@ -355,6 +355,12 @@ export default {
   visibility: visible;
   opacity: 1;
 }
+.card-hover, .card-fixed {
+  pointer-events: none;
+}
+.hover-top *, .card-fixed * {
+  pointer-events: auto;
+}
 .card-fixed {
   display: flex;
   flex-direction: row;
@@ -472,7 +478,7 @@ export default {
   place-content: center;
   transition: background-color 0.1s linear, scale 0.1s linear;
 }
-.play-button:hover {
+.play-button:hover, .card:has(.card-images:hover) .play-button {
   background-color: var(--active);
   scale: 1.05;
 }
