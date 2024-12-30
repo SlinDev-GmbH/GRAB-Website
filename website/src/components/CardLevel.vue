@@ -204,7 +204,7 @@ export default {
       if (this.currentModerationImage >= this.imageKeys.length) {
         this.currentModerationImage = 0;
       }
-    }, 600);
+    }, 1000);
   }
   },
   unmounted() {
