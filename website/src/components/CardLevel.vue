@@ -49,6 +49,7 @@ export default {
       isRecovered: false,
       currentModerationImage: 0,
       imageInterval: undefined,
+      thumbLoaded: false,
     }
   },
   provide() {
@@ -215,8 +216,8 @@ export default {
   <div class="level-card" :style="{'background-color': cardColor}">
     <div class="card">
       <a class="card-images" target="_blank" :href="viewerURL">
-        <div :style="randomGradient" class="random-gradient"></div>
-        <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
+        <div v-show="!this.thumbLoaded" :style="randomGradient" class="random-gradient"></div>
+        <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError" @load="this.thumbLoaded = true"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
           <img v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" loading="lazy" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
         </div>
