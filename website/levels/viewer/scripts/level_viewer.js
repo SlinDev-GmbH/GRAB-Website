@@ -14,7 +14,7 @@ import { useUserStore } from '@/stores/user'
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
-import imageStampOk from '../../../src/assets/creator.png'
+import imageStampOk from '../../../src/assets/icons/checkmark.svg'
 import imageReport from '../../../src/assets/icons/report.svg'
 import imageFavorite from '../../../src/assets/icons/star_off.svg'
 import imageFavorited from '../../../src/assets/icons/star_on.svg'

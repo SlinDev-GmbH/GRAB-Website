@@ -6,7 +6,6 @@ import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
 
-import VLazyImage from 'v-lazy-image'
 import ReportModerationTools from './ReportModerationTools.vue'
 import VerifyLevelButton from './VerifyLevelButton.vue'
 import SkipLevelButton from './SkipLevelButton.vue'
@@ -22,7 +21,6 @@ export default {
     ReportModerationTools,
     VerifyLevelButton,
     SkipLevelButton,
-    VLazyImage,
     HideLevelButton,
     UnhideLevelButton,
     FavoriteLevelButton,
@@ -51,6 +49,7 @@ export default {
       isRecovered: false,
       currentModerationImage: 0,
       imageInterval: undefined,
+      thumbLoaded: false,
     }
   },
   provide() {
@@ -204,7 +203,7 @@ export default {
       if (this.currentModerationImage >= this.imageKeys.length) {
         this.currentModerationImage = 0;
       }
-    }, 600);
+    }, 1000);
   }
   },
   unmounted() {
@@ -217,15 +216,15 @@ export default {
   <div class="level-card" :style="{'background-color': cardColor}">
     <div class="card">
       <a class="card-images" target="_blank" :href="viewerURL">
-        <div :style="randomGradient" class="random-gradient"></div>
-        <v-lazy-image v-if="hasImage && !isModerationCell" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError"/>
+        <div v-show="!this.thumbLoaded" :style="randomGradient" class="random-gradient"></div>
+        <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError" @load="this.thumbLoaded = true"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
-          <v-lazy-image v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" :intersection-options="{ rootMargin: '50%' }" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
+          <img v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" loading="lazy" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
         </div>
       </a>
 
       <a class="card-overlay" target="_blank" :href="viewerURL">
-        <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/creator.png" width="20" height="20" />
+        <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/icons/checkmark.svg" width="20" height="20" />
         <div v-if="hasStatistics && item.statistics" class="plays">
           <img src="./../assets/icons/person.svg" alt="plays: ">
           <span>{{ formattedPlays }}</span>
