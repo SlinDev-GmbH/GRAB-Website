@@ -327,8 +327,8 @@ export default {
   opacity: 1;
   transition: opacity 0.3s linear;
 }
-.card:hover .card-overlay,
-.card:active .card-overlay {
+.card:hover > .card-overlay,
+.card:active > .card-overlay {
   visibility: hidden;
   opacity: 0;
 }
@@ -349,15 +349,15 @@ export default {
   opacity: 0;
   transition: opacity 0.3s linear;
 }
-.card:hover .card-hover, 
-.card:active .card-hover {
+.card:hover > .card-hover, 
+.card:active > .card-hover {
   visibility: visible;
   opacity: 1;
 }
 .card-hover, .card-fixed {
   pointer-events: none;
 }
-.hover-top *, .card-fixed * {
+.card > .card-hover > .hover-top > *, .card > .card-fixed > * {
   pointer-events: auto;
 }
 .card-fixed {
@@ -477,7 +477,7 @@ export default {
   place-content: center;
   transition: background-color 0.1s linear, scale 0.1s linear;
 }
-.play-button:hover, .card:has(.card-images:hover) .play-button {
+.play-button:hover, .card:has(> .card-images:hover) > .card-hover > .hover-top > .play-button {
   background-color: var(--active);
   scale: 1.05;
 }

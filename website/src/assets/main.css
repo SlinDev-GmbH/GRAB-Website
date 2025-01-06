@@ -35,7 +35,7 @@ html {
 }
 
 /* resets */
-*, *::before, *::after {
+* {
     margin: 0;
     padding: 0;
     position: relative;
@@ -58,13 +58,13 @@ body {
     max-height: 100svh;
 }
 
-html:not(:has(#homepage)), body:not(:has(#homepage)) { /* lovely */
+html:not(:has(> div > #homepage)), body:not(:has(> div > #homepage)) { /* lovely */
     overscroll-behavior-x: none;
 }
 
 /* homepage */
 #homepage {
-    *, *::before, *::after {
+    * {
         color: var(--dark);
     }
     a {
@@ -72,7 +72,7 @@ html:not(:has(#homepage)), body:not(:has(#homepage)) { /* lovely */
         color: inherit;
     }
 
-    &, body:has(#homepage) {
+    &, body:has(> div > #homepage) {
         display: flex;
         flex-direction: column;
         min-height: 100svh;
