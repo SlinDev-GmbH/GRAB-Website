@@ -211,7 +211,7 @@ export default {
     }
   }
   .horizontal-list {
-    min-height: 220px; /* TODO: better loading animation thing */
+    min-height: 250px; /* TODO: better loading animation thing */
   }
   .section-list {
     display: flex;
