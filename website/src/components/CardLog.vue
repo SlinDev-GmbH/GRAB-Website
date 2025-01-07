@@ -92,7 +92,7 @@ export default {
       }
 
       if (!level_id) return '';
-      return `${window.location.origin}/levels/viewer?level=${level_id}`;
+      return `${window.location.origin}/levels/viewer/?level=${level_id}`;
     },
   }
 }
