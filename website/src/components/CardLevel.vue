@@ -291,27 +291,26 @@ export default {
 }
 
 .card {
-  display: grid;
-  grid-template-areas: "card";
   aspect-ratio: 512 / 288;
   width: 100%;
   border-radius: 15px;
   box-shadow: 0 0 0 #0005;
-  transition: box-shadow 0.1s linear, scale 0.2s ease;
+  transition: box-shadow 0.1s linear, transform 0.2s ease;
+  transform: scale(1);
 }
 .card:hover, .card:active {
   box-shadow: 3px 3px 0 #0005;
-  scale: 1.05;
+  transform: scale(1.05);
 }
 .card-images, .card-overlay, .card-hover {
-  grid-area: card;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
 
 .card-images {
-  display: grid;
-  grid-template-areas: "thumb";
   border-radius: 15px;
   overflow: hidden;
   aspect-ratio: 512 / 288;
@@ -327,8 +326,8 @@ export default {
   opacity: 1;
   transition: opacity 0.3s linear;
 }
-.card:hover .card-overlay,
-.card:active .card-overlay {
+.card:hover > .card-overlay,
+.card:active > .card-overlay {
   visibility: hidden;
   opacity: 0;
 }
@@ -338,26 +337,21 @@ export default {
   justify-content: flex-start;
   background-color: #0005;
   border-radius: 15px;
-  background-image: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.1) 100%
-  );
   background-size: 100%;
   background-repeat: no-repeat;
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.3s linear;
 }
-.card:hover .card-hover, 
-.card:active .card-hover {
+.card:hover > .card-hover, 
+.card:active > .card-hover {
   visibility: visible;
   opacity: 1;
 }
 .card-hover, .card-fixed {
   pointer-events: none;
 }
-.hover-top *, .card-fixed * {
+.card > .card-hover > .hover-top > *, .card > .card-fixed > * {
   pointer-events: auto;
 }
 .card-fixed {
@@ -365,7 +359,9 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
-  grid-area: card;
+  position: absolute;
+  bottom: 0;
+  left: 0;
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -373,14 +369,18 @@ export default {
 }
 
 .thumbnail {
-  grid-area: thumb;
+  position: absolute;
+  top: 0;
+  left: 0;
   object-fit: contain;
   object-position: center;
   width: 100%;
   height: 100%;
 }
 .moderation-images {
-  grid-area: thumb;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   overflow-x: scroll;
@@ -388,7 +388,9 @@ export default {
   flex-direction: row;
 }
 .random-gradient {
-  grid-area: thumb;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
@@ -475,11 +477,12 @@ export default {
   display: flex;
   flex-direction: column;
   place-content: center;
-  transition: background-color 0.1s linear, scale 0.1s linear;
+  transition: background-color 0.1s linear, transform 0.1s linear;
+  transform: scale(1);
 }
-.play-button:hover, .card:has(.card-images:hover) .play-button {
+.play-button:hover, .card:has(> .card-images:hover) > .card-hover > .hover-top > .play-button {
   background-color: var(--active);
-  scale: 1.05;
+  transform: scale(1.05);
 }
 .description {
   display: -webkit-box;

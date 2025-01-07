@@ -684,15 +684,20 @@
             #thumb-container {
                 border-radius: 10px;
                 width: 100%;
-                display: grid;
-                grid-template-areas: "content";
+                display: flex;
+                flex-direction: column;
                 place-content: center;
+                align-items: center;
+                justify-content: space-between;
                 aspect-ratio: 512 / 288;
             }
             #thumb-container > * {
-                grid-area: content;
                 width: 100%;
-                height: fit-content;
+            }
+            #thumb-container > img {
+                position: absolute;
+                top: 0;
+                left: 0;
             }
             #main-details {
                 display: flex;

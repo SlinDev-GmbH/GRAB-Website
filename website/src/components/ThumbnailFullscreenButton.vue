@@ -55,7 +55,8 @@ export default {
   background-color: var(--hover);
   border-radius: 50%;
   padding: 3px;
-  transition: background-color 0.1s linear, scale 0.1s linear;
+  transition: background-color 0.1s linear, transform 0.1s linear;
+  transform: scale(1);
 }
 @media screen and (max-width: 500px) {
   .thumbnail-fullscreen-button {
@@ -66,7 +67,7 @@ export default {
 }
 .thumbnail-fullscreen-button:hover {
   background-color: var(--active);
-  scale: 1.05;
+  transform: scale(1.05);
 }
 .thumbnail-fullscreen-button img {
   width: 100%;
@@ -87,18 +88,20 @@ export default {
 }
 .images {
   width: min(90svh, 90svw);
-  height: min(90svh, 90svw);
+  height: auto;
+  aspect-ratio: 512 / 288;
 
   display: grid;
-  grid-template-areas: "images";
 }
 .thumbnail-popup img {
-  grid-area: images;
   width: 100%;
   height: auto;
   margin: auto;
   border-radius: 15px;
   border: 3px solid transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .thumbnail-popup img.thumb {
   border: 3px solid var(--hover);

@@ -211,7 +211,7 @@ export default {
     }
   }
   .horizontal-list {
-    min-height: 220px; /* TODO: better loading animation thing */
+    min-height: 250px; /* TODO: better loading animation thing */
   }
   .section-list {
     display: flex;
@@ -223,28 +223,29 @@ export default {
   .section-card {
     width: 300px;
     display: grid;
-    grid-template-areas: "card";
     aspect-ratio: 512 / 288;
     border-radius: 15px;
     box-shadow: 0 0 0 #0005;
-    transition: box-shadow 0.1s linear, scale 0.2s ease;
+    transition: box-shadow 0.1s linear, transform 0.2s ease;
     cursor: pointer;
+    transform: scale(1);
   }
   .section-card img {
     width: 100%;
     height: 100%;
-    grid-area: card;
+    position: absolute;
+    top: 0;
+    left: 0;
     border-radius: 15px;
   }
   .section-card:hover {
     box-shadow: 3px 3px 0 #0005;
-    scale: 1.05;
+    transform: scale(1.05);
   }
   .section-card:not(:has(img)) {
     display: none;
   }
   .section-card span {
-    grid-area: card;
     margin: auto;
     display: flex;
     align-items: center;

@@ -124,12 +124,13 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  transition: box-shadow 0.3s linear, scale 0.3s ease;
+  transition: box-shadow 0.3s linear, transform 0.3s ease;
   cursor: pointer;
+  transform: scale(1);
 }
 .user-card:hover {
   box-shadow: 3px 3px 0 #0005;
-  scale: 1.05;
+  transform: scale(1.05);
 }
 .details {
   display: flex;
