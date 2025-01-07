@@ -297,11 +297,12 @@ export default {
   width: 100%;
   border-radius: 15px;
   box-shadow: 0 0 0 #0005;
-  transition: box-shadow 0.1s linear, scale 0.2s ease;
+  transition: box-shadow 0.1s linear, transform 0.2s ease;
+  transform: scale(1);
 }
 .card:hover, .card:active {
   box-shadow: 3px 3px 0 #0005;
-  scale: 1.05;
+  transform: scale(1.05);
 }
 .card-images, .card-overlay, .card-hover {
   grid-area: card;
@@ -475,11 +476,12 @@ export default {
   display: flex;
   flex-direction: column;
   place-content: center;
-  transition: background-color 0.1s linear, scale 0.1s linear;
+  transition: background-color 0.1s linear, transform 0.1s linear;
+  transform: scale(1);
 }
 .play-button:hover, .card:has(> .card-images:hover) > .card-hover > .hover-top > .play-button {
   background-color: var(--active);
-  scale: 1.05;
+  transform: scale(1.05);
 }
 .description {
   display: -webkit-box;

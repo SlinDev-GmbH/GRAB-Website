@@ -192,11 +192,12 @@ export default {
   width: fit-content;
   height: fit-content;
   margin: auto;
-  transition: background-color 0.3s ease, scale 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  transform: scale(1);
 }
 .thumb-wrapper:hover .plays {
   background-color: var(--background);
-  scale: 1.2;
+  transform: scale(1.2);
 }
 .plays img {
   width: 0.65rem;

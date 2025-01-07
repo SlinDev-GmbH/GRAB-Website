@@ -227,8 +227,9 @@ export default {
     aspect-ratio: 512 / 288;
     border-radius: 15px;
     box-shadow: 0 0 0 #0005;
-    transition: box-shadow 0.1s linear, scale 0.2s ease;
+    transition: box-shadow 0.1s linear, transform 0.2s ease;
     cursor: pointer;
+    transform: scale(1);
   }
   .section-card img {
     width: 100%;
@@ -238,7 +239,7 @@ export default {
   }
   .section-card:hover {
     box-shadow: 3px 3px 0 #0005;
-    scale: 1.05;
+    transform: scale(1.05);
   }
   .section-card:not(:has(img)) {
     display: none;

@@ -70,10 +70,11 @@ export default {
   color: var(--light);
   background-color: var(--diff-color);
   border: 2px solid transparent;
-  transition: scale 0.3s linear;
+  transition: transform 0.3s linear;
+  transform: scale(1);
 }
 .filter:hover {
-  scale: 1.1;
+  transform: scale(1.1);
 }
 .active-difficulty-filter {
   border: 2px solid var(--light);
