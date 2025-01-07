@@ -920,10 +920,14 @@ function init()
 						object.position.y = node.levelNodeStart.position.y
 						object.position.z = -node.levelNodeStart.position.z
 
-						object.quaternion.x = -node.levelNodeStart.rotation.x
-						object.quaternion.y = node.levelNodeStart.rotation.y
-						object.quaternion.z = -node.levelNodeStart.rotation.z
-						object.quaternion.w = node.levelNodeStart.rotation.w
+						object.quaternion.set(
+							-node.levelNodeStart.rotation.x,  
+							node.levelNodeStart.rotation.y,   
+							-node.levelNodeStart.rotation.z, 
+							node.levelNodeStart.rotation.w   
+						);
+						
+						object.quaternion.normalize();
 
 						object.scale.x = node.levelNodeStart.radius * 2.0;
 						object.scale.z = node.levelNodeStart.radius * 2.0;
@@ -933,17 +937,17 @@ function init()
 
 						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
 						
-						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'XYZ');
-						euler.x-=Math.PI/2
-						cameraRotation = [0, euler.x];
+						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'YXZ');
+
+						cameraRotation = [0,euler.y+Math.PI	 ];
 
 						var goToStartLabel = document.getElementById("startButton");
-						goToStartLabel.innerHTML = "To Start"
+						goToStartLabel.innerHTML = "Go to Start"
 						goToStartLabel.style.cursor="pointer";
 						goToStartLabel.onclick = function() {
 							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
 							controls.eulerVector.x = 0
-							controls.eulerVector.y = euler.y
+							controls.eulerVector.y = euler.y+Math.PI
 							controls.updateRotationVector();
 						}
 					}
