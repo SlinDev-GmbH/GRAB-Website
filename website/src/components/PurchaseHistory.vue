@@ -94,7 +94,7 @@ export default {
   }
   .history-item {
     padding: 10px;
-    background-color: var(--hover);
+    background-color: var(--button);
     border-radius: 15px;
     display: flex;
     align-items: center;
