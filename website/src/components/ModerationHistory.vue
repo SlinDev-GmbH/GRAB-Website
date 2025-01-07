@@ -2,9 +2,15 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-import { getUserModerationHistoryRequest } from '../requests/GetUserModerationHistoryRequest.js'
+import ModerationInfo from './ModerationInfo.vue'
+
+import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js'
 
 export default {
+
+  components: {
+    ModerationInfo
+  },
 
   props: {
     userID: String,
@@ -13,7 +19,8 @@ export default {
 
   data() {
     return {
-      history: []
+      history: [],
+      moderation_info: undefined,
     }
   },
 
@@ -23,7 +30,17 @@ export default {
 
   async mounted() {
     if (this.show) {
-      this.history = (await getUserModerationHistoryRequest(this.$api_server_url, this.accessToken, this.userID)).reverse();
+      const data = await getUserInfoAdminRequest(this.$api_server_url, this.accessToken, this.userID);
+      if (!data) return;
+
+      console.log(data);
+
+      this.moderation_info = data.moderation_info;
+
+      const history_length = data.moderation_history_length;
+      for (let i = history_length - 1; i >= 0; i--) {
+        this.history.push(data[`moderation_history_${i}`]);
+      }
     }
   },
 
@@ -78,6 +95,7 @@ export default {
 <template>
   <h3>Moderation History</h3>
   <div class="history">
+    <ModerationInfo v-if="moderation_info" :info="moderation_info"/>
     <div v-for="(item, index) in history" :key="index" class="history-item">
       <div>
         <h4>{{ item.type }} <span class="item-id">{{ item.reason }}</span></h4>
@@ -100,7 +118,7 @@ export default {
   }
   .history-item {
     padding: 10px;
-    background-color: var(--hover);
+    background-color: var(--button);
     border-radius: 15px;
     display: flex;
     align-items: center;

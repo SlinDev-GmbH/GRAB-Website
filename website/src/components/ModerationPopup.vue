@@ -105,6 +105,10 @@ export default {
         if(!await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, reason, duration)) return
         if(!await resetReportsRequest(this.$api_server_url, this.accessToken, this.identifier)) return
       }
+      else if(this.config === 'user_message')
+      {
+        if(!await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, 'no_punish', 0, this.message)) return
+      }
       this.$emit('handled', true)
     }
   }
@@ -119,17 +123,18 @@ export default {
         <div v-else-if="config==='level_report'" class="modal-header">Report Level</div>
         <div v-else-if="config==='user_report'" class="modal-header">Report User</div>
         <div v-else-if="config==='user_ban'" class="modal-header">Ban User</div>
+        <div v-else-if="config==='user_message'" class="modal-header">Message User</div>
 
         <div class="modal-body">
           <form>
-            <select style="width: 70%" v-model="currentSelection">
+            <select v-if="config != 'user_message'" style="width: 70%" v-model="currentSelection">
               <option value="">- Select -</option>
               <option v-for="(reason) in options" :id="reason.reason" :value="reason.reason" :key="reason.reason">
               {{ reason.title }}
               </option>
             </select>
 
-            <textarea v-if="config==='level_hide'" v-model="message" id="message" placeholder="Optional Message"></textarea>
+            <textarea v-if="config==='level_hide' || config==='user_message'" v-model="message" id="message" :placeholder="config==='user_message' ? 'Message' : 'Optional Message'" cols="30"></textarea>
             <input v-if="config==='user_ban'" v-model="banDuration" type="number" style="width: 70%" placeholder="Duration (days)">
           </form>
         </div>

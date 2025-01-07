@@ -28,15 +28,12 @@ export default {
 
   data() {
     return {
-      showModerationPopup: false
+      showModerationPopup: false,
+      popupConfig: 'user_ban'
     }
   },
 
   computed: {
-    popupConfig() {
-      return 'user_ban'
-    },
-
     ...mapState(useUserStore, ['accessToken'])
   },
 
@@ -61,8 +58,9 @@ export default {
     <ModerationInfo v-if="userInfo.moderation_info && !userPage" :info="userInfo.moderation_info"/>
 
     <div class="punish-buttons" :style="userPage ? '' : 'padding-top: 0.5em;'">
-      <button class="moderation-hide-button" @click="showModerationPopup=true">Punish</button>
+      <button class="moderation-hide-button" @click="popupConfig='user_ban';showModerationPopup=true">Punish</button>
       <button class="moderation-approve-button" @click="removeModerationAction">Pardon</button>
+      <button v-if="userPage" class="moderation-message-button" @click="popupConfig='user_message';showModerationPopup=true">Message</button>
     </div>
 
     <div class="promote-buttons" v-if="!userPage">
@@ -123,8 +121,17 @@ export default {
   border-radius: 15px;
   cursor: pointer;
 }
+
+.moderation-message-button {
+  height: 30px;
+  width: 90px;
+  font-weight: bold;
+  background-color: var(--blue);
+  border-radius: 15px;
+  cursor: pointer;
+}
 @media screen and (max-width: 600px) {
-  .moderation-hide-button, .moderation-approve-button {
+  .moderation-hide-button, .moderation-approve-button, .moderation-message-button {
     height: 25px;
     width: 70px;
     font-size: 0.7rem;
