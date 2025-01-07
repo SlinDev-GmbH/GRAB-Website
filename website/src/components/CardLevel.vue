@@ -339,11 +339,6 @@ export default {
   justify-content: flex-start;
   background-color: #0005;
   border-radius: 15px;
-  background-image: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.1) 100%
-  );
   background-size: 100%;
   background-repeat: no-repeat;
   visibility: hidden;
