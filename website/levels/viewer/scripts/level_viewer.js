@@ -942,7 +942,7 @@ function init()
 						cameraRotation = [0,euler.y+Math.PI	 ];
 
 						var goToStartLabel = document.getElementById("startButton");
-						goToStartLabel.innerHTML = "Go to Start"
+						goToStartLabel.innerHTML = "To Start"
 						goToStartLabel.style.cursor="pointer";
 						goToStartLabel.onclick = function() {
 							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
