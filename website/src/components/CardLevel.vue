@@ -465,13 +465,14 @@ export default {
 }
 
 .play-button {
+  font-size: 0.8rem;
   background-color: var(--hover);
   color: var(--light);
   font-weight: bold;
   white-space: nowrap;
   border-radius: 5rem;
-  height: 2rem;
-  padding-inline: 3rem;
+  height: 1.5rem;
+  padding-inline: 2rem;
   margin-left: auto;
   margin-bottom: auto;
   display: flex;
@@ -595,9 +596,9 @@ export default {
     padding-bottom: 0;
   }
   .play-button {
-    height: 1.7rem;
+    height: 1.2rem;
     font-size: 0.8rem;
-    padding-inline: 2rem;
+    padding-inline: 1.2rem;
   }
 }
 @media screen and (max-width: 600px) {
@@ -625,9 +626,9 @@ export default {
     padding-bottom: 0;
   }
   .play-button {
-    height: 1.3rem;
+    height: 0.8rem;
     font-size: 0.5rem;
-    padding-inline: 1rem;
+    padding-inline: 0.8rem;
   }
   .difficulty, .plays {
     font-size: 0.6rem;
