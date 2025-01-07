@@ -291,8 +291,6 @@ export default {
 }
 
 .card {
-  display: grid;
-  grid-template-areas: "card";
   aspect-ratio: 512 / 288;
   width: 100%;
   border-radius: 15px;
@@ -305,14 +303,14 @@ export default {
   transform: scale(1.05);
 }
 .card-images, .card-overlay, .card-hover {
-  grid-area: card;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
 
 .card-images {
-  display: grid;
-  grid-template-areas: "thumb";
   border-radius: 15px;
   overflow: hidden;
   aspect-ratio: 512 / 288;
@@ -361,7 +359,9 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
-  grid-area: card;
+  position: absolute;
+  bottom: 0;
+  left: 0;
   width: 100%;
   height: fit-content;
   margin-top: auto;
@@ -369,14 +369,18 @@ export default {
 }
 
 .thumbnail {
-  grid-area: thumb;
+  position: absolute;
+  top: 0;
+  left: 0;
   object-fit: contain;
   object-position: center;
   width: 100%;
   height: 100%;
 }
 .moderation-images {
-  grid-area: thumb;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   overflow-x: scroll;
@@ -384,7 +388,9 @@ export default {
   flex-direction: row;
 }
 .random-gradient {
-  grid-area: thumb;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }

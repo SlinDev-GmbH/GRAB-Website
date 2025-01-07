@@ -178,7 +178,6 @@ export default {
   display: inline-block;
 }
 .plays {
-  grid-area: center;
   font-size: 0.8rem;
   white-space: nowrap;
   background-color: #0005;
@@ -207,8 +206,9 @@ export default {
 .thumb-wrapper {
   display: grid;
   width: max(20%, 100px);
-  height: auto;
-  grid-template-areas: "center";
+  height: fit-content;
+  place-content: center;
+  aspect-ratio: 512 / 288;
 }
 .thumbnail {
   display: block;
@@ -217,7 +217,10 @@ export default {
   width: 100%;
   height: auto;
   border-radius: 10px;
-  grid-area: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
 }
 
 .difficulty-impossible {
@@ -242,6 +245,9 @@ export default {
 @media screen and (max-width: 750px) {
   .level-card {
     flex-direction: column;
+  }
+  .details {
+    width: 100%;
   }
   .buttons {
     flex-direction: row;

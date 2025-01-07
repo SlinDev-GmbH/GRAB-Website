@@ -223,7 +223,6 @@ export default {
   .section-card {
     width: 300px;
     display: grid;
-    grid-template-areas: "card";
     aspect-ratio: 512 / 288;
     border-radius: 15px;
     box-shadow: 0 0 0 #0005;
@@ -234,7 +233,9 @@ export default {
   .section-card img {
     width: 100%;
     height: 100%;
-    grid-area: card;
+    position: absolute;
+    top: 0;
+    left: 0;
     border-radius: 15px;
   }
   .section-card:hover {
@@ -245,7 +246,6 @@ export default {
     display: none;
   }
   .section-card span {
-    grid-area: card;
     margin: auto;
     display: flex;
     align-items: center;
