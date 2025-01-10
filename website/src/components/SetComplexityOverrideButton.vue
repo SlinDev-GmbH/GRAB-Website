@@ -34,6 +34,7 @@ export default {
     <div v-if="showPopup" class="complexity-override-popup">
       <input class="complexity-override-input" min="0" type="number" name="complexity" id="complexity" :value="complexity" @input="event => complexity = event.target.value">
       <div>
+        <button class="cancel-button" @click="showPopup=false">Cancel</button>
         <button class="complexity-reset-button" @click="setComplexity(0)">Reset</button>
         <button class="complexity-override-button" @click="setComplexity(complexity)">Set Complexity</button>
       </div>
@@ -41,7 +42,7 @@ export default {
 </template>
 
 <style scoped>
-  .complexity-override-button, .complexity-reset-button {
+  .cancel-button, .complexity-override-button, .complexity-reset-button {
     padding: 5px 10px;
     font-weight: bold;
     font-size: 12px;
@@ -50,7 +51,7 @@ export default {
     background-color: var(--green);
   }
 
-  .complexity-reset-button {
+  .complexity-reset-button, .cancel-button {
     margin-right: 5px;
     background-color: var(--red);
   }
