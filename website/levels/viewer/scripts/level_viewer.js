@@ -296,19 +296,19 @@ function init()
 					previousListItem = previousListItem["object_info"]
 				}
 				nextButton.addEventListener("click", function() {
-					location.href = "/levels/viewer/?level=" + nextListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+					location.href = "/levels/viewer/?level=" + nextListItem.identifier;
 					userStore.setListIndex(listIndex + 1);
 				});
 				backButton.addEventListener("click", function() {
-					location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+					location.href = "/levels/viewer/?level=" + previousListItem.identifier;
 					userStore.setListIndex(listIndex - 1);
 				});
 				document.addEventListener("keydown", function(event) {
 					if (event.key === '2') {
-						location.href = "/levels/viewer/?level=" + nextListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+						location.href = "/levels/viewer/?level=" + nextListItem.identifier;
 						userStore.setListIndex(listIndex + 1);
 					} else if (event.key === '1' && previousListItem) {
-						location.href = "/levels/viewer/?level=" + previousListItem.identifier + (window.location.href.includes('verify_queue') ? '&verify_queue' : '');
+						location.href = "/levels/viewer/?level=" + previousListItem.identifier;
 						userStore.setListIndex(listIndex - 1);
 					}
 				});
@@ -426,7 +426,7 @@ function init()
 
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";
-				if (window.location.href.includes('verify_queue')) {
+				if (userStore.getListType() === 'tab_verify_queue') {
 					verifySkipButton.style.display = "block";
 				}
 				verifySkipSuccessButton.style.display = "none";
