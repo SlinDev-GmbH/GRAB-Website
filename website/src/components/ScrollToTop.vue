@@ -8,19 +8,19 @@ export default {
 
   methods: {
     scrollToTop() {
-      this.$parent.$el.scrollTop = 0;
+      window.scrollTo(0, 0);
     },
 
     onScroll() {
-      this.scrolledFar = this.$parent.$el.scrollTop > window.innerHeight;
+      this.scrolledFar = window.scrollY > window.innerHeight;
     }
   },
 
   mounted() {
-    this.$parent.$el.addEventListener("scroll", this.onScroll);
+    window.addEventListener("scroll", this.onScroll);
   },
   unmounted() {
-    this.$parent.$el.removeEventListener("scroll", this.onScroll);
+    window.removeEventListener("scroll", this.onScroll);
   }
 };
 </script>

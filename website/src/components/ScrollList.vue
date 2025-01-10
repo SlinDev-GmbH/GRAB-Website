@@ -213,10 +213,10 @@ export default {
     },
 
     handleScroll() {
-      const levelBrowserElement = this.$parent.$parent.$el;
-      const { scrollTop: scrolledHeight, scrollHeight: fullHeight } = levelBrowserElement;
-      const visibleHeight = levelBrowserElement.getBoundingClientRect().height;
-      if (fullHeight - (scrolledHeight + visibleHeight) < 1 && !this.loading && this.nextPage !== undefined) {
+      const scrollY = window.scrollY;
+      const visibleHeight = window.innerHeight;
+      const totalHeight = document.documentElement.getBoundingClientRect().height;
+      if (totalHeight - (scrollY + visibleHeight) < 1 && !this.loading && this.nextPage !== undefined) {
         this.loadMore();
       }
     },
@@ -274,11 +274,11 @@ export default {
   },
 
   mounted() {
-    this.$parent.$parent.$el.addEventListener('scroll', this.handleScroll);
+    window.addEventListener('scroll', this.handleScroll);
   },
 
   unmounted() {
-    this.$parent.$parent.$el.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('scroll', this.handleScroll);
   },
 }
 </script>
