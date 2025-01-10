@@ -106,6 +106,7 @@
                 left: 10px;
                 height: calc(100% - 50px);
                 width: 30%;
+                min-width: 240px;
                 z-index: 1;
             }
             
@@ -735,6 +736,19 @@
                 align-items: center;
                 padding: 8px;
                 margin-top: auto;
+            }
+
+            @media screen and (max-width: 570px) {
+                #info-container {
+                    max-height: 330px;
+                }
+                #buttons form input {
+                    width: 100px;
+                    height: 26px;
+                    font-size: 12px;
+                    margin-left: 2px;
+                    margin-bottom: 2px;
+                }
             }
         </style>
     </head>
