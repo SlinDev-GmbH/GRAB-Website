@@ -327,13 +327,14 @@ export default {
 }
 
 .grid-item {
-  min-width: 0;
+  min-width: 100%;
 }
 .grid-item:not(.log-list .grid-item) {
   max-width: 450px;
 }
 .horizontal-list .grid-item {
   width: 300px;
+  min-width: 0;
 }
 @media screen and (max-width: 600px) {
   .horizontal-list .grid-item:not(.log-list .grid-item) {

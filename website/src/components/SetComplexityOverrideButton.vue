@@ -12,7 +12,7 @@ export default {
   data() {
     return {
       showPopup: false,
-      complexity: 0
+      complexity: 3000
     }
   },
 
