@@ -206,7 +206,7 @@ export default {
       if (processedItems) levels = levels.filter(item => !processedItems.includes(item));
       
       this.items = [...this.items, ...levels.map(level => ({ ...level, visible: true }))];
-      userStore.setList(this.items)
+      userStore.setList(this.listType, this.items)
       this.loading = false
       this.$emit('loaded')
       this.isInitialLoad = false

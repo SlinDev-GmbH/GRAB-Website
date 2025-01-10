@@ -115,7 +115,7 @@ export default {
     },
 
     viewerURL() {
-      return '/levels/viewer/?level=' + this.item.identifier + (this.listType == 'tab_verify_queue' ? '&verify_queue' : '')
+      return '/levels/viewer/?level=' + this.item.identifier;
     },
 
     hasOKStamp() {

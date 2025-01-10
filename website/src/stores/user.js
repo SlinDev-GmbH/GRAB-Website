@@ -6,6 +6,7 @@ export const useUserStore = defineStore('user', {
     user: null,
     expires: 0,
     favoriteLevels: [],
+    listType: null,
     list: [],
     listIndex: null,
     processedList: {}
@@ -108,8 +109,12 @@ export const useUserStore = defineStore('user', {
     getListItem(index) {
       return this.list[index];
     },
-    setList(list) {
-      this.list = list;
+    setList(type, content) {
+      this.list = content;
+      this.listType = type;
+    },
+    getListType() {
+      return this.listType;
     },
     setListIndex(index) {
       this.listIndex = index;
