@@ -42,12 +42,4 @@ export default {
   .remove-creator-button {
     background-color: var(--red);
   }
-  @media screen and (max-width: 600px) {
-    .make-creator-button, .remove-creator-button {
-      height: 25px;
-      width: 70px;
-      font-size: 0.6rem;
-      line-height: 1;
-    }
-  }
 </style>

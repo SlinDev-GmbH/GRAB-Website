@@ -1,11 +1,6 @@
 <script>
 import { useUserStore } from '@/stores/user'
 import { mapState } from 'pinia'
-import SetCreatorButton from './SetCreatorButton.vue'
-import SetVerifierButton from './SetVerifierButton.vue'
-import SetModeratorButton from './SetModeratorButton.vue'
-import SetComplexityOverrideButton from './SetComplexityOverrideButton.vue'
-import GiftCosmeticButton from './GiftCosmeticButton.vue'
 import UserModerationTools from './UserModerationTools.vue'
 import PurchaseHistory from './PurchaseHistory.vue'
 import ModerationHistory from './ModerationHistory.vue'
@@ -15,14 +10,9 @@ import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
 export default {
 
   components: {
-    SetCreatorButton,
-    SetVerifierButton,
-    SetModeratorButton,
-    GiftCosmeticButton,
     UserModerationTools,
     PurchaseHistory,
     ModerationHistory,
-    SetComplexityOverrideButton
   },
 
   props: {
@@ -152,19 +142,6 @@ export default {
       </div>
     </div>
   </div>
-  <div class="user-tab-admin-container" v-if="loaded && isAdmin">
-    <div class="user-buttons">
-      <div>
-        <SetCreatorButton v-if="loaded" :userID="identifier" :isCreator="isVerified"/>
-        <SetVerifierButton v-if="loaded" :userID="identifier" :isVerifier="isVerifier"/>
-        <SetModeratorButton v-if="loaded" :userID="identifier" :isModerator="isModerator"/>
-      </div>
-      <div>
-        <GiftCosmeticButton v-if="loaded" :userID="identifier"/>
-        <SetComplexityOverrideButton v-if="loaded" :userID="identifier"/>
-      </div>
-    </div>
-  </div>
   <PurchaseHistory v-if="showPurchaseHistory && loaded && isAdmin" :userID="identifier" :show="showPurchaseHistory"/>
   <ModerationHistory v-if="showModerationHistory && loaded && isAdmin" :userID="identifier" :show="showModerationHistory"/>
 </template>
@@ -190,16 +167,6 @@ export default {
   padding: 0.5rem 1rem;
   border-radius: 15px;
   width: 100%;
-}
-.user-tab-admin-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: fit-content;
-  width: fit-content;
-  flex-direction: column;
-  padding-inline: 10px;
-  padding-bottom: 1rem;
 }
 .user-tab-moderation-container {
   display: flex;

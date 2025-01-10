@@ -7,6 +7,8 @@ import ModerationPopup from './ModerationPopup.vue'
 import SetCreatorButton from './SetCreatorButton.vue'
 import SetVerifierButton from './SetVerifierButton.vue'
 import SetModeratorButton from './SetModeratorButton.vue'
+import GiftCosmeticButton from './GiftCosmeticButton.vue'
+import SetComplexityOverrideButton from './SetComplexityOverrideButton.vue'
 
 import { removeModerationActionRequest } from '../requests/RemoveModerationActionRequest'
 
@@ -16,7 +18,9 @@ export default {
     ModerationPopup,
     SetCreatorButton,
     SetVerifierButton,
-    SetModeratorButton
+    SetModeratorButton,
+    GiftCosmeticButton,
+    SetComplexityOverrideButton
   },
 
   emits: ['handled'],
@@ -29,12 +33,13 @@ export default {
   data() {
     return {
       showModerationPopup: false,
-      popupConfig: 'user_ban'
+      popupConfig: 'user_ban',
+      showManagePopup: false
     }
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken'])
+    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
   },
 
   methods: {
@@ -61,17 +66,29 @@ export default {
       <button class="moderation-hide-button" @click="popupConfig='user_ban';showModerationPopup=true">Punish</button>
       <button class="moderation-approve-button" @click="removeModerationAction">Pardon</button>
       <button v-if="userPage" class="moderation-message-button" @click="popupConfig='user_message';showModerationPopup=true">Message</button>
-    </div>
-
-    <div class="promote-buttons" v-if="!userPage">
-      <SetCreatorButton :userID="this.userInfo.user_id" :isCreator="this.userInfo.is_creator"/>
-      <SetVerifierButton :userID="this.userInfo.user_id" :isVerifier="this.userInfo.is_verifier"/>
-      <SetModeratorButton :userID="this.userInfo.user_id" :isModerator="this.userInfo.is_moderator"/>
+      <button v-if="isAdmin" class="moderation-manage-button" @click="showManagePopup=true">Manage</button>
     </div>
   </div>
 
   <Teleport to="body">
     <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" @handled="handledModerationPopup" :config="popupConfig" :identifier="userInfo.user_id" />
+    <div v-if="showManagePopup" class="manage-popup">
+      <div class="manage-popup-content">
+        <h1>Manage User</h1>
+        <h2>Roles</h2>
+        <div class="manage-buttons">
+          <SetCreatorButton :userID="this.userInfo.user_id" :isCreator="this.userInfo.is_creator"/>
+          <SetVerifierButton :userID="this.userInfo.user_id" :isVerifier="this.userInfo.is_verifier"/>
+          <SetModeratorButton :userID="this.userInfo.user_id" :isModerator="this.userInfo.is_moderator"/>
+        </div>
+        <h2>Other</h2>
+        <div class="manage-buttons">
+          <GiftCosmeticButton :userID="this.userInfo.user_id"/>
+          <SetComplexityOverrideButton :userID="this.userInfo.user_id"/>
+        </div>
+        <button class="cancel-button" @click="showManagePopup=false">Close</button>
+      </div>
+    </div>
   </Teleport>
 </template>
 
@@ -90,14 +107,6 @@ export default {
   justify-content: center;
   gap: 0.5em;
   margin-top: auto;
-}
-
-.promote-buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  gap: 0.5em;
-  padding-top: 0.5rem;
 }
 
 .moderation-title {
@@ -122,7 +131,7 @@ export default {
   cursor: pointer;
 }
 
-.moderation-message-button {
+.moderation-message-button, .moderation-manage-button {
   height: 30px;
   width: 90px;
   font-weight: bold;
@@ -130,15 +139,61 @@ export default {
   border-radius: 15px;
   cursor: pointer;
 }
+
+.manage-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.manage-popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  background-color: var(--background);
+  padding: 20px;
+  border-radius: 15px;
+  border: 2px solid var(--hover);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+
+  h2 {
+    margin-block: 20px 10px;
+    font-weight: 500;
+  }
+}
+
+.manage-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em;
+  padding-top: 0.5rem;
+}
+
+.cancel-button {
+  height: 30px;
+  width: 90px;
+  font-weight: bold;
+  background-color: var(--red);
+  border-radius: 15px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
 @media screen and (max-width: 600px) {
-  .moderation-hide-button, .moderation-approve-button, .moderation-message-button {
+  .moderation-hide-button, .moderation-approve-button, .moderation-message-button, .moderation-manage-button {
     height: 25px;
     width: 70px;
     font-size: 0.7rem;
-  }
-  .promote-buttons {
-    gap: 3px;
-    flex-wrap: wrap;
   }
 }
 </style>
