@@ -58,8 +58,9 @@ body {
     max-height: 100svh;
 }
 
-html:not(:has(> div > #homepage)), body:not(:has(> div > #homepage)) { /* lovely */
+html:not(:has(body > div > #homepage)), body:not(:has(> div > #homepage)) { /* lovely */
     overscroll-behavior-x: none;
+    overflow: hidden;
 }
 
 /* homepage */
