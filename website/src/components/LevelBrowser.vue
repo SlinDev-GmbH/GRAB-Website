@@ -151,16 +151,12 @@ export default {
 <style scoped>
 
 #level-browser {
-  height: 100vh;
   color: var(--text);
-  background: var(--background);
-  background-image: var(--gradient);
   font-family: 'Nunito', 'Roboto', sans-serif;
   font-size: 1rem;
   line-height: 1.6;
   font-weight: normal;
   /* padding: 2rem; */
-  overflow-y: scroll;
 }
 
 header {
