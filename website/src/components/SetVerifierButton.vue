@@ -5,25 +5,27 @@ import { useUserStore } from '@/stores/user'
 import { setVerifier } from '../requests/SetVerifier.js'
 
 export default {
+  emits: ['change'],
   props: {
     userID: String,
     isVerifier: Boolean
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isSuperModerator'])
   },
 
   methods: {
     async toggleVerifier() {
-      await setVerifier(this.$api_server_url, this.accessToken, this.userID, !this.isVerifier);
+      if(!await setVerifier(this.$api_server_url, this.accessToken, this.userID, !this.isVerifier)) return;
+      this.$emit('change');
     }
   }
 }
 </script>
 
 <template>
-    <button v-if="isAdmin" :class="isVerifier ? 'remove-verifier-button' : 'make-verifier-button'" @click="toggleVerifier">{{ isVerifier ? "Remove" : "Make" }} Verifier</button>
+    <button v-if="isSuperModerator" :class="isVerifier ? 'remove-verifier-button' : 'make-verifier-button'" @click="toggleVerifier">{{ isVerifier ? "Remove" : "Make" }} Verifier</button>
 </template>
 
 <style scoped>

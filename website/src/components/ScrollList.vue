@@ -93,7 +93,7 @@ export default {
             return this.filterChoice.toLowerCase();
     },
     
-    ...mapState(useUserStore, ['isLoggedIn', 'userID', 'accessToken', 'isAdmin', 'isSuperModerator'])
+    ...mapState(useUserStore, ['isLoggedIn', 'userID', 'accessToken', 'isSuperModerator'])
   },
 
   watch: {
@@ -285,13 +285,13 @@ export default {
 
 
 <template>
-  <button v-if="listType == 'tab_reported_users' && (isAdmin || isSuperModerator)" id="punish-all-button" @click="punishAllUsers">Punish All</button>
-  <DropDown v-if="listType == 'tab_reported_levels' && (isAdmin || isSuperModerator)" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' :flip='true' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
-  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["User", ...new Set(items.map(e=>e.userInfo?.user_name))]' :defaultChoice='"User"' :flip='true' @changeSelection="auditFilter.user_name = $event" style="margin-bottom: 5px;"/>
-  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["Action", ...new Set(items.map(e=>e.request.split(/\/|\?/)[5]))]' :defaultChoice='"Action"' :flip='true' @changeSelection="auditFilter.log_type = $event" style="margin-bottom: 5px; margin-left: 1rem;"/>
+  <button v-if="listType == 'tab_reported_users' && isSuperModerator" id="punish-all-button" @click="punishAllUsers">Punish All</button>
+  <DropDown v-if="listType == 'tab_reported_levels' && isSuperModerator" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' :flip='true' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
+  <DropDown v-if="listType == 'tab_audit' && isSuperModerator" :options='["User", ...new Set(items.map(e=>e.userInfo?.user_name))]' :defaultChoice='"User"' :flip='true' @changeSelection="auditFilter.user_name = $event" style="margin-bottom: 5px;"/>
+  <DropDown v-if="listType == 'tab_audit' && isSuperModerator" :options='["Action", ...new Set(items.map(e=>e.request.split(/\/|\?/)[5]))]' :defaultChoice='"Action"' :flip='true' @changeSelection="auditFilter.log_type = $event" style="margin-bottom: 5px; margin-left: 1rem;"/>
   <div :class="'grid-container' + (this.horizontal ? ' horizontal-list' : '') + (listType == 'tab_audit' ? ' log-list' : '')">
     <div v-for="(item, index) in items" :key="index" v-show="item.visible" class="grid-item">
-      <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
+      <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" @toggle_role="item[$event] = !item[$event]"/>
       <CardLog v-else-if="listType == 'tab_audit'" :item="item" />
       <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :bestReason="bestReason(item)" :index="index" :listType="listType" @more="showOtherUserLevels" />
     </div>

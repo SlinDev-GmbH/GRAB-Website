@@ -140,7 +140,7 @@ export default {
       return 'N/a'
     },
 
-    ...mapState(useUserStore, ['isVerifier', 'isAdmin', 'isSuperModerator', 'isLoggedIn', 'accessToken'])
+    ...mapState(useUserStore, ['isVerifier', 'isSuperModerator', 'isLoggedIn', 'accessToken'])
   },
 
   async created() {
@@ -273,7 +273,7 @@ export default {
       <HideLevelButton v-show="!isHidden" v-if="!isHidden && isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @hide="hideState"/>
       <UnhideLevelButton  v-show="isHidden" v-if="isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @hide="hideState"/>
       
-      <UnscheduleDeletionButton v-if="!isRecovered && isAdmin && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @recovered="isRecovered=true"/>
+      <UnscheduleDeletionButton v-if="!isRecovered && isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @recovered="isRecovered=true"/>
     </div>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @hide="isHidden=true;" @approve="isApproved=true;"/>
   </div>

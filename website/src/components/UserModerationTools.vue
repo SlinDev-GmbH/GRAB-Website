@@ -23,7 +23,7 @@ export default {
     SetComplexityOverrideButton
   },
 
-  emits: ['handled'],
+  emits: ['handled', 'toggle_role'],
 
   props: {
     userInfo: Object,
@@ -39,7 +39,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isAdmin', 'isSuperModerator'])
   },
 
   methods: {
@@ -66,7 +66,7 @@ export default {
       <button class="moderation-hide-button" @click="popupConfig='user_ban';showModerationPopup=true">Punish</button>
       <button class="moderation-approve-button" @click="removeModerationAction">Pardon</button>
       <button v-if="userPage" class="moderation-message-button" @click="popupConfig='user_message';showModerationPopup=true">Message</button>
-      <button v-if="isAdmin" class="moderation-manage-button" @click="showManagePopup=true">Manage</button>
+      <button v-if="isSuperModerator" class="moderation-manage-button" @click="showManagePopup=true">Manage</button>
     </div>
   </div>
 
@@ -77,14 +77,14 @@ export default {
         <h1>Manage User</h1>
         <h2>Roles</h2>
         <div class="manage-buttons">
-          <SetCreatorButton :userID="this.userInfo.user_id" :isCreator="this.userInfo.is_creator"/>
-          <SetVerifierButton :userID="this.userInfo.user_id" :isVerifier="this.userInfo.is_verifier"/>
-          <SetModeratorButton :userID="this.userInfo.user_id" :isModerator="this.userInfo.is_moderator"/>
+          <SetCreatorButton :userID="this.userInfo.user_id" :isCreator="this.userInfo.is_creator" @change="this.$emit('toggle_role', 'is_creator')"/>
+          <SetVerifierButton :userID="this.userInfo.user_id" :isVerifier="this.userInfo.is_verifier" @change="this.$emit('toggle_role', 'is_verifier')"/>
+          <SetModeratorButton :userID="this.userInfo.user_id" :isModerator="this.userInfo.is_moderator" @change="this.$emit('toggle_role', 'is_moderator')"/>
         </div>
         <h2>Other</h2>
         <div class="manage-buttons">
           <GiftCosmeticButton :userID="this.userInfo.user_id"/>
-          <SetComplexityOverrideButton :userID="this.userInfo.user_id"/>
+          <SetComplexityOverrideButton v-if="isAdmin" :userID="this.userInfo.user_id"/>
         </div>
         <button class="cancel-button" @click="showManagePopup=false">Close</button>
       </div>

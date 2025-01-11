@@ -24,7 +24,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isAdmin', 'isSuperModerator'])
   },
 
   methods: {
@@ -46,13 +46,15 @@ export default {
   created() {
     if (this.isAdmin) {
       this.getCosmeticPacks();
+    } else if (this.isSuperModerator) {
+      this.cosmeticPacks = ['pack_special_mountain_1'];
     }
   }
 }
 </script>
 
 <template>
-    <button v-if="isAdmin" class="gift-button" @click="showModal = true">Gift Cosmetic</button>
+    <button v-if="isSuperModerator" class="gift-button" @click="showModal = true">Gift Cosmetic</button>
 
     <div class="cosmetic-picker" v-if="showModal">
       <DropDown :options='["Pack", ...cosmeticPacks]' :defaultChoice='"Pack"' :flip='true' @changeSelection="cosmeticID = $event"/>
