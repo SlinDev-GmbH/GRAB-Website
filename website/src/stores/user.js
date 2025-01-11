@@ -21,21 +21,21 @@ export const useUserStore = defineStore('user', {
       if (!state.accessToken || state.accessToken.length == 0) return false
       return true
     },
-    isVerifier: (state) => {
+    isAdmin: (state) => {
       if (!state.isLoggedIn) return false
-      return state.user.info.is_verifier === true || this.isModerator(state)
-    },
-    isModerator: (state) => {
-      if (!state.isLoggedIn) return false
-      return state.user.info.is_moderator === true || this.isSuperModerator(state)
+      return state.user.info.is_admin === true
     },
     isSuperModerator: (state) => {
       if (!state.isLoggedIn) return false
       return state.user.info.is_supermoderator === true || this.isAdmin(state)
     },
-    isAdmin: (state) => {
+    isModerator: (state) => {
       if (!state.isLoggedIn) return false
-      return state.user.info.is_admin === true
+      return state.user.info.is_moderator === true || this.isSuperModerator(state)
+    },
+    isVerifier: (state) => {
+      if (!state.isLoggedIn) return false
+      return state.user.info.is_verifier === true || this.isModerator(state)
     },
     userID: (state) => {
       if (!state.isLoggedIn) return undefined
