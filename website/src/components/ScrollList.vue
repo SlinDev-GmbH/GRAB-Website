@@ -41,8 +41,8 @@ export default {
       activeLoad: null,
       filterChoice: "All",
       auditFilter: {
-        user_name: "All",
-        log_type: "All"
+        user_name: "User",
+        log_type: "Action"
       }
     }
   },
@@ -149,8 +149,8 @@ export default {
 
     itemMatchesFilter(item) {
       if (this.listType == 'tab_audit') {
-        return (this.auditFilter.user_name === 'All' || item.userInfo?.user_name == this.auditFilter.user_name) &&
-          (this.auditFilter.log_type === "All" || item.request.split(/\/|\?/)[5] == this.auditFilter.log_type);
+        return (this.auditFilter.user_name === 'User' || item.userInfo?.user_name == this.auditFilter.user_name) &&
+          (this.auditFilter.log_type === "Action" || item.request.split(/\/|\?/)[5] == this.auditFilter.log_type);
       } else {
         if (this.filterChoice == "All") return true;
         for (let key in item) {
@@ -287,8 +287,8 @@ export default {
 <template>
   <button v-if="listType == 'tab_reported_users' && (isAdmin || isSuperModerator)" id="punish-all-button" @click="punishAllUsers">Punish All</button>
   <DropDown v-if="listType == 'tab_reported_levels' && (isAdmin || isSuperModerator)" :options='["All", "Sexual", "Tips", "Violence", "Hatespeech", "Glitch", "Loweffort","Other"]' :defaultChoice='"All"' :flip='true' @changeSelection="filterChoice = $event" style="margin-bottom: 5px;"/>
-  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["All", ...new Set(items.map(e=>e.userInfo?.user_name))]' :defaultChoice='"All"' :flip='true' @changeSelection="auditFilter.user_name = $event" style="margin-bottom: 5px;"/>
-  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["All", ...new Set(items.map(e=>e.request.split(/\/|\?/)[5]))]' :defaultChoice='"All"' :flip='true' @changeSelection="auditFilter.log_type = $event" style="margin-bottom: 5px; margin-left: 1rem;"/>
+  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["User", ...new Set(items.map(e=>e.userInfo?.user_name))]' :defaultChoice='"User"' :flip='true' @changeSelection="auditFilter.user_name = $event" style="margin-bottom: 5px;"/>
+  <DropDown v-if="listType == 'tab_audit' && (isAdmin || isSuperModerator)" :options='["Action", ...new Set(items.map(e=>e.request.split(/\/|\?/)[5]))]' :defaultChoice='"Action"' :flip='true' @changeSelection="auditFilter.log_type = $event" style="margin-bottom: 5px; margin-left: 1rem;"/>
   <div :class="'grid-container' + (this.horizontal ? ' horizontal-list' : '') + (listType == 'tab_audit' ? ' log-list' : '')">
     <div v-for="(item, index) in items" :key="index" v-show="item.visible" class="grid-item">
       <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" />
