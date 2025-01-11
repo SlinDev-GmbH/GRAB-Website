@@ -248,8 +248,8 @@ export default {
       </div>
 
       <div class="card-fixed">
-        <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
         <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
+        <ReportLevelButton v-if="isLoggedIn && this.listType !== 'tab_reported_levels'" :level_id="item.identifier" />
       </div>
     </div>
     <div class="details">
@@ -356,7 +356,7 @@ export default {
 }
 .card-fixed {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   justify-content: space-between;
   align-items: flex-end;
   position: absolute;
