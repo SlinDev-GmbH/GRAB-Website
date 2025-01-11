@@ -12,6 +12,9 @@ export default {
     isBan() {
       return this.info.type === "ban"
     },
+    isMessage() {
+      return this.info.type === "message"
+    },
 
     cleanInfo() {
       let tempInfo = this.info
@@ -39,10 +42,11 @@ export default {
 <template>
   <div class="moderation-info">
     <div class="previous">
-      <span class="strike" :style="previous ? 'background-color: var(--yellow);' : ''">{{ cleanInfo.strike }}</span>
+      <span class="strike" :style="previous ? 'background-color: var(--yellow);' : ''">{{ cleanInfo.strike || 0 }}</span>
       <span class="type">{{ cleanInfo.type }}</span>
       <span class="reason">{{ cleanInfo.reason }}</span>
     </div>
+    <div v-if="isMessage" class="message">{{ cleanInfo.message }}</div>
     <div class="dates">
       <span class="start">{{ cleanInfo.start }}</span>
       <div v-if="this.isBan && cleanInfo.start" class="progress">
@@ -110,6 +114,11 @@ export default {
   height: 100%;
   border-radius: 5px;
   max-width: 100%;
+}
+.message {
+  font-size: 0.9rem;
+  padding: 0.2rem;
+  opacity: 0.8;
 }
 @media screen and (max-width: 600px) {
   .type {

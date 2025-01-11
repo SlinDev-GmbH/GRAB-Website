@@ -2,10 +2,16 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
+import DropDown from './DropDown.vue'
+
 import { giftCosmeticRequest } from '../requests/GiftCosmeticRequest.js'
 import { getShopProductsRequest } from '../requests/GetShopProductsRequest.js'
 
 export default {
+  components: {
+    DropDown
+  },
+
   props: {
     userID : String
   },
@@ -18,7 +24,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isAdmin', 'isSuperModerator'])
   },
 
   methods: {
@@ -40,18 +46,18 @@ export default {
   created() {
     if (this.isAdmin) {
       this.getCosmeticPacks();
+    } else if (this.isSuperModerator) {
+      this.cosmeticPacks = ['pack_special_mountain_1'];
     }
   }
 }
 </script>
 
 <template>
-    <button v-if="isAdmin" class="gift-button" @click="showModal = true">Gift Cosmetic</button>
+    <button v-if="isSuperModerator" class="gift-button" @click="showModal = true">Gift Cosmetic</button>
 
     <div class="cosmetic-picker" v-if="showModal">
-      <select name="cosmetic-options" id="cosmetic-options" v-model="cosmeticID">
-        <option v-for="cosmetic of cosmeticPacks" :key="cosmetic" :value="cosmetic">{{cosmetic}}</option>
-      </select>
+      <DropDown :options='["Pack", ...cosmeticPacks]' :defaultChoice='"Pack"' :flip='true' @changeSelection="cosmeticID = $event"/>
       <div class="buttons">
         <button class="cancel-button" @click="close">Cancel</button>
         <button class="gift-button" @click="giftCosmetic">Gift Cosmetic</button>

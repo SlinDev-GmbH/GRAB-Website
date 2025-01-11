@@ -31,7 +31,7 @@ export default {
       return '';
     },
 
-    ...mapState(useUserStore, ['userID', 'isAdmin', 'isSuperModerator', 'accessToken'])
+    ...mapState(useUserStore, ['userID', 'isSuperModerator', 'accessToken'])
   },
 
   data() {
@@ -39,10 +39,6 @@ export default {
       name: undefined,
       identifier: undefined,
       count: undefined,
-      isVerified: false,
-      isVerifier: false,
-      isModerator: false,
-      isDeveloper: false,
       loaded: false,
       userInfo: undefined,
       showPurchaseHistory: false,
@@ -56,10 +52,6 @@ export default {
       this.count = undefined
       this.name = undefined
       this.identifier = undefined
-      this.isVerified = false
-      this.isVerifier = false
-      this.isModerator = false
-      this.isDeveloper = false
       this.loaded = false
 
       const currentUserID = this.otherUserID? this.otherUserID : this.userID
@@ -71,10 +63,6 @@ export default {
       this.identifier = userInfo.user_id
       this.count = userInfo.user_level_count
       this.name = userInfo.user_name
-      this.isVerified = userInfo.is_creator
-      this.isVerifier = userInfo.is_verifier
-      this.isModerator = userInfo.is_moderator
-      this.isDeveloper = userInfo.is_admin
       this.loaded = true
     },
 
@@ -107,9 +95,9 @@ export default {
       <div>
         <div v-if="name" class="user-tab-name">
           {{ name }}
-          <img v-if="isVerified" alt="Creator" title="Creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
-          <span v-if="isModerator" title="Moderator" class="moderator-icon">M</span>
-          <span v-if="isDeveloper" title="Developer" class="developer-icon">D</span>
+          <img v-if="userInfo.is_creator" alt="Creator" title="Creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
+          <span v-if="userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
+          <span v-if="userInfo.is_admin" title="Developer" class="developer-icon">D</span>
           <div class="user-buttons">
             <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
           </div>
@@ -118,7 +106,7 @@ export default {
           {{ count }} level{{ count > 1 ? 's' : '' }}
         </div>
       </div>
-      <div v-if="loaded && isAdmin" class="history-buttons">
+      <div v-if="loaded && isSuperModerator" class="history-buttons">
         <button class="history-button" @click="this.showPurchaseHistory = !this.showPurchaseHistory">
           Purchases
           <img src="./../assets/icons/clock.svg" alt="history">
@@ -138,12 +126,12 @@ export default {
         </button>
       </div>
       <div v-if="loaded && isSuperModerator" class="user-tab-moderation-container">
-        <UserModerationTools v-if="loaded && (isSuperModerator || isAdmin)" :user-info="userInfo" :user-page="true"/>
+        <UserModerationTools v-if="loaded && isSuperModerator" :user-info="userInfo" :user-page="true" @toggle_role="userInfo[$event] = !userInfo[$event]" />
       </div>
     </div>
   </div>
-  <PurchaseHistory v-if="showPurchaseHistory && loaded && isAdmin" :userID="identifier" :show="showPurchaseHistory"/>
-  <ModerationHistory v-if="showModerationHistory && loaded && isAdmin" :userID="identifier" :show="showModerationHistory"/>
+  <PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userID="identifier" :show="showPurchaseHistory"/>
+  <ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userID="identifier" :show="showModerationHistory"/>
 </template>
 
 

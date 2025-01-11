@@ -5,25 +5,27 @@ import { useUserStore } from '@/stores/user'
 import { setCreator } from '../requests/SetCreator.js'
 
 export default {
+  emits: ['change'],
   props: {
     userID: String,
     isCreator: Boolean
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken', 'isAdmin'])
+    ...mapState(useUserStore, ['accessToken', 'isSuperModerator'])
   },
 
   methods: {
     async toggleCreator() {
-      await setCreator(this.$api_server_url, this.accessToken, this.userID, !this.isCreator);
+      if (!await setCreator(this.$api_server_url, this.accessToken, this.userID, !this.isCreator)) return;
+      this.$emit('change');
     }
   }
 }
 </script>
 
 <template>
-    <button v-if="isAdmin" :class="isCreator ? 'remove-creator-button' : 'make-creator-button'" @click="toggleCreator">{{ isCreator ? "Remove" : "Make" }} Creator</button>
+    <button v-if="isSuperModerator" :class="isCreator ? 'remove-creator-button' : 'make-creator-button'" @click="toggleCreator">{{ isCreator ? "Remove" : "Make" }} Creator</button>
 </template>
 
 <style scoped>

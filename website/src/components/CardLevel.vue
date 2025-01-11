@@ -140,7 +140,7 @@ export default {
       return 'N/a'
     },
 
-    ...mapState(useUserStore, ['isVerifier', 'isAdmin', 'isSuperModerator', 'isLoggedIn', 'accessToken'])
+    ...mapState(useUserStore, ['isVerifier', 'isSuperModerator', 'isLoggedIn', 'accessToken'])
   },
 
   async created() {
@@ -248,8 +248,8 @@ export default {
       </div>
 
       <div class="card-fixed">
-        <ReportLevelButton v-if="isLoggedIn" :level_id="item.identifier" />
         <FavoriteLevelButton v-if="isLoggedIn" :level_id="item.identifier"/>
+        <ReportLevelButton v-if="isLoggedIn && this.listType !== 'tab_reported_levels'" :level_id="item.identifier" />
       </div>
     </div>
     <div class="details">
@@ -273,7 +273,7 @@ export default {
       <HideLevelButton v-show="!isHidden" v-if="!isHidden && isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @hide="hideState"/>
       <UnhideLevelButton  v-show="isHidden" v-if="isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue'" :level_id="item.identifier" @hide="hideState"/>
       
-      <UnscheduleDeletionButton v-if="!isRecovered && isAdmin && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @recovered="isRecovered=true"/>
+      <UnscheduleDeletionButton v-if="!isRecovered && isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @recovered="isRecovered=true"/>
     </div>
     <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @hide="isHidden=true;" @approve="isApproved=true;"/>
   </div>
@@ -356,7 +356,7 @@ export default {
 }
 .card-fixed {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   justify-content: space-between;
   align-items: flex-end;
   position: absolute;
@@ -383,7 +383,6 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  overflow-x: scroll;
   display: flex;
   flex-direction: row;
 }

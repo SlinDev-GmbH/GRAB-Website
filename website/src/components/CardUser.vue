@@ -11,7 +11,7 @@ export default {
     UserModerationTools
   },
 
-  emit: ['profile'],
+  emit: ['profile', 'toggle_role'],
 
   props: {
     item: Object,
@@ -47,7 +47,7 @@ export default {
       return '';
     },
 
-    ...mapState(useUserStore, ['isSuperModerator', 'isAdmin'])
+    ...mapState(useUserStore, ['isSuperModerator'])
   },
 
   methods: {
@@ -100,7 +100,7 @@ export default {
       </div>
       <div class="actions">
         <ReportModerationTools v-if="isReportModerationCell" :moderation-item="moderationItem" @handled="didPunishOrReset"/>
-        <UserModerationTools v-if="isUserModerationCell" :user-info="item" @handled="didPunishOrReset"/>
+        <UserModerationTools v-if="isUserModerationCell" :user-info="item" @handled="didPunishOrReset" @toggle_role="this.$emit('toggle_role', $event)"/>
       </div>
     </div>
   </div>

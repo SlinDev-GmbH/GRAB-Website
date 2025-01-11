@@ -52,7 +52,7 @@ export default {
     <button v-if="isLoggedIn" :class="tabActive==='tab_my_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_my_levels')" id="tab_my_levels">My Levels</button>
     <button v-if="isLoggedIn" :class="tabActive==='tab_favorite_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_favorite_levels')" id="tab_favorite_levels">My Favorites</button>
     <button :class="tabActive==='tab_search_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_search_users')" id="tab_search_users">Players</button>
-    <br v-if="isVerifier || isSuperModerator"><br v-if="isVerifier || isSuperModerator">
+    <br v-if="isVerifier"><br v-if="isVerifier">
     <button v-if="isVerifier" :class="tabActive==='tab_verify_queue'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_verify_queue')" id="tab_verify_queue">Verify Queue</button>
     <button v-if="isSuperModerator" :class="tabActive==='tab_reported_levels'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_levels')" id="tab_reported_levels">Reported Levels</button>
     <button v-if="isSuperModerator" :class="tabActive==='tab_reported_users'? 'tablinks active' : 'tablinks'" @click="setTabActive('tab_reported_users')" id="tab_reported_users">Reported Users</button>

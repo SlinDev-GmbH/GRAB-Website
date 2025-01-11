@@ -2,6 +2,8 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
+import DropDown from './DropDown.vue'
+
 import { reportLevelRequest } from '../requests/ReportLevelRequest'
 import { hideLevelRequest } from '../requests/HideLevelRequest'
 import { resetReportsRequest } from '../requests/ResetReportsRequest'
@@ -9,6 +11,10 @@ import { moderationActionRequest } from '../requests/ModerationActionRequest'
 import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest'
 
 export default {
+  components: {
+    DropDown
+  },
+
   emits: ['close', 'handled'],
   props: {
     show: Boolean,
@@ -19,7 +25,7 @@ export default {
 
   data() {
     return {
-      currentSelection: '',
+      currentSelection: 'Select',
       banDuration: undefined,
       message: ''
     }
@@ -56,13 +62,14 @@ export default {
     ...mapState(useUserStore, ['accessToken', 'isSuperModerator'])
   },
   created(){
-    if(this.bestReason){
-      this.currentSelection=(this.config.includes("level_")?'level_':'user_')+this.bestReason;
+    if (this.bestReason) {
+      const best_reason = (this.config.includes("level_") ? 'level_' : 'user_') + this.bestReason;
+      this.currentSelection = this.options.find(o => o.reason == best_reason).title;
     }
   },
   methods: {
     async doModerationAction() {
-      const reason = this.currentSelection;
+      const reason = this.options.find(o => o.title == this.currentSelection).reason;
       this.$emit('close')
       if(this.config === 'level_hide')
       {
@@ -126,14 +133,8 @@ export default {
         <div v-else-if="config==='user_message'" class="modal-header">Message User</div>
 
         <div class="modal-body">
+          <DropDown v-if="config != 'user_message'" :options='["Select", ...options.map(o => o.title)]' :defaultChoice='currentSelection' :flip='true' @changeSelection="currentSelection = $event"/>
           <form>
-            <select v-if="config != 'user_message'" style="width: 70%" v-model="currentSelection">
-              <option value="">- Select -</option>
-              <option v-for="(reason) in options" :id="reason.reason" :value="reason.reason" :key="reason.reason">
-              {{ reason.title }}
-              </option>
-            </select>
-
             <textarea v-if="config==='level_hide' || config==='user_message'" v-model="message" id="message" :placeholder="config==='user_message' ? 'Message' : 'Optional Message'" cols="30"></textarea>
             <input v-if="config==='user_ban'" v-model="banDuration" type="number" style="width: 70%" placeholder="Duration (days)">
           </form>
