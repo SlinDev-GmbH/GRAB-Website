@@ -23,16 +23,15 @@ export const useUserStore = defineStore('user', {
     },
     isVerifier: (state) => {
       if (!state.isLoggedIn) return false
-      return state.user.info.is_verifier === true
+      return state.user.info.is_verifier === true || this.isModerator(state)
     },
     isModerator: (state) => {
       if (!state.isLoggedIn) return false
-      return state.user.info.is_moderator === true
+      return state.user.info.is_moderator === true || this.isSuperModerator(state)
     },
     isSuperModerator: (state) => {
       if (!state.isLoggedIn) return false
-      const superModIDs = ["29sgp24f1uorbc6vq8d2k", "2ak0ysv35egakgfilswpy", "2awf62f0y60gptc9cbecf"]
-      return (state.user.info.is_moderator === true && superModIDs.includes(state.user.info.user_id)) || state.user.info.is_admin === true
+      return state.user.info.is_supermoderator === true || this.isAdmin(state)
     },
     isAdmin: (state) => {
       if (!state.isLoggedIn) return false
