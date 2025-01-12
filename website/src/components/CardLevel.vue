@@ -215,7 +215,7 @@ export default {
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
     <div class="card">
-      <a class="card-images" target="_blank" :href="viewerURL">
+      <a class="card-images" target="_blank" :href="viewerURL" @click="setListIndex(index)">
         <div v-show="!this.thumbLoaded" :style="randomGradient" class="random-gradient"></div>
         <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError" @load="this.thumbLoaded = true"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
@@ -223,7 +223,7 @@ export default {
         </div>
       </a>
 
-      <a class="card-overlay" target="_blank" :href="viewerURL">
+      <a class="card-overlay" target="_blank" :href="viewerURL" @click="setListIndex(index)">
         <img v-if="hasOKStamp" alt="Verified" class="stamp" src="./../assets/icons/checkmark.svg" width="20" height="20" />
         <div v-if="hasStatistics && item.statistics" class="plays">
           <img src="./../assets/icons/person.svg" alt="plays: ">
