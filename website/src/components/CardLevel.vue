@@ -254,7 +254,7 @@ export default {
     </div>
     <div class="details">
       <div class="title" :style="(this.isApproved || this.isRecovered) ? 'color: var(--green)' : (this.isHidden || this.isSkipped || (this.listType === 'tab_deletion_queue' && !isRecovered)) ? 'color: var(--red);' : ''">
-        {{ item.title }}
+        {{ item.title || '' }}
         <span v-if="this.isHidden" class="hidden-tag">Hidden</span>
         <span v-else-if="this.isSkipped" class="hidden-tag">Skipped</span>
         <span v-else-if="this.isApproved" class="approved-tag">Approved</span>
