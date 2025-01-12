@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     async doModerationAction() {
-      const reason = this.options.find(o => o.title == this.currentSelection).reason;
+      const reason = this.options.find(o => o.title == this.currentSelection)?.reason || '';
       this.$emit('close')
       if(this.config === 'level_hide')
       {
