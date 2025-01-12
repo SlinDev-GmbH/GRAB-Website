@@ -1,30 +1,8 @@
 <script>
-import { mapState } from 'pinia'
-import { useUserStore } from '@/stores/user'
-
-import { getUserPurchaseHistoryRequest } from '../requests/GetUserPurchaseHistoryRequest.js'
-
 export default {
 
   props: {
-    userID: String,
-    show: Boolean,
-  },
-
-  data() {
-    return {
-      history: []
-    }
-  },
-
-  computed: {
-    ...mapState(useUserStore, ['accessToken'])
-  },
-
-  async mounted() {
-    if (this.show) {
-      this.history = (await getUserPurchaseHistoryRequest(this.$api_server_url, this.accessToken, this.userID)).reverse();
-    }
+    userInfo: Object
   },
 
   methods: {
@@ -64,17 +42,52 @@ export default {
       }
 
       return `${timeString} (${timeSinceString})`;
+    },
+
+    history() {
+      const history = [];
+
+      const history_length = this.userInfo?.purchase_history_length || 0;
+      for (let i = history_length - 1; i >= 0; i--) {
+        history.push(this.userInfo[`purchase_history_${i}`]);
+      }
+
+      return history;
     }
   }
-
 }
 </script>
 
 
 <template>
   <h3>Purchases</h3>
+  <h4>Summary</h4>
+  <div class="summary">
+    <div>
+      <span>currency</span>
+      <div class="currency">
+        <span>{{ userInfo.owned_currency }} currency</span>
+        <span>{{ userInfo.total_tips }} tips</span>
+        <span>{{ userInfo.current_tips }} unclaimed tips</span>
+      </div>
+    </div>
+    <div v-for="purchase_type in Array.from(new Set(this.history().map(item => item.platform_receipt_id.split(':')[1].split('_')[0])))" :key="purchase_type">
+      <span>{{ purchase_type }}</span>
+      <div class="currency">
+        <span v-for="currency in Array.from(new Set(this.history().map(item => item.price_currency).filter(item => item)))" :key="currency">
+          {{ 
+            this.history()
+            .filter(item => item.platform_receipt_id.split(':')[1].split('_')[0] == purchase_type && item.price_currency == currency)
+            .reduce((a, b) => (a * 100 + b.price * 100) / 100, 0)
+          }}
+          {{ currency }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <h4>All</h4>
   <div class="history">
-    <div v-for="(item, index) in history" :key="index" class="history-item">
+    <div v-for="(item, index) in this.history()" :key="index" class="history-item">
       <div>
         <h4>{{ item.title }} <span class="item-id">{{ item.platform_receipt_id }}</span></h4>
         <span>{{ this.timeString(item) }}</span>
@@ -86,13 +99,13 @@ export default {
 
 
 <style scoped>
-  .history {
+  .history, .summary {
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding-bottom: 15px
   }
-  .history-item {
+  .history-item, .summary > div {
     padding: 10px;
     background-color: var(--button);
     border-radius: 15px;
@@ -113,5 +126,16 @@ export default {
     color: #888;
     font-size: 12px;
     font-style: italic;
+  }
+  .currency {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    width: 500px;
+  }
+  @media screen and (max-width: 690px) {
+    .currency {
+      width: 300px;
+    }
   }
 </style>

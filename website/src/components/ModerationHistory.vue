@@ -1,10 +1,5 @@
 <script>
-import { mapState } from 'pinia'
-import { useUserStore } from '@/stores/user'
-
 import ModerationInfo from './ModerationInfo.vue'
-
-import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js'
 
 export default {
 
@@ -13,35 +8,7 @@ export default {
   },
 
   props: {
-    userID: String,
-    show: Boolean,
-  },
-
-  data() {
-    return {
-      history: [],
-      moderation_info: undefined,
-    }
-  },
-
-  computed: {
-    ...mapState(useUserStore, ['accessToken'])
-  },
-
-  async mounted() {
-    if (this.show) {
-      const data = await getUserInfoAdminRequest(this.$api_server_url, this.accessToken, this.userID);
-      if (!data) return;
-
-      console.log(data);
-
-      this.moderation_info = data.moderation_info;
-
-      const history_length = data.moderation_history_length;
-      for (let i = history_length - 1; i >= 0; i--) {
-        this.history.push(data[`moderation_history_${i}`]);
-      }
-    }
+    userInfo: Object
   },
 
   methods: {
@@ -86,7 +53,18 @@ export default {
     getLength(start, end) {
       const length = Math.floor((end - start) / (1000 * 60 * 60 * 24));
       return `${length} ${length != 1? 'days' : 'day'}`;
-    }
+    },
+
+    history() {
+      const history = [];
+
+      const history_length = this.userInfo?.moderation_history_length || 0;
+      for (let i = history_length - 1; i >= 0; i--) {
+        history.push(this.userInfo[`moderation_history_${i}`]);
+      }
+
+      return history;
+    },
   }
 
 }
@@ -95,8 +73,8 @@ export default {
 <template>
   <h3>Moderation History</h3>
   <div class="history">
-    <ModerationInfo v-if="moderation_info" :info="moderation_info"/>
-    <div v-for="(item, index) in history" :key="index" class="history-item">
+    <ModerationInfo v-if="userInfo?.moderation_info" :info="userInfo.moderation_info"/>
+    <div v-for="(item, index) in this.history()" :key="index" class="history-item">
       <div>
         <h4>{{ item.type }} <span class="item-id">{{ item.reason }}</span></h4>
         <span>{{ this.timeString(item) }}</span>

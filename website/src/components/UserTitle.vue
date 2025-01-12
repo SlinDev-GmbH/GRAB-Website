@@ -6,6 +6,7 @@ import PurchaseHistory from './PurchaseHistory.vue'
 import ModerationHistory from './ModerationHistory.vue'
 
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
+import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js'
 
 export default {
 
@@ -41,6 +42,7 @@ export default {
       count: undefined,
       loaded: false,
       userInfo: undefined,
+      userInfoAdmin: undefined,
       showPurchaseHistory: false,
       showModerationHistory: false,
       copied: false
@@ -72,6 +74,27 @@ export default {
       setTimeout(() => {
         this.copied = false;
       }, 2000);
+    },
+
+    async getUserInfoAdmin() {
+      if (!this.userInfoAdmin) {
+        this.userInfoAdmin = await getUserInfoAdminRequest(this.$api_server_url, this.accessToken, this.identifier);
+      }
+    },
+
+    togglePurchaseHistory() {
+      this.getUserInfoAdmin();
+      this.showPurchaseHistory = !this.showPurchaseHistory;
+      if (this.showPurchaseHistory) {
+        this.showModerationHistory = false;
+      }
+    },
+    toggleModerationHistory() {
+      this.getUserInfoAdmin();
+      this.showModerationHistory = !this.showModerationHistory;
+      if (this.showModerationHistory) {
+        this.showPurchaseHistory = false;
+      }
     }
   },
 
@@ -107,11 +130,11 @@ export default {
         </div>
       </div>
       <div v-if="loaded && isSuperModerator" class="history-buttons">
-        <button class="history-button" @click="this.showPurchaseHistory = !this.showPurchaseHistory">
+        <button class="history-button" @click="togglePurchaseHistory">
           Purchases
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>
-        <button class="history-button" @click="this.showModerationHistory = !this.showModerationHistory">
+        <button class="history-button" @click="toggleModerationHistory">
           Moderation
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>
@@ -130,8 +153,8 @@ export default {
       </div>
     </div>
   </div>
-  <PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userID="identifier" :show="showPurchaseHistory"/>
-  <ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userID="identifier" :show="showModerationHistory"/>
+  <PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
+  <ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
 </template>
 
 
