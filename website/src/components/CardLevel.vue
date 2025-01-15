@@ -164,6 +164,13 @@ export default {
     },
 
     async getReportImages() {
+      const keys = [];
+      keys.push('https://grab-images.slin.dev/' + this.moderationItem.image);
+      return keys;
+    },
+    async getAllReportImages() {
+      if (this.thumbLoaded == true) return;
+      this.thumbLoaded = true;
       const report_info = await GetLevelReportInfoRequest(this.$api_server_url, this.item.identifier, this.accessToken);
       const keys = [];
       if ("images" in report_info) {
@@ -173,7 +180,7 @@ export default {
           }
         }
       }
-      return keys;
+      this.imageKeys.push(...keys);
     },
     async fetchFallbackThumbnail(levelIdentifier) {
       try {
@@ -219,7 +226,7 @@ export default {
         <div v-show="!this.thumbLoaded" :style="randomGradient" class="random-gradient"></div>
         <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError" @load="this.thumbLoaded = true"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
-          <img v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" loading="lazy" :src="image" :key="image" width="512" height="288"  @error="handleThumbnailError"/>
+          <img v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" loading="lazy" :src="image" :key="image" width="512" height="288"  @error="getAllReportImages(); this.imageKeys.splice(i, 1); this.thumbLoaded = false" @load="getAllReportImages(); this.thumbLoaded = true"/>
         </div>
       </a>
 
