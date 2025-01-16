@@ -53,6 +53,19 @@ export default {
       }
 
       return history;
+    },
+    summary() {
+      const summary = {};
+      for (let item of this.history()) {
+        let platform = item.platform_receipt_id.split(':')[1].split('_')[0];
+        if (item.platform_receipt_id.split(':')[0] == 'steam_app') platform = 'steam';
+        const currency = item.price_currency || 'USD';
+        const price = item.price || 0;
+        if (!(platform in summary)) summary[platform] = {};
+        if (!(currency in summary[platform])) summary[platform][currency] = 0;
+        summary[platform][currency] = (summary[platform][currency] * 100 + price * 100) / 100;
+      }
+      return summary;
     }
   }
 }
@@ -66,21 +79,16 @@ export default {
     <div>
       <span>currency</span>
       <div class="currency">
-        <span>{{ userInfo.owned_currency }} currency</span>
-        <span>{{ userInfo.total_tips }} tips</span>
-        <span>{{ userInfo.current_tips }} unclaimed tips</span>
+        <span>{{ userInfo?.owned_currency || 0 }} currency</span>
+        <span>{{ userInfo?.total_tips || 0 }} tips</span>
+        <span>{{ userInfo?.current_tips || 0 }} unclaimed tips</span>
       </div>
     </div>
-    <div v-for="purchase_type in Array.from(new Set(this.history().map(item => item.platform_receipt_id.split(':')[1].split('_')[0])))" :key="purchase_type">
-      <span>{{ purchase_type }}</span>
+    <div v-for="[platform, platform_data] in Object.entries(this.summary())" :key="platform">
+      <span>{{ platform }}</span>
       <div class="currency">
-        <span v-for="currency in Array.from(new Set(this.history().map(item => item.price_currency).filter(item => item)))" :key="currency">
-          {{ 
-            this.history()
-            .filter(item => item.platform_receipt_id.split(':')[1].split('_')[0] == purchase_type && item.price_currency == currency)
-            .reduce((a, b) => (a * 100 + b.price * 100) / 100, 0)
-          }}
-          {{ currency }}
+        <span v-for="[currency, value] in Object.entries(platform_data)" :key="currency">
+          {{ value + ' ' + currency }}
         </span>
       </div>
     </div>
