@@ -56,6 +56,7 @@ export default {
         this.isPunished = true;
       } else {
         this.isReset = true;
+        this.isPunished = false;
       }
     },
 

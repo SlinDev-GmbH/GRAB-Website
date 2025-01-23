@@ -45,7 +45,9 @@ export default {
       userInfoAdmin: undefined,
       showPurchaseHistory: false,
       showModerationHistory: false,
-      copied: false
+      copied: false,
+      isPunished: false,
+      isReset: false,
     }
   },
 
@@ -95,6 +97,15 @@ export default {
       if (this.showModerationHistory) {
         this.showPurchaseHistory = false;
       }
+    },
+
+    didPunishOrReset(bad) {
+      if (bad) {
+        this.isPunished = true;
+      } else {
+        this.isReset = true;
+        this.isPunished = false;
+      }
     }
   },
 
@@ -117,7 +128,7 @@ export default {
       <div class="profile-icon" :style="profileGradient"></div>
       <div>
         <div v-if="name" class="user-tab-name">
-          {{ name }}
+          <span :style="isPunished ? 'color: var(--red);' : isReset ? 'color: var(--green);' : ''">{{ name }}</span>
           <img v-if="userInfo.is_creator" alt="Creator" title="Creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
           <span v-if="userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
           <span v-if="userInfo.is_admin" title="Developer" class="developer-icon">D</span>
@@ -149,7 +160,7 @@ export default {
         </button>
       </div>
       <div v-if="loaded && isSuperModerator" class="user-tab-moderation-container">
-        <UserModerationTools v-if="loaded && isSuperModerator" :user-info="userInfo" :user-page="true" @toggle_role="userInfo[$event] = !userInfo[$event]" />
+        <UserModerationTools v-if="loaded && isSuperModerator" :user-info="userInfo" :user-page="true" @handled="didPunishOrReset" @toggle_role="userInfo[$event] = !userInfo[$event]" />
       </div>
     </div>
   </div>
