@@ -51,7 +51,7 @@ class Player {
         }
     }
 
-    unequip(type) { 
+    unequip(type) {
         if (this.defaults[type]) {
             this.loadModel(this.defaults[type].file, type)
         } else {
@@ -80,6 +80,7 @@ class Player {
             model = MeshUtils.adjustGroupForCategory(model, itemtype)
 
             model.name = targetname;
+            model.grab_type = itemtype;
 
             model = this.setupAttachments(model, item.attachment_point ? itemtype + '/' + item.attachment_point : itemtype)
 
@@ -90,7 +91,7 @@ class Player {
             this.adjustAsChildModel(itemtype)
         });
     }
-    
+
     applyPendingAttachments(model, itemtype) {
         if (this.pendingAttachments[itemtype]) {
             this.adjustAttachments(model, this.itemsList[model.name]);
@@ -108,7 +109,6 @@ class Player {
             }
         }
     }
-
 
     resetAttachments(itemtype) {
         for (let attachmentType in this.activeModels) {
@@ -143,7 +143,12 @@ class Player {
             if (override.position) childModel.position.copy(new THREE.Vector3(...override.position));
             if (override.scale) childModel.scale.set(override.scale, override.scale, override.scale);
         } else {
-            if (point.position) childModel.position.copy(new THREE.Vector3(...point.position));
+            if (point.position) {
+                childModel.position.copy(new THREE.Vector3(...point.position));
+                if (childModel.grab_type.includes('body')) {
+                    childModel.position.y += -0.2;
+                }
+            }
             if (point.rotation) childModel.rotation.copy(new THREE.Euler(...point.rotation));
             if (point.scale) childModel.scale.set(point.scale, point.scale, point.scale);
         }
@@ -167,6 +172,7 @@ class Player {
             position = new THREE.Vector3(...position)
             model.position.add(position)
         }
+
         initialPosition = model.position.clone()
 
         model.restore = () => {
