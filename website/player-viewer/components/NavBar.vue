@@ -67,6 +67,7 @@ export default {
     border-radius: 20px;
     margin-right: 10px;
     padding-inline: 14px;
+    line-height: 0;
     border: none;
     height: 30px;
 }
