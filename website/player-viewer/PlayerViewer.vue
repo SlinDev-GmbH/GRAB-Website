@@ -117,10 +117,7 @@ export default {
             this.scene.userData.primary_color = this.playerInfo.active_customizations.player_color_primary.color
             this.scene.userData.secondary_color = this.playerInfo.active_customizations.player_color_secondary.color
 
-            this.player = new Player(import.meta.env.BASE_URL, this.scene, this.itemsList);
-            for (let itemType in this.playerItems) {
-                this.player.loadModel(this.playerItems[itemType], itemType)
-            }
+            this.player = new Player(import.meta.env.BASE_URL, this.scene, this.itemsList, this.playerItems);
         },
 
         /*
