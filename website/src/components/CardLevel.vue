@@ -49,6 +49,7 @@ export default {
       isRecovered: false,
       currentModerationImage: 0,
       imageInterval: undefined,
+      imageHovered: false,
       thumbLoaded: false,
     }
   },
@@ -206,6 +207,7 @@ export default {
   mounted() {
     if (this.hasImage && this.isModerationCell) {
     this.imageInterval = setInterval(() => {
+      if (this.imageHovered) return;
       this.currentModerationImage++;
       if (this.currentModerationImage >= this.imageKeys.length) {
         this.currentModerationImage = 0;
@@ -221,7 +223,7 @@ export default {
 
 <template>
   <div class="level-card" :style="{'background-color': cardColor}">
-    <div class="card">
+    <div class="card" @mouseover="imageHovered=true;" @mouseleave="imageHovered=false;">
       <a class="card-images" target="_blank" :href="viewerURL" @click="setListIndex(index)">
         <div v-show="!this.thumbLoaded" :style="randomGradient" class="random-gradient"></div>
         <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError" @load="this.thumbLoaded = true"/>
