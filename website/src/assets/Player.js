@@ -3,7 +3,7 @@ import MeshUtils from './MeshUtils';
 import { SGMLoader } from "./sgmLoader";
 
 class Player {
-    constructor(baseUrl, scene, itemsList) {
+    constructor(baseUrl, scene, itemsList, playerItems) {
         this.baseUrl = baseUrl
         this.scene = scene;
         this.activeModels = {};
@@ -42,13 +42,22 @@ class Player {
             "grapple/hook/left": { file: "player/grapple_anchor" },
             "grapple/hook/right": { file: "player/grapple_anchor" }
         };
-        this.loadDefaults();
+
+        this.loadDefaults().then(() => {
+            for (let itemType in playerItems) {
+                this.loadModel(playerItems[itemType], itemType)
+            }
+        });
     }
 
     loadDefaults() {
+        const loadPromises = [];
+
         for (let type in this.defaults) {
-            this.loadModel(this.defaults[type].file /*using it as a name here*/, type); //this part isnt all that great but necessary
+            loadPromises.push(this.loadModel(this.defaults[type].file, type));
         }
+
+        return Promise.all(loadPromises);
     }
 
     unequip(type) {

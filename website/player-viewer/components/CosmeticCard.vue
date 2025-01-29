@@ -88,7 +88,7 @@ export default {
         setupThreeScene() {
             const scene = new THREE.Scene();
 
-            const camera = new THREE.PerspectiveCamera(55, 1, 1, 1000);
+            const camera = new THREE.PerspectiveCamera(20, 200/84, 1, 1000);
             camera.position.z += 2;
 
             scene.userData.element = this.$refs.scene 

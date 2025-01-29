@@ -104,9 +104,11 @@ export default {
 
                 let content = document.getElementById("categories-content")
                 let contentRect = content.getBoundingClientRect();
+                let cardList = document.getElementById("card-list")
+                let cardListRect = cardList.getBoundingClientRect();
 
-                if (rect.bottom > contentRect.bottom || rect.top < contentRect.top ||
-                    rect.right < 0 || rect.left > this.divRenderer.domElement.clientWidth) {
+
+                if (rect.bottom > contentRect.bottom || rect.top < contentRect.top-50) {
                     return;
                 }
 
@@ -115,12 +117,19 @@ export default {
                 let width = rect.right - rect.left;
                 let height = rect.bottom - rect.top;
                 let left = rect.left;
-                let bottom = this.divRenderer.domElement.clientHeight - rect.bottom;
+                let bottom = this.divRenderer.domElement.clientHeight - rect.bottom
+                let scissorTop = Math.max(0, cardListRect.top - rect.top);
+                let scissorBottom = Math.max(0, rect.bottom - cardListRect.bottom);
 
+                let adjustedHeight = height - (scissorTop + scissorBottom);
+
+                if (adjustedHeight <= 0) return; 
+
+                let adjustedBottom = bottom + scissorBottom;
 
                 this.divRenderer.setViewport(left, bottom, width, height);
-                this.divRenderer.setScissor(left, bottom, width, height);
-
+                this.divRenderer.setScissor(left, adjustedBottom, width, adjustedHeight);
+                
                 this.divRenderer.render(scene, camera)
 
             });
