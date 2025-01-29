@@ -101,7 +101,7 @@ export default {
   <div class="moderation-tools">
     <ModerationInfo v-if="moderationItem.object_info.moderation_info" :info="moderationItem.object_info.moderation_info" :previous="true"/>
 
-    <div v-if="reports.length && !isReset && !isPunished" class="moderation-title">Reports:</div>
+    <div v-if="reports.length && !isReset && !isPunished" class="moderation-title">Reports: {{ moderationItem.reported_count ?? '' }}</div>
     <div v-if="!isReset && !isPunished">
       <div class="report-count" v-for="(value) in reports" :key="value[0]">
         {{ value[0].slice(15) }}: {{ value[1] }}
