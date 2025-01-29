@@ -284,7 +284,7 @@ export default {
       
       <UnscheduleDeletionButton v-if="!isRecovered && isSuperModerator && this.listType === 'tab_deletion_queue'" :level_id="item.identifier" @recovered="isRecovered=true"/>
     </div>
-    <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @hide="isHidden=true;" @approve="isApproved=true;"/>
+    <ReportModerationTools v-if="isModerationCell" :moderation-item="moderationItem" @hide="isHidden=true;" @unhide="isHidden=false;" @approve="isApproved=true;"/>
   </div>
 </template>
 
