@@ -8,6 +8,7 @@ import ModerationPopup from './ModerationPopup.vue'
 import { approveLevelRequest } from '../requests/ApproveLevelRequest'
 import { resetReportsRequest } from '../requests/ResetReportsRequest'
 import { moderationActionRequest } from '../requests/ModerationActionRequest'
+import { unhideLevelRequest } from '../requests/UnhideLevelRequest'
 
 export default {
   components: {
@@ -15,7 +16,7 @@ export default {
     ModerationPopup
   },
 
-  emits: ['handled', 'hide', 'approve'],
+  emits: ['handled', 'hide', 'unhide', 'approve'],
 
   props: {
     moderationItem : Object
@@ -25,7 +26,8 @@ export default {
     return {
       showModerationPopup: false,
       isPunished: false,
-      isReset: false
+      isReset: false,
+      isHidden: false
     }
   },
 
@@ -67,7 +69,8 @@ export default {
     handledModerationPopup(handled) {
       if(handled === true)
       {
-        this.$emit('hide')
+        this.$emit('hide');
+        this.isHidden = true;
       }
     },
 
@@ -92,6 +95,13 @@ export default {
       if(!await resetReportsRequest(this.$api_server_url, this.accessToken, userID)) return
       this.isReset = true;
       this.$emit('handled', false)
+    },
+
+    async unhideLevel()
+    {
+      if(!await unhideLevelRequest(this.$api_server_url, this.accessToken, this.moderationItem.object_info.identifier)) return
+      this.isHidden = false;
+      this.$emit('unhide');
     }
   }
 }
@@ -108,7 +118,8 @@ export default {
       </div>
     </div>
     <div class="buttons">
-      <button v-if="isLevel" class="moderation-hide-button" @click="showModerationPopup=true">Hide</button>
+      <button v-if="isLevel && !isHidden" class="moderation-hide-button" @click="showModerationPopup=true">Hide</button>
+      <button v-else-if="isLevel && isHidden" class="moderation-unhide-button" @click="unhideLevel">Unhide</button>
       <button v-else class="moderation-hide-button" @click="punishUser">Punish</button>
       <button v-if="isLevel" class="moderation-approve-button" @click="approveLevel">Approve</button>
       <button v-else class="moderation-approve-button" @click="resetUserReports">Reset</button>
@@ -143,6 +154,15 @@ export default {
   cursor: pointer;
 }
 
+.moderation-unhide-button {
+  height: 30px;
+  width: 90px;
+  font-weight: bold;
+  background-color: var(--yellow);
+  border-radius: 15px;
+  cursor: pointer;
+}
+
 .moderation-approve-button {
   height: 30px;
   width: 90px;
@@ -152,7 +172,7 @@ export default {
   cursor: pointer;
 }
 @media screen and (max-width: 600px) {
-  .moderation-hide-button, .moderation-approve-button {
+  .moderation-hide-button, .moderation-unhide-button, .moderation-approve-button {
     height: 25px;
     width: 70px;
     font-size: 0.7rem;
