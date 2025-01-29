@@ -87,6 +87,7 @@ export default {
   align-items: center;
   font-weight: bold;
   border-radius: 50%;
+  line-height: 0;
 }
 .reason {
   border-radius: 15px;
