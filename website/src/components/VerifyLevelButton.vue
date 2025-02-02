@@ -10,6 +10,8 @@ export default {
     levelInfo : Object
   },
 
+  emits: ['skipped'],
+
   data() {
     return {
       isVerified: false,
@@ -43,7 +45,9 @@ export default {
       }
       this.isLoading = false
 
-      await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)
+      if(await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)) {
+        this.$emit('skipped')
+      }
     }
   }
 }

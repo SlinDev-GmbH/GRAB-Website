@@ -275,7 +275,7 @@ export default {
       </div>
     </div>
     <div v-if="!listType.startsWith('curated_')" class="privileged-buttons">
-      <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue' && !isModerationCell" :level-info="item"/>
+      <VerifyLevelButton v-if="isVerifier && this.listType !== 'tab_deletion_queue' && !isModerationCell" :level-info="item" @skipped="isSkipped=true;"/>
       <SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item" @skipped="isSkipped=true;"/>
       
       <HideLevelButton v-show="!isHidden" v-if="!isHidden && isSuperModerator && !isModerationCell && this.listType !== 'tab_verify_queue' && this.listType !== 'tab_deletion_queue'" :level_id="item.identifier" @hide="hideState"/>
