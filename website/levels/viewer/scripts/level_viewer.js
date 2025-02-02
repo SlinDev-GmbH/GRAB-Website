@@ -75,6 +75,7 @@ function getMaterialForTexture(name, tileFactor, vertexShader, fragmentShader, s
 		"tileFactor": { value: tileFactor },
 		"diffuseColor": { value: [1.0, 1.0, 1.0] },
 		"worldNormalMatrix": { value: new THREE.Matrix3() },
+		"worldMatrix": { value: new THREE.Matrix4() },
 		"neonEnabled": { value: neonEnabled },
 		"transparentEnabled": { value: 0.0 },
 		"fogEnabled": { value: 1.0 },
@@ -1080,6 +1081,7 @@ function init()
 
 					if(object !== undefined)
 					{
+						if (object.material?.uniforms) object.material.uniforms.worldMatrix = { value: new THREE.Matrix4().copy(object.matrixWorld) }
 						//Attach data of the first animation to the object (which is all the initial animation system supports anyway)
 						if(node.animations && node.animations.length > 0 && node.animations[0].frames && node.animations[0].frames.length > 0)
 						{
