@@ -51,6 +51,7 @@ export default {
       imageInterval: undefined,
       imageHovered: false,
       thumbLoaded: false,
+      images: this.item.images
     }
   },
   provide() {
@@ -75,7 +76,7 @@ export default {
     },
 
     hasImage() {
-      if(this.item.images && this.item.images.thumb)
+      if(this.images?.thumb)
       {
         return true
       }
@@ -186,19 +187,17 @@ export default {
     async fetchFallbackThumbnail(levelIdentifier) {
       try {
         const response = await GetLevelDetailsRequest(this.$api_server_url, levelIdentifier.replace(':','/'));
-        if (response.images && response.images.thumb) {
-          return `${this.$images_server_url + response.images.thumb.key}`;
+        if (response.images?.thumb) {
+          this.images = response.images;
+          return true;
         }
       } catch (error) {
         console.error("Error fetching thumbnail:", error);
       }
-      return null;
+      return false;
     },
-    async handleThumbnailError(event) {
-      const fallbackURL = await this.fetchFallbackThumbnail(this.item.identifier);
-      if (fallbackURL) {
-        event.src = fallbackURL;
-      } else {
+    async handleThumbnailError() {
+      if(!(await this.fetchFallbackThumbnail(this.item.identifier))) {
         console.warn("Fallback thumbnail not available for:", this.item.identifier);
       }
     }
@@ -226,7 +225,7 @@ export default {
     <div class="card" @mouseover="imageHovered=true;" @mouseleave="imageHovered=false;">
       <a class="card-images" target="_blank" :href="viewerURL" @click="setListIndex(index)">
         <div v-show="!this.thumbLoaded" :style="randomGradient" class="random-gradient"></div>
-        <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.item.images.thumb.key" :width="this.item.images.thumb.width" :height="this.item.images.thumb.height" @error="handleThumbnailError" @load="this.thumbLoaded = true"/>
+        <img v-if="hasImage && !isModerationCell" class="thumbnail" loading="lazy" :src="this.$images_server_url + this.images.thumb.key" :width="this.images.thumb.width" :height="this.images.thumb.height" @error="handleThumbnailError();" @load="this.thumbLoaded = true"/>
         <div v-if="hasImage && isModerationCell" class="moderation-images">
           <img v-for="(image, i) in this.imageKeys" v-show="i == this.currentModerationImage" class="thumbnail" loading="lazy" :src="image" :key="image" width="512" height="288"  @error="getAllReportImages(); this.imageKeys.splice(i, 1); this.thumbLoaded = false" @load="getAllReportImages(); this.thumbLoaded = true"/>
         </div>
@@ -243,7 +242,7 @@ export default {
       
       <div class="card-hover">
         <div class="hover-top">
-          <ThumbnailFullscreenButton v-if="hasImage && !isModerationCell" :imageUrl="this.$images_server_url + this.item.images.full.key" :thumbnailUrl="this.$images_server_url + this.item.images.thumb.key"/>
+          <ThumbnailFullscreenButton v-if="hasImage && !isModerationCell" :imageUrl="this.$images_server_url + this.images.full.key" :thumbnailUrl="this.$images_server_url + this.images.thumb.key"/>
           <a target="_blank" :href="viewerURL" class="play-button" @click="setListIndex(index)">OPEN</a>
         </div>
         <div class="hover-middle">
