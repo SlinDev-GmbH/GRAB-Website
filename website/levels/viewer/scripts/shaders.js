@@ -42,14 +42,18 @@ export const skyFS = `
 
 export const levelVS = `
     varying vec3 vWorldPosition;
+	 varying vec3 vInitialWorldPosition;
     varying vec3 vNormal;
 
+	 uniform mat4 worldMatrix;
     uniform mat3 worldNormalMatrix;
 
     void main()
     {
         vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+        vec4 initialWorldPosition = worldMatrix * vec4(position, 1.0);
         vWorldPosition = worldPosition.xyz;
+		  vInitialWorldPosition = initialWorldPosition.xyz;
 
         vNormal = worldNormalMatrix * normal;
 
@@ -58,6 +62,7 @@ export const levelVS = `
 
 export const levelFS = `
     varying vec3 vWorldPosition;
+	 varying vec3 vInitialWorldPosition;
     varying vec3 vNormal;
 
     uniform sampler2D colorTexture;
@@ -85,15 +90,15 @@ export const levelFS = `
         vec3 blendNormals = abs(vNormal);
         if(blendNormals.x > blendNormals.y && blendNormals.x > blendNormals.z)
         {
-            texColor.rgb = texture2D(colorTexture, vWorldPosition.zy * tileFactor).rgb;
+            texColor.rgb = texture2D(colorTexture, vInitialWorldPosition.zy * tileFactor).rgb;
         }
         else if(blendNormals.y > blendNormals.z)
         {
-            texColor.rgb = texture2D(colorTexture, vWorldPosition.xz * tileFactor).rgb;
+            texColor.rgb = texture2D(colorTexture, vInitialWorldPosition.xz * tileFactor).rgb;
         }
         else
         {
-            texColor.rgb = texture2D(colorTexture, vWorldPosition.xy * tileFactor).rgb;
+            texColor.rgb = texture2D(colorTexture, vInitialWorldPosition.xy * tileFactor).rgb;
         }
 
 		color.rgb = texColor.rgb * diffuseColor;
