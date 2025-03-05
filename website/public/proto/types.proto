@@ -65,10 +65,12 @@ enum LevelNodeMaterial
 	GRAPPLABLE = 5;
 	GRAPPLABLE_LAVA = 6;
 
-	GRABBABLE_CRUMBLING= 7;
+	GRABBABLE_CRUMBLING = 7;
 	DEFAULT_COLORED = 8;
 	BOUNCING = 9;
 	SNOW = 10;
+
+	TRIGGER = 11; //Not actually written into files and the number on this could be changed without issues. Only used as enum value internally.
 }
 
 message LevelNodeGroup
@@ -157,6 +159,71 @@ message LevelNodeLobbyTerminal
 	Quaternion rotation = 4;
 }
 
+message TriggerSourceBasic
+{
+	enum Type
+	{
+		HAND = 0;
+		HEAD = 1;
+		GRAPPLE = 2;
+		FEET = 3;
+		BLOCK = 4;
+	}
+
+	Type type = 1;
+}
+
+message TriggerSource
+{
+	oneof content
+	{
+		TriggerSourceBasic triggerSourceBasic = 1;
+	}
+}
+
+message TriggerTargetAnimation
+{
+	enum Mode
+	{
+		STOP = 0;
+		START = 1;
+		TOGGLE = 2; //Toggles between start and stop
+		TOGGLE_REVERSE = 3; //Toggles between playing the animation forwards and backwards
+		RESTART = 4; //Like start, but will always play from the beginning (or end if reverse is on)
+		RESET = 5; //Reset to the initial state, playing looped default animation if there is one
+	}
+
+	uint64 objectID = 1;
+	string animationName = 2;
+	
+	bool loop = 3; //Make the animation repeat endlessly until it is stopped
+	bool reverse = 4; //Make the animation play backwards
+
+	Mode mode = 10;
+}
+
+message TriggerTarget
+{
+	oneof content
+	{
+		TriggerTargetAnimation triggerTargetAnimation = 1;
+	}
+}
+
+message LevelNodeTrigger
+{
+	LevelNodeShape shape = 1; //Must be one of CUBE, SPHERE, CYLINDER, PYRAMID, PRISM
+
+	Vector position = 2;
+	Vector scale = 3;
+	Quaternion rotation = 4;
+
+	bool isShared = 5;
+
+	repeated TriggerSource triggerSources = 6;
+	repeated TriggerTarget triggerTargets = 7;
+}
+
 message AnimationFrame
 {
 	float time = 1;
@@ -192,8 +259,9 @@ message LevelNode
 		LevelNodeGroup levelNodeGroup = 7;
 		LevelNodeGravity levelNodeGravity = 8;
 		LevelNodeLobbyTerminal levelNodeLobbyTerminal = 9;
+		LevelNodeTrigger levelNodeTrigger = 10;
 	}
 
-	//A level node can have any number (might limit it in the UI) of named animations, if groups are involved every block that is part of the same animation should have an animation with the same name
-	repeated Animation animations = 15;
+	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations
+	int32 activeAnimation = 16; //Index into animations, -1 if it is not playing an animation at the start, ignored if there are no animations (so will default to 0 in that case)
 }

@@ -913,6 +913,11 @@ function init()
 
 						realComplexity += 3
 					}
+					else if(node.levelNodeTrigger)
+					{
+						//Just don't show triggers for now, but count their complexity
+						realComplexity += 5
+					}
 					else if(node.levelNodeStart)
 					{
 						object = new THREE.Mesh(objects[0], objectMaterials[0]);
@@ -1083,7 +1088,7 @@ function init()
 					{
 						if (object.material?.uniforms) object.material.uniforms.worldMatrix = { value: new THREE.Matrix4().copy(object.matrixWorld) }
 						//Attach data of the first animation to the object (which is all the initial animation system supports anyway)
-						if(node.animations && node.animations.length > 0 && node.animations[0].frames && node.animations[0].frames.length > 0)
+						if(node.animations && node.animations.length > 0 && node.animations[0].frames && node.animations[0].frames.length > 0 && node.activeAnimation === 0)
 						{
 							object.animation = node.animations[0]
 							object.animation.currentFrameIndex = 0
