@@ -39,6 +39,7 @@ import textureGrabbableCrumblingURL from '../textures/grabbable_crumbling.png'
 import textureDefaultColoredURL from '../textures/default_colored.png'
 import textureBouncingURL from '../textures/bouncing.png'
 import textureSnowURL from '../textures/snow.png'
+import textureTriggerURL from '../textures/trigger.png'
 
 let userID = undefined;
 
@@ -55,6 +56,7 @@ let fontLoader;
 let isFogEnabled = true;
 let isSliderDragging = false;
 let isSliderPlaying = true;
+let showTriggers = false;
 let particles = [];
 let particlesPositions = [];
 let particlesDirections = [];
@@ -186,7 +188,7 @@ function init()
 
 	objectMaterials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.signVS, SHADERS.signFS));
 	objectMaterials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
-
+	objectMaterials.push(getMaterialForTexture(textureTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -424,6 +426,22 @@ function init()
 				const unverifyButton = document.getElementById("unverifyButton");
 				const verifySkipButton = document.getElementById("verifySkipButton");
 				const verifySkipSuccessButton = document.getElementById("verifySkipSuccessButton");
+				const triggersButton = document.getElementById("triggersButton");
+
+				triggersButton.style.display = 'block';
+				triggersButton.addEventListener('click', () => {
+					showTriggers = !showTriggers;
+
+					scene.traverse((node) => {
+						if(node instanceof THREE.Mesh)
+						{
+							if(node.isTrigger)
+							{
+								node.visible = showTriggers;
+							}
+						}
+					})
+				});
 
 				verifyButton.style.display = "block";
 				unverifyButton.style.display = "none";
@@ -915,7 +933,43 @@ function init()
 					}
 					else if(node.levelNodeTrigger)
 					{
-						//Just don't show triggers for now, but count their complexity
+						let material = objectMaterials[4]
+						let newMaterial = material.clone()
+						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+
+						newMaterial.transparent = true;
+						newMaterial.uniforms.transparentEnabled.value = 1.0;
+						object = new THREE.Mesh(shapes[node.levelNodeTrigger.shape-1000], newMaterial);
+
+						parentNode.add(object);
+						object.position.x = -node.levelNodeTrigger.position.x
+						object.position.y = node.levelNodeTrigger.position.y
+						object.position.z = -node.levelNodeTrigger.position.z
+
+						object.scale.x = node.levelNodeTrigger.scale.x
+						object.scale.y = node.levelNodeTrigger.scale.y
+						object.scale.z = node.levelNodeTrigger.scale.z
+
+						object.quaternion.x = -node.levelNodeTrigger.rotation.x
+						object.quaternion.y = node.levelNodeTrigger.rotation.y
+						object.quaternion.z = -node.levelNodeTrigger.rotation.z
+						object.quaternion.w = node.levelNodeTrigger.rotation.w
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+
+						let targetVector = new THREE.Vector3()
+						let targetQuaternion = new THREE.Quaternion()
+						let worldMatrix = new THREE.Matrix4()
+						worldMatrix.compose(object.getWorldPosition(targetVector), object.getWorldQuaternion(targetQuaternion), object.getWorldScale(targetVector))
+
+						let normalMatrix = new THREE.Matrix3()
+						normalMatrix.getNormalMatrix(worldMatrix)
+						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
+
+						object.isTrigger = true;
+						object.visible = false;
+						
 						realComplexity += 5
 					}
 					else if(node.levelNodeStart)
