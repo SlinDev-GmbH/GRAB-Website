@@ -191,7 +191,7 @@
                 width: 100%;
             }
             /* BUTTONS */
-            #listButtons > button, #hideButton, #unverifyButton, #verifySkipSuccessButton, #startButton, #finishButton {
+            #listButtons > button, #hideButton, #unverifyButton, #verifySkipSuccessButton, #startButton, #triggersButton, #finishButton {
                 width: fit-content;
                 padding: 5px 20px;
                 font-weight: 700;
@@ -228,6 +228,9 @@
             }
             #finishButton  {
                 background-color: #FA8072;
+            }
+            #triggersButton {
+                background-color: #e49022;
             }
 
             #hideReason {
@@ -840,6 +843,7 @@
                     <button id="startButton" class="startButton"></button>
                     <button id="finishButton" class="finishButton"></button>
                 </div>
+                <button id="triggersButton" style="display: none;">Show Triggers</button>
                 <div id="listButtons" style="display: none;">
                     <button id="prevListItem">Back</button>
                     <button id="nextListItem">Next</button>
