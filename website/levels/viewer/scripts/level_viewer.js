@@ -62,6 +62,7 @@ let particlesPositions = [];
 let particlesDirections = [];
 let removedTimes = [];
 let blob;
+let startNodes = [];
 
 init();
 
@@ -189,6 +190,15 @@ function init()
 	objectMaterials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.signVS, SHADERS.signFS));
 	objectMaterials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 	objectMaterials.push(getMaterialForTexture(textureTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
+
+	let altStartMaterial = new THREE.ShaderMaterial();
+	altStartMaterial.vertexShader = SHADERS.startFinishVS;
+	altStartMaterial.fragmentShader = SHADERS.startFinishFS;
+	altStartMaterial.flatShading = true;
+	altStartMaterial.transparent = true;
+	altStartMaterial.depthWrite = false;
+	altStartMaterial.uniforms = { "diffuseColor": {value: [1.0, 1.0, 0.0, 1.0]}};
+	objectMaterials.push(altStartMaterial);
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -974,7 +984,13 @@ function init()
 					}
 					else if(node.levelNodeStart)
 					{
-						object = new THREE.Mesh(objects[0], objectMaterials[0]);
+						console.log(decoded.defaultSpawnPointID);
+						const isDefaultSpawn = ((decoded.defaultSpawnPointID || 1) - 1 == startNodes.length);
+						if (isDefaultSpawn) {
+							object = new THREE.Mesh(objects[0], objectMaterials[0]);
+						} else {
+							object = new THREE.Mesh(objects[0], objectMaterials[5]);
+						}
 						parentNode.add(object);
 						object.position.x = -node.levelNodeStart.position.x
 						object.position.y = node.levelNodeStart.position.y
@@ -995,21 +1011,24 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
-						
-						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'YXZ');
+						if (isDefaultSpawn) {
+							cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
+							let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'YXZ');
 
-						cameraRotation = [0,euler.y+Math.PI	 ];
+							cameraRotation = [0,euler.y+Math.PI	 ];
 
-						var goToStartLabel = document.getElementById("startButton");
-						goToStartLabel.innerHTML = "To Start"
-						goToStartLabel.style.cursor="pointer";
-						goToStartLabel.onclick = function() {
-							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
-							controls.eulerVector.x = 0
-							controls.eulerVector.y = euler.y+Math.PI
-							controls.updateRotationVector();
+							var goToStartLabel = document.getElementById("startButton");
+							goToStartLabel.innerHTML = "To Start"
+							goToStartLabel.style.cursor="pointer";
+							goToStartLabel.onclick = function() {
+								camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+								controls.eulerVector.x = 0
+								controls.eulerVector.y = euler.y+Math.PI
+								controls.updateRotationVector();
+							}
 						}
+
+						startNodes.push(object);
 					}
 					else if(node.levelNodeFinish)
 					{
