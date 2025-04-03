@@ -9,6 +9,12 @@ message Vector
 	float z = 3;
 }
 
+message Vector2
+{
+	float x = 1;
+	float y = 2;
+}
+
 message Quaternion
 {
 	float x = 1;
@@ -44,8 +50,9 @@ enum LevelNodeShape
 	SIGN = 2;
 	GRAVITY = 3;
 	LOBBYTERMINAL = 4;
+	PARTICLE_EMITTER = 5;
 
-	__END_OF_SPECIAL_PARTS__ = 5;
+	__END_OF_SPECIAL_PARTS__ = 6;
 
 	CUBE = 1000;
 	SPHERE = 1001;
@@ -91,6 +98,7 @@ message LevelNodeStart
 	Vector position = 1;
 	Quaternion rotation = 2; //Should always be upright and is meant to be used for the player rotation on spawn
 	float radius = 3;
+	string name = 4;
 }
 
 message LevelNodeFinish
@@ -159,6 +167,27 @@ message LevelNodeLobbyTerminal
 	Quaternion rotation = 4;
 }
 
+message LevelNodeParticleEmitter
+{
+	Vector position = 1;
+	Vector scale = 2;
+	Quaternion rotation = 3;
+
+	uint32 particlesPerSecond = 5;
+
+	Vector2 lifeSpan = 6;
+	Color startColor = 7;
+	Color endColor = 8;
+	Vector2 startSize = 9;
+	Vector2 endSize = 10;
+	
+	Vector velocity = 14;
+	Vector velocityMin = 15;
+	Vector velocityMax = 16;
+	Vector accelerationMin = 17;
+	Vector accelerationMax = 18;
+}
+
 message TriggerSourceBasic
 {
 	enum Type
@@ -202,11 +231,18 @@ message TriggerTargetAnimation
 	Mode mode = 10;
 }
 
+message TriggerTargetSubLevel
+{
+	string levelIdentifier = 1;
+	string spawnPoint = 2;
+}
+
 message TriggerTarget
 {
 	oneof content
 	{
 		TriggerTargetAnimation triggerTargetAnimation = 1;
+		TriggerTargetSubLevel triggerTargetSubLevel = 2;
 	}
 }
 
@@ -260,6 +296,7 @@ message LevelNode
 		LevelNodeGravity levelNodeGravity = 8;
 		LevelNodeLobbyTerminal levelNodeLobbyTerminal = 9;
 		LevelNodeTrigger levelNodeTrigger = 10;
+		LevelNodeParticleEmitter levelNodeParticleEmitter = 11;
 	}
 
 	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations

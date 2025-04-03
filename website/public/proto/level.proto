@@ -16,6 +16,8 @@ message Level
 	uint32 maxCheckpointCount = 7;
 
 	Types.AmbienceSettings ambienceSettings = 8;
+	
+	uint64 defaultSpawnPointID = 10;
 
 	repeated Types.LevelNode levelNodes = 6;
 }
