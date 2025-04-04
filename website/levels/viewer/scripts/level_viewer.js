@@ -1006,6 +1006,9 @@ function init()
 							-node.levelNodeStart.rotation.z, 
 							node.levelNodeStart.rotation.w   
 						);
+						// only rotate around Y axis ? this looks wrong but sure
+						object.quaternion.x = 0;
+						object.quaternion.z = 0;
 						
 						object.quaternion.normalize();
 
