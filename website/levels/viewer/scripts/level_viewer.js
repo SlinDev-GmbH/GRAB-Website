@@ -62,7 +62,8 @@ let particlesPositions = [];
 let particlesDirections = [];
 let removedTimes = [];
 let blob;
-let startNodes = [];
+let allNodes = [];
+let startCount = 0;
 
 init();
 
@@ -984,8 +985,11 @@ function init()
 					}
 					else if(node.levelNodeStart)
 					{
-						console.log(decoded.defaultSpawnPointID);
-						const isDefaultSpawn = ((decoded.defaultSpawnPointID || 1) - 1 == startNodes.length);
+						console.log(decoded.defaultSpawnPointID, allNodes.length);
+						const isDefaultSpawn = (
+							(decoded.defaultSpawnPointID == 0 && startCount == 0) || 
+							decoded.defaultSpawnPointID - 1 == allNodes.length
+						);
 						if (isDefaultSpawn) {
 							object = new THREE.Mesh(objects[0], objectMaterials[0]);
 						} else {
@@ -1028,7 +1032,7 @@ function init()
 							}
 						}
 
-						startNodes.push(object);
+						startCount++;
 					}
 					else if(node.levelNodeFinish)
 					{
@@ -1159,6 +1163,7 @@ function init()
 
 					if(object !== undefined)
 					{
+						allNodes.push(object);
 						if (object.material?.uniforms) object.material.uniforms.worldMatrix = { value: new THREE.Matrix4().copy(object.matrixWorld) }
 						//Attach data of the first animation to the object (which is all the initial animation system supports anyway)
 						if(node.animations && node.animations.length > 0 && node.animations[0].frames && node.animations[0].frames.length > 0 && node.activeAnimation === 0)
