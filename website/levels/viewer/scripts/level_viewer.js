@@ -827,9 +827,9 @@ function init()
 
 						for(let i = 0; i < particleCount; i++)
 						{
-							let x = (Math.random() - 0.5) * object.scale.x;
-							let y = (Math.random() - 0.5) * object.scale.y;
-							let z = (Math.random() - 0.5) * object.scale.z;
+							let x = (Math.random() - 0.5);
+							let y = (Math.random() - 0.5);
+							let z = (Math.random() - 0.5);
 
 							particlePositions.push(x, y, z);
 						}
