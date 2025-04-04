@@ -201,6 +201,16 @@ function init()
 	altStartMaterial.uniforms = { "diffuseColor": {value: [1.0, 1.0, 0.0, 1.0]}};
 	objectMaterials.push(altStartMaterial);
 
+	let particleMaterial = new THREE.ShaderMaterial();
+	particleMaterial.vertexShader = SHADERS.particleVS;
+	particleMaterial.fragmentShader = SHADERS.particleFS;
+	particleMaterial.flatShading = true;
+	particleMaterial.uniforms = {
+		"fogEnabled": { value: 1.0 },
+		"scale": { value: 1.0 },
+	};
+	objectMaterials.push(particleMaterial);
+
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
 
@@ -844,6 +854,73 @@ function init()
 						particlesDirections.push([node.levelNodeGravity.direction.x, node.levelNodeGravity.direction.y, node.levelNodeGravity.direction.z])
 
 						realComplexity += 10;
+					}
+					else if(node.levelNodeParticleEmitter) // TODO: support all the features properly
+					{
+						object = new THREE.Object3D();
+						object.position.x = -node.levelNodeParticleEmitter.position.x;
+						object.position.y = node.levelNodeParticleEmitter.position.y;
+						object.position.z = -node.levelNodeParticleEmitter.position.z;
+
+						object.scale.x = node.levelNodeParticleEmitter.scale.x;
+						object.scale.y = node.levelNodeParticleEmitter.scale.y;
+						object.scale.z = node.levelNodeParticleEmitter.scale.z;
+
+						object.quaternion.x = -node.levelNodeParticleEmitter.rotation.x;
+						object.quaternion.y = node.levelNodeParticleEmitter.rotation.y;
+						object.quaternion.z = -node.levelNodeParticleEmitter.rotation.z;
+						object.quaternion.w = node.levelNodeParticleEmitter.rotation.w;
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+
+						let particleGeometry = new THREE.BufferGeometry();
+
+						let startColor = new THREE.Color(node.levelNodeParticleEmitter.startColor.r, node.levelNodeParticleEmitter.startColor.g, node.levelNodeParticleEmitter.startColor.b);
+						let endColor = new THREE.Color(node.levelNodeParticleEmitter.endColor.r, node.levelNodeParticleEmitter.endColor.g, node.levelNodeParticleEmitter.endColor.b);
+						let scale = Math.max(
+							node.levelNodeParticleEmitter.startSize.x,
+							node.levelNodeParticleEmitter.startSize.y,
+							node.levelNodeParticleEmitter.endSize.x,
+							node.levelNodeParticleEmitter.endSize.y
+						);
+						let particleCount = Math.floor(node.levelNodeParticleEmitter.particlesPerSecond * 2);
+						particleCount = Math.min(particleCount, 1000);
+
+						const positions = new Float32Array(particleCount * 3);
+						const colors = new Float32Array(particleCount * 3);
+
+						for(let i = 0; i < particleCount; i++)
+						{
+							let x = (Math.random() - 0.5);
+							let y = (Math.random() - 0.5);
+							let z = (Math.random() - 0.5);
+							positions[i * 3] = x;
+							positions[i * 3 + 1] = y;
+							positions[i * 3 + 2] = z;
+
+							const color = new THREE.Color();
+							let factor = Math.random();
+							color.r = THREE.MathUtils.lerp(startColor.r, endColor.r, factor);
+							color.g = THREE.MathUtils.lerp(startColor.g, endColor.g, factor);
+							color.b = THREE.MathUtils.lerp(startColor.b, endColor.b, factor);
+							colors[i * 3] = color.r;
+							colors[i * 3 + 1] = color.g;
+							colors[i * 3 + 2] = color.b;
+						}
+
+						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+						let particleMaterial = objectMaterials[6].clone();
+						particleMaterial.uniforms.scale.value = scale;
+
+						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+
+						object.add(particlePoints);
+						parentNode.add(object);
+
+						realComplexity += 5;
 					}
 					else if(node.levelNodeStatic)
 					{
