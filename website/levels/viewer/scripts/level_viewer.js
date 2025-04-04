@@ -62,6 +62,8 @@ let particlesPositions = [];
 let particlesDirections = [];
 let removedTimes = [];
 let blob;
+let allNodes = [];
+let startCount = 0;
 
 init();
 
@@ -189,6 +191,25 @@ function init()
 	objectMaterials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.signVS, SHADERS.signFS));
 	objectMaterials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 	objectMaterials.push(getMaterialForTexture(textureTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
+
+	let altStartMaterial = new THREE.ShaderMaterial();
+	altStartMaterial.vertexShader = SHADERS.startFinishVS;
+	altStartMaterial.fragmentShader = SHADERS.startFinishFS;
+	altStartMaterial.flatShading = true;
+	altStartMaterial.transparent = true;
+	altStartMaterial.depthWrite = false;
+	altStartMaterial.uniforms = { "diffuseColor": {value: [1.0, 1.0, 0.0, 1.0]}};
+	objectMaterials.push(altStartMaterial);
+
+	let particleMaterial = new THREE.ShaderMaterial();
+	particleMaterial.vertexShader = SHADERS.particleVS;
+	particleMaterial.fragmentShader = SHADERS.particleFS;
+	particleMaterial.flatShading = true;
+	particleMaterial.uniforms = {
+		"fogEnabled": { value: 1.0 },
+		"scale": { value: 1.0 },
+	};
+	objectMaterials.push(particleMaterial);
 
 	clock = new THREE.Clock();
 	scene = new THREE.Scene();
@@ -784,15 +805,6 @@ function init()
 					}
 					else if(node.levelNodeGravity)
 					{
-						let particleGeometry = new THREE.BufferGeometry();
-
-						let particleColor = new THREE.Color(1.0, 1.0, 1.0);
-						if(node.levelNodeGravity?.mode == 1)
-						{
-							particleColor = new THREE.Color(1.0, 0.6, 0.6);
-						}
-						let particleMaterial = new THREE.PointsMaterial({ color: particleColor, size: 0.2 });
-
 						object = new THREE.Object3D()
 						object.position.x = -node.levelNodeGravity.position.x
 						object.position.y = node.levelNodeGravity.position.y
@@ -810,29 +822,116 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
+						let particleGeometry = new THREE.BufferGeometry();
+
+						let particleColor = new THREE.Color(1.0, 1.0, 1.0);
+						if(node.levelNodeGravity?.mode == 1)
+						{
+							particleColor = new THREE.Color(1.0, 0.6, 0.6);
+						}
 						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 10)
 						particleCount = Math.min(particleCount, 2000);
-						let particlePositions = [];
+
+						const positions = new Float32Array(particleCount * 3);
+						const colors = new Float32Array(particleCount * 3);
 
 						for(let i = 0; i < particleCount; i++)
 						{
-							let x = (Math.random() - 0.5) * object.scale.x;
-							let y = (Math.random() - 0.5) * object.scale.y;
-							let z = (Math.random() - 0.5) * object.scale.z;
+							let x = (Math.random() - 0.5);
+							let y = (Math.random() - 0.5);
+							let z = (Math.random() - 0.5);
+							positions[i * 3] = x;
+							positions[i * 3 + 1] = y;
+							positions[i * 3 + 2] = z;
 
-							particlePositions.push(x, y, z);
+							colors[i * 3] = particleColor.r;
+							colors[i * 3 + 1] = particleColor.g;
+							colors[i * 3 + 2] = particleColor.b;
 						}
 
-						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+						let particleMaterial = objectMaterials[6].clone();
+						particleMaterial.uniforms.scale.value = 0.2;
+
 						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+
 						object.add(particlePoints);
 						parentNode.add(object);
 
-						particles.push(particlePoints);
-						particlesPositions.push(particlePositions);
-						particlesDirections.push([node.levelNodeGravity.direction.x, node.levelNodeGravity.direction.y, node.levelNodeGravity.direction.z])
+						// particles.push(particlePoints);
+						// particlesPositions.push(particlePositions);
+						// particlesDirections.push([node.levelNodeGravity.direction.x, node.levelNodeGravity.direction.y, node.levelNodeGravity.direction.z])
 
 						realComplexity += 10;
+					}
+					else if(node.levelNodeParticleEmitter) // TODO: support all the features properly
+					{
+						object = new THREE.Object3D();
+						object.position.x = -node.levelNodeParticleEmitter.position.x;
+						object.position.y = node.levelNodeParticleEmitter.position.y;
+						object.position.z = -node.levelNodeParticleEmitter.position.z;
+
+						object.scale.x = node.levelNodeParticleEmitter.scale.x;
+						object.scale.y = node.levelNodeParticleEmitter.scale.y;
+						object.scale.z = node.levelNodeParticleEmitter.scale.z;
+
+						object.quaternion.x = -node.levelNodeParticleEmitter.rotation.x;
+						object.quaternion.y = node.levelNodeParticleEmitter.rotation.y;
+						object.quaternion.z = -node.levelNodeParticleEmitter.rotation.z;
+						object.quaternion.w = node.levelNodeParticleEmitter.rotation.w;
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+
+						let particleGeometry = new THREE.BufferGeometry();
+
+						let startColor = new THREE.Color(node.levelNodeParticleEmitter.startColor.r, node.levelNodeParticleEmitter.startColor.g, node.levelNodeParticleEmitter.startColor.b);
+						let endColor = new THREE.Color(node.levelNodeParticleEmitter.endColor.r, node.levelNodeParticleEmitter.endColor.g, node.levelNodeParticleEmitter.endColor.b);
+						let scale = Math.max(
+							node.levelNodeParticleEmitter.startSize.x,
+							node.levelNodeParticleEmitter.startSize.y,
+							node.levelNodeParticleEmitter.endSize.x,
+							node.levelNodeParticleEmitter.endSize.y
+						);
+						let particleCount = Math.floor(node.levelNodeParticleEmitter.particlesPerSecond * 2);
+						particleCount = Math.min(particleCount, 1000);
+
+						const positions = new Float32Array(particleCount * 3);
+						const colors = new Float32Array(particleCount * 3);
+
+						for(let i = 0; i < particleCount; i++)
+						{
+							let x = (Math.random() - 0.5);
+							let y = (Math.random() - 0.5);
+							let z = (Math.random() - 0.5);
+							positions[i * 3] = x;
+							positions[i * 3 + 1] = y;
+							positions[i * 3 + 2] = z;
+
+							const color = new THREE.Color();
+							let factor = Math.random();
+							color.r = THREE.MathUtils.lerp(startColor.r, endColor.r, factor);
+							color.g = THREE.MathUtils.lerp(startColor.g, endColor.g, factor);
+							color.b = THREE.MathUtils.lerp(startColor.b, endColor.b, factor);
+							colors[i * 3] = color.r;
+							colors[i * 3 + 1] = color.g;
+							colors[i * 3 + 2] = color.b;
+						}
+
+						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+						let particleMaterial = objectMaterials[6].clone();
+						particleMaterial.uniforms.scale.value = scale;
+
+						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+
+						object.add(particlePoints);
+						parentNode.add(object);
+
+						realComplexity += 5;
 					}
 					else if(node.levelNodeStatic)
 					{
@@ -974,7 +1073,16 @@ function init()
 					}
 					else if(node.levelNodeStart)
 					{
-						object = new THREE.Mesh(objects[0], objectMaterials[0]);
+						console.log(decoded.defaultSpawnPointID, allNodes.length);
+						const isDefaultSpawn = (
+							(decoded.defaultSpawnPointID == 0 && startCount == 0) || 
+							decoded.defaultSpawnPointID - 1 == allNodes.length
+						);
+						if (isDefaultSpawn) {
+							object = new THREE.Mesh(objects[0], objectMaterials[0]);
+						} else {
+							object = new THREE.Mesh(objects[0], objectMaterials[5]);
+						}
 						parentNode.add(object);
 						object.position.x = -node.levelNodeStart.position.x
 						object.position.y = node.levelNodeStart.position.y
@@ -986,6 +1094,9 @@ function init()
 							-node.levelNodeStart.rotation.z, 
 							node.levelNodeStart.rotation.w   
 						);
+						// only rotate around Y axis ? this looks wrong but sure
+						object.quaternion.x = 0;
+						object.quaternion.z = 0;
 						
 						object.quaternion.normalize();
 
@@ -995,21 +1106,24 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-						cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
-						
-						let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'YXZ');
+						if (isDefaultSpawn) {
+							cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
+							let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'YXZ');
 
-						cameraRotation = [0,euler.y+Math.PI	 ];
+							cameraRotation = [0,euler.y+Math.PI	 ];
 
-						var goToStartLabel = document.getElementById("startButton");
-						goToStartLabel.innerHTML = "To Start"
-						goToStartLabel.style.cursor="pointer";
-						goToStartLabel.onclick = function() {
-							camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
-							controls.eulerVector.x = 0
-							controls.eulerVector.y = euler.y+Math.PI
-							controls.updateRotationVector();
+							var goToStartLabel = document.getElementById("startButton");
+							goToStartLabel.innerHTML = "To Start"
+							goToStartLabel.style.cursor="pointer";
+							goToStartLabel.onclick = function() {
+								camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+								controls.eulerVector.x = 0
+								controls.eulerVector.y = euler.y+Math.PI
+								controls.updateRotationVector();
+							}
 						}
+
+						startCount++;
 					}
 					else if(node.levelNodeFinish)
 					{
@@ -1140,6 +1254,7 @@ function init()
 
 					if(object !== undefined)
 					{
+						allNodes.push(object);
 						if (object.material?.uniforms) object.material.uniforms.worldMatrix = { value: new THREE.Matrix4().copy(object.matrixWorld) }
 						//Attach data of the first animation to the object (which is all the initial animation system supports anyway)
 						if(node.animations && node.animations.length > 0 && node.animations[0].frames && node.animations[0].frames.length > 0 && node.activeAnimation === 0)
@@ -1612,7 +1727,7 @@ function toggleFog()
 	let fogValue = isFogEnabled? 1.0 : 0.0
 	
 	scene.traverse(function(node) {
-		if(node instanceof THREE.Mesh)
+		if(node instanceof THREE.Mesh || node instanceof THREE.Points)
 		{
 			if("material" in node && "uniforms" in node.material && "fogEnabled" in node.material.uniforms)
 			{
