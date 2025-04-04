@@ -114,8 +114,11 @@ function init()
 
 	THREE.ColorManagement.enabled = true;
 
-	renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer = new THREE.WebGL1Renderer({
+		antialias: true,
+		preserveDrawingBuffer: true,
+	  });
+		  renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.outputColorSpace = THREE.SRGBColorSpace;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
 	renderer.setAnimationLoop(animation);
@@ -1330,6 +1333,13 @@ function init()
 				const updateNode = document.createTextNode("updated: " + updatedDate.toDateString());
 				dateLabel.appendChild(document.createElement("br"));
 				dateLabel.appendChild(updateNode);
+			}
+			if (detailResponseBody.moderator_tag_ok_timestamp && userStore.isModerator) {
+				const verificationDate = new Date(detailResponseBody.moderator_tag_ok_timestamp);
+				let verifiedDateString = "Verification Date: " + verificationDate.toDateString()
+				const verifiedDateNode = document.createTextNode(verifiedDateString);
+				dateLabel.appendChild(document.createElement("br"));
+				dateLabel.appendChild(verifiedDateNode);
 			}
 
 			//Show OK stamp on levels that have the tag
