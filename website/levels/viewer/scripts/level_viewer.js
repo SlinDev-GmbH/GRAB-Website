@@ -805,15 +805,6 @@ function init()
 					}
 					else if(node.levelNodeGravity)
 					{
-						let particleGeometry = new THREE.BufferGeometry();
-
-						let particleColor = new THREE.Color(1.0, 1.0, 1.0);
-						if(node.levelNodeGravity?.mode == 1)
-						{
-							particleColor = new THREE.Color(1.0, 0.6, 0.6);
-						}
-						let particleMaterial = new THREE.PointsMaterial({ color: particleColor, size: 0.2 });
-
 						object = new THREE.Object3D()
 						object.position.x = -node.levelNodeGravity.position.x
 						object.position.y = node.levelNodeGravity.position.y
@@ -831,27 +822,47 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
+						let particleGeometry = new THREE.BufferGeometry();
+
+						let particleColor = new THREE.Color(1.0, 1.0, 1.0);
+						if(node.levelNodeGravity?.mode == 1)
+						{
+							particleColor = new THREE.Color(1.0, 0.6, 0.6);
+						}
 						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 10)
 						particleCount = Math.min(particleCount, 2000);
-						let particlePositions = [];
+
+						const positions = new Float32Array(particleCount * 3);
+						const colors = new Float32Array(particleCount * 3);
 
 						for(let i = 0; i < particleCount; i++)
 						{
 							let x = (Math.random() - 0.5);
 							let y = (Math.random() - 0.5);
 							let z = (Math.random() - 0.5);
+							positions[i * 3] = x;
+							positions[i * 3 + 1] = y;
+							positions[i * 3 + 2] = z;
 
-							particlePositions.push(x, y, z);
+							colors[i * 3] = particleColor.r;
+							colors[i * 3 + 1] = particleColor.g;
+							colors[i * 3 + 2] = particleColor.b;
 						}
 
-						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(particlePositions, 3));
+						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+						let particleMaterial = objectMaterials[6].clone();
+						particleMaterial.uniforms.scale.value = 0.2;
+
 						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+
 						object.add(particlePoints);
 						parentNode.add(object);
 
-						particles.push(particlePoints);
-						particlesPositions.push(particlePositions);
-						particlesDirections.push([node.levelNodeGravity.direction.x, node.levelNodeGravity.direction.y, node.levelNodeGravity.direction.z])
+						// particles.push(particlePoints);
+						// particlesPositions.push(particlePositions);
+						// particlesDirections.push([node.levelNodeGravity.direction.x, node.levelNodeGravity.direction.y, node.levelNodeGravity.direction.z])
 
 						realComplexity += 10;
 					}
@@ -1716,7 +1727,7 @@ function toggleFog()
 	let fogValue = isFogEnabled? 1.0 : 0.0
 	
 	scene.traverse(function(node) {
-		if(node instanceof THREE.Mesh)
+		if(node instanceof THREE.Mesh || node instanceof THREE.Points)
 		{
 			if("material" in node && "uniforms" in node.material && "fogEnabled" in node.material.uniforms)
 			{
