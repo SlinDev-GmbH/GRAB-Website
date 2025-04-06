@@ -57,9 +57,9 @@ let isFogEnabled = true;
 let isSliderDragging = false;
 let isSliderPlaying = true;
 let showTriggers = false;
-let particles = [];
-let particlesPositions = [];
-let particlesDirections = [];
+// let particles = [];
+// let particlesPositions = [];
+// let particlesDirections = [];
 let removedTimes = [];
 let blob;
 let allNodes = [];
@@ -117,8 +117,8 @@ function init()
 	renderer = new THREE.WebGL1Renderer({
 		antialias: true,
 		preserveDrawingBuffer: true,
-	  });
-		  renderer.setSize(window.innerWidth, window.innerHeight);
+	});
+	renderer.setSize(window.innerWidth, window.innerHeight);
 	renderer.outputColorSpace = THREE.SRGBColorSpace;
 	renderer.setClearColor(new THREE.Color(143.0/255.0, 182.0/255.0, 221.0/255.0), 1.0);
 	renderer.setAnimationLoop(animation);
@@ -129,7 +129,7 @@ function init()
 	document.addEventListener('pointerlockchange', pointerLockChanged, false);
 
 	renderer.domElement.onclick = function() {
-  		renderer.domElement.requestPointerLock();
+		renderer.domElement.requestPointerLock();
 	}
 
 	textureLoader = new THREE.TextureLoader();
@@ -673,7 +673,7 @@ function init()
 				let creatorButton = document.getElementById("make-creator-button");
 				creatorButton.style.display = "block";
 				creatorButton.onclick = function () {
-				  	(async () => {
+					(async () => {
 						let response = await fetch(config.SERVER_URL + 'set_user_info_admin/' + levelIdentifierParts[0] + '?access_token=' + accessToken + '&is_creator=true');
 						let responseBody = await response.text();
 						console.log(responseBody);
@@ -722,9 +722,6 @@ function init()
 			sunDirection.applyEuler(sunAngle);
 
 			const skySunDirection = sunDirection.clone()
-			skySunDirection.x = skySunDirection.x;
-			skySunDirection.y = skySunDirection.y;
-			skySunDirection.z = skySunDirection.z;
 
 			let sunColorFactor = 1.0 - sunAltitude / 90.0
 			sunColorFactor *= sunColorFactor
@@ -1408,7 +1405,7 @@ function init()
 					unfavoritesButton.src = imageFavorited;
 					unfavoriteButton.appendChild(unfavoritesButton);
 					
-					if (userStore.favoriteLevels.includes(detailResponseBody.identifier)) {
+					if (favoriteLevels.includes(detailResponseBody.identifier)) {
 						unfavoriteButton.style.display = 'flex';
 					} else {
 						favoriteButton.style.display = 'flex';
@@ -1423,7 +1420,7 @@ function init()
 							} else {
 								favoriteButton.style.display = 'none';
 								unfavoriteButton.style.display = 'flex';
-								userStore.favoriteLevels.push(detailResponseBody.identifier);
+								favoriteLevels.push(detailResponseBody.identifier);
 							}
 						})();
 					});
@@ -1467,10 +1464,10 @@ function init()
 								(async () => {
 									let response = await fetch(config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' +  userStore.accessToken + '&reason=' + value, {
 										method: 'POST',
-										  headers: {
-										    'Content-Type': 'application/json'
-										  },
-										  body: image
+											headers: {
+												'Content-Type': 'application/json'
+											},
+											body: image
 										})
 									let responseBody = await response.text();
 									console.log(responseBody);
@@ -1553,7 +1550,10 @@ function showImageDialog(title, subtitle, onOk){
 	if(!dialog.hasAttribute('open'))
 	{	
 		dialog.setAttribute('open','open');
-		closeButton.onclick = function(event) { dialog.removeAttribute('open'); options?reasonSelector.selectedIndex = 0:null; }
+		closeButton.onclick = function() {
+			dialog.removeAttribute('open');
+			options ? reasonSelector.selectedIndex = 0 : null;
+		}
 	}
 }
 
@@ -1591,12 +1591,15 @@ function showOptionsDialog(title, subtitle, options, onOk)
 		// show the dialog 
 		dialog.setAttribute('open','open');
 
-		closeButton.onclick = function(event) { dialog.removeAttribute('open'); options?reasonSelector.selectedIndex = 0:null; }
-		okButton.onclick = function(event) {
-				if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
-				dialog.removeAttribute('open');
-					showImageDialog("Report Thumbnail", "Take a photo for the report in the map", onOk)
-			}
+		closeButton.onclick = function() {
+			dialog.removeAttribute('open');
+			options ? reasonSelector.selectedIndex = 0 : null;
+		}
+		okButton.onclick = function() {
+			if(reasonSelector.selectedIndex === 0) return //Don't allow to report without a reason!
+			dialog.removeAttribute('open');
+			showImageDialog("Report Thumbnail", "Take a photo for the report in the map", onOk)
+		}
 	}
 }
 
@@ -1825,26 +1828,13 @@ function saveDataAsFile(filename, data) {
 
 export function exportLevelAsGLTF()
 {
-    // Instantiate a exporter
 	const exporter = new GLTFExporter();
-
-	// Parse the input and generate the glTF output
-	exporter.parse(
-	    scene,
-	    // called when the gltf has been generated
-	    function ( gltf ) {
-
-	        console.log( gltf );
-	        saveDataAsFile( "test.gltf", JSON.stringify(gltf) );
-
-	    },
-	    // called when there is an error in the generation
-	    function ( error ) {
-
-	        console.log( 'An error happened' );
-
-	    },
-	    {}
+	exporter.parse(scene, (gltf) => {
+			console.log( gltf );
+			saveDataAsFile( "test.gltf", JSON.stringify(gltf) );
+		}, (err) => {
+			console.error(err);
+		}, {}
 	);
 }
 
@@ -1871,7 +1861,6 @@ async function loadLeaderboardData() {
 	const urlParams = new URLSearchParams(window.location.search);
 	let levelIdentifier = urlParams.get('level');
 	let levelIdentifierParts = levelIdentifier.split(':')
-	let hasIteration = levelIdentifierParts.length === 3
 	const endpointUrl = config.SERVER_URL + 'statistics_top_leaderboard/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
 	try {
 		const response = await fetch(endpointUrl);
@@ -1908,7 +1897,7 @@ function displayLeaderboardData(data) {
 				maxDecimals = Math.max(maxDecimals, decimals.length);
 			}
 		});
-		data.forEach((entry, index) => {
+		data.forEach((entry) => {
 			const row = document.createElement("div");
 			row.className = "leaderboard-row";
 			if (entry.user_id == userID) {
