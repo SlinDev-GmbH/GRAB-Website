@@ -114,7 +114,7 @@ function init()
 
 	THREE.ColorManagement.enabled = true;
 
-	renderer = new THREE.WebGL1Renderer({
+	renderer = new THREE.WebGLRenderer({
 		antialias: true,
 		preserveDrawingBuffer: true,
 	});
