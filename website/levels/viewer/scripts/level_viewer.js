@@ -57,9 +57,7 @@ let isFogEnabled = true;
 let isSliderDragging = false;
 let isSliderPlaying = true;
 let showTriggers = false;
-// let particles = [];
-// let particlesPositions = [];
-// let particlesDirections = [];
+let particleUpdates = [];
 let removedTimes = [];
 let blob;
 let allNodes = [];
@@ -209,8 +207,7 @@ function init()
 	particleMaterial.fragmentShader = SHADERS.particleFS;
 	particleMaterial.flatShading = true;
 	particleMaterial.uniforms = {
-		"fogEnabled": { value: 1.0 },
-		"scale": { value: 1.0 },
+		"fogEnabled": { value: 1.0 }
 	};
 	objectMaterials.push(particleMaterial);
 
@@ -829,20 +826,42 @@ function init()
 						{
 							particleColor = new THREE.Color(1.0, 0.6, 0.6);
 						}
-						let particleCount = Math.floor(object.scale.x * object.scale.y * object.scale.z * 10)
-						particleCount = Math.min(particleCount, 2000);
+
+						let lifeSpan = 1;
+						let particleCount = Math.min(Math.floor(object.scale.x * object.scale.y * object.scale.z * 10), 2000);
+
+						let size = 0.1;
 
 						const positions = new Float32Array(particleCount * 3);
 						const colors = new Float32Array(particleCount * 3);
+						const scales = new Float32Array(particleCount);
+						const lifeSpans = new Float32Array(particleCount);
+
+						let worldPosition = new THREE.Vector3();
+						let worldScale = new THREE.Vector3();
+						let worldQuaternion = new THREE.Quaternion();
+						let worldRotation = new THREE.Euler();
+						object.getWorldPosition(worldPosition);
+						object.getWorldScale(worldScale);
+						object.getWorldQuaternion(worldQuaternion);
+						worldRotation.setFromQuaternion(worldQuaternion);
+
+						let velocity = new THREE.Vector3(
+							node.levelNodeGravity.direction.x,
+							node.levelNodeGravity.direction.y,
+							node.levelNodeGravity.direction.z
+						);
+						velocity.applyQuaternion(worldQuaternion);
 
 						for(let i = 0; i < particleCount; i++)
 						{
-							let x = (Math.random() - 0.5);
-							let y = (Math.random() - 0.5);
-							let z = (Math.random() - 0.5);
-							positions[i * 3] = x;
-							positions[i * 3 + 1] = y;
-							positions[i * 3 + 2] = z;
+							lifeSpans[i] = Math.random() * lifeSpan;
+
+							scales[i] = size;
+
+							positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5);
+							positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5);
+							positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5);
 
 							colors[i * 3] = particleColor.r;
 							colors[i * 3 + 1] = particleColor.g;
@@ -851,18 +870,49 @@ function init()
 
 						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+						particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
 
 						let particleMaterial = objectMaterials[6].clone();
-						particleMaterial.uniforms.scale.value = 0.2;
 
 						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
 
-						object.add(particlePoints);
+						scene.add(particlePoints);
 						parentNode.add(object);
+						particleUpdates.push((delta) => {
+							const positions = particleGeometry.attributes.position.array;
 
-						// particles.push(particlePoints);
-						// particlesPositions.push(particlePositions);
-						// particlesDirections.push([node.levelNodeGravity.direction.x, node.levelNodeGravity.direction.y, node.levelNodeGravity.direction.z])
+							let worldPosition = new THREE.Vector3();
+							let worldScale = new THREE.Vector3();
+							let worldQuaternion = new THREE.Quaternion();
+							let worldRotation = new THREE.Euler();
+							object.getWorldPosition(worldPosition);
+							object.getWorldScale(worldScale);
+							object.getWorldQuaternion(worldQuaternion);
+							worldRotation.setFromQuaternion(worldQuaternion);
+
+							let velocity = new THREE.Vector3(
+								node.levelNodeGravity.direction.x,
+								node.levelNodeGravity.direction.y,
+								node.levelNodeGravity.direction.z
+							);
+							velocity.applyQuaternion(worldQuaternion);
+
+							for (let i = 0; i < particleCount; i++) {
+								lifeSpans[i] -= delta;
+								if (lifeSpans[i] <= 0) {
+									lifeSpans[i] = lifeSpan;
+
+									positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5);
+									positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5);
+									positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5);
+								}
+								positions[i * 3] += velocity.x * delta;
+								positions[i * 3 + 1] += velocity.y * delta;
+								positions[i * 3 + 2] += velocity.z * delta;
+							}
+
+							particleGeometry.attributes.position.needsUpdate = true;
+						});
 
 						realComplexity += 10;
 					}
@@ -887,49 +937,186 @@ function init()
 
 						let particleGeometry = new THREE.BufferGeometry();
 
-						let startColor = new THREE.Color(node.levelNodeParticleEmitter.startColor.r, node.levelNodeParticleEmitter.startColor.g, node.levelNodeParticleEmitter.startColor.b);
-						let endColor = new THREE.Color(node.levelNodeParticleEmitter.endColor.r, node.levelNodeParticleEmitter.endColor.g, node.levelNodeParticleEmitter.endColor.b);
-						let scale = Math.max(
-							node.levelNodeParticleEmitter.startSize.x,
-							node.levelNodeParticleEmitter.startSize.y,
-							node.levelNodeParticleEmitter.endSize.x,
-							node.levelNodeParticleEmitter.endSize.y
+						let particlesPerSecond = node.levelNodeParticleEmitter.particlesPerSecond;
+						
+						let lifeSpanMin = node.levelNodeParticleEmitter.lifeSpan.x;
+						let lifeSpanMax = node.levelNodeParticleEmitter.lifeSpan.y;
+						let particleCount = Math.min(Math.floor(particlesPerSecond * lifeSpanMax), 10000);
+
+						let startSizeMin = node.levelNodeParticleEmitter.startSize.x * 2;
+						let startSizeMax = node.levelNodeParticleEmitter.startSize.y * 2;
+						let endSizeMin = node.levelNodeParticleEmitter.endSize.x * 2;
+						let endSizeMax = node.levelNodeParticleEmitter.endSize.y * 2;
+
+						let velocityMin = new THREE.Vector3(
+							-node.levelNodeParticleEmitter.velocityMin.x,
+							node.levelNodeParticleEmitter.velocityMin.y,
+							-node.levelNodeParticleEmitter.velocityMin.z,
 						);
-						let particleCount = Math.floor(node.levelNodeParticleEmitter.particlesPerSecond * 2);
-						particleCount = Math.min(particleCount, 1000);
+						let velocityMax = new THREE.Vector3(
+							-node.levelNodeParticleEmitter.velocityMax.x,
+							node.levelNodeParticleEmitter.velocityMax.y,
+							-node.levelNodeParticleEmitter.velocityMax.z,
+						);
+
+						let accelerationMin = new THREE.Vector3(
+							-node.levelNodeParticleEmitter.accelerationMin.x,
+							node.levelNodeParticleEmitter.accelerationMin.y,
+							-node.levelNodeParticleEmitter.accelerationMin.z,
+						);
+						let accelerationMax = new THREE.Vector3(
+							-node.levelNodeParticleEmitter.accelerationMax.x,
+							node.levelNodeParticleEmitter.accelerationMax.y,
+							-node.levelNodeParticleEmitter.accelerationMax.z,
+						);
+
+						let startColor = [
+							node.levelNodeParticleEmitter.startColor.r,
+							node.levelNodeParticleEmitter.startColor.g,
+							node.levelNodeParticleEmitter.startColor.b
+						];
+						let endColor = [
+							node.levelNodeParticleEmitter.endColor.r,
+							node.levelNodeParticleEmitter.endColor.g,
+							node.levelNodeParticleEmitter.endColor.b
+						];
 
 						const positions = new Float32Array(particleCount * 3);
 						const colors = new Float32Array(particleCount * 3);
+						const scales = new Float32Array(particleCount);
+						const lifeSpans = new Float32Array(particleCount);
+						const totalLifeSpans = new Float32Array(particleCount);
+						const startSizes = new Float32Array(particleCount);
+						const endSizes = new Float32Array(particleCount);
+						const velocities = new Float32Array(particleCount * 3);
+						const accelerations = new Float32Array(particleCount * 3);
+
+						const randRange = (min, max) => {
+							return Math.random() * (max - min) + min;
+						}
+
+						let worldPosition = new THREE.Vector3();
+						let worldScale = new THREE.Vector3();
+						let worldQuaternion = new THREE.Quaternion();
+						let worldRotation = new THREE.Euler();
+						object.getWorldPosition(worldPosition);
+						object.getWorldScale(worldScale);
+						object.getWorldQuaternion(worldQuaternion);
+						worldRotation.setFromQuaternion(worldQuaternion);
+
+						let velocityMaxRotated = new THREE.Vector3().copy(velocityMax);
+						let velocityMinRotated = new THREE.Vector3().copy(velocityMin);
+						let accelerationMinRotated = new THREE.Vector3().copy(accelerationMin);
+						let accelerationMaxRotated = new THREE.Vector3().copy(accelerationMax);
+						velocityMaxRotated.applyQuaternion(worldQuaternion);
+						velocityMinRotated.applyQuaternion(worldQuaternion);
+						accelerationMinRotated.applyQuaternion(worldQuaternion);
+						accelerationMaxRotated.applyQuaternion(worldQuaternion);
 
 						for(let i = 0; i < particleCount; i++)
 						{
-							let x = (Math.random() - 0.5);
-							let y = (Math.random() - 0.5);
-							let z = (Math.random() - 0.5);
-							positions[i * 3] = x;
-							positions[i * 3 + 1] = y;
-							positions[i * 3 + 2] = z;
+							totalLifeSpans[i] = randRange(lifeSpanMin, lifeSpanMax);
+							lifeSpans[i] = Math.random() * totalLifeSpans[i];
 
-							const color = new THREE.Color();
-							let factor = Math.random();
-							color.r = THREE.MathUtils.lerp(startColor.r, endColor.r, factor);
-							color.g = THREE.MathUtils.lerp(startColor.g, endColor.g, factor);
-							color.b = THREE.MathUtils.lerp(startColor.b, endColor.b, factor);
-							colors[i * 3] = color.r;
-							colors[i * 3 + 1] = color.g;
-							colors[i * 3 + 2] = color.b;
+							startSizes[i] = randRange(startSizeMin, startSizeMax);
+							endSizes[i] = randRange(endSizeMin, endSizeMax);
+
+							accelerations[i * 3] = randRange(accelerationMinRotated.x, accelerationMaxRotated.x);
+							accelerations[i * 3 + 1] = randRange(accelerationMinRotated.y, accelerationMaxRotated.y);
+							accelerations[i * 3 + 2] = randRange(accelerationMinRotated.z, accelerationMaxRotated.z);
+
+							const lifeFactor = 1 - lifeSpans[i] / totalLifeSpans[i];
+
+							velocities[i * 3] = randRange(velocityMinRotated.x, velocityMaxRotated.x) + accelerations[i * 3] * lifeFactor;
+							velocities[i * 3 + 1] = randRange(velocityMinRotated.y, velocityMaxRotated.y) + accelerations[i * 3 + 1] * lifeFactor;
+							velocities[i * 3 + 2] = randRange(velocityMinRotated.z, velocityMaxRotated.z) + accelerations[i * 3 + 2] * lifeFactor;
+
+							positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5) + velocities[i * 3] * lifeFactor;
+							positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5) + velocities[i * 3 + 1] * lifeFactor;
+							positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5) + velocities[i * 3 + 2] * lifeFactor;
+
+							scales[i] = THREE.MathUtils.lerp(startSizes[i], endSizes[i], lifeFactor);
+
+							colors[i * 3] = THREE.MathUtils.lerp(startColor[0], endColor[0], lifeFactor);
+							colors[i * 3 + 1] = THREE.MathUtils.lerp(startColor[1], endColor[1], lifeFactor);
+							colors[i * 3 + 2] = THREE.MathUtils.lerp(startColor[2], endColor[2], lifeFactor);
 						}
 
 						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+						particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
 
 						let particleMaterial = objectMaterials[6].clone();
-						particleMaterial.uniforms.scale.value = scale;
 
 						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
 
-						object.add(particlePoints);
+						particlePoints.frustumCulled = false;
+						scene.add(particlePoints);
 						parentNode.add(object);
+						particleUpdates.push((delta) => {
+							const positions = particleGeometry.attributes.position.array;
+							const colors = particleGeometry.attributes.color.array;
+							const scales = particleGeometry.attributes.scale.array;
+
+							let worldPosition = new THREE.Vector3();
+							let worldScale = new THREE.Vector3();
+							let worldQuaternion = new THREE.Quaternion();
+							let worldRotation = new THREE.Euler();
+							object.getWorldPosition(worldPosition);
+							object.getWorldScale(worldScale);
+							object.getWorldQuaternion(worldQuaternion);
+							worldRotation.setFromQuaternion(worldQuaternion);
+
+							let velocityMaxRotated = new THREE.Vector3().copy(velocityMax);
+							let velocityMinRotated = new THREE.Vector3().copy(velocityMin);
+							let accelerationMinRotated = new THREE.Vector3().copy(accelerationMin);
+							let accelerationMaxRotated = new THREE.Vector3().copy(accelerationMax);
+							velocityMaxRotated.applyQuaternion(worldQuaternion);
+							velocityMinRotated.applyQuaternion(worldQuaternion);
+							accelerationMinRotated.applyQuaternion(worldQuaternion);
+							accelerationMaxRotated.applyQuaternion(worldQuaternion);
+
+							for (let i = 0; i < particleCount; i++) {
+								lifeSpans[i] -= delta;
+								if (lifeSpans[i] <= 0) {
+									totalLifeSpans[i] = randRange(lifeSpanMin, lifeSpanMax);
+									lifeSpans[i] = totalLifeSpans[i];
+
+									startSizes[i] = randRange(startSizeMin, startSizeMax);
+									endSizes[i] = randRange(endSizeMin, endSizeMax);
+
+									velocities[i * 3] = randRange(velocityMinRotated.x, velocityMaxRotated.x);
+									velocities[i * 3 + 1] = randRange(velocityMinRotated.y, velocityMaxRotated.y);
+									velocities[i * 3 + 2] = randRange(velocityMinRotated.z, velocityMaxRotated.z);
+
+									accelerations[i * 3] = randRange(accelerationMinRotated.x, accelerationMaxRotated.x);
+									accelerations[i * 3 + 1] = randRange(accelerationMinRotated.y, accelerationMaxRotated.y);
+									accelerations[i * 3 + 2] = randRange(accelerationMinRotated.z, accelerationMaxRotated.z);
+
+									positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5);
+									positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5);
+									positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5);
+								}
+								const lifeFactor = 1 - lifeSpans[i] / totalLifeSpans[i];
+								scales[i] = THREE.MathUtils.lerp(startSizes[i], endSizes[i], lifeFactor);
+
+								colors[i * 3] = THREE.MathUtils.lerp(startColor[0], endColor[0], lifeFactor);
+								colors[i * 3 + 1] = THREE.MathUtils.lerp(startColor[1], endColor[1], lifeFactor);
+								colors[i * 3 + 2] = THREE.MathUtils.lerp(startColor[2], endColor[2], lifeFactor);
+
+								positions[i * 3] += velocities[i * 3] * delta;
+								positions[i * 3 + 1] += velocities[i * 3 + 1] * delta;
+								positions[i * 3 + 2] += velocities[i * 3 + 2] * delta;
+
+								velocities[i * 3] += accelerations[i * 3] * delta;
+								velocities[i * 3 + 1] += accelerations[i * 3 + 1] * delta;
+								velocities[i * 3 + 2] += accelerations[i * 3 + 2] * delta;
+							}
+
+							particleGeometry.attributes.position.needsUpdate = true;
+							particleGeometry.attributes.color.needsUpdate = true;
+							particleGeometry.attributes.scale.needsUpdate = true;
+						});
 
 						realComplexity += 5;
 					}
@@ -1685,6 +1872,7 @@ document.getElementById('play-pause').addEventListener('click', function(){
 	}
 });
 
+let updateParticles = true;
 function animation()
 {
 	const delta = clock.getDelta();
@@ -1708,28 +1896,9 @@ function animation()
 		updateObjectAnimation(object, animationTime)
 	}
 
-	/*let particleRenderDistance = 1000;
-	let currentPosition = camera.position;
-	for(let i = 0; i < particles.length; i++)
-	{
-		let particle = particles[i];
-		let particlePositions = particlesPositions[i];
-		let particleDirection = particlesDirections[i];
-
-		let visibleParticles = [];
-		for (let j = 0; j < particlePositions.length; j++) {
-			let position = new THREE.Vector3(particlePositions[j * 3] , particlePositions[j * 3 + 1], particlePositions[j * 3 + 2]);
-			position.x += particleDirection[0] * delta
-			position.y += particleDirection[1] * delta
-			position.z += particleDirection[2] * delta
-			//let globalPosition = position.clone().applyMatrix4(particle.matrixWorld);
-			//if (globalPosition.distanceTo(currentPosition) < particleRenderDistance) {
-				visibleParticles.push(position.x, position.y, position.z);
-			//}
-		}
-
-		particle.geometry.setAttribute('position', new THREE.Float32BufferAttribute(visibleParticles, 3));
-	}*/
+	if ((updateParticles = !updateParticles)) {
+		particleUpdates.forEach(upd => upd(delta));
+	}
 
 	renderer.render(scene, camera);
 }
