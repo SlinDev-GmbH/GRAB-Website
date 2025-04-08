@@ -1848,7 +1848,6 @@ document.getElementById('play-pause').addEventListener('click', function(){
 	}
 });
 
-let updateParticles = true;
 function animation()
 {
 	const delta = clock.getDelta();
@@ -1872,9 +1871,7 @@ function animation()
 		updateObjectAnimation(object, animationTime)
 	}
 
-	if ((updateParticles = !updateParticles)) {
-		particleUpdates.forEach(upd => upd(delta));
-	}
+	particleUpdates.forEach(upd => upd(delta));
 
 	renderer.render(scene, camera);
 }
