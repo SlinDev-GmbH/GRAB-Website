@@ -293,7 +293,7 @@ export const signFS = `
 	}`
 export const particleVS = `
 	attribute vec3 color;
-	uniform float scale;
+	attribute float scale;
 
 	varying vec3 vColor;
 	varying vec3 vWorldPosition;
