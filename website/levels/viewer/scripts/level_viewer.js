@@ -951,7 +951,7 @@ function init()
 						
 						let lifeSpanMin = node.levelNodeParticleEmitter.lifeSpan.x;
 						let lifeSpanMax = node.levelNodeParticleEmitter.lifeSpan.y;
-						let particleCount = Math.min(Math.floor(particlesPerSecond * lifeSpanMax), 10000);
+						let particleCount = Math.min(Math.floor(particlesPerSecond * lifeSpanMax), 1000);
 
 						let startSizeMin = node.levelNodeParticleEmitter.startSize.x * 2;
 						let startSizeMax = node.levelNodeParticleEmitter.startSize.y * 2;
