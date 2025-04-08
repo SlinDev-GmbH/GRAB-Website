@@ -840,11 +840,9 @@ function init()
 						let worldPosition = new THREE.Vector3();
 						let worldScale = new THREE.Vector3();
 						let worldQuaternion = new THREE.Quaternion();
-						let worldRotation = new THREE.Euler();
 						object.getWorldPosition(worldPosition);
 						object.getWorldScale(worldScale);
 						object.getWorldQuaternion(worldQuaternion);
-						worldRotation.setFromQuaternion(worldQuaternion);
 
 						let velocity = new THREE.Vector3(
 							node.levelNodeGravity.direction.x,
@@ -859,9 +857,16 @@ function init()
 
 							scales[i] = size;
 
-							positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5);
-							positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5);
-							positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5);
+							let particlePosition = new THREE.Vector3(
+								(Math.random() - 0.5) * worldScale.x,
+								(Math.random() - 0.5) * worldScale.y,
+								(Math.random() - 0.5) * worldScale.z
+							);
+							particlePosition.applyQuaternion(worldQuaternion);
+
+							positions[i * 3] = worldPosition.x + particlePosition.x;
+							positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
+							positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
 
 							colors[i * 3] = particleColor.r;
 							colors[i * 3 + 1] = particleColor.g;
@@ -884,11 +889,9 @@ function init()
 							let worldPosition = new THREE.Vector3();
 							let worldScale = new THREE.Vector3();
 							let worldQuaternion = new THREE.Quaternion();
-							let worldRotation = new THREE.Euler();
 							object.getWorldPosition(worldPosition);
 							object.getWorldScale(worldScale);
 							object.getWorldQuaternion(worldQuaternion);
-							worldRotation.setFromQuaternion(worldQuaternion);
 
 							let velocity = new THREE.Vector3(
 								node.levelNodeGravity.direction.x,
@@ -902,9 +905,16 @@ function init()
 								if (lifeSpans[i] <= 0) {
 									lifeSpans[i] = lifeSpan;
 
-									positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5);
-									positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5);
-									positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5);
+									let particlePosition = new THREE.Vector3(
+										(Math.random() - 0.5) * worldScale.x,
+										(Math.random() - 0.5) * worldScale.y,
+										(Math.random() - 0.5) * worldScale.z
+									);
+									particlePosition.applyQuaternion(worldQuaternion);
+
+									positions[i * 3] = worldPosition.x + particlePosition.x;
+									positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
+									positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
 								}
 								positions[i * 3] += velocity.x * delta;
 								positions[i * 3 + 1] += velocity.y * delta;
@@ -916,7 +926,7 @@ function init()
 
 						realComplexity += 10;
 					}
-					else if(node.levelNodeParticleEmitter) // TODO: support all the features properly
+					else if(node.levelNodeParticleEmitter)
 					{
 						object = new THREE.Object3D();
 						object.position.x = -node.levelNodeParticleEmitter.position.x;
@@ -998,11 +1008,9 @@ function init()
 						let worldPosition = new THREE.Vector3();
 						let worldScale = new THREE.Vector3();
 						let worldQuaternion = new THREE.Quaternion();
-						let worldRotation = new THREE.Euler();
 						object.getWorldPosition(worldPosition);
 						object.getWorldScale(worldScale);
 						object.getWorldQuaternion(worldQuaternion);
-						worldRotation.setFromQuaternion(worldQuaternion);
 
 						let velocityMaxRotated = new THREE.Vector3().copy(velocityMax);
 						let velocityMinRotated = new THREE.Vector3().copy(velocityMin);
@@ -1031,9 +1039,16 @@ function init()
 							velocities[i * 3 + 1] = randRange(velocityMinRotated.y, velocityMaxRotated.y) + accelerations[i * 3 + 1] * lifeFactor;
 							velocities[i * 3 + 2] = randRange(velocityMinRotated.z, velocityMaxRotated.z) + accelerations[i * 3 + 2] * lifeFactor;
 
-							positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5) + velocities[i * 3] * lifeFactor;
-							positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5) + velocities[i * 3 + 1] * lifeFactor;
-							positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5) + velocities[i * 3 + 2] * lifeFactor;
+							let particlePosition = new THREE.Vector3(
+								(Math.random() - 0.5) * worldScale.x,
+								(Math.random() - 0.5) * worldScale.y,
+								(Math.random() - 0.5) * worldScale.z
+							);
+							particlePosition.applyQuaternion(worldQuaternion);
+
+							positions[i * 3] = worldPosition.x + particlePosition.x + velocities[i * 3] * lifeFactor;
+							positions[i * 3 + 1] = worldPosition.y + particlePosition.y + velocities[i * 3 + 1] * lifeFactor;
+							positions[i * 3 + 2] = worldPosition.z + particlePosition.z + velocities[i * 3 + 2] * lifeFactor;
 
 							scales[i] = THREE.MathUtils.lerp(startSizes[i], endSizes[i], lifeFactor);
 
@@ -1061,11 +1076,9 @@ function init()
 							let worldPosition = new THREE.Vector3();
 							let worldScale = new THREE.Vector3();
 							let worldQuaternion = new THREE.Quaternion();
-							let worldRotation = new THREE.Euler();
 							object.getWorldPosition(worldPosition);
 							object.getWorldScale(worldScale);
 							object.getWorldQuaternion(worldQuaternion);
-							worldRotation.setFromQuaternion(worldQuaternion);
 
 							let velocityMaxRotated = new THREE.Vector3().copy(velocityMax);
 							let velocityMinRotated = new THREE.Vector3().copy(velocityMin);
@@ -1093,9 +1106,16 @@ function init()
 									accelerations[i * 3 + 1] = randRange(accelerationMinRotated.y, accelerationMaxRotated.y);
 									accelerations[i * 3 + 2] = randRange(accelerationMinRotated.z, accelerationMaxRotated.z);
 
-									positions[i * 3] = worldPosition.x + worldScale.x * (Math.random() - 0.5);
-									positions[i * 3 + 1] = worldPosition.y + worldScale.y * (Math.random() - 0.5);
-									positions[i * 3 + 2] = worldPosition.z + worldScale.z * (Math.random() - 0.5);
+									let particlePosition = new THREE.Vector3(
+										(Math.random() - 0.5) * worldScale.x,
+										(Math.random() - 0.5) * worldScale.y,
+										(Math.random() - 0.5) * worldScale.z
+									);
+									particlePosition.applyQuaternion(worldQuaternion);
+
+									positions[i * 3] = worldPosition.x + particlePosition.x;
+									positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
+									positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
 								}
 								const lifeFactor = 1 - lifeSpans[i] / totalLifeSpans[i];
 								scales[i] = THREE.MathUtils.lerp(startSizes[i], endSizes[i], lifeFactor);
