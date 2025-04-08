@@ -1047,6 +1047,7 @@ function init()
 							for (let i = 0; i < particleCount; i++) {
 								lifeSpans[i] -= delta;
 								if (lifeSpans[i] <= 0) {
+									delta = -lifeSpans[i];
 									totalLifeSpans[i] = randRange(lifeSpanMin, lifeSpanMax);
 									lifeSpans[i] = totalLifeSpans[i];
 
