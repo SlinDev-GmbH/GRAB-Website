@@ -991,6 +991,7 @@ function init()
 							node.levelNodeParticleEmitter.endColor.b
 						];
 
+						// all default to 0, mimics slowly spawning in at the start
 						const positions = new Float32Array(particleCount * 3);
 						const colors = new Float32Array(particleCount * 3);
 						const scales = new Float32Array(particleCount);
@@ -1005,56 +1006,10 @@ function init()
 							return Math.random() * (max - min) + min;
 						}
 
-						let worldPosition = new THREE.Vector3();
-						let worldScale = new THREE.Vector3();
-						let worldQuaternion = new THREE.Quaternion();
-						object.getWorldPosition(worldPosition);
-						object.getWorldScale(worldScale);
-						object.getWorldQuaternion(worldQuaternion);
-
-						let velocityMaxRotated = new THREE.Vector3().copy(velocityMax);
-						let velocityMinRotated = new THREE.Vector3().copy(velocityMin);
-						let accelerationMinRotated = new THREE.Vector3().copy(accelerationMin);
-						let accelerationMaxRotated = new THREE.Vector3().copy(accelerationMax);
-						velocityMaxRotated.applyQuaternion(worldQuaternion);
-						velocityMinRotated.applyQuaternion(worldQuaternion);
-						accelerationMinRotated.applyQuaternion(worldQuaternion);
-						accelerationMaxRotated.applyQuaternion(worldQuaternion);
-
 						for(let i = 0; i < particleCount; i++)
 						{
 							totalLifeSpans[i] = randRange(lifeSpanMin, lifeSpanMax);
 							lifeSpans[i] = Math.random() * totalLifeSpans[i];
-
-							startSizes[i] = randRange(startSizeMin, startSizeMax);
-							endSizes[i] = randRange(endSizeMin, endSizeMax);
-
-							accelerations[i * 3] = randRange(accelerationMinRotated.x, accelerationMaxRotated.x);
-							accelerations[i * 3 + 1] = randRange(accelerationMinRotated.y, accelerationMaxRotated.y);
-							accelerations[i * 3 + 2] = randRange(accelerationMinRotated.z, accelerationMaxRotated.z);
-
-							const lifeFactor = 1 - lifeSpans[i] / totalLifeSpans[i];
-
-							velocities[i * 3] = randRange(velocityMinRotated.x, velocityMaxRotated.x) + accelerations[i * 3] * lifeFactor;
-							velocities[i * 3 + 1] = randRange(velocityMinRotated.y, velocityMaxRotated.y) + accelerations[i * 3 + 1] * lifeFactor;
-							velocities[i * 3 + 2] = randRange(velocityMinRotated.z, velocityMaxRotated.z) + accelerations[i * 3 + 2] * lifeFactor;
-
-							let particlePosition = new THREE.Vector3(
-								(Math.random() - 0.5) * worldScale.x,
-								(Math.random() - 0.5) * worldScale.y,
-								(Math.random() - 0.5) * worldScale.z
-							);
-							particlePosition.applyQuaternion(worldQuaternion);
-
-							positions[i * 3] = worldPosition.x + particlePosition.x + velocities[i * 3] * lifeFactor;
-							positions[i * 3 + 1] = worldPosition.y + particlePosition.y + velocities[i * 3 + 1] * lifeFactor;
-							positions[i * 3 + 2] = worldPosition.z + particlePosition.z + velocities[i * 3 + 2] * lifeFactor;
-
-							scales[i] = THREE.MathUtils.lerp(startSizes[i], endSizes[i], lifeFactor);
-
-							colors[i * 3] = THREE.MathUtils.lerp(startColor[0], endColor[0], lifeFactor);
-							colors[i * 3 + 1] = THREE.MathUtils.lerp(startColor[1], endColor[1], lifeFactor);
-							colors[i * 3 + 2] = THREE.MathUtils.lerp(startColor[2], endColor[2], lifeFactor);
 						}
 
 						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
