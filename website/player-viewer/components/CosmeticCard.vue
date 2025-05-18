@@ -46,7 +46,7 @@ export default {
         }
     },
     mounted() {
-        if(!this.itemObject.type.includes('currency')){
+        if(!this.itemObject.type.includes('currency') && !this.itemName.includes('consumable') ){
             this.setupThreeScene();
         }
     },
