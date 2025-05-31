@@ -6,6 +6,7 @@ export async function hideLevelRequest(server, accessToken, levelID) {
   if(response.status != 200 || responseBody !== 'Success') {
     confirm("Error: " + responseBody);
     if(responseBody === 'Scheduled for deletion!') return true
+    if(responseBody === 'Previous moderation action is still active') return true
     return false
   }
 
