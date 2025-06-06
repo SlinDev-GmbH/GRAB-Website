@@ -224,7 +224,7 @@ message TriggerTargetAnimation
 
 	uint64 objectID = 1;
 	string animationName = 2;
-	
+
 	bool loop = 3; //Make the animation repeat endlessly until it is stopped
 	bool reverse = 4; //Make the animation play backwards
 
@@ -275,10 +275,17 @@ message Animation
 		PINGPONG = 1; //After the last frame, play the animation backwards
 	}
 
+	enum Interpolation
+	{
+		LINEAR = 0;
+		CATMULL_ROM = 1;
+	}
+
 	string name = 1;
 	repeated AnimationFrame frames = 2;
 	Direction direction = 3;
 	float speed = 4;
+	Interpolation interpolation = 5;
 }
 
 message LevelNode
@@ -301,4 +308,5 @@ message LevelNode
 
 	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations
 	int32 activeAnimation = 16; //Index into animations, -1 if it is not playing an animation at the start, ignored if there are no animations (so will default to 0 in that case)
+	bool wantsCreationHistory = 17; //Player still dragging this from the menu and creation is yet to be added to the undo history.
 }
