@@ -23,6 +23,7 @@ import modelCubeURL from '../models/cube.gltf'
 import modelSphereURL from '../models/sphere.gltf'
 import modelCylinderURL from '../models/cylinder.gltf'
 import modelPyramidURL from '../models/pyramid.gltf'
+import modelPyramid4URL from '../models/pyramid4.glb'
 import modelPrismURL from '../models/prism.gltf'
 import modelStartEndURL from '../models/start_end.gltf'
 import modelSignURL from '../models/sign.gltf'
@@ -141,6 +142,7 @@ function init()
 	shapePromises.push(getGeometryForModel(modelPyramidURL));
 	shapePromises.push(getGeometryForModel(modelPrismURL));
 	shapePromises.push(getGeometryForModel(modelConeURL));
+	shapePromises.push(getGeometryForModel(modelPyramid4URL));
 
 	let shapePromise = Promise.all(shapePromises).then(function(result){
 		for(let shape of result)
