@@ -14,7 +14,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  assetsInclude: ['**/*.gltf'],
+  assetsInclude: ['**/*.gltf', '**/*.glb'],
   build: {
     rollupOptions: {
       input: {
