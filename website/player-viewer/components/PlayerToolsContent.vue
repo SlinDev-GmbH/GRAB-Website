@@ -199,6 +199,7 @@ export default {
     gap: 1rem;
     padding: 1rem;
     grid-template-columns: 1fr 1fr;
-    height: fit-content
+    height: fit-content;
+    scrollbar-width: none
 }
 </style>

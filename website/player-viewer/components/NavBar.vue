@@ -52,6 +52,7 @@ export default {
 .dropdown-content {
     overflow: scroll;
     max-height: 300px;
+    scrollbar-width: none;
 }
 
 .navbar *:last-child {
