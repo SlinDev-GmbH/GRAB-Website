@@ -31,16 +31,16 @@ export default {
             const filterMap = {
                 "All": "All",
                 "Heads": "head",
-                "Head - Hats": "head/hat",
-                "Head - Face Items": "head/glasses",
+                "Hats": "head/hat",
+                "Face": "head/glasses",
                 "Bodies": "body",
-                "Body - Backpack":"body/backpack",
-                "Body - Neck": "body/neck",
-                "Body - Waist": "body/lower",
-                "Body - Badge": "body/badge",
+                "Backpack":"body/backpack",
+                "Neck": "body/neck",
+                "Waist": "body/lower",
+                "Badge": "body/badge",
                 "Hands": "hand",
                 "Grapples": "grapple/hook",
-                "Checkpoints": "checkpoint"
+                "Checkpoint": "checkpoint"
             };
 
             return filterMap[this.filterChoice];
