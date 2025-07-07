@@ -9,7 +9,9 @@ const routes = [
   { path: '/', component: StartPage },
   { path: '/levels', component: LevelBrowser },
   { path: '/player', component: PlayerViewer },
-  { path: '/curation', component: CurationPage }
+  { path: '/curation', component: CurationPage },
+  { path: '/:pathMatch(.*)*', redirect: '/' },
+  { path: '/levels/:pathMatch(.*)*', redirect: '/levels' },
 ]
 
 const router = createRouter({
