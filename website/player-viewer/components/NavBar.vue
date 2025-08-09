@@ -36,7 +36,7 @@ export default {
         <button v-for="option in NavBar" :key="option.id" :id="option.id" @click="option.onClick" :class="active == option.id ? 'active' : ''">
             {{ option.text }}
         </button>
-        <DropDown v-show="isItemsSelected" :options='["All", "Heads", "Hats", "Facewear", "Body", "Backpack", "Badge", "Neck", "Hands", "Checkpoint", "Grapples"]' :defaultChoice='"All"' @changeSelection="$emit('changeSelection', $event)"/>
+        <DropDown v-show="isItemsSelected" :options='["All", "Heads", "Hats", "Face", "Bodies", "Backpack", "Neck", "Waist", "Badge", "Hands", "Grapples", "Checkpoint"]' :defaultChoice='"All"' @changeSelection="$emit('changeSelection', $event)"/>
     </nav>
 </template>
 <style>
@@ -52,13 +52,14 @@ export default {
 .dropdown-content {
     overflow: scroll;
     max-height: 300px;
+    scrollbar-width: none;
 }
 
 .navbar *:last-child {
     margin-left: auto;
 }
 
-.navbar button {
+.navbar > button {
     color: white;
     font-size: 16px;
     cursor: pointer;

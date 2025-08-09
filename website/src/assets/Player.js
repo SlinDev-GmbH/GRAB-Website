@@ -206,10 +206,12 @@ class Player {
             "head/hat": [0.0, 0.190766, 0.0],
             "head/glasses": [0.0, 0.008302, -0.203441],
             "head/glasses/mouth": [0.0, -0.192385, -0.291841],
+            "head/glasses/emoji": [0.0, -0.192385, -0.294],
             "body/backpack": [0.0, -0.311955, 0.278574],
             "body/neck/chest": [0.0, -0.300416, -0.124705],
             "body/badge/left": [-0.134673, -0.267122, -0.088314],
             "body/badge/right": [0.134673, -0.267122, -0.088314],
+            "body/lower": [0.0, -0.55, 0.1]
         };
 
         const rotations = {

@@ -32,14 +32,15 @@ export default {
                 "All": "All",
                 "Heads": "head",
                 "Hats": "head/hat",
-                "Facewear": "head/glasses",
-                "Body": "body",
+                "Face": "head/glasses",
+                "Bodies": "body",
                 "Backpack":"body/backpack",
                 "Neck": "body/neck",
+                "Waist": "body/lower",
                 "Badge": "body/badge",
                 "Hands": "hand",
-                "Checkpoint": "checkpoint",
-                "Grapples": "grapple/hook"
+                "Grapples": "grapple/hook",
+                "Checkpoint": "checkpoint"
             };
 
             return filterMap[this.filterChoice];
