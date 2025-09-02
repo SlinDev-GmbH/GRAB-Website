@@ -1239,7 +1239,7 @@ function init()
 						object.isTrigger = true;
 						object.visible = false;
 
-  						if (userStore.isModerator && node.levelNodeTrigger.triggerTargets) {
+  						if ((userStore.isVerifier || userStore.isModerator) && node.levelNodeTrigger.triggerTargets) {
   						    const sublevelContainer = document.getElementById("sublevels-container");
   						    for (const target of node.levelNodeTrigger.triggerTargets) {
   						        if (target.triggerTargetSubLevel && target.triggerTargetSubLevel.levelIdentifier) {
