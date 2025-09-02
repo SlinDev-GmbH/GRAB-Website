@@ -41,6 +41,7 @@ import textureDefaultColoredURL from '../textures/default_colored.png'
 import textureBouncingURL from '../textures/bouncing.png'
 import textureSnowURL from '../textures/snow.png'
 import textureTriggerURL from '../textures/trigger.png'
+import textureSublevelTriggerURL from '../textures/sublevel_trigger.png'
 
 let userID = undefined;
 
@@ -194,6 +195,7 @@ function init()
 	objectMaterials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.signVS, SHADERS.signFS));
 	objectMaterials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 	objectMaterials.push(getMaterialForTexture(textureTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
+	objectMaterials.push(getMaterialForTexture(textureSublevelTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 
 	let altStartMaterial = new THREE.ShaderMaterial();
 	altStartMaterial.vertexShader = SHADERS.startFinishVS;
@@ -884,7 +886,7 @@ function init()
 						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 						particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
 
-						let particleMaterial = objectMaterials[6].clone();
+						let particleMaterial = objectMaterials[7].clone();
 
 						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
 
@@ -1202,47 +1204,12 @@ function init()
 					}
 					else if(node.levelNodeTrigger)
 					{
-						let material = objectMaterials[4]
-						let newMaterial = material.clone()
-						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+						let isSublevelTrigger = false;
 
-						newMaterial.transparent = true;
-						newMaterial.uniforms.transparentEnabled.value = 1.0;
-						object = new THREE.Mesh(shapes[node.levelNodeTrigger.shape-1000], newMaterial);
-
-						parentNode.add(object);
-						object.position.x = -node.levelNodeTrigger.position.x
-						object.position.y = node.levelNodeTrigger.position.y
-						object.position.z = -node.levelNodeTrigger.position.z
-
-						object.scale.x = node.levelNodeTrigger.scale.x
-						object.scale.y = node.levelNodeTrigger.scale.y
-						object.scale.z = node.levelNodeTrigger.scale.z
-
-						object.quaternion.x = -node.levelNodeTrigger.rotation.x
-						object.quaternion.y = node.levelNodeTrigger.rotation.y
-						object.quaternion.z = -node.levelNodeTrigger.rotation.z
-						object.quaternion.w = node.levelNodeTrigger.rotation.w
-
-						object.initialPosition = object.position.clone()
-						object.initialRotation = object.quaternion.clone()
-
-						let targetVector = new THREE.Vector3()
-						let targetQuaternion = new THREE.Quaternion()
-						let worldMatrix = new THREE.Matrix4()
-						worldMatrix.compose(object.getWorldPosition(targetVector), object.getWorldQuaternion(targetQuaternion), object.getWorldScale(targetVector))
-
-						let normalMatrix = new THREE.Matrix3()
-						normalMatrix.getNormalMatrix(worldMatrix)
-						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
-
-						object.isTrigger = true;
-						object.visible = false;
-
-  						if ((userStore.isVerifier || userStore.isModerator) && node.levelNodeTrigger.triggerTargets) {
+  						if ((userStore.isVerifier || userStore.isModerator || userStore.isSuperModerator) && node.levelNodeTrigger.triggerTargets) {
   						    const sublevelContainer = document.getElementById("sublevels-container");
   						    for (const target of node.levelNodeTrigger.triggerTargets) {
-  						        if (target.triggerTargetSubLevel && target.triggerTargetSubLevel.levelIdentifier) {
+  						        if (target.triggerTargetSubLevel && target.triggerTargetSubLevel.levelIdentifier) {									
   						            const sublevelData = target.triggerTargetSubLevel.levelIdentifier;
   						            const sublevelParts = sublevelData.split(':');
   						            let sublevelTimestamp;
@@ -1285,9 +1252,55 @@ function init()
   						    		    sublevelContainer.appendChild(sublevelElement);
   						    		    sublevelCounter++;
   						    		}
+
+									isSublevelTrigger = true;
   						        }
   						    }
   						}
+						
+						let material;
+						if (isSublevelTrigger) {
+						    material = objectMaterials[5];
+						} else {
+						    material = objectMaterials[4];
+						}
+
+						let newMaterial = material.clone()
+						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
+
+						newMaterial.transparent = true;
+						newMaterial.uniforms.transparentEnabled.value = 1.0;
+						object = new THREE.Mesh(shapes[node.levelNodeTrigger.shape-1000], newMaterial);
+
+						parentNode.add(object);
+						object.position.x = -node.levelNodeTrigger.position.x
+						object.position.y = node.levelNodeTrigger.position.y
+						object.position.z = -node.levelNodeTrigger.position.z
+
+						object.scale.x = node.levelNodeTrigger.scale.x
+						object.scale.y = node.levelNodeTrigger.scale.y
+						object.scale.z = node.levelNodeTrigger.scale.z
+
+						object.quaternion.x = -node.levelNodeTrigger.rotation.x
+						object.quaternion.y = node.levelNodeTrigger.rotation.y
+						object.quaternion.z = -node.levelNodeTrigger.rotation.z
+						object.quaternion.w = node.levelNodeTrigger.rotation.w
+
+						object.initialPosition = object.position.clone()
+						object.initialRotation = object.quaternion.clone()
+
+						let targetVector = new THREE.Vector3()
+						let targetQuaternion = new THREE.Quaternion()
+						let worldMatrix = new THREE.Matrix4()
+						worldMatrix.compose(object.getWorldPosition(targetVector), object.getWorldQuaternion(targetQuaternion), object.getWorldScale(targetVector))
+
+						let normalMatrix = new THREE.Matrix3()
+						normalMatrix.getNormalMatrix(worldMatrix)
+						newMaterial.uniforms.worldNormalMatrix.value = normalMatrix
+
+						object.isTrigger = true;
+						object.visible = false;
+
 						realComplexity += 5
 					}
 					else if(node.levelNodeStart)
@@ -1300,7 +1313,7 @@ function init()
 						if (isDefaultSpawn) {
 							object = new THREE.Mesh(objects[0], objectMaterials[0]);
 						} else {
-							object = new THREE.Mesh(objects[0], objectMaterials[5]);
+							object = new THREE.Mesh(objects[0], objectMaterials[6]);
 						}
 						parentNode.add(object);
 						object.position.x = -node.levelNodeStart.position.x

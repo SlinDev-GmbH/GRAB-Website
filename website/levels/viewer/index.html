@@ -681,6 +681,23 @@
                 border-radius: 10px;
                 cursor: pointer;
             }
+            #sublevels-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 8px;
+            }
+            .sublevel-button {
+                padding: 5px 15px;
+                font-weight: bold;
+                color: #FFFFFF;
+                background-color: var(--blue);
+                border-radius: 2em;
+                border: none;
+                cursor: pointer;
+                text-align: center;
+                font-size: 14px;
+            }
             #hidecontainer {
                 padding: 5px;
                 border-radius: 10px;
@@ -878,6 +895,8 @@
                     </div>
                     <button id="make-creator-button" class="creatorButton" style="display: none;"><b>Make Creator</b></button>
                     <div id="signs-container"></div>
+                    <b>Sublevels:</b>
+                    <div id="sublevels-container"></div>
                 </div>
             </div>
             <div id="animation-controls">
