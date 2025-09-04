@@ -2050,6 +2050,9 @@ function displayLeaderboardData(data) {
 			if (entry.user_id == userStore.userID) {
 				row.className += " leaderboard-row-self";
 			}
+			if (entry.is_verification) {
+				row.className += " leaderboard-row-verification";
+			}
 
 			const position = document.createElement("div");
 			position.className = "leaderboard-position";
