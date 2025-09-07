@@ -1206,63 +1206,63 @@ function init()
 					{
 						let isSublevelTrigger = false;
 
-  						if ((userStore.isVerifier || userStore.isModerator || userStore.isSuperModerator) && node.levelNodeTrigger.triggerTargets) {
-  						    const sublevelContainer = document.getElementById("sublevels-container");
-  						    for (const target of node.levelNodeTrigger.triggerTargets) {
-  						        if (target.triggerTargetSubLevel && target.triggerTargetSubLevel.levelIdentifier) {									
-  						            const sublevelData = target.triggerTargetSubLevel.levelIdentifier;
-  						            const sublevelParts = sublevelData.split(':');
-  						            let sublevelTimestamp;
+						if ((userStore.isVerifier || userStore.isModerator || userStore.isSuperModerator) && node.levelNodeTrigger.triggerTargets) {
+							const sublevelContainer = document.getElementById("sublevels-container");
+							for (const target of node.levelNodeTrigger.triggerTargets) {
+								if (target.triggerTargetSubLevel && target.triggerTargetSubLevel.levelIdentifier) {
+									const sublevelData = target.triggerTargetSubLevel.levelIdentifier;
+									const sublevelParts = sublevelData.split(':');
+									let sublevelTimestamp;
 
-  						            if (sublevelParts[0] === 'community' && sublevelParts.length >= 3) {
-  						                sublevelTimestamp = sublevelParts[2];
-  						            } else if (sublevelParts.length >= 2) {
-  						                sublevelTimestamp = sublevelParts[1];
-  						            }
-							  
-  						            if (sublevelTimestamp && userID) {
-  						    			const sublevelElement = document.createElement("button");
-  						    		    sublevelElement.className = "sublevel-button";
-									
-  						    		    const spawnPointName = target.triggerTargetSubLevel.spawnPoint;
-									
-  						    		    if (spawnPointName && spawnPointName.length > 0) {
-  						    		        sublevelElement.textContent = spawnPointName;
-  						    		    } else {
-  						    		        sublevelElement.textContent = "Default Spawn";
-  						    		    }
-										
+									if (sublevelParts[0] === 'community' && sublevelParts.length >= 3) {
+										sublevelTimestamp = sublevelParts[2];
+									} else if (sublevelParts.length >= 2) {
+										sublevelTimestamp = sublevelParts[1];
+									}
+
+									if (sublevelTimestamp && userID) {
+										const sublevelElement = document.createElement("button");
+										sublevelElement.className = "sublevel-button";
+
+										const spawnPointName = target.triggerTargetSubLevel.spawnPoint;
+
+										if (spawnPointName && spawnPointName.length > 0) {
+											sublevelElement.textContent = spawnPointName;
+										} else {
+											sublevelElement.textContent = "Default Spawn";
+										}
+
 										const newLevelParam = `${userID}:${sublevelTimestamp}`;
-  						    		    
+
 										sublevelElement.onclick = function() {
 											const currentUrl = new URL(window.location.href);
 											currentUrl.searchParams.set('level', newLevelParam);
 											currentUrl.searchParams.delete('camera_position');
 											currentUrl.searchParams.delete('camera_rotation');
-											
-  						    		    	if (spawnPointName && spawnPointName.length > 0) {
-  						    		    	    currentUrl.searchParams.set('spawnPoint', spawnPointName);
-  						    		    	} else {
-  						    		    	    currentUrl.searchParams.delete('spawnPoint');
-  						    		    	}
 
-  						    		        window.location.href = currentUrl.href;
-  						    		    };
-									
-  						    		    sublevelContainer.appendChild(sublevelElement);
-  						    		    sublevelCounter++;
-  						    		}
+											if (spawnPointName && spawnPointName.length > 0) {
+												currentUrl.searchParams.set('spawnPoint', spawnPointName);
+											} else {
+												currentUrl.searchParams.delete('spawnPoint');
+											}
+
+											window.location.href = currentUrl.href;
+										};
+
+										sublevelContainer.appendChild(sublevelElement);
+										sublevelCounter++;
+									}
 
 									isSublevelTrigger = true;
-  						        }
-  						    }
-  						}
+								}
+							}
+						}
 						
 						let material;
 						if (isSublevelTrigger) {
-						    material = objectMaterials[5];
+							material = objectMaterials[5];
 						} else {
-						    material = objectMaterials[4];
+							material = objectMaterials[4];
 						}
 
 						let newMaterial = material.clone()
@@ -1321,10 +1321,10 @@ function init()
 						object.position.z = -node.levelNodeStart.position.z
 
 						object.quaternion.set(
-							-node.levelNodeStart.rotation.x,  
-							node.levelNodeStart.rotation.y,   
-							-node.levelNodeStart.rotation.z, 
-							node.levelNodeStart.rotation.w   
+							-node.levelNodeStart.rotation.x,
+							node.levelNodeStart.rotation.y,
+							-node.levelNodeStart.rotation.z,
+							node.levelNodeStart.rotation.w
 						);
 						// only rotate around Y axis ? this looks wrong but sure
 						object.quaternion.x = 0;
@@ -1338,34 +1338,34 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
-    					const spawnName = node.levelNodeStart.name;
-    					if (spawnName && spawnName.length > 0) {
-    					    namedSpawns[spawnName] = {
-    					        position: object.position.clone(),
-    					        quaternion: object.quaternion.clone()
-    					    };
-    					}
-					
-    					if (isDefaultSpawn) {
-    					    defaultSpawn = {
-    					        position: object.position.clone(),
-    					        quaternion: object.quaternion.clone()
-    					    };
-    					}
-					
-    					if (isDefaultSpawn) {
-    					    var goToStartLabel = document.getElementById("startButton");
-    					    goToStartLabel.innerHTML = "To Start"
-    					    goToStartLabel.style.cursor="pointer";
-    					    goToStartLabel.onclick = function() {
-    					        camera.position.set(defaultSpawn.position.x, defaultSpawn.position.y + 2.0, defaultSpawn.position.z);
-    					        let euler = new THREE.Euler().setFromQuaternion(defaultSpawn.quaternion, 'YXZ');
-    					        controls.eulerVector.x = 0
-    					        controls.eulerVector.y = euler.y+Math.PI
-    					        controls.updateRotationVector();
-    					    }
-    					}
-    					startCount++;
+						const spawnName = node.levelNodeStart.name;
+						if (spawnName && spawnName.length > 0) {
+							namedSpawns[spawnName] = {
+								position: object.position.clone(),
+								quaternion: object.quaternion.clone()
+							};
+						}
+
+						if (isDefaultSpawn) {
+							defaultSpawn = {
+								position: object.position.clone(),
+								quaternion: object.quaternion.clone()
+							};
+						}
+
+						if (isDefaultSpawn) {
+							var goToStartLabel = document.getElementById("startButton");
+							goToStartLabel.innerHTML = "To Start"
+							goToStartLabel.style.cursor="pointer";
+							goToStartLabel.onclick = function() {
+								camera.position.set(defaultSpawn.position.x, defaultSpawn.position.y + 2.0, defaultSpawn.position.z);
+								let euler = new THREE.Euler().setFromQuaternion(defaultSpawn.quaternion, 'YXZ');
+								controls.eulerVector.x = 0
+								controls.eulerVector.y = euler.y+Math.PI
+								controls.updateRotationVector();
+							}
+						}
+						startCount++;
 					}
 					else if(node.levelNodeFinish)
 					{
@@ -1451,7 +1451,7 @@ function init()
 										bevelEnabled: false
 									});
 								
-									const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });							
+									const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 									const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
 									textGeometry.computeBoundingBox();
@@ -1521,27 +1521,27 @@ function init()
 			const cameraRotationFromUrl = urlParams.get('camera_rotation');
 
 			if (cameraPositionFromUrl && cameraRotationFromUrl) {
-			    const cameraPosition = cameraPositionFromUrl.split(',').map(parseFloat);
-			    const cameraRotation = cameraRotationFromUrl.split(',').map(parseFloat);
-			    camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-			    controls.eulerVector.x = cameraRotation[0];
-			    controls.eulerVector.y = cameraRotation[1];
-			    controls.updateRotationVector();
+				const cameraPosition = cameraPositionFromUrl.split(',').map(parseFloat);
+				const cameraRotation = cameraRotationFromUrl.split(',').map(parseFloat);
+				camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+				controls.eulerVector.x = cameraRotation[0];
+				controls.eulerVector.y = cameraRotation[1];
+				controls.updateRotationVector();
 			} else if (requestedSpawnPoint && namedSpawns[requestedSpawnPoint]) {
-			    const spawnData = namedSpawns[requestedSpawnPoint];
-			    camera.position.set(spawnData.position.x, spawnData.position.y + 2.0, spawnData.position.z);
-			    let euler = new THREE.Euler().setFromQuaternion(spawnData.quaternion, 'YXZ');
-			    controls.eulerVector.x = 0;
-			    controls.eulerVector.y = euler.y + Math.PI;
-			    controls.updateRotationVector();
+				const spawnData = namedSpawns[requestedSpawnPoint];
+				camera.position.set(spawnData.position.x, spawnData.position.y + 2.0, spawnData.position.z);
+				let euler = new THREE.Euler().setFromQuaternion(spawnData.quaternion, 'YXZ');
+				controls.eulerVector.x = 0;
+				controls.eulerVector.y = euler.y + Math.PI;
+				controls.updateRotationVector();
 			} else if (defaultSpawn) {
-			    camera.position.set(defaultSpawn.position.x, defaultSpawn.position.y + 2.0, defaultSpawn.position.z);
-			    let euler = new THREE.Euler().setFromQuaternion(defaultSpawn.quaternion, 'YXZ');
-			    controls.eulerVector.x = 0;
-			    controls.eulerVector.y = euler.y + Math.PI;
-			    controls.updateRotationVector();
+				camera.position.set(defaultSpawn.position.x, defaultSpawn.position.y + 2.0, defaultSpawn.position.z);
+				let euler = new THREE.Euler().setFromQuaternion(defaultSpawn.quaternion, 'YXZ');
+				controls.eulerVector.x = 0;
+				controls.eulerVector.y = euler.y + Math.PI;
+				controls.updateRotationVector();
 			} else {
-			    camera.position.set(0, 2, 0);
+				camera.position.set(0, 2, 0);
 			}
 
 			const titleFormattingNode = document.createElement('b');
