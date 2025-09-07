@@ -2075,7 +2075,6 @@ function displayLeaderboardData(data) {
 			if (entry.replay_key && userStore.isVerifier) {
 				const replayButton = document.createElement("div");
 				replayButton.className = "replay-button";
-				replayButton.innerHTML = "►";
 				time.appendChild(replayButton);
 				replayButton.addEventListener("click", () => {
 					playReplay(entry.replay_key);

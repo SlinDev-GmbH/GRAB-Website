@@ -436,10 +436,23 @@
                 justify-content: center;
                 border-radius: 12px;
                 cursor: pointer;
-                background-color: #fff9;
+                background-color: #fff7;
                 height: 1.6rem;
                 width: 1.6rem;
                 line-height: 0;
+                position: relative;
+
+                &::before {
+                    content: "";
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 7px 0 7px 10px;
+                    border-color: transparent transparent transparent white;
+                    position: absolute;
+                    left: 55%;
+                    transform: translateX(-50%);
+                }
             }
 
             .leaderboard-close {
