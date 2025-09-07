@@ -1221,7 +1221,8 @@ function init()
 									}
 
 									if (sublevelTimestamp && userID) {
-										const sublevelElement = document.createElement("button");
+										document.getElementById("sublevels-title").style.display = "flex";
+										const sublevelElement = document.createElement("a");
 										sublevelElement.className = "sublevel-button";
 
 										const spawnPointName = target.triggerTargetSubLevel.spawnPoint;
@@ -1229,26 +1230,14 @@ function init()
 										if (spawnPointName && spawnPointName.length > 0) {
 											sublevelElement.textContent = spawnPointName;
 										} else {
-											sublevelElement.textContent = "Default Spawn";
+											sublevelElement.textContent = "Default";
 										}
 
-										const newLevelParam = `${userID}:${sublevelTimestamp}`;
-
-										sublevelElement.onclick = function() {
-											const currentUrl = new URL(window.location.href);
-											currentUrl.searchParams.set('level', newLevelParam);
-											currentUrl.searchParams.delete('camera_position');
-											currentUrl.searchParams.delete('camera_rotation');
-
-											if (spawnPointName && spawnPointName.length > 0) {
-												currentUrl.searchParams.set('spawnPoint', spawnPointName);
-											} else {
-												currentUrl.searchParams.delete('spawnPoint');
-											}
-
-											window.location.href = currentUrl.href;
-										};
-
+										let newLevelParam = `?level=${userID}:${sublevelTimestamp}`;
+										if (spawnPointName) {
+											newLevelParam += `&spawnPoint=${spawnPointName}`;
+										}
+										sublevelElement.href = `${location.origin}${location.pathname}${newLevelParam}`;
 										sublevelContainer.appendChild(sublevelElement);
 										sublevelCounter++;
 									}
