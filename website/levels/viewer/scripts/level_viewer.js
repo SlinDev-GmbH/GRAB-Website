@@ -42,6 +42,7 @@ import textureDefaultColoredURL from '../textures/default_colored.png'
 import textureBouncingURL from '../textures/bouncing.png'
 import textureSnowURL from '../textures/snow.png'
 import textureTriggerURL from '../textures/trigger.png'
+import textureSublevelTriggerURL from '../textures/sublevel_trigger.png'
 
 let userID = undefined;
 
@@ -195,6 +196,7 @@ function init()
 	objectMaterials.push(getMaterialForTexture(textureWoodURL, 1.0, SHADERS.signVS, SHADERS.signFS));
 	objectMaterials.push(getMaterialForTexture(textureDefaultColoredURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 	objectMaterials.push(getMaterialForTexture(textureTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
+	objectMaterials.push(getMaterialForTexture(textureSublevelTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0));
 
 	let altStartMaterial = new THREE.ShaderMaterial();
 	altStartMaterial.vertexShader = SHADERS.startFinishVS;
@@ -240,6 +242,11 @@ function init()
 			app.use(pinia)
 			const userStore = useUserStore(pinia)
 			let { accessToken, list, listIndex, favoriteLevels } = userStore;
+			const urlParams = new URLSearchParams(window.location.search);
+			const requestedSpawnPoint = urlParams.get('spawnPoint');
+					
+			let defaultSpawn = null;
+			let namedSpawns = {};
 
 			var titleLabel = document.getElementById("title");
 			var tagsLabel = document.getElementById("tags");
@@ -250,7 +257,6 @@ function init()
 
 			var dateLabel = document.getElementById("date");
 
-			const urlParams = new URLSearchParams(window.location.search);
 			let levelIdentifier = urlParams.get('level');
 			let levelIdentifierParts = levelIdentifier.split(':')
 			let hasIteration = levelIdentifierParts.length === 3
@@ -768,6 +774,7 @@ function init()
 			}
 
 			let signCounter = 0;
+			let sublevelCounter = 0;
 			let realComplexity = 0;
 
 			const loadLevelNodes = function(nodes, parentNode){
@@ -880,7 +887,7 @@ function init()
 						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 						particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
 
-						let particleMaterial = objectMaterials[6].clone();
+						let particleMaterial = objectMaterials[7].clone();
 
 						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
 
@@ -1198,7 +1205,56 @@ function init()
 					}
 					else if(node.levelNodeTrigger)
 					{
-						let material = objectMaterials[4]
+						let isSublevelTrigger = false;
+
+						if ((userStore.isVerifier || userStore.isModerator || userStore.isSuperModerator) && node.levelNodeTrigger.triggerTargets) {
+							const sublevelContainer = document.getElementById("sublevels-container");
+							for (const target of node.levelNodeTrigger.triggerTargets) {
+								if (target.triggerTargetSubLevel && target.triggerTargetSubLevel.levelIdentifier) {
+									const sublevelData = target.triggerTargetSubLevel.levelIdentifier;
+									const sublevelParts = sublevelData.split(':');
+									let sublevelTimestamp;
+
+									if (sublevelParts[0] === 'community' && sublevelParts.length >= 3) {
+										sublevelTimestamp = sublevelParts[2];
+									} else if (sublevelParts.length >= 2) {
+										sublevelTimestamp = sublevelParts[1];
+									}
+
+									if (sublevelTimestamp && userID) {
+										document.getElementById("sublevels-title").style.display = "flex";
+										const sublevelElement = document.createElement("a");
+										sublevelElement.className = "sublevel-button";
+
+										const spawnPointName = target.triggerTargetSubLevel.spawnPoint;
+
+										if (spawnPointName && spawnPointName.length > 0) {
+											sublevelElement.textContent = spawnPointName;
+										} else {
+											sublevelElement.textContent = "Default";
+										}
+
+										let newLevelParam = `?level=${userID}:${sublevelTimestamp}`;
+										if (spawnPointName) {
+											newLevelParam += `&spawnPoint=${spawnPointName}`;
+										}
+										sublevelElement.href = `${location.origin}${location.pathname}${newLevelParam}`;
+										sublevelContainer.appendChild(sublevelElement);
+										sublevelCounter++;
+									}
+
+									isSublevelTrigger = true;
+								}
+							}
+						}
+						
+						let material;
+						if (isSublevelTrigger) {
+							material = objectMaterials[5];
+						} else {
+							material = objectMaterials[4];
+						}
+
 						let newMaterial = material.clone()
 						newMaterial.uniforms.colorTexture = material.uniforms.colorTexture
 
@@ -1234,7 +1290,7 @@ function init()
 
 						object.isTrigger = true;
 						object.visible = false;
-						
+
 						realComplexity += 5
 					}
 					else if(node.levelNodeStart)
@@ -1247,7 +1303,7 @@ function init()
 						if (isDefaultSpawn) {
 							object = new THREE.Mesh(objects[0], objectMaterials[0]);
 						} else {
-							object = new THREE.Mesh(objects[0], objectMaterials[5]);
+							object = new THREE.Mesh(objects[0], objectMaterials[6]);
 						}
 						parentNode.add(object);
 						object.position.x = -node.levelNodeStart.position.x
@@ -1255,10 +1311,10 @@ function init()
 						object.position.z = -node.levelNodeStart.position.z
 
 						object.quaternion.set(
-							-node.levelNodeStart.rotation.x,  
-							node.levelNodeStart.rotation.y,   
-							-node.levelNodeStart.rotation.z, 
-							node.levelNodeStart.rotation.w   
+							-node.levelNodeStart.rotation.x,
+							node.levelNodeStart.rotation.y,
+							-node.levelNodeStart.rotation.z,
+							node.levelNodeStart.rotation.w
 						);
 						// only rotate around Y axis ? this looks wrong but sure
 						object.quaternion.x = 0;
@@ -1272,23 +1328,33 @@ function init()
 						object.initialPosition = object.position.clone()
 						object.initialRotation = object.quaternion.clone()
 
+						const spawnName = node.levelNodeStart.name;
+						if (spawnName && spawnName.length > 0) {
+							namedSpawns[spawnName] = {
+								position: object.position.clone(),
+								quaternion: object.quaternion.clone()
+							};
+						}
+
 						if (isDefaultSpawn) {
-							cameraPosition = [object.position.x, object.position.y + 2.0, object.position.z]
-							let euler = new THREE.Euler().setFromQuaternion(object.quaternion, 'YXZ');
+							defaultSpawn = {
+								position: object.position.clone(),
+								quaternion: object.quaternion.clone()
+							};
+						}
 
-							cameraRotation = [0,euler.y+Math.PI	 ];
-
+						if (isDefaultSpawn) {
 							var goToStartLabel = document.getElementById("startButton");
 							goToStartLabel.innerHTML = "To Start"
 							goToStartLabel.style.cursor="pointer";
 							goToStartLabel.onclick = function() {
-								camera.position.set(object.position.x, object.position.y + 2.0, object.position.z);
+								camera.position.set(defaultSpawn.position.x, defaultSpawn.position.y + 2.0, defaultSpawn.position.z);
+								let euler = new THREE.Euler().setFromQuaternion(defaultSpawn.quaternion, 'YXZ');
 								controls.eulerVector.x = 0
 								controls.eulerVector.y = euler.y+Math.PI
 								controls.updateRotationVector();
 							}
 						}
-
 						startCount++;
 					}
 					else if(node.levelNodeFinish)
@@ -1375,7 +1441,7 @@ function init()
 										bevelEnabled: false
 									});
 								
-									const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });							
+									const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 									const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
 									textGeometry.computeBoundingBox();
@@ -1437,29 +1503,36 @@ function init()
 					const slider = document.getElementById("animation-controls")
 					slider.style.display = "flex"
 				}
-
-				let cameraPositionFromUrl = urlParams.get('camera_position');
-				let cameraRotationFromUrl = urlParams.get('camera_rotation');
-				if(cameraPositionFromUrl && cameraRotationFromUrl)
-				{
-					cameraPosition = cameraPositionFromUrl.split(',').map(parseFloat);
-					cameraRotation = cameraRotationFromUrl.split(',').map(parseFloat);
-				}
-
-				if(cameraPosition)
-				{
-					camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-				}
-
-				if(cameraRotation)
-				{
-					controls.eulerVector.x = cameraRotation[0];
-					controls.eulerVector.y = cameraRotation[1];
-					controls.updateRotationVector();
-				}
 			};
 
 			loadLevelNodes(decoded.levelNodes, scene);
+			
+			const cameraPositionFromUrl = urlParams.get('camera_position');
+			const cameraRotationFromUrl = urlParams.get('camera_rotation');
+
+			if (cameraPositionFromUrl && cameraRotationFromUrl) {
+				const cameraPosition = cameraPositionFromUrl.split(',').map(parseFloat);
+				const cameraRotation = cameraRotationFromUrl.split(',').map(parseFloat);
+				camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+				controls.eulerVector.x = cameraRotation[0];
+				controls.eulerVector.y = cameraRotation[1];
+				controls.updateRotationVector();
+			} else if (requestedSpawnPoint && namedSpawns[requestedSpawnPoint]) {
+				const spawnData = namedSpawns[requestedSpawnPoint];
+				camera.position.set(spawnData.position.x, spawnData.position.y + 2.0, spawnData.position.z);
+				let euler = new THREE.Euler().setFromQuaternion(spawnData.quaternion, 'YXZ');
+				controls.eulerVector.x = 0;
+				controls.eulerVector.y = euler.y + Math.PI;
+				controls.updateRotationVector();
+			} else if (defaultSpawn) {
+				camera.position.set(defaultSpawn.position.x, defaultSpawn.position.y + 2.0, defaultSpawn.position.z);
+				let euler = new THREE.Euler().setFromQuaternion(defaultSpawn.quaternion, 'YXZ');
+				controls.eulerVector.x = 0;
+				controls.eulerVector.y = euler.y + Math.PI;
+				controls.updateRotationVector();
+			} else {
+				camera.position.set(0, 2, 0);
+			}
 
 			const titleFormattingNode = document.createElement('b');
 			titleLabel.appendChild(titleFormattingNode);
