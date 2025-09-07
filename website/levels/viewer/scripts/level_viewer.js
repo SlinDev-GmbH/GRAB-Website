@@ -7,6 +7,7 @@ import * as SHADERS from './shaders.js';
 import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
 import * as protobuf from 'protobufjs'
+import * as pako from 'pako'
 
 import { createApp } from 'vue'
 import App from '@/App.vue'
@@ -2070,7 +2071,17 @@ function displayLeaderboardData(data) {
 			if (minutes < 10) { minutes = "0" + minutes; }
 			if (seconds < 10) { seconds = "0" + seconds; }
 			time.textContent = minutes + ':' + seconds;
-			
+
+			if (entry.replay_key) {
+				const replayButton = document.createElement("div");
+				replayButton.className = "replay-button";
+				replayButton.innerHTML = "►";
+				time.appendChild(replayButton);
+				replayButton.addEventListener("click", () => {
+					playReplay(entry.replay_key);
+				});
+			}
+
 			const button = document.createElement("button");
 			button.className = "leaderboard-button";
 			button.innerHTML = "&times;";
@@ -2097,6 +2108,72 @@ function displayLeaderboardData(data) {
 		});
 	}
 }
+
+let replayRoot = undefined;
+function loadReplayProto() {
+	return new Promise((resolve, reject) => {
+		if (replayRoot) {
+			resolve(replayRoot);
+		} else {
+			protobuf.load('/proto/replay.proto', function(err, root) {
+				if(err) reject(err);
+				if (root) {
+					replayRoot = root;
+					resolve(replayRoot);
+				}
+			});
+		}
+	});
+}
+
+let replayCache = {};
+let replayPath = undefined;
+let replayLoading = false;
+async function playReplay(replayKey) {
+	if (replayLoading) return;
+	replayLoading = true;
+	loadReplayProto()
+		.then(async (root) => {
+			const ReplayMessage = root.lookupType("COD.Replay.Replay");
+
+			let replay = replayCache[replayKey];
+			if (!replay) {
+				const response = await fetch(`${config.DATA_URL}${replayKey}`);
+				const responseBody = await response.arrayBuffer();
+				const formattedBuffer = new Uint8Array(responseBody);
+				const inflated = pako.inflate(formattedBuffer);
+				replay = ReplayMessage.decode(inflated);
+				replayCache[replayKey] = replay;
+			}
+
+			if (replay) {
+				const points = [];
+
+				let x = 0, y = 0, z = 0;
+				for (const frame of replay.frames) {
+					const position = frame.position;
+					if (position) {
+						x = -position.x || x;
+						y = position.y || y;
+						z = -position.z || z;
+						points.push(new THREE.Vector3(x, y, z));
+					}
+				}
+
+				const pathMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+				const pathGeometry = new THREE.BufferGeometry().setFromPoints(points);
+
+				if(replayPath) scene.remove(replayPath);
+				replayPath = new THREE.Line(pathGeometry, pathMaterial);
+				scene.add(replayPath);
+
+				console.log(`Loaded ghost with ${points.length} frames`);
+			}
+		})
+		.catch((err) => console.error(err))
+		.finally(() => replayLoading = false);
+}
+
 async function removeLeaderboardTimes() {
 	const pinia = createPinia()
 	pinia.use(piniaPluginPersistedstate)

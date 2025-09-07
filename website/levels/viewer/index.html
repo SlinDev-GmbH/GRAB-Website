@@ -418,8 +418,28 @@
             }
 
             .leaderboard-time {
-                font-style: italic;
-                color: #999999;
+                span {
+                    font-style: italic;
+                    color: #999999;
+                }
+                display: flex;
+                flex-direction: row-reverse;
+                justify-content:  center;
+                align-items: center;
+            }
+
+            .replay-button {
+                margin: 0.3em;
+                padding: 0.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 12px;
+                cursor: pointer;
+                background-color: #fff9;
+                height: 1.6rem;
+                width: 1.6rem;
+                line-height: 0;
             }
 
             .leaderboard-close {
