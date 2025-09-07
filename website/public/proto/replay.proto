@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package COD.Replay;
+
+import "types.proto";
+
+message Replay
+{
+	repeated Frame frames = 1;
+}
+
+message Frame
+{
+	optional float timestamp = 1;
+	optional Types.Vector position = 2;
+}
