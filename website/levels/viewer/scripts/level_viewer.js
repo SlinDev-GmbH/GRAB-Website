@@ -2072,7 +2072,7 @@ function displayLeaderboardData(data) {
 			if (seconds < 10) { seconds = "0" + seconds; }
 			time.textContent = minutes + ':' + seconds;
 
-			if (entry.replay_key) {
+			if (entry.replay_key && userStore.isVerifier) {
 				const replayButton = document.createElement("div");
 				replayButton.className = "replay-button";
 				replayButton.innerHTML = "►";
