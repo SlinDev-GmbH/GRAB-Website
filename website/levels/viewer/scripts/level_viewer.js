@@ -2220,20 +2220,43 @@ async function playReplay(replayKey) {
 
 			if (replay) {
 				const points = [];
+				const colors = [];
 
+				let didRespawn = false;
+				let cx = 0, cy = 0, cz = 0;
 				let x = 0, y = 0, z = 0;
 				for (const frame of replay.frames) {
+					const checkpoint = frame.checkpoint;
+					if (checkpoint) {
+						cx = -checkpoint.x || cx;
+						cy = checkpoint.y || cy;
+						cz = -checkpoint.z || cz;
+					}
+
 					const position = frame.position;
 					if (position) {
-						x = -position.x || x;
-						y = position.y || y;
-						z = -position.z || z;
-						points.push(new THREE.Vector3(x, y, z));
+						const nx = -position.x || x;
+						const ny = position.y || y;
+						const nz = -position.z || z;
+
+						let r = 0, g = 0, b = 1;
+						const nd = new THREE.Vector3(x, y, z).distanceTo({ x: nx, y: ny, z: nz });
+						const cd = new THREE.Vector3(nx, ny, nz).distanceTo({ x: cx, y: cy, z: cz });
+						if (didRespawn || (nd > 1 && cd < 2)) {
+							r = 0.3, b = 0;
+							didRespawn = !didRespawn;
+						}
+
+						points.push(x, y, z);
+						colors.push(r, g, b);
+						x = nx, y = ny, z = nz;
 					}
 				}
 
-				const pathMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
-				const pathGeometry = new THREE.BufferGeometry().setFromPoints(points);
+				const pathMaterial = new THREE.LineBasicMaterial({ vertexColors: true });
+				const pathGeometry = new THREE.BufferGeometry();
+				pathGeometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+				pathGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
 				if(replayPath) scene.remove(replayPath);
 				replayPath = new THREE.Line(pathGeometry, pathMaterial);

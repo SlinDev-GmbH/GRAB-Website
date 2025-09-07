@@ -13,4 +13,5 @@ message Frame
 {
 	optional float timestamp = 1;
 	optional Types.Vector position = 2;
+	optional Types.Vector checkpoint = 16;
 }
