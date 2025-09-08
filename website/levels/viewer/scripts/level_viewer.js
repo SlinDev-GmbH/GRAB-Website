@@ -2223,8 +2223,10 @@ async function playReplay(replayKey) {
 				const colors = [];
 				let attemptStart = 0;
 				const trackRoute = () => {
-					for (let i = attemptStart + 3; i < colors.length; i++) {
-						colors[i] = 1;
+					for (let i = attemptStart + 3; i < colors.length; i += 3) {
+						colors[i] = 0;
+						colors[i + 1] = 0;
+						colors[i + 2] = 1;
 					}
 				}
 
@@ -2247,11 +2249,11 @@ async function playReplay(replayKey) {
 						const ny = position.y || y;
 						const nz = -position.z || z;
 
-						let r = 0, g = 0, b = 1;
+						let r = 0.5, g = 0.5, b = 1;
 						const nd = new THREE.Vector3(x, y, z).distanceTo({ x: nx, y: ny, z: nz });
 						const cd = new THREE.Vector3(nx, ny, nz).distanceTo({ x: cx, y: cy, z: cz });
 						if (didRespawn || (nd > 1 && cd < 2)) {
-							r = 0.3, b = 0;
+							r = 0.3, g = 0, b = 0;
 							didRespawn = !didRespawn;
 							attemptStart = colors.length;
 						}
