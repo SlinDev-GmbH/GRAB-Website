@@ -2221,6 +2221,12 @@ async function playReplay(replayKey) {
 			if (replay) {
 				const points = [];
 				const colors = [];
+				let attemptStart = 0;
+				const trackRoute = () => {
+					for (let i = attemptStart + 3; i < colors.length; i++) {
+						colors[i] = 1;
+					}
+				}
 
 				let didRespawn = false;
 				let cx = 0, cy = 0, cz = 0;
@@ -2231,6 +2237,8 @@ async function playReplay(replayKey) {
 						cx = -checkpoint.x || cx;
 						cy = checkpoint.y || cy;
 						cz = -checkpoint.z || cz;
+						trackRoute();
+						attemptStart = colors.length;
 					}
 
 					const position = frame.position;
@@ -2245,6 +2253,7 @@ async function playReplay(replayKey) {
 						if (didRespawn || (nd > 1 && cd < 2)) {
 							r = 0.3, b = 0;
 							didRespawn = !didRespawn;
+							attemptStart = colors.length;
 						}
 
 						points.push(x, y, z);
@@ -2252,6 +2261,7 @@ async function playReplay(replayKey) {
 						x = nx, y = ny, z = nz;
 					}
 				}
+				trackRoute();
 
 				const pathMaterial = new THREE.LineBasicMaterial({ vertexColors: true });
 				const pathGeometry = new THREE.BufferGeometry();
