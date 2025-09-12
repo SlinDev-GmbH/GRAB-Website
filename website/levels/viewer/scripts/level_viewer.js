@@ -3,7 +3,7 @@ import { FreeControls } from './free_controls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import * as SHADERS from './shaders.js';
+import * as SHADERS from '../../../src/assets/shaders.js';
 import { GLTFExporter } from 'three/examples/jsm//exporters/GLTFExporter.js';
 import * as config from '../../../src/configuration'
 import * as protobuf from 'protobufjs'
@@ -20,29 +20,29 @@ import imageReport from '../../../src/assets/icons/report.svg'
 import imageFavorite from '../../../src/assets/icons/star_off.svg'
 import imageFavorited from '../../../src/assets/icons/star_on.svg'
 
-import modelCubeURL from '../models/cube.gltf'
-import modelSphereURL from '../models/sphere.gltf'
-import modelCylinderURL from '../models/cylinder.gltf'
-import modelPyramidURL from '../models/pyramid.gltf'
-import modelPyramid4URL from '../models/pyramid4.glb'
-import modelPrismURL from '../models/prism.gltf'
-import modelStartEndURL from '../models/start_end.gltf'
-import modelSignURL from '../models/sign.gltf'
-import modelConeURL from '../models/cone.gltf'
+import modelCubeURL from '../../../src/assets/models/cube.gltf'
+import modelSphereURL from '../../../src/assets/models/sphere.gltf'
+import modelCylinderURL from '../../../src/assets/models/cylinder.gltf'
+import modelPyramidURL from '../../../src/assets/models/pyramid.gltf'
+import modelPyramid4URL from '../../../src/assets/models/pyramid4.glb'
+import modelPrismURL from '../../../src/assets/models/prism.gltf'
+import modelStartEndURL from '../../../src/assets/models/start_end.gltf'
+import modelSignURL from '../../../src/assets/models/sign.gltf'
+import modelConeURL from '../../../src/assets/models/cone.gltf'
 
-import textureDefaultURL from '../textures/default.png'
-import textureGrabbableURL from '../textures/grabbable.png'
-import textureIceURL from '../textures/ice.png'
-import textureLavaURL from '../textures/lava.png'
-import textureWoodURL from '../textures/wood.png'
-import textureGrapplableURL from '../textures/grapplable.png'
-import textureGrapplableLavaURL from '../textures/grapplable_lava.png'
-import textureGrabbableCrumblingURL from '../textures/grabbable_crumbling.png'
-import textureDefaultColoredURL from '../textures/default_colored.png'
-import textureBouncingURL from '../textures/bouncing.png'
-import textureSnowURL from '../textures/snow.png'
-import textureTriggerURL from '../textures/trigger.png'
-import textureSublevelTriggerURL from '../textures/sublevel_trigger.png'
+import textureDefaultURL from '../../../src/assets/textures/default.png'
+import textureGrabbableURL from '../../../src/assets/textures/grabbable.png'
+import textureIceURL from '../../../src/assets/textures/ice.png'
+import textureLavaURL from '../../../src/assets/textures/lava.png'
+import textureWoodURL from '../../../src/assets/textures/wood.png'
+import textureGrapplableURL from '../../../src/assets/textures/grapplable.png'
+import textureGrapplableLavaURL from '../../../src/assets/textures/grapplable_lava.png'
+import textureGrabbableCrumblingURL from '../../../src/assets/textures/grabbable_crumbling.png'
+import textureDefaultColoredURL from '../../../src/assets/textures/default_colored.png'
+import textureBouncingURL from '../../../src/assets/textures/bouncing.png'
+import textureSnowURL from '../../../src/assets/textures/snow.png'
+import textureTriggerURL from '../../../src/assets/textures/trigger.png'
+import textureSublevelTriggerURL from '../../../src/assets/textures/sublevel_trigger.png'
 
 let userID = undefined;
 
@@ -1754,7 +1754,7 @@ function showImageDialog(title, subtitle, onOk){
 		}
 	}
 
-	if(!imagePreview.src.includes("/textures/preview_image_placeholder.png")){
+	if(!imagePreview.src.includes("../../../src/assets/preview_image_placeholder.png")){
 		okButton.style.display = "initial"
 		okButton.onclick = onClick
 	}
