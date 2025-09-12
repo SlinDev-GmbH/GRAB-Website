@@ -4,9 +4,11 @@ import { mapState } from 'pinia'
 import UserModerationTools from './UserModerationTools.vue'
 import PurchaseHistory from './PurchaseHistory.vue'
 import ModerationHistory from './ModerationHistory.vue'
+import PrefabsList from './PrefabsList.vue'
 
 import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
 import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js'
+import { getPrefabListRequest } from '../requests/GetPrefabListRequest.js'
 
 export default {
 
@@ -14,6 +16,7 @@ export default {
     UserModerationTools,
     PurchaseHistory,
     ModerationHistory,
+    PrefabsList,
   },
 
   props: {
@@ -43,8 +46,10 @@ export default {
       loaded: false,
       userInfo: undefined,
       userInfoAdmin: undefined,
+      prefabsList: undefined,
       showPurchaseHistory: false,
       showModerationHistory: false,
+      showPrefabsList: false,
       copied: false,
       isPunished: false,
       isReset: false,
@@ -99,6 +104,17 @@ export default {
       }
     },
 
+    async getPrefabsList() {
+      if (!this.prefabsList) {
+        this.prefabsList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version);
+      }
+    },
+
+    togglePrefabsList() {
+      this.getPrefabsList();
+      this.showPrefabsList = !this.showPrefabsList;
+    },
+
     didPunishOrReset(bad) {
       if (bad) {
         this.isPunished = true;
@@ -110,7 +126,17 @@ export default {
   },
 
   created() {
-    this.updateDetails()
+    this.updateDetails();
+
+    this.escapeListener = document.addEventListener("keydown", (e) => {
+      if (e.code === "Escape") {
+        this.showPrefabsList = false;
+      }
+    });
+  },
+
+  unmounted() {
+    document.removeEventListener(this.escapeListener);
   },
 
   watch: {
@@ -149,6 +175,10 @@ export default {
           Moderation
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>
+        <button class="history-button" @click="togglePrefabsList">
+          Prefabs
+          <img src="./../assets/icons/block.svg" alt="prefabs">
+        </button>
       </div>
     </div>
     <div>
@@ -166,6 +196,9 @@ export default {
   </div>
   <PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
   <ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
+  <Teleport to="body">
+    <PrefabsList v-if="showPrefabsList && loaded && isSuperModerator" :prefabsList="prefabsList" :userID="identifier" @escape="showPrefabsList = false"/>
+  </Teleport>
 </template>
 
 
