@@ -243,7 +243,7 @@ export default {
 
 
 <template>
-  <dialog class="prefabs-wrapper" @click="() => { this.$emit('escape'); }">
+  <dialog class="prefabs-wrapper" @click="(e) => { if (e.target.tagName === 'DIALOG') this.$emit('escape'); }">
     <div class="prefabs-container">
       <h2>Prefabs</h2>
       <div class="prefabs-list" ref="prefabsList">

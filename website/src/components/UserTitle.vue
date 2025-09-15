@@ -124,21 +124,23 @@ export default {
         this.isReset = true;
         this.isPunished = false;
       }
-    }
+    },
+
+    escapeEvent(e) {
+      if (e.code === "Escape") {
+        this.showPrefabsList = false;
+      }
+    },
   },
 
   created() {
     this.updateDetails();
 
-    this.escapeListener = document.addEventListener("keydown", (e) => {
-      if (e.code === "Escape") {
-        this.showPrefabsList = false;
-      }
-    });
+    this.escapeListener = document.addEventListener("keydown", this.escapeEvent);
   },
 
   unmounted() {
-    document.removeEventListener(this.escapeListener);
+    document.removeEventListener("keydown", this.escapeListener);
   },
 
   watch: {
