@@ -145,6 +145,7 @@ export default {
 
   created() {
     this.updateDetails();
+    this.prefabsList = undefined;
 
     this.escapeListener = document.addEventListener("keydown", this.escapeEvent);
   },
@@ -155,7 +156,8 @@ export default {
 
   watch: {
     otherUserID() {
-      this.updateDetails()
+      this.updateDetails();
+      this.prefabsList = undefined;
     }
   }
 }
