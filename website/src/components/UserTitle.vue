@@ -110,10 +110,19 @@ export default {
       }
     },
 
+    async getRestOfPrefabs() {
+      while (this.prefabsList[this.prefabsList.length - 1]?.cursor) {
+        const cursor = this.prefabsList[this.prefabsList.length - 1].cursor;
+        const nextList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version, cursor)
+        this.prefabsList = this.prefabsList.concat(nextList);
+      }
+    },
+
     async togglePrefabsList() {
       if (this.$refs.prefabButtonText.innerText === "Loading") return;
       this.$refs.prefabButtonText.innerText = "Loading";
       await this.getPrefabsList();
+      this.getRestOfPrefabs();
       this.$refs.prefabButtonText.innerText = "Prefabs";
       this.showPrefabsList = !this.showPrefabsList;
     },

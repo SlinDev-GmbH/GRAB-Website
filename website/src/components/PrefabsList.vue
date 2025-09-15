@@ -265,7 +265,7 @@ export default {
 <template>
   <dialog class="prefabs-wrapper" @click="(e) => { if (e.target.tagName === 'DIALOG') this.$emit('escape'); }">
     <div class="prefabs-container">
-      <h2>Prefabs</h2>
+      <h2>{{ this.prefabsList[this.prefabsList.length - 1]?.cursor ? 'Prefabs (loading...)' : 'Prefabs' }}</h2>
       <div class="prefabs-list-wrapper">
         <div class="prefabs-list" ref="prefabsList">
           <div v-for="(_, index) in this.prefabs" :key="index" class="prefab-item" ref="prefabItems">
