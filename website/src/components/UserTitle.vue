@@ -111,6 +111,7 @@ export default {
     },
 
     async togglePrefabsList() {
+      if (this.$refs.prefabButtonText.innerText === "Loading") return;
       this.$refs.prefabButtonText.innerText = "Loading";
       await this.getPrefabsList();
       this.$refs.prefabButtonText.innerText = "Prefabs";
