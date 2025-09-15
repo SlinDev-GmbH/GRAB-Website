@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 import * as protobuf from 'protobufjs';
 
@@ -34,7 +34,9 @@ import textureSublevelTriggerURL from './textures/sublevel_trigger.png';
 let textureLoader, gltfLoader, fontLoader;
 
 class LevelLoader {
-	constructor() {
+	constructor(options = {}) {
+		this.config(options);
+
 		textureLoader = new THREE.TextureLoader();
 		gltfLoader = new GLTFLoader();
 		fontLoader = new FontLoader();
@@ -123,6 +125,14 @@ class LevelLoader {
 			particleMaterial,
 		];
 
+		let skyMaterial = new THREE.ShaderMaterial();
+		skyMaterial.vertexShader = SHADERS.skyVS;
+		skyMaterial.fragmentShader = SHADERS.skyFS;
+		skyMaterial.flatShading = false;
+		skyMaterial.depthWrite = false;
+		skyMaterial.side = THREE.BackSide;
+		this.skyMaterial = skyMaterial;
+
 		this.rootPromise = Promise.all([protobuf.load('/proto/level.proto')]).then((result) => {
 			this.root = result[0];
 		});
@@ -130,6 +140,22 @@ class LevelLoader {
 		fontLoader.load('/fonts/Roboto_Regular.json', (font) => {
 			this.font = font;
 		});
+	}
+
+	config(options = {}) {
+		this.options = {
+			sky: true,
+			lights: true,
+			text: false,
+			triggers: false,
+			sublevels: false,
+		};
+
+		for (const key in this.options) {
+			if (key in options) {
+				this.options[key] = options[key];
+			}
+		}
 	}
 
 	async load(data) {
@@ -150,18 +176,20 @@ class LevelLoader {
 			},
 		};
 
-		const ambientLight = new THREE.AmbientLight(0x404040);
-		level.scene.add(ambientLight);
+		if (this.options.lights) {
+			const ambientLight = new THREE.AmbientLight(0x404040);
+			level.scene.add(ambientLight);
 
-		const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
-		level.scene.add(sunLight);
+			const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);
+			level.scene.add(sunLight);
+		}
 
 		level.update = (delta) => {
 			level.meta.time += delta;
 			for (const object of level.nodes.animated) {
 				updateObjectAnimation(object, level.meta.time);
 			}
-			for (const object of level.nodes.type.levelNodeParticleEmitter) {
+			for (const object of level.nodes.levelNodeParticleEmitter) {
 				updateObjectParticles(object, delta);
 			}
 		};
@@ -207,6 +235,26 @@ class LevelLoader {
 				decoded.ambienceSettings.skyHorizonColor.g,
 				decoded.ambienceSettings.skyHorizonColor.b,
 			];
+
+			this.skyMaterial.uniforms['cameraFogColor0'] = {
+				value: [
+					decoded.ambienceSettings.skyHorizonColor.r,
+					decoded.ambienceSettings.skyHorizonColor.g,
+					decoded.ambienceSettings.skyHorizonColor.b,
+				],
+			};
+			this.skyMaterial.uniforms['cameraFogColor1'] = {
+				value: [
+					decoded.ambienceSettings.skyZenithColor.r,
+					decoded.ambienceSettings.skyZenithColor.g,
+					decoded.ambienceSettings.skyZenithColor.b,
+				],
+			};
+			this.skyMaterial.uniforms['sunSize'] = { value: decoded.ambienceSettings.sunSize };
+		} else {
+			this.skyMaterial.uniforms['cameraFogColor0'] = { value: [0.916, 0.9574, 0.9574] };
+			this.skyMaterial.uniforms['cameraFogColor1'] = { value: [0.28, 0.476, 0.73] };
+			this.skyMaterial.uniforms['sunSize'] = { value: 1.0 };
 		}
 
 		const sunDirection = new THREE.Vector3(0, 0, 1);
@@ -224,6 +272,16 @@ class LevelLoader {
 			horizonColor[1] * (1.0 - sunColorFactor) + sunColorFactor,
 			horizonColor[2] * (1.0 - sunColorFactor) + sunColorFactor,
 		];
+
+		this.skyMaterial.uniforms['sunDirection'] = { value: skySunDirection };
+		this.skyMaterial.uniforms['sunColor'] = { value: sunColor };
+
+		if (this.options.sky) {
+			const sky = new THREE.Mesh(this.shapes[1], this.skyMaterial);
+			sky.frustumCulled = false;
+			sky.renderOrder = 1000; // sky should be rendered after opaque, before transparent
+			scene.add(sky);
+		}
 
 		const allMaterials = [...materials, ...objectMaterials];
 
@@ -721,7 +779,7 @@ class LevelLoader {
 					}
 
 					let material;
-					if (isSublevelTrigger) {
+					if (isSublevelTrigger && this.options.sublevels) {
 						material = objectMaterials[5];
 					} else {
 						material = objectMaterials[4];
@@ -765,7 +823,7 @@ class LevelLoader {
 					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix;
 
 					object.isTrigger = true;
-					object.visible = false;
+					object.visible = this.options.triggers;
 
 					level.nodes.shape[node.levelNodeTrigger.shape || 1000]?.push(object);
 					level.nodes.levelNodeTrigger.push(object);
@@ -851,7 +909,7 @@ class LevelLoader {
 
 					let signText = node.levelNodeSign.text;
 
-					if (signText) {
+					if (signText && this.options.text) {
 						let letterSize = 0.059; //Size of the text characters
 						const processString = (inputStr) => {
 							let words = inputStr.split(/\s+/);
