@@ -30,6 +30,7 @@ import textureBouncingURL from './textures/bouncing.png';
 import textureSnowURL from './textures/snow.png';
 import textureTriggerURL from './textures/trigger.png';
 import textureSublevelTriggerURL from './textures/sublevel_trigger.png';
+import textureSoundURL from './textures/sound.png';
 
 let textureLoader, gltfLoader, fontLoader;
 
@@ -123,6 +124,7 @@ class LevelLoader {
 			getMaterialForTexture(textureSublevelTriggerURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
 			altStartMaterial,
 			particleMaterial,
+			getMaterialForTexture(textureSoundURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
 		];
 
 		let skyMaterial = new THREE.ShaderMaterial();
@@ -148,6 +150,7 @@ class LevelLoader {
 			lights: true,
 			text: false,
 			triggers: false,
+			sound: false,
 			sublevels: false,
 		};
 
@@ -828,6 +831,47 @@ class LevelLoader {
 					level.nodes.shape[node.levelNodeTrigger.shape || 1000]?.push(object);
 					level.nodes.levelNodeTrigger.push(object);
 					level.complexity += 5;
+				} else if (node.levelNodeSound) {
+					let material = objectMaterials[8];
+
+					let newMaterial = material.clone();
+					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture;
+
+					newMaterial.transparent = true;
+					newMaterial.uniforms.transparentEnabled.value = 1.0;
+					object = new THREE.Mesh(shapes[1], newMaterial);
+
+					parentNode.add(object);
+					object.position.x = -node.levelNodeSound.position.x;
+					object.position.y = node.levelNodeSound.position.y;
+					object.position.z = -node.levelNodeSound.position.z;
+
+					object.scale.x = 1;
+					object.scale.y = 1;
+					object.scale.z = 1;
+
+					object.initialPosition = object.position.clone();
+					object.initialRotation = object.quaternion.clone();
+
+					let targetVector = new THREE.Vector3();
+					let targetQuaternion = new THREE.Quaternion();
+					let worldMatrix = new THREE.Matrix4();
+					worldMatrix.compose(
+						object.getWorldPosition(targetVector),
+						object.getWorldQuaternion(targetQuaternion),
+						object.getWorldScale(targetVector),
+					);
+
+					let normalMatrix = new THREE.Matrix3();
+					normalMatrix.getNormalMatrix(worldMatrix);
+					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix;
+
+					object.isSound = true;
+					object.visible = this.options.sound;
+
+					level.nodes.shape[1].push(object);
+					level.nodes.levelNodeSound.push(object);
+					level.complexity += 8;
 				} else if (node.levelNodeStart) {
 					console.log(decoded.defaultSpawnPointID, level.nodes.all.length);
 					const isDefaultSpawn =

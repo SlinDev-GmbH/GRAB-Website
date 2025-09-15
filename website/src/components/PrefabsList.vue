@@ -35,6 +35,7 @@ export default {
         lights: true,
         text: true,
         triggers: true,
+        sound: true,
         sublevels: true,
       });
 
