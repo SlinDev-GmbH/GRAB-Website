@@ -110,8 +110,10 @@ export default {
       }
     },
 
-    togglePrefabsList() {
-      this.getPrefabsList();
+    async togglePrefabsList() {
+      this.$refs.prefabButtonText.innerText = "Loading";
+      await this.getPrefabsList();
+      this.$refs.prefabButtonText.innerText = "Prefabs";
       this.showPrefabsList = !this.showPrefabsList;
     },
 
@@ -176,7 +178,7 @@ export default {
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>
         <button class="history-button" @click="togglePrefabsList">
-          Prefabs
+          <span ref="prefabButtonText">Prefabs</span>
           <img src="./../assets/icons/block.svg" alt="prefabs">
         </button>
       </div>
