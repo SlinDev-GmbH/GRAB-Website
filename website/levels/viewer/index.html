@@ -1,173 +1,189 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>__PAGE_TITLE__</title>
-        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
-        <meta name="description" content="__PAGE_DESCRIPTION__">
-        <meta property="og:image" content="__PAGE_PREVIEW_IMAGE_URL__">
-        <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="__PAGE_PREVIEW_IMAGE_WIDTH__">
-        <meta property="og:image:height" content="__PAGE_PREVIEW_IMAGE_HEIGHT__">
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:image:src" content="__PAGE_PREVIEW_IMAGE_URL__">
-        <link rel="stylesheet" href="styles.css">
-    </head>
-    <body>
-        <script type="module" src="scripts/level_viewer.js"></script>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<title>__PAGE_TITLE__</title>
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<meta name="description" content="__PAGE_DESCRIPTION__" />
+		<meta property="og:image" content="__PAGE_PREVIEW_IMAGE_URL__" />
+		<meta property="og:image:type" content="image/png" />
+		<meta property="og:image:width" content="__PAGE_PREVIEW_IMAGE_WIDTH__" />
+		<meta property="og:image:height" content="__PAGE_PREVIEW_IMAGE_HEIGHT__" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:image:src" content="__PAGE_PREVIEW_IMAGE_URL__" />
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<script type="module" src="scripts/level_viewer.js"></script>
 
-        <div class="popup" id="popup">
+		<div class="popup" id="popup">
 			<div class="popup-inner">
-				<div class="cell-title" id="popup-title"></div><br>
-				<div class="cell-description" id="popup-description"></div><br>
+				<div class="cell-title" id="popup-title"></div>
+				<br />
+				<div class="cell-description" id="popup-description"></div>
+				<br />
 				<form>
-					<select id="popup-reason" style="width: 70%">
-					</select>
+					<select id="popup-reason" style="width: 70%"></select>
 				</form>
-				<br>
+				<br />
 				<button id="popup-button-cancel">Cancel</button>
 				<button id="popup-button-ok">OK</button>
 			</div>
 		</div>
-        <div id="tagMenu">
-            <div class="popup-inner" id="tagMenuInner">
-
-            </div>
-        </div>
-        <div class="popup" id="popup-2">
+		<div id="tagMenu">
+			<div class="popup-inner" id="tagMenuInner"></div>
+		</div>
+		<div class="popup" id="popup-2">
 			<div class="popup-inner">
-                <div id="popup-thumbnail">
-                    <img src="../../src/assets/preview_image_placeholder.png" id="popup-report-image">
-                    <button id="report-set-image"><span>Set Image</span></button>
-                </div>
-                <br>
-				<div class="cell-title" id="popup-title-2"></div><br>
-				<div class="cell-description" id="popup-description-2"></div><br>
+				<div id="popup-thumbnail">
+					<img src="../../src/assets/preview_image_placeholder.png" id="popup-report-image" />
+					<button id="report-set-image"><span>Set Image</span></button>
+				</div>
+				<br />
+				<div class="cell-title" id="popup-title-2"></div>
+				<br />
+				<div class="cell-description" id="popup-description-2"></div>
+				<br />
 				<button id="popup-button-cancel-2">Cancel</button>
 				<button id="popup-button-ok-2">OK</button>
-            </div>
-        </div>
-        <div id="buttons" class="buttons">
-        <form>
-            <input type="button" id="back-button" class="back-button" value="User Levels">
-            <input type="button" value="Fullscreen" id="fullscreen" class="fullscreen-button">
-            <input type="button" id="fog-button" class="fog-button" value="Toggle Fog">
-            <input type="button" id="location-button" class="location-button" value="Copy POV URL">
-            <input type="button" id="copy-button" class="copy-button" value="Copy Level URL">
-            <input type="button" id="leaderboard-button" value="Leaderboard">
-            <input type="button" id="download-button" class="download-button" value="Download as GLTF">
-            <input type="button" id="report-take-image" class="report-take-image" value="Take Image">
-        </form>
-        </div>
-        
-        <div id='info-container'>
-            <div id="info" class="info">
-                <div id="scheduled_for_deletion">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                    </svg>
-                    SCHEDULED FOR DELETION
-                </div>
-                <div id="thumb-container">
-                    <div id="main-details">
-                        <div id="difficulty">unrated</div>
-                    </div>
-                    <div class="actions">
-                        <button id="reportButton"></button>
-                        <div id="tags">
-                            <button id="tagButton" style="display: none;">Edit</button>
-                        </div>
-                        <button id="favoriteButton"></button>
-                        <button id="unfavoriteButton"></button>
-                    </div>
-                </div>
-                <div id="title"></div>
-                <div class="details-container">
-                    <div id="creators"></div>
-                    <div id="description"></div>
-                    <div id="complexity"></div>
-                    <div id="checkpoints"></div>
-                    <div id="date"></div>
-                </div>
-                <div id="statistics">
-                    <div id="total finished count">total finished</div>
-                    <div id="players finished count">players finished</div>
-                    <div id="players liked count">players liked</div>
-                    <div id="average time">average time</div>
-                </div>
+			</div>
+		</div>
+		<div id="buttons" class="buttons">
+			<form>
+				<input type="button" id="back-button" class="back-button" value="User Levels" />
+				<input type="button" value="Fullscreen" id="fullscreen" class="fullscreen-button" />
+				<input type="button" id="fog-button" class="fog-button" value="Toggle Fog" />
+				<input type="button" id="location-button" class="location-button" value="Copy POV URL" />
+				<input type="button" id="copy-button" class="copy-button" value="Copy Level URL" />
+				<input type="button" id="leaderboard-button" value="Leaderboard" />
+				<input type="button" id="download-button" class="download-button" value="Download as GLTF" />
+				<input type="button" id="report-take-image" class="report-take-image" value="Take Image" />
+			</form>
+		</div>
 
-                <div>
-                    <button id="startButton" class="startButton"></button>
-                    <button id="finishButton" class="finishButton"></button>
-                </div>
-                <button id="triggersButton" style="display: none;">Show Triggers</button>
-                <div id="listButtons" style="display: none;">
-                    <button id="prevListItem">Back</button>
-                    <button id="nextListItem">Next</button>
-                    <p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
-                </div>
-                <div id="moderationcontainer" class="moderationinfo">
-                    <button id="verifyButton" style="display: none;">Verify</button>
-                    <button id="unverifyButton" style="display: none;">Unverify</button>
-                    <button id="verifySkipButton" style="display: none;">Skip</button>
-                    <button id="verifySkipSuccessButton" style="display: none;">Skipped</button>
-                    <div id="hidecontainer" style="display: none;">
-                        <div id="reports" style="display: none;">
-                            <b><p id="reportsTitle">Reports:</p></b>
-                            <div id="reportlist"></div>
-                        </div>
-                        <b>Hide Level</b>
-                        <form id="hideForm">
-                            <select id="hideReason" style="width: 70%;">
-                                <option value="">- Reason -</option>
-                                <option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
-                                <option id="level_violence" value="level_violence">Detailed Violence</option>
-                                <option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
-                                <option id="level_tips" value="level_tips">Asking for Tips</option>
-                                <option id="level_loweffort" value="level_loweffort">Very low effort level</option>
-                                <option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
-                                <option id="level_other" value="level_other">Other</option>
-                                <option id="no_punish" value="no_punish">Don't punish</option>
-                            </select>
-                        </form>
-                        <button id="hideButton">Hide</button>
-                        <button id="approveButton">Approve</button>
-                    </div>
-                    <button id="make-creator-button" class="creatorButton" style="display: none;"><b>Make Creator</b></button>
-                    <div id="signs-container"></div>
-                    <b id="sublevels-title">Sublevels:</b>
-                    <div id="sublevels-container"></div>
-                </div>
-            </div>
-            <div id="animation-controls">
-                <button id="play-pause">
-                    <svg id="play" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z" />
-                    </svg>
-                    <svg id="pause" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
-                    </svg>
-                </button>
-                <input type="range" id="time-slider" min="0" max="0" step="0.01" value="0">
-            </div>
-        </div>
+		<div id="info-container">
+			<div id="info" class="info">
+				<div id="scheduled_for_deletion">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+						/>
+					</svg>
+					SCHEDULED FOR DELETION
+				</div>
+				<div id="thumb-container">
+					<div id="main-details">
+						<div id="difficulty">unrated</div>
+					</div>
+					<div class="actions">
+						<button id="reportButton"></button>
+						<div id="tags">
+							<button id="tagButton" style="display: none">Edit</button>
+						</div>
+						<button id="favoriteButton"></button>
+						<button id="unfavoriteButton"></button>
+					</div>
+				</div>
+				<div id="title"></div>
+				<div class="details-container">
+					<div id="creators"></div>
+					<div id="description"></div>
+					<div id="complexity"></div>
+					<div id="checkpoints"></div>
+					<div id="date"></div>
+				</div>
+				<div id="statistics">
+					<div id="total finished count">total finished</div>
+					<div id="players finished count">players finished</div>
+					<div id="players liked count">players liked</div>
+					<div id="average time">average time</div>
+				</div>
 
-        <div id="overlay" class="overlay"></div>
-        <div id="leaderboard" class="leaderboard">
-            <div class="leaderboard-header">
-                Leaderboard for
-                <span id="leaderboard-title"></span>
-            </div>
-            <div id="leaderboard-content" class="leaderboard-content"></div>
-            <div class="leaderboard-close" id="leaderboard-close">&times;</div>
-            <button id="applyLeaderboardModifications">Confirm</button>
-        </div>
+				<div>
+					<button id="startButton" class="startButton"></button>
+					<button id="finishButton" class="finishButton"></button>
+				</div>
+				<button id="triggersButton" style="display: none">Show Triggers</button>
+				<div id="listButtons" style="display: none">
+					<button id="prevListItem">Back</button>
+					<button id="nextListItem">Next</button>
+					<p><span id="currentListItem"></span> / <span id="totalListItems"></span></p>
+				</div>
+				<div id="moderationcontainer" class="moderationinfo">
+					<button id="verifyButton" style="display: none">Verify</button>
+					<button id="unverifyButton" style="display: none">Unverify</button>
+					<button id="verifySkipButton" style="display: none">Skip</button>
+					<button id="verifySkipSuccessButton" style="display: none">Skipped</button>
+					<div id="hidecontainer" style="display: none">
+						<div id="reports" style="display: none">
+							<b><p id="reportsTitle">Reports:</p></b>
+							<div id="reportlist"></div>
+						</div>
+						<b>Hide Level</b>
+						<form id="hideForm">
+							<select id="hideReason" style="width: 70%">
+								<option value="">- Reason -</option>
+								<option id="level_sexual" value="level_sexual">Sexual Content / Genitals</option>
+								<option id="level_violence" value="level_violence">Detailed Violence</option>
+								<option id="level_hatespeech" value="level_hatespeech">Inappropriate Language</option>
+								<option id="level_tips" value="level_tips">Asking for Tips</option>
+								<option id="level_loweffort" value="level_loweffort">Very low effort level</option>
+								<option id="level_glitch" value="level_glitch">Requires to use a Glitch to finish</option>
+								<option id="level_other" value="level_other">Other</option>
+								<option id="no_punish" value="no_punish">Don't punish</option>
+							</select>
+						</form>
+						<button id="hideButton">Hide</button>
+						<button id="approveButton">Approve</button>
+					</div>
+					<button id="make-creator-button" class="creatorButton" style="display: none"><b>Make Creator</b></button>
+					<div id="signs-container"></div>
+					<b id="sublevels-title">Sublevels:</b>
+					<div id="sublevels-container"></div>
+				</div>
+			</div>
+			<div id="animation-controls">
+				<button id="play-pause">
+					<svg id="play" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+						/>
+					</svg>
+					<svg
+						id="pause"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="2.5"
+						stroke="currentColor"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+					</svg>
+				</button>
+				<input type="range" id="time-slider" min="0" max="0" step="0.01" value="0" />
+			</div>
+		</div>
 
-        <div class="terms-container">
-            <a href="https://slindev.com/legalnotice" class="terms-link">Legal Notice</a>
-            <a href="https://slindev.com/terms" class="terms-link">EULA</a>
-            <a href="https://slindev.com/privacy" class="terms-link">Privacy Policy</a>
-        </div>
-    </body>
+		<div id="overlay" class="overlay"></div>
+		<div id="leaderboard" class="leaderboard">
+			<div class="leaderboard-header">
+				Leaderboard for
+				<span id="leaderboard-title"></span>
+			</div>
+			<div id="leaderboard-content" class="leaderboard-content"></div>
+			<div class="leaderboard-close" id="leaderboard-close">&times;</div>
+			<button id="applyLeaderboardModifications">Confirm</button>
+		</div>
+
+		<div class="terms-container">
+			<a href="https://slindev.com/legalnotice" class="terms-link">Legal Notice</a>
+			<a href="https://slindev.com/terms" class="terms-link">EULA</a>
+			<a href="https://slindev.com/privacy" class="terms-link">Privacy Policy</a>
+		</div>
+	</body>
 </html>
