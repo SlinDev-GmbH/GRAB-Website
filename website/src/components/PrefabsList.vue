@@ -28,10 +28,15 @@ export default {
 
   methods: {
     async reloadPrefabs() {
-      console.log("NOW");
       const prefabs = [];
 
-      if (!window._levelLoader) window._levelLoader = new LevelLoader();
+      if (!window._levelLoader) window._levelLoader = new LevelLoader({
+        sky: false,
+        lights: true,
+        text: true,
+        triggers: true,
+        sublevels: true,
+      });
 
       for (const prefabData of (this.prefabsList || [])) {
         const binaryString = atob(prefabData.data);
@@ -79,6 +84,10 @@ export default {
             object.rotation.y += 1 * delta;
           }
         });
+
+        // this.prefabs.forEach(prefab => {
+        //   prefab.update(delta);
+        // });
       }
       animate();
 
@@ -86,7 +95,6 @@ export default {
     },
 
     replacePrefabs() {
-      // FIXME: WHY DO THEY GET BIG
       if (!this.scene) {
         this.scene = new THREE.Scene();
       } else {
@@ -143,18 +151,29 @@ export default {
           const x = (itemRect.left - containerRect.left + itemRect.width / 2) / containerWidth - 0.5;
           const y = (itemRect.top - containerRect.top + itemRect.height / 2) / containerHeight - 0.5;
 
-          const bounds = new THREE.Box3().setFromObject(clonedScene);
-          const size = new THREE.Vector3();
-          bounds.getSize(size);
-          const center = new THREE.Vector3();
-          bounds.getCenter(center);
+          if (!prefab.scene.userData.size || !prefab.scene.userData.center) {
+            const bounds = new THREE.Box3().setFromObject(clonedScene);
+
+            const size = new THREE.Vector3();
+            bounds.getSize(size);
+            prefab.scene.userData.size = size;
+
+            const center = new THREE.Vector3();
+            bounds.getCenter(center);
+            prefab.scene.userData.center = center;
+          }
+
+          const { center, size } = prefab.scene.userData;
+
+          const targetWidth = frustumSize * aspect * (itemRect.width / containerWidth);
+          const targetHeight = frustumSize * (itemRect.height / containerHeight);
 
           const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 0.7 / maxDim;
-          clonedScene.scale.set(scale, scale, scale);
+          let scale = Math.min(targetWidth, targetHeight) / maxDim;
+          clonedScene.scale.set(scale * 0.7, scale * 0.7, scale * 0.7);
 
           prefabGroup.position.set(x * frustumSize * aspect, -y * frustumSize, 0);
-          clonedScene.position.set(-center.x * scale, -center.y * scale + 0.07, -center.z * scale);
+          clonedScene.position.set(-center.x * scale, -center.y * scale + (maxDim * scale * 0.05), -center.z * scale);
 
           prefabGroup.add(clonedScene);
           this.scene.add(prefabGroup);
@@ -246,18 +265,18 @@ export default {
   <dialog class="prefabs-wrapper" @click="(e) => { if (e.target.tagName === 'DIALOG') this.$emit('escape'); }">
     <div class="prefabs-container">
       <h2>Prefabs</h2>
-      <div class="prefabs-list" ref="prefabsList">
-        <div v-for="(_, index) in this.prefabs" :key="index" class="prefab-item" ref="prefabItems">
-          <button class="prefab-button download-prefab-button" @click="() => { downloadPrefab(index); }">
-            Download
-          </button>
-          <button class="prefab-button block-prefab-button" @click="() => { blockPrefab(index); }">
-            Block
-          </button>
+      <div class="prefabs-list-wrapper">
+        <div class="prefabs-list" ref="prefabsList">
+          <div v-for="(_, index) in this.prefabs" :key="index" class="prefab-item" ref="prefabItems">
+            <button class="prefab-button download-prefab-button" @click="() => { downloadPrefab(index); }">
+              Download
+            </button>
+            <button class="prefab-button block-prefab-button" @click="() => { blockPrefab(index); }">
+              Block
+            </button>
+          </div>
         </div>
-        <div class="canvas-wrapper">
-          <canvas ref="canvas" class="canvas"></canvas>
-        </div>
+        <canvas ref="canvas" class="canvas"></canvas>
       </div>
     </div>
   </dialog>
@@ -293,9 +312,8 @@ export default {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     grid-gap: 10px;
-    padding: 10px;
     justify-content: center;
-    overflow: scroll;
+    overflow: visible;
     position: relative;
   }
   .prefab-item {
@@ -310,22 +328,21 @@ export default {
     align-items: flex-end;
     justify-content: space-evenly;
   }
-  .canvas-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+  .prefabs-list-wrapper {
     height: 100%;
-    overflow: hidden;
-    pointer-events: none;
+    width: 100%;
+    overflow: scroll;
+    position: relative;
+    padding: 10px;
   }
-  .prefabs-list .canvas {
+  .canvas {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     pointer-events: none;
+    margin: 10px;
   }
   .prefab-button {
     padding: 5px 10px;
