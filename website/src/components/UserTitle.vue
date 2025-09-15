@@ -202,7 +202,7 @@ export default {
   <PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
   <ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
   <Teleport to="body">
-    <PrefabsList v-if="showPrefabsList && loaded && isSuperModerator" :prefabsList="prefabsList" :userID="identifier" @escape="showPrefabsList = false"/>
+    <PrefabsList v-if="showPrefabsList && loaded && isModerator" :prefabsList="prefabsList" :userID="identifier" @escape="showPrefabsList = false"/>
   </Teleport>
 </template>
 
