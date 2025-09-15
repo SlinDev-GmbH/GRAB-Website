@@ -35,7 +35,7 @@ export default {
       return '';
     },
 
-    ...mapState(useUserStore, ['userID', 'isSuperModerator', 'accessToken'])
+    ...mapState(useUserStore, ['userID', 'isSuperModerator', 'isModerator', 'accessToken'])
   },
 
   data() {
@@ -171,12 +171,12 @@ export default {
           {{ count }} level{{ count > 1 ? 's' : '' }}
         </div>
       </div>
-      <div v-if="loaded && isSuperModerator" class="history-buttons">
-        <button class="history-button" @click="togglePurchaseHistory">
+      <div v-if="loaded && isModerator" class="history-buttons">
+        <button v-if="isSuperModerator" class="history-button" @click="togglePurchaseHistory">
           Purchases
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>
-        <button class="history-button" @click="toggleModerationHistory">
+        <button v-if="isSuperModerator" class="history-button" @click="toggleModerationHistory">
           Moderation
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>

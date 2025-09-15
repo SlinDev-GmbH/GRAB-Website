@@ -23,7 +23,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUserStore, ['accessToken'])
+    ...mapState(useUserStore, ['accessToken', 'isSuperModerator'])
   },
 
   methods: {
@@ -272,7 +272,7 @@ export default {
             <button class="prefab-button download-prefab-button" @click="() => { downloadPrefab(index); }">
               Download
             </button>
-            <button class="prefab-button block-prefab-button" @click="() => { blockPrefab(index); }">
+            <button v-if="isSuperModerator" class="prefab-button block-prefab-button" @click="() => { blockPrefab(index); }">
               Block
             </button>
           </div>
