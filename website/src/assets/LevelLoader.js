@@ -869,7 +869,7 @@ class LevelLoader {
 					object.isSound = true;
 					object.visible = this.options.sound;
 
-					level.nodes.shape[1].push(object);
+					level.nodes.shape[1001].push(object);
 					level.nodes.levelNodeSound.push(object);
 					level.complexity += 8;
 				} else if (node.levelNodeStart) {
