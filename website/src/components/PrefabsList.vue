@@ -19,6 +19,7 @@ export default {
       loader: undefined,
       prefabs: [],
       container: null,
+      currentlyBlocking: -1,
     }
   },
 
@@ -226,11 +227,15 @@ export default {
     },
 
     async blockPrefab(index) {
-      const prefabID = this.prefabsList[index]?.identifier;
-      if (prefabID) {
-        if(await prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
-          this.prefabs[index].blocked = true;
+      if (this.currentlyBlocking === index) {
+        const prefabID = this.prefabsList[index]?.identifier;
+        if (prefabID) {
+          if(await prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
+            this.prefabs[index].blocked = true;
+          }
         }
+      } else {
+        this.currentlyBlocking = index;
       }
     },
   },
@@ -295,7 +300,7 @@ export default {
               Download
             </button>
             <button v-if="isSuperModerator" class="prefab-button block-prefab-button" @click="() => { blockPrefab(index); }">
-              Block
+              {{ currentlyBlocking === index ? 'Confirm' : 'Block' }}
             </button>
           </div>
           <div v-if="this.prefabsList[this.prefabsList.length - 1]?.cursor" class='prefab-item prefab-item-loading'>
