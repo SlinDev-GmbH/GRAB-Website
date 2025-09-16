@@ -562,7 +562,7 @@ class LevelLoader {
 					particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 					particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
 
-					let particleMaterial = objectMaterials[6].clone();
+					let particleMaterial = objectMaterials[7].clone();
 
 					let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
 
