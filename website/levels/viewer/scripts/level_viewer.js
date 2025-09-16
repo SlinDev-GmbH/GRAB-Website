@@ -135,6 +135,7 @@ async function init() {
 		triggers: false, // false by default even with perms
 		sound: false,
 		sublevels: userStore.isVerifier,
+		static: false,
 	});
 	level = await window._levelLoader.load(formattedBuffer);
 	scene.add(level.scene);

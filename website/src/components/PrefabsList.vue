@@ -37,6 +37,7 @@ export default {
         triggers: true,
         sound: true,
         sublevels: true,
+        static: true,
       });
 
       for (const prefabData of (this.prefabsList || [])) {

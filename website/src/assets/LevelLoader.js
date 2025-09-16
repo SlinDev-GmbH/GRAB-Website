@@ -152,6 +152,7 @@ class LevelLoader {
 			triggers: false,
 			sound: false,
 			sublevels: false,
+			static: false,
 		};
 
 		for (const key in this.options) {
@@ -191,6 +192,9 @@ class LevelLoader {
 			level.meta.time += delta;
 			for (const object of level.nodes.animated) {
 				updateObjectAnimation(object, level.meta.time);
+			}
+			for (const object of level.nodes.levelNodeGravity) {
+				updateObjectParticles(object, delta);
 			}
 			for (const object of level.nodes.levelNodeParticleEmitter) {
 				updateObjectParticles(object, delta);
@@ -639,6 +643,12 @@ class LevelLoader {
 						particleGeometry.attributes.color.needsUpdate = true;
 						particleGeometry.attributes.scale.needsUpdate = true;
 					};
+
+					if (this.options.static) {
+						for (let i = 0; i < 10; i++) {
+							object.userData.update(lifeSpanMax / 10);
+						}
+					}
 
 					level.nodes.levelNodeParticleEmitter.push(object);
 					level.complexity += 5;
