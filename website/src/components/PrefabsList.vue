@@ -284,7 +284,10 @@ export default {
 <template>
   <dialog class="prefabs-wrapper" @click="(e) => { if (e.target.tagName === 'DIALOG') this.$emit('escape'); }">
     <div class="prefabs-container">
-      <h2>{{ this.prefabsList[this.prefabsList.length - 1]?.cursor ? 'Prefabs (loading...)' : 'Prefabs' }}</h2>
+      <h2 class="prefabs-heading">
+        Prefabs
+        <img v-if="this.prefabsList[this.prefabsList.length - 1]?.cursor" src="./../assets/icons/loading.svg" alt="loading...">
+      </h2>
       <div class="prefabs-list-wrapper">
         <div class="prefabs-list" ref="prefabsList">
           <div v-for="(prefab, index) in this.prefabs" :key="index" :class="'prefab-item' + (prefab.blocked ? ' blocked-prefab' : '')" ref="prefabItems">
@@ -295,6 +298,9 @@ export default {
               Block
             </button>
           </div>
+          <div v-if="this.prefabsList[this.prefabsList.length - 1]?.cursor" class='prefab-item prefab-item-loading'>
+            <img src="./../assets/icons/loading.svg" alt="loading...">
+          </div>
         </div>
         <canvas ref="canvas" class="canvas"></canvas>
       </div>
@@ -304,6 +310,21 @@ export default {
 
 
 <style scoped>
+  @keyframes rotate-spinner {
+    from {rotate: 0deg;}
+    to {rotate: 360deg;}
+  }
+  .prefabs-heading {
+    display: grid;
+    grid-template-columns: 1fr 0;
+    place-content: center;
+
+    img {
+      left: 0.5em;
+      margin: auto;
+      animation: rotate-spinner 1s infinite linear;
+    }
+  }
   .prefabs-wrapper {
     position: fixed;
     top: 0;
@@ -319,7 +340,8 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 5px;
+    padding-top: 5px;
     width: 80svw;
     height: 80svh;
     background-color: var(--bg);
@@ -347,6 +369,17 @@ export default {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-evenly;
+
+    &.prefab-item-loading {
+      align-items: center;
+      justify-content: center;
+
+      > img {
+        width: 30%;
+        height: 30%;
+        animation: rotate-spinner 1s infinite linear;
+      }
+    }
   }
   .blocked-prefab {
     background-color: #CE311650;
@@ -357,6 +390,7 @@ export default {
     overflow: scroll;
     position: relative;
     padding: 10px;
+    padding-top: 0;
   }
   .canvas {
     position: absolute;
@@ -365,7 +399,7 @@ export default {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    margin: 10px;
+    margin-inline: 10px;
   }
   .prefab-button {
     padding: 5px 10px;
