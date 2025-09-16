@@ -27,6 +27,28 @@ export default {
   },
 
   methods: {
+    async loadPrefab(prefab) {
+      const { data, identifier } = prefab;
+
+      if (!window._prefabCache) window._prefabCache = {};
+
+      let result = window._prefabCache[identifier];
+
+      if (!result) {
+        const binaryString = atob(data);
+        const uint8Array = new Uint8Array(binaryString.length);
+
+        for (let i = 0; i < binaryString.length; i++) {
+          uint8Array[i] = binaryString.charCodeAt(i);
+        }
+
+        result = await window._levelLoader.load(uint8Array);
+        window._prefabCache[identifier] = result;
+      }
+
+      return result;
+    },
+
     async reloadPrefabs() {
       const prefabs = [];
 
@@ -40,14 +62,8 @@ export default {
         static: true,
       });
 
-      for (const prefabData of (this.prefabsList || [])) {
-        const binaryString = atob(prefabData.data);
-        const uint8Array = new Uint8Array(binaryString.length);
-
-        for (let i = 0; i < binaryString.length; i++) {
-          uint8Array[i] = binaryString.charCodeAt(i);
-        }
-        prefabs.push(await window._levelLoader.load(uint8Array));
+      for (const prefab of (this.prefabsList || [])) {
+        prefabs.push(await this.loadPrefab(prefab));
       }
 
       this.prefabs = prefabs;
