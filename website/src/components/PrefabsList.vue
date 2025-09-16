@@ -366,7 +366,6 @@ export default {
   .prefab-item {
     width: 100%;
     height: 250px;
-    overflow: scroll;
     padding: 10px;
     background-color: var(--button);
     border-radius: 15px;
