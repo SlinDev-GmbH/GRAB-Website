@@ -225,10 +225,12 @@ export default {
       }
     },
 
-    blockPrefab(index) {
+    async blockPrefab(index) {
       const prefabID = this.prefabsList[index]?.identifier;
       if (prefabID) {
-        prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID);
+        if(await prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
+          this.prefabs[index].blocked = true;
+        }
       }
     },
   },
@@ -285,7 +287,7 @@ export default {
       <h2>{{ this.prefabsList[this.prefabsList.length - 1]?.cursor ? 'Prefabs (loading...)' : 'Prefabs' }}</h2>
       <div class="prefabs-list-wrapper">
         <div class="prefabs-list" ref="prefabsList">
-          <div v-for="(_, index) in this.prefabs" :key="index" class="prefab-item" ref="prefabItems">
+          <div v-for="(prefab, index) in this.prefabs" :key="index" :class="'prefab-item' + (prefab.blocked ? ' blocked-prefab' : '')" ref="prefabItems">
             <button class="prefab-button download-prefab-button" @click="() => { downloadPrefab(index); }">
               Download
             </button>
@@ -346,6 +348,9 @@ export default {
     align-items: flex-end;
     justify-content: space-evenly;
   }
+  .blocked-prefab {
+    background-color: #CE311650;
+  }
   .prefabs-list-wrapper {
     height: 100%;
     width: 100%;
@@ -379,6 +384,9 @@ export default {
   }
   .download-prefab-button {
     background-color: var(--blue);
+  }
+  .blocked-prefab .block-prefab-button {
+    display: none;
   }
 </style>
 
