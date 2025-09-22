@@ -12,10 +12,32 @@ import { useUserStore } from '@/stores/user';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
+// TODO: fix inconsistent naming
+import { setCreator } from '../../../src/requests/SetCreator.js';
+import { GetLevelDetailsRequest } from '../../../src/requests/GetLevelDetailsRequest.js';
+import { GetLevelBrowserRequest } from '../../../src/requests/GetLevelBrowserRequest.js';
+import { setLevelTagsRequest } from '../../../src/requests/SetLevelTagsRequest.js';
+import { removeLevelFromVerificationQueueRequest } from '../../../src/requests/RemoveLevelFromVerificationQueueRequest.js';
+import { hideLevelRequest } from '../../../src/requests/HideLevelRequest.js';
+import { moderationActionRequest } from '../../../src/requests/ModerationActionRequest.js';
+import { resetReportsRequest } from '../../../src/requests/ResetReportsRequest.js';
+import { approveLevelRequest } from '../../../src/requests/ApproveLevelRequest.js';
+import { GetLevelReportInfoRequest } from '../../../src/requests/GetLevelReportInfoRequest.js';
+import { getLevelStatisticsRequest } from '../../../src/requests/GetLevelStatisticsRequest.js';
+import { setUserFavorites } from '../../../src/requests/SetUserFavoritesRequest.js';
+import { removeUserFavorites } from '../../../src/requests/RemoveUserFavoritesRequest.js';
+import { reportLevelRequest } from '../../../src/requests/ReportLevelRequest.js';
+import { getLevelLeaderboardRequest } from '../../../src/requests/GetLevelLeaderboardRequest.js';
+import { getLevelReplayRequest } from '../../../src/requests/GetLevelReplayRequest.js';
+import { removeLevelRecordRequest } from '../../../src/requests/RemoveLevelRecordRequest.js';
+import { downloadLevelRequest } from '../../../src/requests/DownloadLevelRequest.js';
+
 import imageStampOk from '../../../src/assets/icons/checkmark.svg';
 import imageReport from '../../../src/assets/icons/report.svg';
 import imageFavorite from '../../../src/assets/icons/star_off.svg';
 import imageFavorited from '../../../src/assets/icons/star_on.svg';
+
+// TODO: handle request fails
 
 let userID = undefined;
 
@@ -93,10 +115,8 @@ async function init() {
 	let levelIdentifier = urlParams.get('level');
 	let levelIdentifierParts = levelIdentifier.split(':');
 	let hasIteration = levelIdentifierParts.length === 3;
-	levelIdentifier = levelIdentifierParts.join('/');
 
-	let detailResponse = await fetch(config.SERVER_URL + 'details/' + levelIdentifier);
-	let detailResponseBody = await detailResponse.json();
+	let detailResponseBody = await GetLevelDetailsRequest(config.SERVER_URL, levelIdentifier);
 	userID = levelIdentifierParts[0];
 	console.log(userID);
 
@@ -122,11 +142,10 @@ async function init() {
 	if (!hasIteration) {
 		let identifier_parts = detailResponseBody.data_key.split(':');
 		identifier_parts.splice(0, 1);
-		levelIdentifier = identifier_parts.join('/');
+		levelIdentifier = identifier_parts.join(':');
 	}
 
-	let response = await fetch(config.SERVER_URL + 'download/' + levelIdentifier);
-	let responseBody = await response.arrayBuffer();
+	let responseBody = await downloadLevelRequest(config.SERVER_URL, levelIdentifier);
 	let formattedBuffer = new Uint8Array(responseBody);
 	window._levelLoader.config({
 		sky: true,
@@ -205,12 +224,7 @@ async function init() {
 		tagButton.style.display = 'block';
 		tagButton.addEventListener('click', async () => {
 			tagMenuInner.innerHTML = '';
-			const levelBrowserResponse = await fetch(config.SERVER_URL + 'get_level_browser?version=1');
-			const levelBrowserResponseBody = await levelBrowserResponse.text();
-			if (levelBrowserResponse.status != 200) {
-				alert(levelBrowserResponseBody);
-			}
-			const levelBrowser = JSON.parse(levelBrowserResponseBody);
+			const levelBrowser = await GetLevelBrowserRequest(config.SERVER_URL);
 			const tags = levelBrowser.tags;
 			const tagCheckboxes = [];
 			for (const tag of tags) {
@@ -269,30 +283,10 @@ async function init() {
 			submitTagsButton.innerHTML = 'Submit Tags';
 			tagMenuInner.appendChild(submitTagsButton);
 			submitTagsButton.addEventListener('click', async () => {
-				let checkedTags = [];
-				for (const checkbox of tagCheckboxes) {
-					if (checkbox.checked) {
-						checkedTags.push(checkbox.name.split('-')[1]);
-					}
-				}
-				levelUserTags = checkedTags;
-				let tagString = checkedTags.join(',');
-				const response = await fetch(
-					config.SERVER_URL +
-						'tag/' +
-						levelIdentifierParts[0] +
-						'/' +
-						levelIdentifierParts[1] +
-						'?user_tags=' +
-						tagString +
-						'&access_token=' +
-						accessToken,
-				);
-				const responseBody = await response.text();
-				if (responseBody == 'Success') {
+				levelUserTags = tagCheckboxes.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.name.split('-')[1]);
+				let success = await setLevelTagsRequest(config.SERVER_URL, accessToken, levelIdentifier, null, levelUserTags);
+				if (success) {
 					tagMenu.style.display = 'none';
-				} else {
-					confirm(responseBody);
 				}
 			});
 
@@ -338,100 +332,45 @@ async function init() {
 			}
 		}
 		let isLoadingVerification = false;
-		verifyButton.addEventListener('click', function () {
-			(async () => {
-				if (isLoadingVerification) {
-					return;
-				}
-				isLoadingVerification = true;
-				let response = await fetch(
-					config.SERVER_URL +
-						'tag/' +
-						levelIdentifierParts[0] +
-						'/' +
-						levelIdentifierParts[1] +
-						'?mod_tags=ok' +
-						'&access_token=' +
-						accessToken,
-				);
-				let responseBody = await response.text();
-				if (responseBody == 'Success') {
-					verifyButton.style.display = 'none';
-					unverifyButton.style.display = 'block';
-				} else {
-					confirm(responseBody);
-					return;
-				}
+		verifyButton.addEventListener('click', async () => {
+			if (isLoadingVerification) return;
+			isLoadingVerification = true;
 
-				let responseQueue = await fetch(
-					config.SERVER_URL +
-						'remove_from_verification_queue/' +
-						levelIdentifierParts[0] +
-						'/' +
-						levelIdentifierParts[1] +
-						'?tags=&access_token=' +
-						accessToken,
-				);
-				let responseQueueBody = await responseQueue.text();
-				if (responseQueueBody == 'Success') {
+			let success = await setLevelTagsRequest(config.SERVER_URL, accessToken, levelIdentifier, ['ok'], null);
+			if (success) {
+				verifyButton.style.display = 'none';
+				unverifyButton.style.display = 'block';
+
+				let queueSuccess = await removeLevelFromVerificationQueueRequest(config.SERVER_URL, accessToken, levelIdentifier);
+				if (queueSuccess) {
 					verifySkipSuccessButton.style.display = 'block';
 					verifySkipButton.style.display = 'none';
-				} else {
-					confirm(responseQueueBody);
 				}
-				isLoadingVerification = false;
-			})();
+			}
+
+			isLoadingVerification = false;
 		});
-		unverifyButton.addEventListener('click', function () {
-			(async () => {
-				if (isLoadingVerification) {
-					return;
-				}
-				isLoadingVerification = true;
-				let response = await fetch(
-					config.SERVER_URL +
-						'tag/' +
-						levelIdentifierParts[0] +
-						'/' +
-						levelIdentifierParts[1] +
-						'?mod_tags=' +
-						'&access_token=' +
-						accessToken,
-				);
-				let responseBody = await response.text();
-				if (responseBody == 'Success') {
-					verifyButton.style.display = 'block';
-					unverifyButton.style.display = 'none';
-				} else {
-					confirm(responseBody);
-				}
-				isLoadingVerification = false;
-			})();
+		unverifyButton.addEventListener('click', async () => {
+			if (isLoadingVerification) return;
+			isLoadingVerification = true;
+
+			let success = await setLevelTagsRequest(config.SERVER_URL, accessToken, levelIdentifier, [], null);
+			if (success) {
+				verifyButton.style.display = 'block';
+				unverifyButton.style.display = 'none';
+			}
+
+			isLoadingVerification = false;
 		});
 		let wasSkipped = false;
-		verifySkipButton.addEventListener('click', function () {
-			(async () => {
-				if (wasSkipped) {
-					return;
-				}
-				wasSkipped = true;
-				let response = await fetch(
-					config.SERVER_URL +
-						'remove_from_verification_queue/' +
-						levelIdentifierParts[0] +
-						'/' +
-						levelIdentifierParts[1] +
-						'?tags=&access_token=' +
-						accessToken,
-				);
-				let responseBody = await response.text();
-				if (responseBody == 'Success') {
-					verifySkipSuccessButton.style.display = 'block';
-					verifySkipButton.style.display = 'none';
-				} else {
-					confirm(responseBody);
-				}
-			})();
+		verifySkipButton.addEventListener('click', async () => {
+			if (wasSkipped) return;
+			wasSkipped = true;
+			let queueSuccess = await removeLevelFromVerificationQueueRequest(config.SERVER_URL, accessToken, levelIdentifier);
+			if (queueSuccess) {
+				verifySkipSuccessButton.style.display = 'block';
+				verifySkipButton.style.display = 'none';
+			}
 		});
 	}
 
@@ -439,146 +378,86 @@ async function init() {
 		const hideContainer = document.getElementById('hidecontainer');
 		hideContainer.style.display = 'block';
 		const hideButton = document.getElementById('hideButton');
-		hideButton.addEventListener('click', function () {
-			(async () => {
-				const reason = document.getElementById('hideReason').value;
-				const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
+		hideButton.addEventListener('click', async () => {
+			const reason = document.getElementById('hideReason').value;
 
-				let noPunish = reason === 'no_punish';
+			let noPunish = reason === 'no_punish';
 
-				if (reason === 'level_tips') {
-					if ('creation_timestamp' in detailResponseBody) {
-						const timestamp = detailResponseBody.creation_timestamp;
-						const banDate = new Date('April 15, 2024 00:00:00');
-						if (timestamp < banDate) {
-							noPunish = true;
-						}
+			if (reason === 'level_tips') {
+				if ('creation_timestamp' in detailResponseBody) {
+					const timestamp = detailResponseBody.creation_timestamp;
+					const banDate = new Date('April 15, 2024 00:00:00');
+					if (timestamp < banDate) {
+						noPunish = true;
 					}
 				}
+			}
 
-				const hideResponse = await fetch(config.SERVER_URL + 'hide/' + identifierPath, {
-					headers: { Authorization: 'Bearer ' + accessToken },
-				});
-				const hideResponseBody = await hideResponse.text();
-				if (hideResponse.status != 200 || hideResponseBody !== 'Success') {
-					confirm('Error: ' + hideResponseBody);
-				} else if (noPunish) {
+			let success = await hideLevelRequest(config.SERVER_URL, accessToken, levelIdentifier);
+			if (success) {
+				if (noPunish) {
 					hideContainer.style.display = 'none';
-				}
-
-				if (!noPunish) {
-					let extra = '';
-					if (reason === 'level_glitch') {
-						extra +=
-							'?reason=message&type=message&message=A+level+you+published+relies+on+a+glitch+that+is+not+working+anymore.+If+you+fix+the+level,+please+let+me+know+through+discord+or+tiktok+to+make+it+available+again.';
-					} else {
-						extra += '?reason=' + reason;
-					}
-					const moderationResponse = await fetch(config.SERVER_URL + 'moderation_action/' + levelIdentifierParts[0] + extra, {
-						headers: { Authorization: 'Bearer ' + accessToken },
-					});
-					const moderationResponseBody = await moderationResponse.text();
-					if (moderationResponse.status != 200 || moderationResponseBody !== 'Success') {
-						confirm('Error: ' + moderationResponseBody);
-					} else {
+				} else {
+					let actionSuccess = await moderationActionRequest(config.SERVER_URL, accessToken, levelIdentifierParts[0], reason);
+					if (actionSuccess) {
 						hideContainer.style.display = 'none';
 					}
-					const resetResponse = await fetch(config.SERVER_URL + 'reports_reset/' + levelIdentifierParts[0], {
-						headers: { Authorization: 'Bearer ' + accessToken },
-					});
-					const resetResponseBody = await resetResponse.text();
-					if (resetResponse.status != 200 || resetResponseBody !== 'Success') {
-						confirm('Error: ' + resetResponseBody);
-					}
+					await resetReportsRequest(config.SERVER_URL, accessToken, levelIdentifierParts[0]);
 				}
-			})();
+			}
 		});
 
 		const approveButton = document.getElementById('approveButton');
-		approveButton.addEventListener('click', function () {
-			(async () => {
-				const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
-
-				const approveResponse = await fetch(config.SERVER_URL + 'ignore_reports/' + identifierPath, {
-					headers: { Authorization: 'Bearer ' + accessToken },
-				});
-				const approveResponseBody = await approveResponse.text();
-				if (approveResponse.status != 200 || approveResponseBody !== 'Success') {
-					confirm('Error: ' + approveResponseBody);
-				} else {
-					hideContainer.style.display = 'none';
-				}
-			})();
+		approveButton.addEventListener('click', async () => {
+			let success = await approveLevelRequest(config.SERVER_URL, accessToken, levelIdentifier);
+			if (success) {
+				hideContainer.style.display = 'none';
+			}
 		});
 
-		(async () => {
-			const identifierPath = levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
-			const reportsResponse = await fetch(config.SERVER_URL + 'report_info/' + identifierPath, {
-				headers: { Authorization: 'Bearer ' + accessToken },
-			});
-			let reports_data = await reportsResponse.text();
-			if (reportsResponse.status != 200 || reports_data === 'Not authorized!') {
-				//confirm("Error: " + reports_data);
-				return false;
+		let reports_data = await GetLevelReportInfoRequest(config.SERVER_URL, levelIdentifier, accessToken);
+		if (reports_data?.object_info) {
+			const reportElement = document.getElementById('reports');
+			reportElement.style.display = 'block';
+			const reportTitle = document.getElementById('reportsTitle');
+			reportTitle.innerText += `${reports_data.reported_score} (${reports_data.reported_count})`;
+			const reports = document.getElementById('reports');
+			const reports_data_filtered = Object.entries(reports_data).filter(([key]) => key.includes('reported_score_'));
+			for (const report of reports_data_filtered) {
+				reports.innerHTML += `${report[0].slice(15)}:${report[1]}<br>`;
 			}
-			reports_data = JSON.parse(reports_data);
-			if (reports_data && 'object_info' in reports_data) {
-				const reportElement = document.getElementById('reports');
-				reportElement.style.display = 'block';
-				const reportTitle = document.getElementById('reportsTitle');
-				reportTitle.innerText += `${reports_data.reported_score} (${reports_data.reported_count})`;
-				const reports = document.getElementById('reports');
-				const reports_data_filtered = Object.entries(reports_data).filter(([key]) => key.includes('reported_score_'));
-				for (const report of reports_data_filtered) {
-					reports.innerHTML += `${report[0].slice(15)}:${report[1]}<br>`;
-				}
+		}
+
+		if (reports_data?.images) {
+			for (const image of reports_data.images) {
+				let moderationImageElement = document.createElement('div');
+				var img = document.createElement('img');
+				img.src = 'https://grab-images.slin.dev/' + image.key;
+				moderationImageElement.appendChild(img);
+
+				moderationImageElement.addEventListener('click', () => {
+					console.log(image.camera_position);
+					camera.position.set(-image.camera_position[0], image.camera_position[1], -image.camera_position[2]);
+					let quaternion = new THREE.Quaternion();
+					quaternion.x = image.camera_rotation[0];
+					quaternion.y = image.camera_rotation[1];
+					quaternion.z = image.camera_rotation[2];
+					quaternion.w = image.camera_rotation[3];
+
+					let euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
+					controls.eulerVector.x = euler.y;
+					controls.eulerVector.y = euler.x + Math.PI;
+					controls.updateRotationVector();
+				});
+				moderationContainer.appendChild(moderationImageElement);
 			}
-
-			console.log(reports_data);
-
-			if (reports_data && 'images' in reports_data) {
-				for (const image of reports_data.images) {
-					let moderationImageElement = document.createElement('div');
-					var img = document.createElement('img');
-					img.src = 'https://grab-images.slin.dev/' + image.key;
-					moderationImageElement.appendChild(img);
-					//report image (putting this here so I can crtl+f to it later)
-					moderationImageElement.onclick = function () {
-						console.log(image.camera_position);
-						camera.position.set(-image.camera_position[0], image.camera_position[1], -image.camera_position[2]);
-						let quaternion = new THREE.Quaternion();
-						quaternion.x = image.camera_rotation[0];
-						quaternion.y = image.camera_rotation[1];
-						quaternion.z = image.camera_rotation[2];
-						quaternion.w = image.camera_rotation[3];
-
-						let euler = new THREE.Euler().setFromQuaternion(quaternion, 'XYZ');
-						controls.eulerVector.x = euler.y;
-						controls.eulerVector.y = euler.x + Math.PI;
-						controls.updateRotationVector();
-					};
-					moderationContainer.appendChild(moderationImageElement);
-				}
-			}
-		})();
+		}
 
 		let creatorButton = document.getElementById('make-creator-button');
 		creatorButton.style.display = 'block';
-		creatorButton.onclick = function () {
-			(async () => {
-				let response = await fetch(
-					config.SERVER_URL +
-						'set_user_info_admin/' +
-						levelIdentifierParts[0] +
-						'?access_token=' +
-						accessToken +
-						'&is_creator=true',
-				);
-				let responseBody = await response.text();
-				console.log(responseBody);
-				confirm('Result: ' + responseBody);
-			})();
-		};
+		creatorButton.addEventListener('click', async () => {
+			await setCreator(config.SERVER_URL, accessToken, levelIdentifierParts[0], true);
+		});
 	}
 
 	// sublevel triggers
@@ -801,26 +680,25 @@ async function init() {
 	difficultyLabel.innerText = (detailResponseBody.statistics?.difficulty_string || 'unrated').replace('veryhard', 'very hard');
 	difficultyLabel.classList.add('difficulty-' + (detailResponseBody.statistics?.difficulty_string || 'unrated'));
 
-	//Get level statistics
-	levelIdentifier = levelIdentifier.split(':').join('/');
+	// get level statistics
+	let statisticsData = await getLevelStatisticsRequest(config.SERVER_URL, levelIdentifier);
+	if (statisticsData) {
+		var totalFinishedLabel = document.getElementById('total finished count');
+		totalFinishedLabel.innerHTML =
+			'total finished: <b>' + statisticsData.total_finished_count + ' / ' + statisticsData.total_played_count + '</b>';
 
-	let statisticsResponse = await fetch(config.SERVER_URL + 'statistics/' + levelIdentifier);
-	let statisticsData = await statisticsResponse.json();
+		var playersFinishedLabel = document.getElementById('players finished count');
+		playersFinishedLabel.innerHTML =
+			'players finished: <b>' + statisticsData.finished_count + ' / ' + statisticsData.played_count + '</b>';
 
-	var totalFinishedLabel = document.getElementById('total finished count');
-	totalFinishedLabel.innerHTML =
-		'total finished: <b>' + statisticsData.total_finished_count + ' / ' + statisticsData.total_played_count + '</b>';
+		var playersLikedLabel = document.getElementById('players liked count');
+		playersLikedLabel.innerHTML = 'players liked: <b>' + statisticsData.liked_count + ' / ' + statisticsData.rated_count + '</b>';
 
-	var playersFinishedLabel = document.getElementById('players finished count');
-	playersFinishedLabel.innerHTML = 'players finished: <b>' + statisticsData.finished_count + ' / ' + statisticsData.played_count + '</b>';
-
-	var playersLikedLabel = document.getElementById('players liked count');
-	playersLikedLabel.innerHTML = 'players liked: <b>' + statisticsData.liked_count + ' / ' + statisticsData.rated_count + '</b>';
-
-	var timeLabel = document.getElementById('average time');
-	statisticsData.average_time
-		? (timeLabel.innerHTML = 'average time: <b>' + Math.round(statisticsData.average_time * 100) / 100 + 's</b>')
-		: (timeLabel.innerHTML = 'average time: <b>N/a</b>');
+		var timeLabel = document.getElementById('average time');
+		statisticsData.average_time
+			? (timeLabel.innerHTML = 'average time: <b>' + Math.round(statisticsData.average_time * 100) / 100 + 's</b>')
+			: (timeLabel.innerHTML = 'average time: <b>N/a</b>');
+	}
 
 	if (userStore.isLoggedIn) {
 		let favoriteButton = document.getElementById('favoriteButton');
@@ -841,17 +719,8 @@ async function init() {
 		}
 
 		favoriteButton.addEventListener('click', async () => {
-			const response = await fetch(
-				config.SERVER_URL +
-					'add_favorite_level?level_id=' +
-					detailResponseBody.identifier +
-					'&access_token=' +
-					userStore.accessToken,
-			);
-			if (response.status != 200) {
-				const responseBody = await response.text();
-				confirm('Error: ' + responseBody);
-			} else {
+			let success = await setUserFavorites(config.SERVER_URL, levelIdentifier, accessToken);
+			if (success) {
 				favoriteButton.style.display = 'none';
 				unfavoriteButton.style.display = 'flex';
 				favoriteLevels.push(detailResponseBody.identifier);
@@ -859,17 +728,8 @@ async function init() {
 		});
 
 		unfavoriteButton.addEventListener('click', async () => {
-			const response = await fetch(
-				config.SERVER_URL +
-					'remove_favorite_level?level_id=' +
-					detailResponseBody.identifier +
-					'&access_token=' +
-					userStore.accessToken,
-			);
-			if (response.status != 200) {
-				const responseBody = await response.text();
-				confirm('Error: ' + responseBody);
-			} else {
+			let success = await removeUserFavorites(config.SERVER_URL, levelIdentifier, accessToken);
+			if (success) {
 				favoriteButton.style.display = 'flex';
 				unfavoriteButton.style.display = 'none';
 				userStore.favoriteLevels.splice(userStore.favoriteLevels.indexOf(detailResponseBody.identifier), 1);
@@ -882,9 +742,6 @@ async function init() {
 		reportButton.appendChild(reportImg);
 
 		reportButton.style.display = 'flex';
-		let identifier_parts = detailResponseBody.data_key.split(':');
-		identifier_parts.splice(0, 1);
-		levelIdentifier = identifier_parts.join('/');
 
 		reportButton.addEventListener('click', () => {
 			let reasonMapping = {
@@ -897,19 +754,7 @@ async function init() {
 				other: 'Other',
 			};
 			let onOk = async (value, image) => {
-				let response = await fetch(
-					config.SERVER_URL + 'report/' + levelIdentifier + '?access_token=' + userStore.accessToken + '&reason=' + value,
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: image,
-					},
-				);
-				let responseBody = await response.text();
-				console.log(responseBody);
-				confirm(response.status == 200 ? 'Success' : 'Error: Need to login again?');
+				await reportLevelRequest(config.SERVER_URL, accessToken, levelIdentifier, value, image);
 			};
 			showOptionsDialog('Report Level', 'Why should this level be removed?', reasonMapping, onOk);
 		});
@@ -1202,18 +1047,9 @@ function closeLeaderboard() {
 async function loadLeaderboardData() {
 	const urlParams = new URLSearchParams(window.location.search);
 	let levelIdentifier = urlParams.get('level');
-	let levelIdentifierParts = levelIdentifier.split(':');
-	const endpointUrl = config.SERVER_URL + 'statistics_top_leaderboard/' + levelIdentifierParts[0] + '/' + levelIdentifierParts[1];
-	try {
-		const response = await fetch(endpointUrl);
-		if (response.ok) {
-			const data = await response.json();
-			displayLeaderboardData(data);
-		} else {
-			console.error('Failed to fetch leaderboard data:', response.statusText);
-		}
-	} catch (error) {
-		console.error('Error fetching leaderboard data:', error);
+	let leardeboard = await getLevelLeaderboardRequest(config.SERVER_URL, levelIdentifier);
+	if (leardeboard) {
+		displayLeaderboardData(leardeboard);
 	}
 }
 
@@ -1333,8 +1169,7 @@ async function playReplay(replayKey) {
 
 			let replay = replayCache[replayKey];
 			if (!replay) {
-				const response = await fetch(`${config.DATA_URL}${replayKey}`);
-				const responseBody = await response.arrayBuffer();
+				const responseBody = await getLevelReplayRequest(config.DATA_URL, replayKey);
 				const formattedBuffer = new Uint8Array(responseBody);
 				const inflated = inflate(formattedBuffer);
 				replay = ReplayMessage.decode(inflated);
@@ -1418,25 +1253,12 @@ async function removeLeaderboardTimes() {
 	const userStore = useUserStore(pinia);
 	const urlParams = new URLSearchParams(window.location.search);
 	let levelIdentifier = urlParams.get('level');
-	let levelIdentifierParts = levelIdentifier.split(':');
 	for (let i = 0; i < removedTimes.length; i++) {
-		const endpointUrl =
-			config.SERVER_URL +
-			'statistics_remove_user/' +
-			levelIdentifierParts[0] +
-			'/' +
-			levelIdentifierParts[1] +
-			'?user_id=' +
-			removedTimes[i][0];
-		try {
-			const response = await fetch(endpointUrl, { headers: { Authorization: 'Bearer ' + userStore.accessToken } });
-			if (response.ok) {
-				removedTimes[i][1].remove();
-			} else {
-				alert('Failed to remove user');
-			}
-		} catch (error) {
-			alert('Error removing user: ' + error.message);
+		let success = await removeLevelRecordRequest(config.SERVER_URL, userStore.accessToken, levelIdentifier, removedTimes[i][0]);
+		if (success) {
+			removedTimes[i][1].remove();
+		} else {
+			alert('Failed to remove user');
 		}
 	}
 	removedTimes = [];
