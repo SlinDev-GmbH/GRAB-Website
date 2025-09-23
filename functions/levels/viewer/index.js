@@ -11,21 +11,6 @@ export async function onRequest(context)
 	let levelID = finalURL.searchParams.get("level")
 	if(levelID)
 	{
-		const lookupFile = new URL(context.request.url)
-		lookupFile.pathname = './levels/viewer/'
-		const lookupReq = new Request(lookupFile.toString(), {
-			cf: context.request.cf
-		})
-
-		const asset = await context.env.ASSETS.fetch(lookupReq)
-		let assetText = await asset.text()
-		let response = new Response(assetText, {
-			status: 200,
-			headers: asset.headers
-		})
-
-		return response
-
 		let levelIDComponents = levelID.split(":")
 		if(levelIDComponents.length >= 2)
 		{
