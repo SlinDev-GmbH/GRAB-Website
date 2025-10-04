@@ -1,5 +1,6 @@
 export async function getLevelLeaderboardRequest(server, levelId) {
-	const response = await fetch(server + 'statistics_top_leaderboard/' + levelId.split(':').join('/'));
+	const levelPath = levelId.split(/[:/]/).slice(0, 2).join('/');
+	const response = await fetch(server + 'statistics_top_leaderboard/' + levelPath);
 	const responseBody = await response.text();
 	if (response.status !== 200) {
 		confirm('Error: ' + responseBody);
