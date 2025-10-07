@@ -6,6 +6,7 @@ import { LevelLoader } from '../assets/LevelLoader.js'
 import * as THREE from 'three'
 
 import { prefabBlockRequest } from '../requests/PrefabBlockRequest.js'
+import { moderationActionRequest } from '../requests/ModerationActionRequest.js'
 
 export default {
 
@@ -231,6 +232,7 @@ export default {
         const prefabID = this.prefabsList[index]?.identifier;
         if (prefabID) {
           if(await prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
+            await moderationActionRequest(this.$api_server_url, this.accessToken, this.userID, "user_editor");
             this.prefabs[index].blocked = true;
           }
         }
