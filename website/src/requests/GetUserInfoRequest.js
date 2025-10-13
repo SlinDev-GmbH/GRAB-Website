@@ -4,7 +4,7 @@ export async function getUserInfoRequest(server, user_id) {
 	const response = await fetch(server + 'get_user_info?user_id=' + userID);
 	const responseBody = await response.text();
 	if (response.status != 200) {
-		confirm('Error: ' + responseBody);
+		window.toast('Error: ' + responseBody, "error");
 		return false;
 	}
 	return JSON.parse(responseBody);

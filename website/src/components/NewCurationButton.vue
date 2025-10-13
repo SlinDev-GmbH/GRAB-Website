@@ -14,7 +14,7 @@ export default {
     methods: {
         async addNewList() {
             if (!this.accessToken) {
-                alert("No access token!");
+                window.toast("No access token!", "error");
                 return;
             }
             const name = prompt("Please enter the name of the new list:");

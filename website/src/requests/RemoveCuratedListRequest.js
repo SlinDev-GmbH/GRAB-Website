@@ -4,7 +4,7 @@ export async function RemoveCuratedListRequest(server, accessToken, name) {
 	});
 	const responseBody = await response.text();
 	if (response.status != 200) {
-		confirm('Error: ' + responseBody);
+		window.toast('Error: ' + responseBody, "error");
 		return false;
 	}
 	return JSON.parse(responseBody);

@@ -9,7 +9,7 @@ export async function reportLevelRequest(server, accessToken, levelID, reason, i
 	});
 	const responseBody = await response.text();
 	if (response.status != 200 || responseBody !== 'Success') {
-		confirm('Error: ' + responseBody);
+		window.toast('Error: ' + responseBody, "error");
 		return false;
 	}
 

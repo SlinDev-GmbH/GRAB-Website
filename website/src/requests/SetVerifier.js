@@ -7,7 +7,7 @@ export async function setVerifier(server, accessToken, userID, isVerifier) {
 	const responseBody = await response.text();
 
 	if (response.status != 200 || responseBody !== 'Success') {
-		confirm('Error: ' + responseBody);
+		window.toast('Error: ' + responseBody, "error");
 		return false;
 	}
 

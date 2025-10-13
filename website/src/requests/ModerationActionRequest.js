@@ -16,7 +16,7 @@ export async function moderationActionRequest(server, accessToken, userID, reaso
 	});
 	const responseBody = await response.text();
 	if (response.status != 200 || responseBody !== 'Success') {
-		confirm('Error: ' + responseBody);
+		window.toast('Error: ' + responseBody, "error");
 		return false;
 	}
 

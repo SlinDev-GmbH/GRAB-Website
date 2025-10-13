@@ -12,6 +12,8 @@ import { useUserStore } from '@/stores/user';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
+import ToastNotifier from '../../../src/components/ToastNotifier.vue';
+
 // TODO: fix inconsistent naming
 import { setCreator } from '../../../src/requests/SetCreator.js';
 import { GetLevelDetailsRequest } from '../../../src/requests/GetLevelDetailsRequest.js';
@@ -63,6 +65,7 @@ init();
 
 async function init() {
 	setupEvents();
+	setupToast();
 
 	if (!window._levelLoader) window._levelLoader = new LevelLoader();
 
@@ -761,6 +764,10 @@ async function init() {
 	}
 }
 
+function setupToast() {
+	createApp(ToastNotifier).mount('#toast-root');
+}
+
 function setupEvents() {
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
 	document.getElementById('copy-button').addEventListener('click', copyLevelURLPressed);
@@ -1258,7 +1265,7 @@ async function removeLeaderboardTimes() {
 		if (success) {
 			removedTimes[i][1].remove();
 		} else {
-			alert('Failed to remove user');
+			window.toast('Failed to remove user', 'error');
 		}
 	}
 	removedTimes = [];

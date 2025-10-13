@@ -104,7 +104,7 @@ export default {
 		
 		sendUpdates() {
 			if (!this.accessToken) {
-				alert("No access token!");
+				window.toast("No access token!", "error");
 				return;
 			}
 
@@ -145,7 +145,7 @@ export default {
           this.sendButtonText = "Send";
         }, 2000);
       }).catch(() => {
-        alert("Error!");
+        window.toast("Error!", "error");
       });
 		},
 
