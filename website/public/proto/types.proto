@@ -82,6 +82,32 @@ enum LevelNodeMaterial
 	TRIGGER = 11; //Not actually written into files and the number on this could be changed without issues. Only used as enum value internally.
 }
 
+enum InterpolationType
+{
+	LINEAR = 0;
+	QUADRATIC_EASE_IN = 1;
+	QUADRATIC_EASE_OUT = 2;
+	QUADRATIC_EASE_IN_OUT = 3;
+	SINUSOIDAL_EASE_IN = 4;
+	SINUSOIDAL_EASE_OUT = 5;
+	SINUSOIDAL_EASE_IN_OUT = 6;
+	EXPONENTIAL_EASE_IN = 7;
+	EXPONENTIAL_EASE_OUT = 8;
+	EXPONENTIAL_EASE_IN_OUT = 9;
+	CIRCULAR_EASE_IN = 10;
+	CIRCULAR_EASE_OUT = 11;
+	CIRCULAR_EASE_IN_OUT = 12;
+	CUBIC_EASE_IN = 13;
+	CUBIC_EASE_OUT = 14;
+	CUBIC_EASE_IN_OUT = 15;
+	QUARTIC_EASE_IN = 16;
+	QUARTIC_EASE_OUT = 17;
+	QUARTIC_EASE_IN_OUT = 18;
+	QUINTIC_EASE_IN = 19;
+	QUINTIC_EASE_OUT = 20;
+	QUINTIC_EASE_IN_OUT = 21;
+}
+
 message LevelNodeGroup
 {
 	Vector position = 1;
@@ -93,6 +119,11 @@ message LevelNodeGroup
 	//There is an additional message for networking grouping and ungrouping (LevelNodeGroupRequest, LevelNodeGroupResponse)
 	//When sending the full level on a new player joining the editor, first the level nodes are sent on their own and then a group response to group them
 	repeated LevelNode childNodes = 4;
+	
+	string name = 5;
+	bool physicsObject = 6;
+	bool localPhysicsObject = 7;
+	float mass = 8;
 }
 
 message LevelNodeStart
@@ -123,6 +154,10 @@ message LevelNodeStatic
 
 	bool isNeon = 7;
 	bool isTransparent = 8;
+
+	bool isGrabbable = 10; //Used for DEFAULT_COLORED material to allow grabbing it or not
+	bool isGrapplable = 11; //Used for DEFAULT_COLORED material to allow grappling it or not
+	bool isPassable = 12;
 }
 
 message LevelNodeCrumbling
@@ -140,10 +175,22 @@ message LevelNodeCrumbling
 
 message LevelNodeSign
 {
+	enum SignFontWeight {
+		REGULAR = 0;
+		LIGHT = 1;
+		SEMIBOLD = 2;
+		BOLD = 3;
+		ITALIC = 4;
+	}
+
 	Vector position = 1;
 	Quaternion rotation = 2;
+	float scale = 4;
 
 	string text = 3;
+	Color color = 5;
+	SignFontWeight weight = 7;
+	bool hideModel = 6;
 }
 
 message LevelNodeGravity
@@ -204,11 +251,17 @@ message TriggerSourceBasic
 	Type type = 1;
 }
 
+message TriggerSourceBlockNames
+{
+	repeated string names = 1;
+}
+
 message TriggerSource
 {
 	oneof content
 	{
 		TriggerSourceBasic triggerSourceBasic = 1;
+		TriggerSourceBlockNames triggerSourceBlockNames = 2;
 	}
 }
 
@@ -256,13 +309,39 @@ message TriggerTargetSubLevel
 	string spawnPoint = 2;
 }
 
+message TriggerTargetAmbience
+{
+	Color skyColor0 = 1;
+	Color skyColor1 = 2;
+
+	float sunAltitude = 3;
+	float sunAzimuth = 4;
+	float sunSize = 5;
+
+	float fogDensity = 6;
+	
+	float changeDuration = 7;
+	InterpolationType interpolationType = 8;
+}
+
 message TriggerTarget
 {
+	enum Mode
+	{
+		ONENTER = 0; //Needs to be 0 for backwards compatibility
+		ONLEAVE = 1;
+		ONENTERONLEAVE = 2;
+		NONE = 3;
+	}
+
+	Mode mode = 4;
+
 	oneof content
 	{
 		TriggerTargetAnimation triggerTargetAnimation = 1;
 		TriggerTargetSubLevel triggerTargetSubLevel = 2;
 		TriggerTargetSound triggerTargetSound = 3;
+		TriggerTargetAmbience triggerTargetAmbience = 6;
 	}
 }
 
