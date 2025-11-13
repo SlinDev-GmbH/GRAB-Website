@@ -487,6 +487,29 @@ button#submitTagsButton {
 	margin-block: auto;
 	margin-inline: 10px;
 }
+.leaderboard-query {
+	margin-block: 0.4rem;
+	width: 100%;
+	display: grid;
+	grid-template-columns: 8fr 2fr;
+	gap: 0.4rem;
+	display: none;
+}
+.leaderboard-query input {
+	width: 100%;
+	padding: 0.4rem;
+	border-radius: 0.5rem;
+	background-color: #fff3;
+	color: #fff;
+}
+.leaderboard-query button {
+	width: 100%;
+	padding: 0.4rem;
+	border-radius: 0.5rem;
+	background-color: #fff3;
+	color: #fff;
+	cursor: pointer;
+}
 
 .popup {
 	position: fixed;

@@ -33,6 +33,7 @@ import { getLevelLeaderboardRequest } from '../../../src/requests/GetLevelLeader
 import { getLevelReplayRequest } from '../../../src/requests/GetLevelReplayRequest.js';
 import { removeLevelRecordRequest } from '../../../src/requests/RemoveLevelRecordRequest.js';
 import { downloadLevelRequest } from '../../../src/requests/DownloadLevelRequest.js';
+import { getBestTimeReplayRequest } from '../../../src/requests/GetBestTimeReplayRequest.js';
 
 import imageStampOk from '../../../src/assets/icons/checkmark.svg';
 import imageReport from '../../../src/assets/icons/report.svg';
@@ -1038,9 +1039,51 @@ function exportLevelAsGLTF() {
 }
 
 function openLeaderboard() {
-	document.getElementById('overlay').style.display = 'block';
-	document.getElementById('leaderboard').style.display = 'block';
+	const pinia = createPinia();
+	pinia.use(piniaPluginPersistedstate);
+	const app = createApp(App);
+	app.use(pinia);
+	const userStore = useUserStore(pinia);
+
+	const overlay = document.getElementById('overlay');
+	const leaderboard = document.getElementById('leaderboard');
+	overlay.style.display = 'block';
+	leaderboard.style.display = 'block';
+
+	if (userStore.isModerator) {
+		const queryContainer = document.getElementById('leaderboard-query-container');
+		const queryInput = document.getElementById('leaderboard-query-input');
+		const queryButton = document.getElementById('leaderboard-query-button');
+		queryContainer.style.display = 'grid';
+
+		queryInput.addEventListener('keydown', handleLeaderboardQuery);
+		queryButton.addEventListener('click', handleLeaderboardQueryButton);
+	}
+
 	loadLeaderboardData();
+}
+
+function handleLeaderboardQueryButton() {
+	handleLeaderboardQuery({ code: 'Enter' }); // lol
+}
+async function handleLeaderboardQuery(e) {
+	if (e.code !== 'Enter') return;
+
+	const input = document.getElementById('leaderboard-query-input');
+	const query = input.value;
+	const params = new URLSearchParams(window.location.search);
+	const id = params.get('level');
+
+	const replay = await getBestTimeReplayRequest(config.SERVER_URL, id, query);
+	if (!replay) return;
+
+	const { replay_key } = replay;
+	if (!replay_key) {
+		window.toast('No replay key', 'error');
+		return;
+	}
+
+	playReplay(replay_key);
 }
 
 function closeLeaderboard() {
@@ -1049,6 +1092,13 @@ function closeLeaderboard() {
 	removedTimes = [];
 	document.getElementById('applyLeaderboardModifications').style.display = 'none';
 	document.getElementById('leaderboard-content').innerHTML = '';
+
+	const queryContainer = document.getElementById('leaderboard-query-container');
+	const queryInput = document.getElementById('leaderboard-query-input');
+	const queryButton = document.getElementById('leaderboard-query-button');
+	queryContainer.style.display = 'none';
+	queryInput.removeEventListener('keydown', handleLeaderboardQuery);
+	queryButton.removeEventListener('click', handleLeaderboardQueryButton);
 }
 
 async function loadLeaderboardData() {
