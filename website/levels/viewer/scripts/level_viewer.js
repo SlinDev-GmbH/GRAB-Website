@@ -1077,10 +1077,21 @@ async function handleLeaderboardQuery(e) {
 	const params = new URLSearchParams(window.location.search);
 	const id = params.get('level');
 
-	const replay = await getBestTimeReplayRequest(config.SERVER_URL, id, query);
-	if (!replay) return;
+	const entry = await getBestTimeReplayRequest(config.SERVER_URL, id, query);
+	if (!entry) return;
 
-	const { replay_key } = replay;
+	const row = buildLeaderboardCell(
+		{
+			...entry,
+			user_name: query,
+			user_id: query,
+		},
+		3,
+	);
+	const leaderboard_extra_content = document.getElementById('leaderboard-extra-content');
+	leaderboard_extra_content.appendChild(row);
+
+	const { replay_key } = entry;
 	if (!replay_key) {
 		window.toast('No replay key', 'error');
 		return;
@@ -1113,6 +1124,82 @@ async function loadLeaderboardData() {
 	}
 }
 
+function buildLeaderboardCell(entry, decimals) {
+	const pinia = createPinia();
+	pinia.use(piniaPluginPersistedstate);
+	const app = createApp(App);
+	app.use(pinia);
+	const userStore = useUserStore(pinia);
+
+	const row = document.createElement('div');
+	row.className = 'leaderboard-row';
+	if (entry.user_id == userID) {
+		row.className += ' leaderboard-row-creator';
+	}
+	if (entry.user_id == userStore.userID) {
+		row.className += ' leaderboard-row-self';
+	}
+	if (entry.is_verification) {
+		row.className += ' leaderboard-row-verification';
+	}
+
+	if (entry.position !== undefined) {
+		const position = document.createElement('div');
+		position.className = 'leaderboard-position';
+		position.textContent = entry.position + 1;
+		row.appendChild(position);
+	}
+
+	const name = document.createElement('a');
+	name.className = 'leaderboard-name';
+	name.textContent = entry.user_name;
+	name.href = `/levels?tab=tab_other_user&user_id=${entry.user_id}`;
+
+	const time = document.createElement('div');
+	time.className = 'leaderboard-time';
+	let minutes = Math.floor(entry.best_time / 60);
+	let seconds = (entry.best_time % 60).toFixed(decimals);
+	if (minutes < 10) {
+		minutes = '0' + minutes;
+	}
+	if (seconds < 10) {
+		seconds = '0' + seconds;
+	}
+	time.textContent = minutes + ':' + seconds;
+
+	if (entry.replay_key && userStore.isVerifier) {
+		const replayButton = document.createElement('div');
+		replayButton.className = 'replay-button';
+		time.appendChild(replayButton);
+		replayButton.addEventListener('click', () => {
+			playReplay(entry.replay_key);
+		});
+	}
+
+	const button = document.createElement('button');
+	button.className = 'leaderboard-button';
+	button.innerHTML = '&times;';
+	button.onclick = function () {
+		for (let i = 0; i < removedTimes.length; i++) {
+			if (removedTimes[i][0] === entry.user_id) {
+				removedTimes[i][1].classList.remove('leaderboard-row-removed');
+				removedTimes.splice(i, 1);
+				document.getElementById('applyLeaderboardModifications').style.display = removedTimes.length > 0 ? 'block' : 'none';
+				return;
+			}
+		}
+		removedTimes.push([entry.user_id, row]);
+		row.classList.add('leaderboard-row-removed');
+		document.getElementById('applyLeaderboardModifications').style.display = 'block';
+	};
+
+	row.appendChild(name);
+	row.appendChild(time);
+	if (userStore.isModerator === true) row.appendChild(button);
+
+	return row;
+}
+
 function displayLeaderboardData(data) {
 	const leaderboardContent = document.getElementById('leaderboard-content');
 	leaderboardContent.innerHTML = '';
@@ -1123,11 +1210,6 @@ function displayLeaderboardData(data) {
 		placeholder.innerHTML = 'No data yet!<br>Be the first to set a record!';
 		leaderboardContent.appendChild(placeholder);
 	} else {
-		const pinia = createPinia();
-		pinia.use(piniaPluginPersistedstate);
-		const app = createApp(App);
-		app.use(pinia);
-		const userStore = useUserStore(pinia);
 		let maxDecimals = 0;
 		data.forEach((entry) => {
 			let decimals = entry.best_time.toString().split('.')[1];
@@ -1136,69 +1218,7 @@ function displayLeaderboardData(data) {
 			}
 		});
 		data.forEach((entry) => {
-			const row = document.createElement('div');
-			row.className = 'leaderboard-row';
-			if (entry.user_id == userID) {
-				row.className += ' leaderboard-row-creator';
-			}
-			if (entry.user_id == userStore.userID) {
-				row.className += ' leaderboard-row-self';
-			}
-			if (entry.is_verification) {
-				row.className += ' leaderboard-row-verification';
-			}
-
-			const position = document.createElement('div');
-			position.className = 'leaderboard-position';
-			position.textContent = entry.position + 1;
-
-			const name = document.createElement('a');
-			name.className = 'leaderboard-name';
-			name.textContent = entry.user_name;
-			name.href = `/levels?tab=tab_other_user&user_id=${entry.user_id}`;
-
-			const time = document.createElement('div');
-			time.className = 'leaderboard-time';
-			let minutes = Math.floor(entry.best_time / 60);
-			let seconds = (entry.best_time % 60).toFixed(maxDecimals);
-			if (minutes < 10) {
-				minutes = '0' + minutes;
-			}
-			if (seconds < 10) {
-				seconds = '0' + seconds;
-			}
-			time.textContent = minutes + ':' + seconds;
-
-			if (entry.replay_key && userStore.isVerifier) {
-				const replayButton = document.createElement('div');
-				replayButton.className = 'replay-button';
-				time.appendChild(replayButton);
-				replayButton.addEventListener('click', () => {
-					playReplay(entry.replay_key);
-				});
-			}
-
-			const button = document.createElement('button');
-			button.className = 'leaderboard-button';
-			button.innerHTML = '&times;';
-			button.onclick = function () {
-				for (let i = 0; i < removedTimes.length; i++) {
-					if (removedTimes[i][0] === entry.user_id) {
-						removedTimes[i][1].classList.remove('leaderboard-row-removed');
-						removedTimes.splice(i, 1);
-						document.getElementById('applyLeaderboardModifications').style.display = removedTimes.length > 0 ? 'block' : 'none';
-						return;
-					}
-				}
-				removedTimes.push([entry.user_id, row]);
-				row.classList.add('leaderboard-row-removed');
-				document.getElementById('applyLeaderboardModifications').style.display = 'block';
-			};
-
-			row.appendChild(position);
-			row.appendChild(name);
-			row.appendChild(time);
-			if (userStore.isModerator === true) row.appendChild(button);
+			const row = buildLeaderboardCell(entry, maxDecimals);
 			leaderboardContent.appendChild(row);
 		});
 	}
