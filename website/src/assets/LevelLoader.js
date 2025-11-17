@@ -946,12 +946,15 @@ class LevelLoader {
 					let material = objectMaterials[2];
 					let newMaterial = material.clone();
 					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture;
-
-					object = new THREE.Mesh(objects[1], newMaterial);
+					object = node.levelNodeSign.hideModel ? new THREE.Mesh() : new THREE.Mesh(objects[1], newMaterial);
 					parentNode.add(object);
 					object.position.x = -node.levelNodeSign.position.x;
 					object.position.y = node.levelNodeSign.position.y;
 					object.position.z = -node.levelNodeSign.position.z;
+
+					object.scale.x = node.levelNodeSign.hideModel ? node.levelNodeSign.scale : 1;
+					object.scale.y = node.levelNodeSign.hideModel ? node.levelNodeSign.scale : 1;
+					object.scale.z = node.levelNodeSign.hideModel ? node.levelNodeSign.scale : 1;
 
 					object.quaternion.x = -node.levelNodeSign.rotation.x;
 					object.quaternion.y = node.levelNodeSign.rotation.y;
@@ -989,6 +992,13 @@ class LevelLoader {
 
 						const processedText = processString(signText);
 
+						const color = new THREE.Color(255, 255, 255);
+						if (node.levelNodeSign.color) {
+							color.r = (node.levelNodeSign.color.r ?? 0) * 255;
+							color.g = (node.levelNodeSign.color.g ?? 0) * 255;
+							color.b = (node.levelNodeSign.color.b ?? 0) * 255;
+						}
+
 						const lines = processedText.split('\n');
 						lines.forEach((line, index) => {
 							const textGeometry = new TextGeometry(line, {
@@ -999,7 +1009,7 @@ class LevelLoader {
 								bevelEnabled: false,
 							});
 
-							const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+							const textMaterial = new THREE.MeshBasicMaterial({ color: color });
 							const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
 							textGeometry.computeBoundingBox();
@@ -1008,7 +1018,13 @@ class LevelLoader {
 							const textHeight = boundingBox.max.y - boundingBox.min.y;
 
 							const verticalSpacing = (textHeight + 0.2 * (index + 1)) / 2;
-							textMesh.position.add(new THREE.Vector3(textWidth / 2, -verticalSpacing + 0.05 * (lines.length + 1), -0.025)); // Adjust these values to place the text on the block
+							textMesh.position.add(
+								new THREE.Vector3(
+									textWidth / 2,
+									-verticalSpacing + 0.05 * (lines.length + 1),
+									-(node.levelNodeSign.hideModel ? 0 : 0.021),
+								),
+							);
 
 							textMesh.rotation.y = Math.PI;
 
