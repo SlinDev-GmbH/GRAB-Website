@@ -1,7 +1,13 @@
 <script>
+import DifficultyCell from './DifficultyCell.vue'
+
 export default {
   props: {
     item: Object,
+  },
+
+  components: {
+    DifficultyCell
   },
 
   computed: {
@@ -26,14 +32,6 @@ export default {
 
     creatorUrl() {
       return '/levels?tab=tab_other_user&user_id=' + this.item.identifier.split(':')[0]
-    },
-
-    difficulty() {
-      let difficulty = this.item.statistics?.difficulty_string || "unrated";
-      if (difficulty == "veryhard") {
-        difficulty = "very hard";
-      }
-      return difficulty;
     },
 
     formattedPlays() {
@@ -66,7 +64,7 @@ export default {
       <div class="info">
         <div class="title">
           {{ item.title }}
-          <div :class="`difficulty difficulty-${this.item.statistics?.difficulty_string || 'unrated'}`">{{ difficulty }}</div>
+          <DifficultyCell :level="item" class="difficulty"/>
         </div>
         <div class="creators">{{ creators }}</div>
       </div>
@@ -170,11 +168,7 @@ export default {
 }
 
 .difficulty {
-  font-size: 0.8rem;
-  white-space: nowrap;
-  border-radius: 5rem;
-  padding: 0.2rem 0.4rem;
-  width: fit-content;
+  padding-block: 0.2rem;
   display: inline-block;
 }
 .plays {
@@ -221,25 +215,6 @@ export default {
   top: 0;
   left: 0;
   height: 100%;
-}
-
-.difficulty-impossible {
-  background-color: #7f007f;
-}
-.difficulty-veryhard {
-  background-color: #EA0000;
-}
-.difficulty-hard {
-  background-color: #F19400;
-}
-.difficulty-medium {
-  background-color: #E1C800;
-}
-.difficulty-easy {
-  background-color: #2BBA84;
-}
-.difficulty-unrated {
-  background-color: #969696;
 }
 
 @media screen and (max-width: 750px) {

@@ -681,8 +681,11 @@ async function init() {
 
 	// difficulty
 	let difficultyLabel = document.getElementById('difficulty');
-	difficultyLabel.innerText = (detailResponseBody.statistics?.difficulty_string || 'unrated').replace('veryhard', 'very hard');
-	difficultyLabel.classList.add('difficulty-' + (detailResponseBody.statistics?.difficulty_string || 'unrated'));
+	let difficulty = detailResponseBody?.statistics?.difficulty_string ?? 'unrated';
+	if (difficulty === 'veryhard') difficulty = 'very hard';
+	if (detailResponseBody.identifier === '29r46v7djliny6t4rzvq7:1654257963') difficulty = 'mountain';
+	difficultyLabel.innerText = difficulty;
+	difficultyLabel.classList.add('difficulty-' + difficulty.replaceAll(' ', '_'));
 
 	// get level statistics
 	let statisticsData = await getLevelStatisticsRequest(config.SERVER_URL, levelIdentifier);

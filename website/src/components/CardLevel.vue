@@ -15,6 +15,7 @@ import FavoriteLevelButton from './FavoriteLevelButton.vue'
 import ReportLevelButton from './ReportLevelButton.vue'
 import UnscheduleDeletionButton from './UnscheduleDeletionButton.vue'
 import ThumbnailFullscreenButton from './ThumbnailFullscreenButton.vue'
+import DifficultyCell from "./DifficultyCell.vue";
 
 export default {
   components: {
@@ -26,7 +27,8 @@ export default {
     FavoriteLevelButton,
     ReportLevelButton,
     UnscheduleDeletionButton,
-    ThumbnailFullscreenButton
+    ThumbnailFullscreenButton,
+    DifficultyCell,
   },
 
   emit: ['more'],
@@ -106,14 +108,6 @@ export default {
 
     hasDifficulty() {
       return (this.listType !== "tab_favorite_levels")
-    },
-
-    difficulty() {
-      let difficulty = this.item.statistics?.difficulty_string || "unrated";
-      if (difficulty == "veryhard") {
-        difficulty = "very hard";
-      }
-      return difficulty;
     },
 
     viewerURL() {
@@ -237,7 +231,7 @@ export default {
           <img src="./../assets/icons/person.svg" alt="plays: ">
           <span>{{ formattedPlays }}</span>
         </div>
-        <div v-if="hasStatistics && hasDifficulty" :class="`difficulty difficulty-${this.item.statistics?.difficulty_string || 'unrated'}`">{{ difficulty }}</div>
+        <DifficultyCell v-if="hasStatistics && hasDifficulty" :level="this.item" class="difficulty" />
       </a>
       
       <div class="card-hover">
@@ -435,10 +429,6 @@ export default {
   height: 1.3rem;
 }
 .difficulty {
-  font-size: 0.8rem;
-  white-space: nowrap;
-  border-radius: 5rem;
-  padding-inline: 0.4rem;
   margin-left: auto;
 }
 .plays {
@@ -565,25 +555,6 @@ export default {
   margin-top: auto;
 }
 
-.difficulty-impossible {
-  background-color: #7f007f;
-}
-.difficulty-veryhard {
-  background-color: #EA0000;
-}
-.difficulty-hard {
-  background-color: #F19400;
-}
-.difficulty-medium {
-  background-color: #E1C800;
-}
-.difficulty-easy {
-  background-color: #2BBA84;
-}
-.difficulty-unrated {
-  background-color: #969696;
-}
-
 @media screen and (max-width: 700px) {
   .description {
     font-size: 0.6rem;
@@ -637,7 +608,7 @@ export default {
     font-size: 0.5rem;
     padding-inline: 0.8rem;
   }
-  .difficulty, .plays {
+  .plays {
     font-size: 0.6rem;
   }
   .stamp {

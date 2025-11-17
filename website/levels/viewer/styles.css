@@ -810,7 +810,7 @@ button#submitTagsButton {
 #difficulty.difficulty-impossible {
 	background-color: #7f007f;
 }
-#difficulty.difficulty-veryhard {
+#difficulty.difficulty-very_hard {
 	background-color: #ea0000;
 }
 #difficulty.difficulty-hard {
@@ -821,6 +821,9 @@ button#submitTagsButton {
 }
 #difficulty.difficulty-easy {
 	background-color: #2bba84;
+}
+#difficulty.difficulty-mountain {
+	background-color: #3b3b3b;
 }
 .actions {
 	display: flex;
