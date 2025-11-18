@@ -123,6 +123,7 @@ async function init() {
 	let detailResponseBody = await GetLevelDetailsRequest(config.SERVER_URL, levelIdentifier);
 	userID = levelIdentifierParts[0];
 	console.log(userID);
+	let is_verified = detailResponseBody?.tags?.includes?.('ok');
 
 	if ('tags' in detailResponseBody && detailResponseBody.tags.length > 0) {
 		detailResponseBody.tags.forEach((tag) => {
@@ -288,7 +289,13 @@ async function init() {
 			tagMenuInner.appendChild(submitTagsButton);
 			submitTagsButton.addEventListener('click', async () => {
 				levelUserTags = tagCheckboxes.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.name.split('-')[1]);
-				let success = await setLevelTagsRequest(config.SERVER_URL, accessToken, levelIdentifier, null, levelUserTags);
+				let success = await setLevelTagsRequest(
+					config.SERVER_URL,
+					accessToken,
+					levelIdentifier,
+					is_verified ? ['ok'] : [],
+					levelUserTags,
+				);
 				if (success) {
 					tagMenu.style.display = 'none';
 				}
@@ -344,6 +351,7 @@ async function init() {
 			if (success) {
 				verifyButton.style.display = 'none';
 				unverifyButton.style.display = 'block';
+				is_verified = true;
 
 				let queueSuccess = await removeLevelFromVerificationQueueRequest(config.SERVER_URL, accessToken, levelIdentifier);
 				if (queueSuccess) {
@@ -362,6 +370,7 @@ async function init() {
 			if (success) {
 				verifyButton.style.display = 'block';
 				unverifyButton.style.display = 'none';
+				is_verified = false;
 			}
 
 			isLoadingVerification = false;
@@ -653,17 +662,12 @@ async function init() {
 	}
 
 	//Show OK stamp on levels that have the tag
-	if ('tags' in detailResponseBody && detailResponseBody.tags.length > 0) {
-		for (const tag of detailResponseBody.tags) {
-			if (tag === 'ok') {
-				const detailsContainer = document.getElementById('main-details');
-				let stamp = document.createElement('img');
-				stamp.className = 'info-stamp-ok';
-				stamp.src = imageStampOk;
-				detailsContainer.prepend(stamp);
-				break;
-			}
-		}
+	if (is_verified) {
+		const detailsContainer = document.getElementById('main-details');
+		const stamp = document.createElement('img');
+		stamp.className = 'info-stamp-ok';
+		stamp.src = imageStampOk;
+		detailsContainer.prepend(stamp);
 	}
 
 	if (
