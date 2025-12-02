@@ -291,9 +291,9 @@ export default {
   <DropDown v-if="listType == 'tab_audit' && isSuperModerator" :options='["Action", ...new Set(items.map(e=>e.request.split(/\/|\?/)[5]))]' :defaultChoice='"Action"' :flip='true' @changeSelection="auditFilter.log_type = $event" style="margin-bottom: 5px; margin-left: 1rem;"/>
   <div :class="'grid-container' + (this.horizontal ? ' horizontal-list' : '') + (listType == 'tab_audit' ? ' log-list' : '')">
     <div v-for="(item, index) in items" :key="index" v-show="item.visible" class="grid-item">
-      <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @profile="showOtherUserLevels" @toggle_role="item[$event] = !item[$event]"/>
+      <CardUser v-if="wantsUserCells" :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" @toggle_role="item[$event] = !item[$event]"/>
       <CardLog v-else-if="listType == 'tab_audit'" :item="item" />
-      <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :bestReason="bestReason(item)" :index="index" :listType="listType" @more="showOtherUserLevels" />
+      <CardLevel v-else :item="'object_info' in item? item.object_info : item" :moderationItem="'object_info' in item? item : null" :bestReason="bestReason(item)" :index="index" :listType="listType" />
     </div>
   </div>
   <div v-if="loading" class="loading">Loading more items...</div>
