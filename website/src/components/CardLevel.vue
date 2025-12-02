@@ -31,8 +31,6 @@ export default {
     DifficultyCell,
   },
 
-  emit: ['more'],
-
   props: {
     item: Object,
     moderationItem : Object,
@@ -150,10 +148,6 @@ export default {
       this.isHidden = !this.isHidden
     },
 
-    showMoreLevels() {
-      this.$emit('more', this.item.identifier.split(':')[0])
-    },
-
     setListIndex(index) {
       const userStore = useUserStore()
       userStore.setListIndex(index)
@@ -263,9 +257,9 @@ export default {
         <span v-if="this.listType === 'tab_deletion_queue' && !isRecovered" class="hidden-tag">Deleted</span>
       </div>
       <div class="creators">By
-        <span @click="showMoreLevels" :title="creators">
+        <router-link :to="{ path: '/levels', query: { tab: 'tab_other_user', user_id: item.identifier.split(':')[0] } }" :title="creators">
           {{ creators ? creators : ".." }}
-        </span>
+        </router-link>
       </div>
     </div>
     <div v-if="!listType.startsWith('curated_')" class="privileged-buttons">
@@ -515,7 +509,7 @@ export default {
   flex-direction: row;
   gap: 5px;
 }
-.creators span {
+.creators a {
   font-style: normal;
   cursor: pointer;
   color: var(--alt);
@@ -526,6 +520,7 @@ export default {
   text-overflow: ellipsis;
   -webkit-box-orient: vertical;
   max-height: 1.3rem;
+  text-decoration: none;
 }
 .hidden-tag {
   font-size: 0.75rem;

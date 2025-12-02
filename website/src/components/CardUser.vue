@@ -11,7 +11,7 @@ export default {
     UserModerationTools
   },
 
-  emit: ['profile', 'toggle_role'],
+  emit: ['toggle_role'],
 
   props: {
     item: Object,
@@ -60,10 +60,6 @@ export default {
       }
     },
 
-    showProfile() {
-      this.$emit('profile', this.item.user_id)
-    },
-
     copyId() {
       navigator.clipboard.writeText(this.item.user_id);
       this.copied = true;
@@ -77,7 +73,7 @@ export default {
 
 <template>
   <div class="card-container">
-    <div class="user-card" :style="{'background-color': cardColor}" @click="showProfile">
+    <router-link class="user-card" :style="{'background-color': cardColor}" :to="{ path: '/levels', query: { tab: 'tab_other_user', user_id: item?.user_id } }">
       <div class="details">
         <div class="user-name-container">
           <div class="user-name">
@@ -90,7 +86,7 @@ export default {
         </div>
         <div class="profile-icon" :style="profileGradient"></div>
       </div>
-    </div>
+    </router-link>
     <div v-if="isSuperModerator" class="moderation">
       <div class="user-id">
         <span>{{ item.user_id }}</span>
