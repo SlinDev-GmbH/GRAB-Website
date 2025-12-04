@@ -174,6 +174,7 @@ export default {
           <img v-if="userInfo.is_creator" alt="Creator" title="Creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
           <span v-if="userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
           <span v-if="userInfo.is_admin" title="Developer" class="developer-icon">D</span>
+          <span v-if="userInfo.grab_plus_active" title="GRAB+" class="grab-plus-icon"></span>
           <div class="user-buttons">
             <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
           </div>
@@ -290,6 +291,35 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+
+}
+.grab-plus-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  background-color: #E1BC65;
+  border-radius: 50%;
+}
+.grab-plus-icon::before,
+.grab-plus-icon::after {
+  content: '';
+  position: absolute;
+  background-color: white;
+  border-radius: 3px;
+}
+.grab-plus-icon::before {
+  top: 50%;
+  left: 15%;
+  width: 70%;
+  height: 2px;
+  transform: translateY(-50%);
+}
+.grab-plus-icon::after {
+  left: 50%;
+  top: 15%;
+  width: 2px;
+  height: 70%;
+  transform: translateX(-50%);
 }
 
 .profile-icon {
