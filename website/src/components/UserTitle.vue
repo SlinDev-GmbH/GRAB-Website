@@ -47,6 +47,7 @@ export default {
       userInfo: undefined,
       userInfoAdmin: undefined,
       prefabsList: undefined,
+      keys_only: false,
       showPurchaseHistory: false,
       showModerationHistory: false,
       showPrefabsList: false,
@@ -104,27 +105,29 @@ export default {
       }
     },
 
-    async getPrefabsList() {
-      if (!this.prefabsList) {
-        this.prefabsList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version);
+    async getPrefabsList(keys_only) {
+      if (!this.prefabsList || this.keys_only !== keys_only) {
+        this.prefabsList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version, undefined, keys_only);
       }
+      this.keys_only = keys_only;
     },
 
-    async getRestOfPrefabs() {
+    async getRestOfPrefabs(keys_only) {
       while (this.prefabsList[this.prefabsList.length - 1]?.cursor) {
         const cursor = this.prefabsList[this.prefabsList.length - 1].cursor;
-        const nextList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version, cursor)
+        const nextList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version, cursor, keys_only)
         this.prefabsList = this.prefabsList.concat(nextList);
       }
     },
 
-    async togglePrefabsList() {
-      if (this.$refs.prefabButtonText.innerText === "Loading") return;
-      this.$refs.prefabButtonText.innerText = "Loading";
-      await this.getPrefabsList();
-      this.getRestOfPrefabs();
-      this.$refs.prefabButtonText.innerText = "Prefabs";
-      this.showPrefabsList = !this.showPrefabsList;
+    async togglePrefabsList(keys_only) {
+      if (this.$refs.prefabButtonText.innerText === "Loading" || this.$refs.prefabInfoButtonText.innerText === "Loading") return;
+      const target = keys_only ? this.$refs.prefabInfoButtonText : this.$refs.prefabButtonText;
+      target.innerText = "Loading";
+      await this.getPrefabsList(keys_only);
+      this.getRestOfPrefabs(keys_only);
+      target.innerText = keys_only ? "Info" : "Prefabs";
+      this.showPrefabsList = true;
     },
 
     didPunishOrReset(bad) {
@@ -192,8 +195,14 @@ export default {
           Moderation
           <img src="./../assets/icons/clock.svg" alt="history">
         </button>
-        <button class="history-button" @click="togglePrefabsList">
+      </div>
+      <div v-if="loaded && isModerator" class="prefab-buttons">
+        <button class="history-button" @click="togglePrefabsList(false)">
           <span ref="prefabButtonText">Prefabs</span>
+          <img src="./../assets/icons/block.svg" alt="prefabs">
+        </button>
+        <button class="history-button" @click="togglePrefabsList(true)">
+          <span ref="prefabInfoButtonText">Info</span>
           <img src="./../assets/icons/block.svg" alt="prefabs">
         </button>
       </div>
@@ -362,6 +371,12 @@ export default {
   flex-direction: column;
   gap: 0.5em;
   margin-left: auto;
+}
+.prefab-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin-left: 0.5em;
 }
 .history-button {
   padding: 5px 10px;

@@ -7,8 +7,15 @@ import * as THREE from 'three'
 
 import { prefabBlockRequest } from '../requests/PrefabBlockRequest.js'
 import { moderationActionRequest } from '../requests/ModerationActionRequest.js'
+import { prefabDeleteRequest } from '../requests/PrefabDeleteRequest.js'
+
+import CopyButton from './CopyButton.vue'
 
 export default {
+
+  components: {
+    CopyButton,
+  },
 
   props: {
     prefabsList: Array,
@@ -21,6 +28,7 @@ export default {
       prefabs: [],
       container: null,
       currentlyBlocking: -1,
+      currentlyDeleting: -1,
     }
   },
 
@@ -31,6 +39,7 @@ export default {
   methods: {
     async loadPrefab(prefab) {
       const { data, identifier } = prefab;
+      if (!data) return { ...prefab, keys_only: true }; // being lazy
 
       if (!window._prefabCache) window._prefabCache = {};
 
@@ -227,6 +236,19 @@ export default {
       }
     },
 
+    async deletePrefab(index) {
+      if (this.currentlyDeleting === index) {
+        const prefabID = this.prefabsList[index]?.identifier;
+        if (prefabID) {
+          if(await prefabDeleteRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
+            this.prefabs[index].blocked = true;
+          }
+        }
+      } else {
+        this.currentlyDeleting = index;
+      }
+    },
+
     async blockPrefab(index) {
       if (this.currentlyBlocking === index) {
         const prefabID = this.prefabsList[index]?.identifier;
@@ -298,11 +320,38 @@ export default {
       <div class="prefabs-list-wrapper">
         <div class="prefabs-list" ref="prefabsList">
           <div v-for="(prefab, index) in this.prefabs" :key="index" :class="'prefab-item' + (prefab.blocked ? ' blocked-prefab' : '')" ref="prefabItems">
+            <div class="prefab-info" v-if="prefab.keys_only">
+              <div>
+                <div>
+                  {{ prefab.customMetadata.complexity }}
+                  <img src="./../assets/icons/block.svg" alt="prefabs">
+                </div>
+                <div>{{ prefab.size }} b</div>
+                <div class="format">v{{ prefab.customMetadata.format_version }}</div>
+              </div>
+              <div><b>Identifier</b></div>
+              <CopyButton :value="prefab.customMetadata.identifier" />
+              <div><b>Creator</b></div>
+              <CopyButton :value="prefab.customMetadata.creator_id" />
+              <div><b>Uploaded</b></div>
+              <CopyButton :value="prefab.uploaded" />
+              <div><b>Key</b></div>
+              <CopyButton :value="prefab.key" />
+              <div><b>Hash</b></div>
+              <CopyButton :value="prefab.customMetadata.hash" />
+              <div><b>Etag</b></div>
+              <CopyButton :value="prefab.etag" />
+              <div><b>Version</b></div>
+              <CopyButton :value="prefab.version" />
+            </div>
             <button class="prefab-button download-prefab-button" @click="() => { downloadPrefab(index); }">
               Download
             </button>
             <button v-if="isSuperModerator" class="prefab-button block-prefab-button" @click="() => { blockPrefab(index); }">
               {{ currentlyBlocking === index ? 'Confirm' : 'Block' }}
+            </button>
+            <button v-if="isSuperModerator" class="prefab-button block-prefab-button" @click="() => { deletePrefab(index); }">
+              {{ currentlyDeleting === index ? 'Confirm' : 'Delete' }}
             </button>
           </div>
           <div v-if="this.prefabsList[this.prefabsList.length - 1]?.cursor" class='prefab-item prefab-item-loading'>
@@ -364,6 +413,10 @@ export default {
     justify-content: center;
     overflow: visible;
     position: relative;
+
+    &:has(.prefab-info) {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
   }
   .prefab-item {
     width: 100%;
@@ -375,6 +428,7 @@ export default {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-evenly;
+    position: relative;
 
     &.prefab-item-loading {
       align-items: center;
@@ -384,6 +438,32 @@ export default {
         width: 30%;
         height: 30%;
         animation: rotate-spinner 1s infinite linear;
+      }
+    }
+  }
+  .prefab-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+    overflow-y: scroll;
+    padding: 0.8rem;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-break: anywhere;
+
+    div {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2px;
+
+      img {
+        height: 1rem;
       }
     }
   }
