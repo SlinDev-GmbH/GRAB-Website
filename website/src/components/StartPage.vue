@@ -39,6 +39,7 @@ export default {
   <header>
       <img src="/logo.webp" alt="GRAB Logo">
       <div class="buttons">
+          <a href="https://shop.slin.dev" aria-label="Browse GRAB levels">MERCH STORE</a>
           <a href="https://www.meta.com/experiences/4104088956355944/" aria-label="Get GRAB on Meta">GET GRAB!</a>
           <a href="/levels" aria-label="Browse GRAB levels">BROWSE LEVELS</a>
       </div>
