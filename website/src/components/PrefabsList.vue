@@ -10,6 +10,7 @@ import { moderationActionRequest } from '../requests/ModerationActionRequest.js'
 import { prefabDeleteRequest } from '../requests/PrefabDeleteRequest.js'
 
 import CopyButton from './CopyButton.vue'
+import { downloadPrefabRequest } from '../requests/DownloadPrefabRequest.js'
 
 export default {
 
@@ -219,7 +220,7 @@ export default {
       }, 100);
     },
 
-    downloadPrefab(index) {
+    async downloadPrefab(index) {
       const prefabData = this.prefabsList[index]?.data;
       if (prefabData) {
         const binaryString = atob(prefabData);
@@ -233,12 +234,24 @@ export default {
         a.href = url;
         a.download = "prefab_" + this.userID + "_" + this.prefabsList[index].identifier + '.level';
         a.click();
+      } else {
+        const prefabID = this.prefabsList[index].customMetadata.identifier;
+        const data = await downloadPrefabRequest(this.$api_server_url, this.accessToken, this.userID, prefabID);
+        if (data) {
+          const formattedBuffer = new Uint8Array(data);
+          const fileBlob = new Blob([formattedBuffer], { type: "application/x-protobuf" });
+          const url = window.URL.createObjectURL(fileBlob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = "prefab_" + this.userID + "_" + this.prefabsList[index].identifier + '.level';
+          a.click();
+        }
       }
     },
 
     async deletePrefab(index) {
       if (this.currentlyDeleting === index) {
-        const prefabID = this.prefabsList[index]?.identifier;
+        const prefabID = this.prefabsList[index]?.identifier ?? this.prefabsList[index].customMetadata.identifier;
         if (prefabID) {
           if(await prefabDeleteRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
             this.prefabs[index].blocked = true;
@@ -251,7 +264,7 @@ export default {
 
     async blockPrefab(index) {
       if (this.currentlyBlocking === index) {
-        const prefabID = this.prefabsList[index]?.identifier;
+        const prefabID = this.prefabsList[index]?.identifier ?? this.prefabsList[index].customMetadata.identifier;
         if (prefabID) {
           if(await prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
             await moderationActionRequest(this.$api_server_url, this.accessToken, this.userID, "user_editor");
