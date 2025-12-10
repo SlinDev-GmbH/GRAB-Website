@@ -1,51 +1,57 @@
 <script>
-import ModerationPopup from './ModerationPopup.vue'
+import ModerationPopup from './ModerationPopup.vue';
 
 export default {
-  components: {
-    ModerationPopup
-  },
+	components: {
+		ModerationPopup,
+	},
 
-  props: {
-    level_id : String
-  },
+	props: {
+		level_id: String,
+	},
 
-  data() {
-    return {
-      showModerationPopup: false
-    }
-  }
-}
+	data() {
+		return {
+			showModerationPopup: false,
+		};
+	},
+};
 </script>
 
 <template>
-  <img class="report-level-button" @click="showModerationPopup=true" src="./../assets/icons/report.svg" />
+	<img class="report-level-button" @click="showModerationPopup = true" src="./../assets/icons/report.svg" />
 
-  <Teleport to="body">
-    <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" config="level_report" :identifier="level_id" alt="Report Level" />
-  </Teleport>
+	<Teleport to="body">
+		<ModerationPopup
+			:show="showModerationPopup"
+			@close="showModerationPopup = false"
+			config="level_report"
+			:identifier="level_id"
+			alt="Report Level"
+		/>
+	</Teleport>
 </template>
 
 <style scoped>
 .report-level-button {
-    width: 30px;
-    height: 30px;
-    aspect-ratio: 1/1;
-    cursor: pointer;
-    background-color: var(--hover);
-    border-radius: 50%;
-    padding: 2px;
-    transition: background-color 0.1s linear, transform 0.1s linear;
-    transform: scale(1);
+	width: 30px;
+	height: 30px;
+	aspect-ratio: 1/1;
+	cursor: pointer;
+	background-color: var(--hover);
+	border-radius: 50%;
+	padding: 2px;
+	transition: background-color 0.1s linear, transform 0.1s linear;
+	transform: scale(1);
 }
 .report-level-button:hover {
-  background-color: var(--active);
-  transform: scale(1.05);
+	background-color: var(--active);
+	transform: scale(1.05);
 }
 @media screen and (max-width: 500px) {
-  .report-level-button {
-    width: 20px;
-    height: 20px;
-  }
+	.report-level-button {
+		width: 20px;
+		height: 20px;
+	}
 }
 </style>

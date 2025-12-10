@@ -1,429 +1,453 @@
 <script>
-import { useUserStore } from '@/stores/user'
-import { mapState } from 'pinia'
-import UserModerationTools from './UserModerationTools.vue'
-import PurchaseHistory from './PurchaseHistory.vue'
-import ModerationHistory from './ModerationHistory.vue'
-import PrefabsList from './PrefabsList.vue'
+import { useUserStore } from '@/stores/user';
+import { mapState } from 'pinia';
+import UserModerationTools from './UserModerationTools.vue';
+import PurchaseHistory from './PurchaseHistory.vue';
+import ModerationHistory from './ModerationHistory.vue';
+import PrefabsList from './PrefabsList.vue';
 
-import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js'
-import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js'
-import { getPrefabListRequest } from '../requests/GetPrefabListRequest.js'
+import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js';
+import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js';
+import { getPrefabListRequest } from '../requests/GetPrefabListRequest.js';
 
 export default {
+	components: {
+		UserModerationTools,
+		PurchaseHistory,
+		ModerationHistory,
+		PrefabsList,
+	},
 
-  components: {
-    UserModerationTools,
-    PurchaseHistory,
-    ModerationHistory,
-    PrefabsList,
-  },
+	props: {
+		otherUserID: String,
+	},
 
-  props: {
-    otherUserID: String
-  },
+	computed: {
+		profileGradient() {
+			const color1 = this.userInfo?.active_customizations?.player_color_primary?.color;
+			const color2 = this.userInfo?.active_customizations?.player_color_secondary?.color;
+			if (color1 && color1.length == 3 && color2 && color2.length == 3) {
+				const rgb1 = `rgb(${color1[0] * 255}, ${color1[1] * 255}, ${color1[2] * 255})`;
+				const rgb2 = `rgb(${color2[0] * 255}, ${color2[1] * 255}, ${color2[2] * 255})`;
+				return `background-image: linear-gradient(to bottom right, ${rgb1}, ${rgb2})`;
+			}
+			return '';
+		},
 
-  computed: {
-    profileGradient() {
-      const color1 = this.userInfo?.active_customizations?.player_color_primary?.color;
-      const color2 = this.userInfo?.active_customizations?.player_color_secondary?.color;
-      if (color1 && color1.length == 3 && color2 && color2.length == 3) {
-        const rgb1 = `rgb(${color1[0] * 255}, ${color1[1] * 255}, ${color1[2] * 255})`;
-        const rgb2 = `rgb(${color2[0] * 255}, ${color2[1] * 255}, ${color2[2] * 255})`;
-        return `background-image: linear-gradient(to bottom right, ${rgb1}, ${rgb2})`
-      }
-      return '';
-    },
+		...mapState(useUserStore, ['userID', 'isSuperModerator', 'isModerator', 'accessToken']),
+	},
 
-    ...mapState(useUserStore, ['userID', 'isSuperModerator', 'isModerator', 'accessToken'])
-  },
+	data() {
+		return {
+			name: undefined,
+			identifier: undefined,
+			count: undefined,
+			loaded: false,
+			userInfo: undefined,
+			userInfoAdmin: undefined,
+			prefabsList: undefined,
+			keys_only: false,
+			showPurchaseHistory: false,
+			showModerationHistory: false,
+			showPrefabsList: false,
+			copied: false,
+			isPunished: false,
+			isReset: false,
+		};
+	},
 
-  data() {
-    return {
-      name: undefined,
-      identifier: undefined,
-      count: undefined,
-      loaded: false,
-      userInfo: undefined,
-      userInfoAdmin: undefined,
-      prefabsList: undefined,
-      keys_only: false,
-      showPurchaseHistory: false,
-      showModerationHistory: false,
-      showPrefabsList: false,
-      copied: false,
-      isPunished: false,
-      isReset: false,
-    }
-  },
+	methods: {
+		async updateDetails() {
+			this.count = undefined;
+			this.name = undefined;
+			this.identifier = undefined;
+			this.loaded = false;
 
-  methods: {
-    async updateDetails() {
-      this.count = undefined
-      this.name = undefined
-      this.identifier = undefined
-      this.loaded = false
+			const currentUserID = this.otherUserID ? this.otherUserID : this.userID;
+			if (!currentUserID) return;
+			const userInfo = await getUserInfoRequest(this.$api_server_url, currentUserID);
+			if (userInfo === false || currentUserID !== (this.otherUserID ? this.otherUserID : this.userID)) return;
+			console.log(userInfo);
+			this.userInfo = userInfo;
+			this.identifier = userInfo.user_id;
+			this.count = userInfo.user_level_count;
+			this.name = userInfo.user_name;
+			this.loaded = true;
+		},
 
-      const currentUserID = this.otherUserID? this.otherUserID : this.userID
-      if(!currentUserID) return
-      const userInfo = await getUserInfoRequest(this.$api_server_url, currentUserID)
-      if(userInfo === false || currentUserID !== (this.otherUserID? this.otherUserID : this.userID)) return
-      console.log(userInfo)
-      this.userInfo = userInfo
-      this.identifier = userInfo.user_id
-      this.count = userInfo.user_level_count
-      this.name = userInfo.user_name
-      this.loaded = true
-    },
+		copyId() {
+			navigator.clipboard.writeText(this.identifier);
+			this.copied = true;
+			setTimeout(() => {
+				this.copied = false;
+			}, 2000);
+		},
 
-    copyId() {
-      navigator.clipboard.writeText(this.identifier);
-      this.copied = true;
-      setTimeout(() => {
-        this.copied = false;
-      }, 2000);
-    },
+		async getUserInfoAdmin() {
+			if (!this.userInfoAdmin) {
+				this.userInfoAdmin = await getUserInfoAdminRequest(this.$api_server_url, this.accessToken, this.identifier);
+			}
+		},
 
-    async getUserInfoAdmin() {
-      if (!this.userInfoAdmin) {
-        this.userInfoAdmin = await getUserInfoAdminRequest(this.$api_server_url, this.accessToken, this.identifier);
-      }
-    },
+		togglePurchaseHistory() {
+			this.getUserInfoAdmin();
+			this.showPurchaseHistory = !this.showPurchaseHistory;
+			if (this.showPurchaseHistory) {
+				this.showModerationHistory = false;
+			}
+		},
+		toggleModerationHistory() {
+			this.getUserInfoAdmin();
+			this.showModerationHistory = !this.showModerationHistory;
+			if (this.showModerationHistory) {
+				this.showPurchaseHistory = false;
+			}
+		},
 
-    togglePurchaseHistory() {
-      this.getUserInfoAdmin();
-      this.showPurchaseHistory = !this.showPurchaseHistory;
-      if (this.showPurchaseHistory) {
-        this.showModerationHistory = false;
-      }
-    },
-    toggleModerationHistory() {
-      this.getUserInfoAdmin();
-      this.showModerationHistory = !this.showModerationHistory;
-      if (this.showModerationHistory) {
-        this.showPurchaseHistory = false;
-      }
-    },
+		async getPrefabsList(keys_only) {
+			if (!this.prefabsList || this.keys_only !== keys_only) {
+				this.prefabsList = await getPrefabListRequest(
+					this.$api_server_url,
+					this.accessToken,
+					this.identifier,
+					this.$max_level_format_version,
+					undefined,
+					keys_only,
+				);
+			}
+			this.keys_only = keys_only;
+		},
 
-    async getPrefabsList(keys_only) {
-      if (!this.prefabsList || this.keys_only !== keys_only) {
-        this.prefabsList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version, undefined, keys_only);
-      }
-      this.keys_only = keys_only;
-    },
+		async getRestOfPrefabs(keys_only) {
+			while (this.prefabsList[this.prefabsList.length - 1]?.cursor) {
+				const cursor = this.prefabsList[this.prefabsList.length - 1].cursor;
+				const nextList = await getPrefabListRequest(
+					this.$api_server_url,
+					this.accessToken,
+					this.identifier,
+					this.$max_level_format_version,
+					cursor,
+					keys_only,
+				);
+				this.prefabsList = this.prefabsList.concat(nextList);
+			}
+		},
 
-    async getRestOfPrefabs(keys_only) {
-      while (this.prefabsList[this.prefabsList.length - 1]?.cursor) {
-        const cursor = this.prefabsList[this.prefabsList.length - 1].cursor;
-        const nextList = await getPrefabListRequest(this.$api_server_url, this.accessToken, this.identifier, this.$max_level_format_version, cursor, keys_only)
-        this.prefabsList = this.prefabsList.concat(nextList);
-      }
-    },
+		async togglePrefabsList(keys_only) {
+			if (this.$refs.prefabButtonText.innerText === 'Loading' || this.$refs.prefabInfoButtonText.innerText === 'Loading') return;
+			const target = keys_only ? this.$refs.prefabInfoButtonText : this.$refs.prefabButtonText;
+			target.innerText = 'Loading';
+			await this.getPrefabsList(keys_only);
+			this.getRestOfPrefabs(keys_only);
+			target.innerText = keys_only ? 'Info' : 'Prefabs';
+			this.showPrefabsList = true;
+		},
 
-    async togglePrefabsList(keys_only) {
-      if (this.$refs.prefabButtonText.innerText === "Loading" || this.$refs.prefabInfoButtonText.innerText === "Loading") return;
-      const target = keys_only ? this.$refs.prefabInfoButtonText : this.$refs.prefabButtonText;
-      target.innerText = "Loading";
-      await this.getPrefabsList(keys_only);
-      this.getRestOfPrefabs(keys_only);
-      target.innerText = keys_only ? "Info" : "Prefabs";
-      this.showPrefabsList = true;
-    },
+		didPunishOrReset(bad) {
+			if (bad) {
+				this.isPunished = true;
+			} else {
+				this.isReset = true;
+				this.isPunished = false;
+			}
+		},
 
-    didPunishOrReset(bad) {
-      if (bad) {
-        this.isPunished = true;
-      } else {
-        this.isReset = true;
-        this.isPunished = false;
-      }
-    },
+		escapeEvent(e) {
+			if (e.code === 'Escape') {
+				this.showPrefabsList = false;
+			}
+		},
+	},
 
-    escapeEvent(e) {
-      if (e.code === "Escape") {
-        this.showPrefabsList = false;
-      }
-    },
-  },
+	created() {
+		this.updateDetails();
+		this.prefabsList = undefined;
 
-  created() {
-    this.updateDetails();
-    this.prefabsList = undefined;
+		this.escapeListener = document.addEventListener('keydown', this.escapeEvent);
+	},
 
-    this.escapeListener = document.addEventListener("keydown", this.escapeEvent);
-  },
+	unmounted() {
+		document.removeEventListener('keydown', this.escapeListener);
+	},
 
-  unmounted() {
-    document.removeEventListener("keydown", this.escapeListener);
-  },
-
-  watch: {
-    otherUserID() {
-      this.updateDetails();
-      this.prefabsList = undefined;
-    }
-  }
-}
+	watch: {
+		otherUserID() {
+			this.updateDetails();
+			this.prefabsList = undefined;
+		},
+	},
+};
 </script>
 
-
 <template>
-  <div class="user-title-wrapper" :style="(loaded && !isSuperModerator) ? 'padding-bottom: 1rem;' : '' ">
-    <div class="user-tab-title-container">
-      <div class="profile-icon" :style="profileGradient"></div>
-      <div>
-        <div v-if="name" class="user-tab-name">
-          <span :style="isPunished ? 'color: var(--red);' : isReset ? 'color: var(--green);' : ''">{{ name }}</span>
-          <img v-if="userInfo.is_creator" alt="Creator" title="Creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
-          <span v-if="userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
-          <span v-if="userInfo.is_admin" title="Developer" class="developer-icon">D</span>
-          <span v-if="userInfo.grab_plus_active" title="GRAB+" class="grab-plus-icon"></span>
-          <div class="user-buttons">
-            <a v-if="loaded" class="player-button" :href="'player?user_id='+identifier">View</a>
-          </div>
-        </div>
-        <div v-if="count" class="user-tab-count">
-          {{ count }} level{{ count > 1 ? 's' : '' }}
-        </div>
-      </div>
-      <div v-if="loaded && isModerator" class="history-buttons">
-        <button v-if="isSuperModerator" class="history-button" @click="togglePurchaseHistory">
-          Purchases
-          <img src="./../assets/icons/clock.svg" alt="history">
-        </button>
-        <button v-if="isSuperModerator" class="history-button" @click="toggleModerationHistory">
-          Moderation
-          <img src="./../assets/icons/clock.svg" alt="history">
-        </button>
-      </div>
-      <div v-if="loaded && isModerator" class="prefab-buttons">
-        <button class="history-button" @click="togglePrefabsList(false)">
-          <span ref="prefabButtonText">Prefabs</span>
-          <img src="./../assets/icons/block.svg" alt="prefabs">
-        </button>
-        <button class="history-button" @click="togglePrefabsList(true)">
-          <span ref="prefabInfoButtonText">Info</span>
-          <img src="./../assets/icons/block.svg" alt="prefabs">
-        </button>
-      </div>
-    </div>
-    <div>
-      <div v-if="loaded && isSuperModerator" class="user-id">
-        <span>{{ identifier }}</span>
-        <button class="copy" @click="copyId">
-          <img v-show="!copied" src="./../assets/icons/copy.svg">
-          <img v-show="copied" src="./../assets/icons/copied.svg">
-        </button>
-      </div>
-      <div v-if="loaded && isSuperModerator" class="user-tab-moderation-container">
-        <UserModerationTools v-if="loaded && isSuperModerator" :user-info="userInfo" :user-page="true" @handled="didPunishOrReset" @toggle_role="userInfo[$event] = !userInfo[$event]" />
-      </div>
-    </div>
-  </div>
-  <PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
-  <ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin"/>
-  <Teleport to="body">
-    <PrefabsList v-if="showPrefabsList && loaded && isModerator" :prefabsList="prefabsList" :userID="identifier" @escape="showPrefabsList = false"/>
-  </Teleport>
+	<div class="user-title-wrapper" :style="loaded && !isSuperModerator ? 'padding-bottom: 1rem;' : ''">
+		<div class="user-tab-title-container">
+			<div class="profile-icon" :style="profileGradient"></div>
+			<div>
+				<div v-if="name" class="user-tab-name">
+					<span :style="isPunished ? 'color: var(--red);' : isReset ? 'color: var(--green);' : ''">{{ name }}</span>
+					<img
+						v-if="userInfo.is_creator"
+						alt="Creator"
+						title="Creator"
+						class="creator-icon"
+						src="./../assets/icons/checkmark.svg"
+					/>
+					<span v-if="userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
+					<span v-if="userInfo.is_admin" title="Developer" class="developer-icon">D</span>
+					<span v-if="userInfo.grab_plus_active" title="GRAB+" class="grab-plus-icon"></span>
+					<div class="user-buttons">
+						<a v-if="loaded" class="player-button" :href="'player?user_id=' + identifier">View</a>
+					</div>
+				</div>
+				<div v-if="count" class="user-tab-count">{{ count }} level{{ count > 1 ? 's' : '' }}</div>
+			</div>
+			<div v-if="loaded && isModerator" class="history-buttons">
+				<button v-if="isSuperModerator" class="history-button" @click="togglePurchaseHistory">
+					Purchases
+					<img src="./../assets/icons/clock.svg" alt="history" />
+				</button>
+				<button v-if="isSuperModerator" class="history-button" @click="toggleModerationHistory">
+					Moderation
+					<img src="./../assets/icons/clock.svg" alt="history" />
+				</button>
+			</div>
+			<div v-if="loaded && isModerator" class="prefab-buttons">
+				<button class="history-button" @click="togglePrefabsList(false)">
+					<span ref="prefabButtonText">Prefabs</span>
+					<img src="./../assets/icons/block.svg" alt="prefabs" />
+				</button>
+				<button class="history-button" @click="togglePrefabsList(true)">
+					<span ref="prefabInfoButtonText">Info</span>
+					<img src="./../assets/icons/block.svg" alt="prefabs" />
+				</button>
+			</div>
+		</div>
+		<div>
+			<div v-if="loaded && isSuperModerator" class="user-id">
+				<span>{{ identifier }}</span>
+				<button class="copy" @click="copyId">
+					<img v-show="!copied" src="./../assets/icons/copy.svg" />
+					<img v-show="copied" src="./../assets/icons/copied.svg" />
+				</button>
+			</div>
+			<div v-if="loaded && isSuperModerator" class="user-tab-moderation-container">
+				<UserModerationTools
+					v-if="loaded && isSuperModerator"
+					:user-info="userInfo"
+					:user-page="true"
+					@handled="didPunishOrReset"
+					@toggle_role="userInfo[$event] = !userInfo[$event]"
+				/>
+			</div>
+		</div>
+	</div>
+	<PurchaseHistory v-if="showPurchaseHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin" />
+	<ModerationHistory v-if="showModerationHistory && loaded && isSuperModerator" :userInfo="userInfoAdmin" />
+	<Teleport to="body">
+		<PrefabsList
+			v-if="showPrefabsList && loaded && isModerator"
+			:prefabsList="prefabsList"
+			:userID="identifier"
+			@escape="showPrefabsList = false"
+		/>
+	</Teleport>
 </template>
 
-
 <style scoped>
-
 .user-title-wrapper {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: 100%;
-  align-items: center;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 10px;
+	width: 100%;
+	align-items: center;
 }
 .user-tab-title-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  height: fit-content;
-  flex-direction: row;
-  background-color: var(--hover);
-  padding: 0.5rem 1rem;
-  border-radius: 15px;
-  width: 100%;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	height: fit-content;
+	flex-direction: row;
+	background-color: var(--hover);
+	padding: 0.5rem 1rem;
+	border-radius: 15px;
+	width: 100%;
 }
 .user-tab-moderation-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  overflow: hidden;
-  padding-inline: 10px;
-  width: fit-content;
-  padding-bottom: 1rem;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	overflow: hidden;
+	padding-inline: 10px;
+	width: fit-content;
+	padding-bottom: 1rem;
 }
 
 .user-tab-name {
-  font-size: 20px;
-  font-weight: 600;
-  margin-right: 5px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
+	font-size: 20px;
+	font-weight: 600;
+	margin-right: 5px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 5px;
 }
 .user-tab-count {
-  margin-left: auto;
-  opacity: 0.7;
+	margin-left: auto;
+	opacity: 0.7;
 }
 .creator-icon {
-  width: 20px;
-  height: 20px;
+	width: 20px;
+	height: 20px;
 }
 
 .moderator-icon {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  background-color: #DE9343;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	background-color: #de9343;
+	border-radius: 50%;
+	font-size: 14px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 .developer-icon {
-  width: 20px;
-  height: 20px;
-  line-height: 20px;
-  background-color: #DD3619;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	background-color: #dd3619;
+	border-radius: 50%;
+	font-size: 14px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 .grab-plus-icon {
-  position: relative;
-  width: 20px;
-  height: 20px;
-  background-color: #E1BC65;
-  border-radius: 50%;
+	position: relative;
+	width: 20px;
+	height: 20px;
+	background-color: #e1bc65;
+	border-radius: 50%;
 }
 .grab-plus-icon::before,
 .grab-plus-icon::after {
-  content: '';
-  position: absolute;
-  background-color: white;
-  border-radius: 3px;
+	content: '';
+	position: absolute;
+	background-color: white;
+	border-radius: 3px;
 }
 .grab-plus-icon::before {
-  top: 50%;
-  left: 15%;
-  width: 70%;
-  height: 2px;
-  transform: translateY(-50%);
+	top: 50%;
+	left: 15%;
+	width: 70%;
+	height: 2px;
+	transform: translateY(-50%);
 }
 .grab-plus-icon::after {
-  left: 50%;
-  top: 15%;
-  width: 2px;
-  height: 70%;
-  transform: translateX(-50%);
+	left: 50%;
+	top: 15%;
+	width: 2px;
+	height: 70%;
+	transform: translateX(-50%);
 }
 
 .profile-icon {
-  height: 60px;
-  width: 60px;
-  aspect-ratio: 1/1;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  border-radius: 10px;
-  margin-block: 0.5rem;
-  margin-right: 1rem;
+	height: 60px;
+	width: 60px;
+	aspect-ratio: 1/1;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 10px;
+	margin-block: 0.5rem;
+	margin-right: 1rem;
 }
 .user-buttons {
-  float: left;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  flex-wrap: wrap;
+	float: left;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	flex-wrap: wrap;
 }
 .user-buttons > div {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  flex-wrap: wrap;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+	flex-wrap: wrap;
 }
 
 .player-button {
-  padding: 2px 8px 1px 8px;
-  font-weight: bold;
-  background-color: var(--blue);
-  color: white;
-  font-size: 12px;
-  border-radius: 15px;
-  cursor: pointer;
+	padding: 2px 8px 1px 8px;
+	font-weight: bold;
+	background-color: var(--blue);
+	color: white;
+	font-size: 12px;
+	border-radius: 15px;
+	cursor: pointer;
 }
 .history-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  margin-left: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+	margin-left: auto;
 }
 .prefab-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  margin-left: 0.5em;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+	margin-left: 0.5em;
 }
 .history-button {
-  padding: 5px 10px;
-  padding-right: 6px;
-  font-weight: bold;
-  background-color: var(--blue);
-  font-size: 12px;
-  border-radius: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 5px;
+	padding: 5px 10px;
+	padding-right: 6px;
+	font-weight: bold;
+	background-color: var(--blue);
+	font-size: 12px;
+	border-radius: 15px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 5px;
 }
 .history-button img {
-  height: 16px;
-  width: 16px;
+	height: 16px;
+	width: 16px;
 }
 
 .user-id {
-  font-size: 15px;
-  font-style: italic;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 10px;
-  padding-inline: 10px;
+	font-size: 15px;
+	font-style: italic;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 5px;
+	margin-bottom: 10px;
+	padding-inline: 10px;
 }
 .user-id span {
-  opacity: 0.5;
+	opacity: 0.5;
 }
 .copy {
-  cursor: pointer;
-  background-color: transparent;
-  transition: transform 0.2s ease-in-out;
-  display: grid;
-  place-content: center;
-  padding: 3px;
-  border-radius: 5px;
+	cursor: pointer;
+	background-color: transparent;
+	transition: transform 0.2s ease-in-out;
+	display: grid;
+	place-content: center;
+	padding: 3px;
+	border-radius: 5px;
 }
 .copy:hover {
-  background-color: var(--hover);
+	background-color: var(--hover);
 }
 .copy img {
-  height: 1rem;
-  width: 1rem;
+	height: 1rem;
+	width: 1rem;
 }
 </style>

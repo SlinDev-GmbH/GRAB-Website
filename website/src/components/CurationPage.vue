@@ -1,73 +1,78 @@
 <script>
-import { mapState } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { mapState } from 'pinia';
+import { useUserStore } from '@/stores/user';
 
-import CurationControls from './CurationControls.vue'
-import NewCurationButton from './NewCurationButton.vue'
-import RemoveCurationButton from './RemoveCurationButton.vue'
-import LegalTerms from './LegalTerms.vue'
-import DropDown from './DropDown.vue'
-import LoginButton from './LoginButton.vue'
+import CurationControls from './CurationControls.vue';
+import NewCurationButton from './NewCurationButton.vue';
+import RemoveCurationButton from './RemoveCurationButton.vue';
+import LegalTerms from './LegalTerms.vue';
+import DropDown from './DropDown.vue';
+import LoginButton from './LoginButton.vue';
 
 import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
 
 export default {
-  components: {
-	CurationControls,
-	NewCurationButton,
-	RemoveCurationButton,
-	LegalTerms,
-	DropDown,
-	LoginButton,
-  },
+	components: {
+		CurationControls,
+		NewCurationButton,
+		RemoveCurationButton,
+		LegalTerms,
+		DropDown,
+		LoginButton,
+	},
 
-  computed: {
-	  ...mapState(useUserStore, ['isAdmin', 'accessToken', 'isLoggedIn']),
-  },
+	computed: {
+		...mapState(useUserStore, ['isAdmin', 'accessToken', 'isLoggedIn']),
+	},
 
-  data() {
-	return {
-	  typesList: [],
-	  type: ""
-	}
-  },
+	data() {
+		return {
+			typesList: [],
+			type: '',
+		};
+	},
 
-  async created() {
-	const result = await GetCuratedListsRequest(this.$api_server_url)
-	if (result) {
-	  this.typesList = result;
-	  this.type = this.typesList[0] || "Error";
-	}
-  },
+	async created() {
+		const result = await GetCuratedListsRequest(this.$api_server_url);
+		if (result) {
+			this.typesList = result;
+			this.type = this.typesList[0] || 'Error';
+		}
+	},
 
-  methods: {
-	handleTypeListUpdate(typesList) {
-		this.typesList = typesList
-	}
-  },
-}
+	methods: {
+		handleTypeListUpdate(typesList) {
+			this.typesList = typesList;
+		},
+	},
+};
 </script>
 
 <template>
 	<div id="curation">
 		<header>
 			<a class="back-button" href="/levels">
-				<img src="./../assets/icons/back.svg" alt="back">
+				<img src="./../assets/icons/back.svg" alt="back" />
 			</a>
-			<LoginButton/>
+			<LoginButton />
 			<h1>Curated Level Lists</h1>
 			<div v-if="isLoggedIn" id="list-control">
-				<DropDown :options='typesList.length ? typesList : ["Loading.."]' :defaultChoice='typesList[0] || "Loading.."' :flip='true' @changeSelection="type = $event"/>
+				<DropDown
+					:options="typesList.length ? typesList : ['Loading..']"
+					:defaultChoice="typesList[0] || 'Loading..'"
+					:flip="true"
+					@changeSelection="type = $event"
+				/>
 				<div v-if="isAdmin" id="buttonWrapper">
-					<NewCurationButton @handled="handleTypeListUpdate"/>
-					<RemoveCurationButton @handled="handleTypeListUpdate"/>
+					<NewCurationButton @handled="handleTypeListUpdate" />
+					<RemoveCurationButton @handled="handleTypeListUpdate" />
 				</div>
 			</div>
 		</header>
 		<main>
-			<CurationControls v-if="isLoggedIn" :type="type"/>
+			<CurationControls v-if="isLoggedIn" :type="type" />
 		</main>
-		<LegalTerms/>
+		<LegalTerms />
 	</div>
 </template>
 
@@ -97,9 +102,9 @@ export default {
 	max-width: 1000px;
 	margin: 0 auto;
 	display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
 	width: 100%;
 	padding-inline: 1rem;
 }
@@ -168,23 +173,23 @@ select:focus-visible {
 	position: absolute;
 	top: 0;
 	left: 0;
-    width: 40px;
-    height:  40px;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background-color: var(--hover);
-    cursor: pointer;
+	width: 40px;
+	height: 40px;
+	font-size: 15px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: var(--hover);
+	cursor: pointer;
 }
 .back-button img {
-    width: 23px;
-    height: 20px;
-    opacity: 0.7;
-    transition: opacity 0.3s linear;
+	width: 23px;
+	height: 20px;
+	opacity: 0.7;
+	transition: opacity 0.3s linear;
 }
 .back-button:hover img {
-    opacity: 1;
+	opacity: 1;
 }
 </style>

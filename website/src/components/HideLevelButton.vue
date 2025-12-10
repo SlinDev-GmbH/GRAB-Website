@@ -1,58 +1,63 @@
 <script>
-import ModerationPopup from './ModerationPopup.vue'
+import ModerationPopup from './ModerationPopup.vue';
 
 export default {
-  components: {
-    ModerationPopup
-  },
+	components: {
+		ModerationPopup,
+	},
 
-  emits: ['hide'],
+	emits: ['hide'],
 
-  props: {
-    level_id : String
-  },
+	props: {
+		level_id: String,
+	},
 
-  data() {
-    return {
-      showModerationPopup: false
-    }
-  },
+	data() {
+		return {
+			showModerationPopup: false,
+		};
+	},
 
-  methods: {
-    handledModerationPopup(handled) {
-      if(handled === true)
-      {
-        this.$emit('hide');
-      }
-    },
-  }
-}
+	methods: {
+		handledModerationPopup(handled) {
+			if (handled === true) {
+				this.$emit('hide');
+			}
+		},
+	},
+};
 </script>
 
 <template>
-  <div>
-    <button class="moderation-hide-level-button" @click="showModerationPopup=true">Hide</button>
-    
-    <Teleport to="body">
-      <ModerationPopup :show="showModerationPopup" @close="showModerationPopup = false" @handled="handledModerationPopup" config="level_hide" :identifier="level_id" />
-    </Teleport>
-  </div>
+	<div>
+		<button class="moderation-hide-level-button" @click="showModerationPopup = true">Hide</button>
+
+		<Teleport to="body">
+			<ModerationPopup
+				:show="showModerationPopup"
+				@close="showModerationPopup = false"
+				@handled="handledModerationPopup"
+				config="level_hide"
+				:identifier="level_id"
+			/>
+		</Teleport>
+	</div>
 </template>
 
 <style scoped>
 .moderation-hide-level-button {
-  height: 30px;
-  width: 90px;
-  font-weight: bold;
-  background-color: var(--red);
-  border-radius: 15px;
-  cursor: pointer;
+	height: 30px;
+	width: 90px;
+	font-weight: bold;
+	background-color: var(--red);
+	border-radius: 15px;
+	cursor: pointer;
 }
 @media screen and (max-width: 600px) {
-  .moderation-hide-level-button {
-    height: 25px;
-    width: 70px;
-    font-size: 0.7rem;
-  }
+	.moderation-hide-level-button {
+		height: 25px;
+		width: 70px;
+		font-size: 0.7rem;
+	}
 }
 </style>
