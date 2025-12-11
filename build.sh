@@ -9,7 +9,7 @@ echo "export const SERVER_URL = '${GRAB_SERVER_URL}'" > website/src/configuratio
 echo "export const DATA_URL = '${GRAB_DATA_URL}'" >> website/src/configuration.js
 echo "export const IMAGES_SERVER_URL = '${GRAB_IMAGES_SERVER_URL}'" >> website/src/configuration.js
 echo "export const PAGE_URL = '${GRAB_PAGE_URL}'" >> website/src/configuration.js
-echo "export const MAX_FORMAT_VERSION = 17" >> website/src/configuration.js
+echo "export const MAX_FORMAT_VERSION = 18" >> website/src/configuration.js
 
 cd website
 npm install
