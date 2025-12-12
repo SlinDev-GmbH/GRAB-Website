@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package COD.GASM;
+
+message OperandData
+{
+	enum Type
+	{
+		OpInputRegister = 0;
+		OpOutputRegister = 1;
+		OpWorkingRegister = 2;
+		OpSpecialRegister = 3;
+		OpConstant = 4;
+		OpLabel = 5;
+		OpJumpAddress = 6;
+		OpInOutRegister = 7;
+	}
+	Type type = 1;
+	oneof content
+	{
+		uint32 index = 2;
+		float value = 3;
+	}
+}
+
+message InstructionData
+{
+	enum Type
+	{
+		InNoop = 0;
+		InSet = 1;
+		InSwap = 2;
+		InAdd = 3;
+		InSub = 4;
+		InMul = 5;
+		InDiv = 6;
+		InEqual = 7;
+		InLess = 8;
+		InGreater = 9;
+		InAnd = 10;
+		InOr = 11;
+		InNot = 12;
+		InLabel = 13;
+		InGoto = 14;
+		InIf = 15;
+		InSleep = 16;
+		InEnd = 17;
+		InRand = 18;
+		InFloor = 19;
+		InMod = 20;
+		InSin = 21;
+		InCos = 22;
+		InSqrt = 23;
+	}
+	Type type = 1;
+	repeated OperandData operands = 2;
+}
+
+message RegisterData
+{
+	string name = 1;
+}
+
+message LabelData
+{
+	string name = 1;
+}
+
+message ProgramData
+{
+	repeated RegisterData inputRegisters = 1;
+	repeated RegisterData outputRegisters = 2;
+	repeated RegisterData workingRegisters = 3;
+	repeated RegisterData inoutRegisters = 6;
+	
+	repeated LabelData labels = 4;
+	
+	repeated InstructionData instructions = 5;
+}
+
+message ProgrammablePositionData
+{
+}
+
+message ProgrammableRotationData
+{
+}
+
+message ProgrammableTriggerActive
+{
+}
+
+message ProgrammablePropertyData
+{
+	message Component
+	{
+		int32 inputRegisterIndex = 1;
+		int32 outputRegisterIndex = 2;
+		int32 inoutRegisterIndex = 3;
+	}
+
+	uint64 objectID = 1;
+	repeated Component components = 2;
+	
+	oneof content
+	{
+		ProgrammablePositionData position = 3;
+		ProgrammableTriggerActive triggerActive = 4;
+		ProgrammableRotationData rotation = 5;
+	}
+}
+

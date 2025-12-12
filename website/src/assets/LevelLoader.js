@@ -29,6 +29,7 @@ import textureDefaultColoredURL from './textures/default_colored.png';
 import textureBouncingURL from './textures/bouncing.png';
 import textureSnowURL from './textures/snow.png';
 import textureTriggerURL from './textures/trigger.png';
+import textureCodeURL from './textures/code.png';
 import textureSublevelTriggerURL from './textures/sublevel_trigger.png';
 import textureSoundURL from './textures/sound.png';
 
@@ -125,6 +126,7 @@ class LevelLoader {
 			altStartMaterial,
 			particleMaterial,
 			getMaterialForTexture(textureSoundURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
+			getMaterialForTexture(textureCodeURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
 		];
 
 		let skyMaterial = new THREE.ShaderMaterial();
@@ -150,6 +152,7 @@ class LevelLoader {
 			lights: true,
 			text: false,
 			triggers: false,
+			code: false,
 			sound: false,
 			sublevels: false,
 			static: false,
@@ -840,6 +843,52 @@ class LevelLoader {
 
 					level.nodes.shape[node.levelNodeTrigger.shape || 1000]?.push(object);
 					level.nodes.levelNodeTrigger.push(object);
+					level.complexity += 5;
+				} else if (node.levelNodeGASM) {
+					let material = objectMaterials[9];
+
+					let newMaterial = material.clone();
+					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture;
+
+					newMaterial.transparent = true;
+					newMaterial.uniforms.transparentEnabled.value = 1.0;
+					object = new THREE.Mesh(shapes[0], newMaterial);
+
+					parentNode.add(object);
+					object.position.x = -node.levelNodeGASM.position.x;
+					object.position.y = node.levelNodeGASM.position.y;
+					object.position.z = -node.levelNodeGASM.position.z;
+
+					object.scale.x = node.levelNodeGASM.scale.x;
+					object.scale.y = node.levelNodeGASM.scale.y;
+					object.scale.z = node.levelNodeGASM.scale.z;
+
+					object.quaternion.x = -node.levelNodeGASM.rotation.x;
+					object.quaternion.y = node.levelNodeGASM.rotation.y;
+					object.quaternion.z = -node.levelNodeGASM.rotation.z;
+					object.quaternion.w = node.levelNodeGASM.rotation.w;
+
+					object.initialPosition = object.position.clone();
+					object.initialRotation = object.quaternion.clone();
+
+					let targetVector = new THREE.Vector3();
+					let targetQuaternion = new THREE.Quaternion();
+					let worldMatrix = new THREE.Matrix4();
+					worldMatrix.compose(
+						object.getWorldPosition(targetVector),
+						object.getWorldQuaternion(targetQuaternion),
+						object.getWorldScale(targetVector),
+					);
+
+					let normalMatrix = new THREE.Matrix3();
+					normalMatrix.getNormalMatrix(worldMatrix);
+					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix;
+
+					object.isCode = true;
+					object.visible = this.options.code;
+
+					level.nodes.shape[1000]?.push(object);
+					level.nodes.levelNodeGASM.push(object);
 					level.complexity += 5;
 				} else if (node.levelNodeSound) {
 					let material = objectMaterials[8];

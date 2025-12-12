@@ -51,6 +51,7 @@ let isFogEnabled = true;
 let isSliderDragging = false;
 let isSliderPlaying = true;
 let showTriggers = false;
+let showCode = false;
 // leaderboard
 let removedTimes = [];
 // image upload
@@ -317,11 +318,15 @@ async function init() {
 		triggersButton.style.display = 'block';
 		triggersButton.addEventListener('click', () => {
 			showTriggers = !showTriggers;
+			showCode = !showCode;
 
 			scene.traverse((node) => {
 				if (node instanceof THREE.Mesh) {
 					if (node.isTrigger) {
 						node.visible = showTriggers;
+					}
+					if (node.isCode) {
+						node.visible = showCode;
 					}
 				}
 			});

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package COD.Types;
 
+import "gasm.proto";
+
 message Vector
 {
 	float x = 1;
@@ -52,8 +54,9 @@ enum LevelNodeShape
 	LOBBYTERMINAL = 4;
 	PARTICLE_EMITTER = 5;
 	SOUND = 6;
+	GASM = 7;
 
-	__END_OF_SPECIAL_PARTS__ = 7;
+	__END_OF_SPECIAL_PARTS__ = 8;
 
 	CUBE = 1000;
 	SPHERE = 1001;
@@ -303,6 +306,22 @@ message TriggerTargetSound
 	bool repeat = 3;
 }
 
+message TriggerTargetGASM
+{
+	enum Mode
+	{
+		STOP = 0;
+		START = 1;
+		TOGGLE = 2;
+		RESTART = 3;
+		RESET = 4;
+	}
+
+	uint64 objectID = 1;
+	
+	Mode mode = 2;
+}
+
 message TriggerTargetSubLevel
 {
 	string levelIdentifier = 1;
@@ -342,6 +361,7 @@ message TriggerTarget
 		TriggerTargetSubLevel triggerTargetSubLevel = 2;
 		TriggerTargetSound triggerTargetSound = 3;
 		TriggerTargetAmbience triggerTargetAmbience = 6;
+		TriggerTargetGASM triggerTargetGASM = 7;
 	}
 }
 
@@ -417,6 +437,26 @@ message LevelNodeSound
 	float maxRangeFactor = 8;
 }
 
+message LevelNodeGASM
+{
+	message Connection
+	{
+		uint64 objectID = 1;
+		string name = 2;
+		repeated GASM.ProgrammablePropertyData properties = 3;
+	}
+
+	Vector position = 1;
+	Vector scale = 5;
+	Quaternion rotation = 6;
+	
+	GASM.ProgramData program = 2;
+	
+	repeated Connection connections = 3;
+	
+	bool startActive = 4;
+}
+
 message AnimationFrame
 {
 	float time = 1;
@@ -462,6 +502,7 @@ message LevelNode
 		LevelNodeTrigger levelNodeTrigger = 10;
 		LevelNodeParticleEmitter levelNodeParticleEmitter = 11;
 		LevelNodeSound levelNodeSound = 12;
+		LevelNodeGASM levelNodeGASM = 13;
 	}
 
 	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations
