@@ -65,6 +65,8 @@ export default {
 			this.$emit('tabChanged', { tab: 'tab_other_user', user_id: userID });
 		}
 		// this next line " && currentTab !== 'tab_featured'" is the temporary fix. without it, featured wont work. but with it, the tab wont auto switch
+		// yeah this is staying forever lol
+		// manually changing to the featured tab in LevelBrowser.vue works fine
 		else if ((currentSearch && currentSearch.length > 0) || (currentTab !== this.listType && currentTab !== 'tab_featured')) {
 			let query = { tab: currentTab };
 			if (currentSearch) query['search'] = currentSearch;

@@ -51,6 +51,16 @@ export default {
 			} else {
 				this.currentSection = this.featured;
 			}
+			this.update_url_param();
+		},
+
+		update_url_param() {
+			this.$router.replace({
+				query: {
+					tab: 'tab_featured',
+					...(this.currentSection !== this.featured && { list: this.currentSection.title }),
+				},
+			});
 		},
 
 		setSection(section) {
@@ -63,6 +73,7 @@ export default {
 			}
 			this.sectionStack.push(this.currentSection);
 			this.currentSection = section;
+			this.update_url_param();
 		},
 
 		shouldRenderSection(section) {
@@ -87,6 +98,19 @@ export default {
 		getThumbnail(section) {
 			return this.$images_server_url + section.image;
 		},
+
+		flattened_sections() {
+			const result = [];
+
+			const visit = (node) => {
+				result.push(node);
+				if (node.sections) node.sections.forEach(visit);
+			};
+
+			// skip 'Level Browser'
+			this.featured.sections.forEach(visit);
+			return result;
+		},
 	},
 
 	async mounted() {
@@ -94,6 +118,15 @@ export default {
 		this.featured = featured;
 		this.currentSection = this.featured;
 		this.loaded = true;
+
+		const list = this.$route.query?.list;
+		if (list) {
+			const sections = this.flattened_sections();
+			const section = sections.find((section) => section.title === list);
+			if (section) {
+				this.setSection(section);
+			}
+		}
 	},
 };
 </script>

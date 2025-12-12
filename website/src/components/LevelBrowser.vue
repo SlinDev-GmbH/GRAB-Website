@@ -31,7 +31,7 @@ export default {
 
 	data() {
 		return {
-			tabActive: 'tab_newest',
+			tabActive: this.$route.query?.tab ?? 'tab_newest',
 			searchTerm: '',
 			userID: null,
 			difficultyFilter: '',
