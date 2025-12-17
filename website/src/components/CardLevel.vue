@@ -294,12 +294,7 @@ export default {
 			</div>
 			<div class="creators">
 				By
-				<router-link
-					:to="{ path: '/levels', query: { tab: 'tab_other_user', user_id: item.identifier.split(':')[0] } }"
-					:title="creators"
-				>
-					{{ creators ? creators : '..' }}
-				</router-link>
+				<a :href="'/levels?tab=tab_other_user&user_id=' + item.identifier.split(':')[0]">{{ creators ? creators : '..' }}</a>
 			</div>
 		</div>
 		<div v-if="!listType.startsWith('curated_')" class="privileged-buttons">
