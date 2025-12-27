@@ -39,6 +39,10 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
 	} else if (listType === 'tab_audit') {
 		requestURL = server + 'report_list?type=audit';
 		wantsAccessToken = true;
+	} else if (listType === 'accelerating') {
+		requestURL += '&type=accelerating';
+	} else if (listType === 'popular_recent') {
+		requestURL += '&type=popular_recent';
 	}
 
 	if (nextPage) requestURL += '&page_timestamp=' + nextPage;
