@@ -1,6 +1,7 @@
 export async function listRequest(server, accessToken, listType, difficulty, tag, searchTerm, maxLevelFormatVersion, userID, nextPage) {
 	let requestURL = server + 'list?max_format_version=' + maxLevelFormatVersion;
 	let wantsAccessToken = false;
+
 	if (listType === 'tab_newest') {
 		if (searchTerm && searchTerm.length > 0) {
 			requestURL += '&type=search&search_term=' + searchTerm;
@@ -43,6 +44,8 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
 		requestURL += '&type=accelerating';
 	} else if (listType === 'popular_recent') {
 		requestURL += '&type=popular_recent';
+	} else if (listType) {
+		requestURL += '&type=' + listType;
 	}
 
 	if (nextPage) requestURL += '&page_timestamp=' + nextPage;
