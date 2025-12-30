@@ -22,7 +22,7 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
 		wantsAccessToken = true;
 	} else if (listType === 'tab_hidden') {
 		requestURL += '&type=hidden';
-		//wantsAccessToken = true //Should also require it, but doesn't currently care about it
+		wantsAccessToken = true
 	} else if (listType === 'tab_reported_levels') {
 		requestURL = server + 'report_list?type=level&max_format_version=' + maxLevelFormatVersion;
 		wantsAccessToken = true;
