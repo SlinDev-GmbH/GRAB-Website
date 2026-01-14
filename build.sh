@@ -4,12 +4,13 @@ if [ -z ${GRAB_SERVER_URL+x} ]; then GRAB_SERVER_URL="https://grab-api-dev.slind
 if [ -z ${GRAB_DATA_URL+x} ]; then GRAB_DATA_URL="https://grab-data-dev.slin.dev/"; fi
 if [ -z ${GRAB_IMAGES_SERVER_URL+x} ]; then GRAB_IMAGES_SERVER_URL="https://grab-images-dev.slin.dev/"; fi
 if [ -z ${GRAB_PAGE_URL+x} ]; then GRAB_PAGE_URL="https://develop.grab-website.pages.dev/"; fi
+if [ -z ${GRAB_MAX_FORMAT_VERSION+x} ]; then GRAB_MAX_FORMAT_VERSION=100; fi
 
 echo "export const SERVER_URL = '${GRAB_SERVER_URL}'" > website/src/configuration.js
 echo "export const DATA_URL = '${GRAB_DATA_URL}'" >> website/src/configuration.js
 echo "export const IMAGES_SERVER_URL = '${GRAB_IMAGES_SERVER_URL}'" >> website/src/configuration.js
 echo "export const PAGE_URL = '${GRAB_PAGE_URL}'" >> website/src/configuration.js
-echo "export const MAX_FORMAT_VERSION = 18" >> website/src/configuration.js
+echo "export const MAX_FORMAT_VERSION = ${GRAB_MAX_FORMAT_VERSION}" >> website/src/configuration.js
 
 cd website
 npm install
