@@ -7,7 +7,7 @@ import ScrollList from './ScrollList.vue';
 
 export default {
 	computed: {
-		...mapState(useUserStore, ['accessToken']),
+		...mapState(useUserStore, ['accessToken', 'isLoggedIn']),
 		isSection() {
 			return this.currentSection.sections;
 		},
@@ -79,6 +79,9 @@ export default {
 		shouldRenderSection(section) {
 			if (section.list_key) {
 				if (section.list_key.startsWith('builtin:')) {
+					return false;
+				}
+				if (section.list_key === 'user_played' && !this.isLoggedIn) {
 					return false;
 				}
 				if (['ok_newest', 'newest'].includes(section.list_key)) {
