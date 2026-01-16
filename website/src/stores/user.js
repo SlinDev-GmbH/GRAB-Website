@@ -25,6 +25,10 @@ export const useUserStore = defineStore('user', {
 			if (!state.isLoggedIn) return false;
 			return state.user.info.is_admin === true;
 		},
+		isDeveloper: (state) => {
+			if (!state.isLoggedIn) return false;
+			return state.user.info.is_developer === true;
+		},
 		isSuperModerator: (state) => {
 			if (!state.isLoggedIn) return false;
 			return state.user.info.is_supermoderator === true || state.user.info.is_admin === true;

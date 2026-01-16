@@ -7,6 +7,8 @@ import ModerationPopup from './ModerationPopup.vue';
 import SetCreatorButton from './SetCreatorButton.vue';
 import SetVerifierButton from './SetVerifierButton.vue';
 import SetModeratorButton from './SetModeratorButton.vue';
+import SetSuperModeratorButton from './SetSuperModeratorButton.vue';
+import SetDeveloperButton from './SetDeveloperButton.vue';
 import GiftCosmeticButton from './GiftCosmeticButton.vue';
 import SetComplexityOverrideButton from './SetComplexityOverrideButton.vue';
 
@@ -19,6 +21,8 @@ export default {
 		SetCreatorButton,
 		SetVerifierButton,
 		SetModeratorButton,
+		SetSuperModeratorButton,
+		SetDeveloperButton,
 		GiftCosmeticButton,
 		SetComplexityOverrideButton,
 	},
@@ -114,6 +118,18 @@ export default {
 						:userID="this.userInfo.user_id"
 						:isModerator="this.userInfo.is_moderator"
 						@change="this.$emit('toggle_role', 'is_moderator')"
+					/>
+					<SetSuperModeratorButton
+						:v-if="isAdmin"
+						:userID="this.userInfo.user_id"
+						:isSuperModerator="this.userInfo.is_supermoderator"
+						@change="this.$emit('toggle_role', 'is_supermoderator')"
+					/>
+					<SetDeveloperButton
+						:v-if="isAdmin"
+						:userID="this.userInfo.user_id"
+						:isDeveloper="this.userInfo.is_developer"
+						@change="this.$emit('toggle_role', 'is_developer')"
 					/>
 				</div>
 				<h2>Other</h2>
