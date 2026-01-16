@@ -194,7 +194,7 @@ export default {
 						src="./../assets/icons/checkmark.svg"
 					/>
 					<span v-if="userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
-					<span v-if="userInfo.is_admin" title="Developer" class="developer-icon">D</span>
+					<span v-if="userInfo.is_admin || userInfo.is_developer" title="Developer" class="developer-icon">D</span>
 					<span v-if="userInfo.grab_plus_active" title="GRAB+" class="grab-plus-icon"></span>
 					<div class="user-buttons">
 						<a v-if="loaded" class="player-button" :href="'player?user_id=' + identifier">View</a>

@@ -105,7 +105,7 @@ export default {
 			<a class="log-user" :href="'/levels?tab=tab_other_user&user_id=' + item.userInfo.user_id">{{ item.userInfo.user_name }}</a>
 			<span v-if="item.userInfo.is_verifier" title="Verifier" class="verifier-icon">V</span>
 			<span v-if="item.userInfo.is_moderator" title="Moderator" class="moderator-icon">M</span>
-			<span v-if="item.userInfo.is_admin" title="Developer" class="developer-icon">D</span>
+			<span v-if="item.userInfo.is_admin || item.userInfo.is_developer" title="Developer" class="developer-icon">D</span>
 		</div>
 		<span>{{ this.logDetails }}</span>
 		<div class="log-actions">

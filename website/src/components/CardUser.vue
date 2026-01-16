@@ -84,7 +84,7 @@ export default {
 						<span :style="isPunished ? 'color: var(--red);' : isReset ? 'color: var(--green);' : ''">{{ item.user_name }}</span>
 						<img v-if="item.is_creator" alt="creator" class="creator-icon" src="./../assets/icons/checkmark.svg" />
 						<span v-if="item.is_moderator" title="Moderator" class="moderator-icon">M</span>
-						<span v-if="item.is_admin" title="Developer" class="developer-icon">D</span>
+						<span v-if="item.is_admin || item.is_developer" title="Developer" class="developer-icon">D</span>
 					</div>
 					<div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
 				</div>
