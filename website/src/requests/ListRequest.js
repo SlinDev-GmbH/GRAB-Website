@@ -44,6 +44,9 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
 		requestURL += '&type=accelerating';
 	} else if (listType === 'popular_recent') {
 		requestURL += '&type=popular_recent';
+	} else if (listType === 'user_played') {
+		requestURL += '&type=user_played';
+		wantsAccessToken = true;
 	} else if (listType) {
 		requestURL += '&type=' + listType;
 	}
