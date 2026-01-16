@@ -119,6 +119,7 @@ export default {
 		formattedPlays() {
 			if (this.hasStatistics && this.item.statistics) {
 				const plays = this.item.statistics.total_played;
+				if (plays == null) return 'N/a';
 				if (plays >= 1000000) {
 					return (plays / 1000000).toFixed(1) + 'm';
 				} else if (plays >= 1000) {
