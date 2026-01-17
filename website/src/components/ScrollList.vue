@@ -78,7 +78,7 @@ export default {
 
 	computed: {
 		wantsUserCells() {
-			const types = ['tab_search_users', 'tab_reported_users', 'tab_banned_users'];
+			const types = ['tab_search_users', 'tab_reported_users', 'tab_banned_users', 'tab_top_users'];
 			return types.includes(this.listType);
 		},
 		wantsModerationUserCells() {
@@ -322,12 +322,21 @@ export default {
 		@changeSelection="auditFilter.log_type = $event"
 		style="margin-bottom: 5px; margin-left: 1rem"
 	/>
-	<div :class="'grid-container' + (this.horizontal ? ' horizontal-list' : '') + (listType == 'tab_audit' ? ' log-list' : '')">
+	<div
+		:class="[
+			'grid-container',
+			this.horizontal && 'horizontal-list',
+			listType == 'tab_audit' && ' log-list',
+			listType == 'tab_top_users' && 'leaderboard-list',
+		]"
+	>
 		<div v-for="(item, index) in items" :key="index" v-show="item.visible" class="grid-item">
 			<CardUser
 				v-if="wantsUserCells"
 				:item="'object_info' in item ? item.object_info : item"
 				:moderationItem="'object_info' in item ? item : null"
+				:listType="listType"
+				:index="index"
 				@toggle_role="item[$event] = !item[$event]"
 			/>
 			<CardLog v-else-if="listType == 'tab_audit'" :item="item" />
@@ -366,7 +375,8 @@ export default {
 	flex-direction: row;
 	width: fit-content;
 }
-.log-list {
+.log-list,
+.leaderboard-list {
 	grid-template-columns: 1fr;
 	gap: 1rem;
 }

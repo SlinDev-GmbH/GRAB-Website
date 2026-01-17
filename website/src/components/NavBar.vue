@@ -84,6 +84,13 @@ export default {
 		>
 			Players
 		</button>
+		<button
+			:class="tabActive === 'tab_top_users' ? 'tablinks active' : 'tablinks'"
+			@click="setTabActive('tab_top_users')"
+			id="tab_top_users"
+		>
+			Top Players
+		</button>
 		<br v-if="isVerifier" /><br v-if="isVerifier" />
 		<button
 			v-if="isVerifier"

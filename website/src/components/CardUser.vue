@@ -16,6 +16,8 @@ export default {
 	props: {
 		item: Object,
 		moderationItem: Object,
+		listType: String,
+		index: Number,
 	},
 
 	data() {
@@ -34,6 +36,10 @@ export default {
 
 		isUserModerationCell() {
 			return this.moderationItem === null && this.isSuperModerator;
+		},
+
+		isTopUsers() {
+			return this.listType === 'tab_top_users';
 		},
 
 		profileGradient() {
@@ -72,13 +78,14 @@ export default {
 </script>
 
 <template>
-	<div class="card-container">
+	<div :class="['card-container', isTopUsers ? 'leaderboard-item' : 'user-item']">
 		<router-link
 			class="user-card"
 			:style="{ 'background-color': cardColor }"
 			:to="{ path: '/levels', query: { tab: 'tab_other_user', user_id: item?.user_id } }"
 		>
 			<div class="details">
+				<div v-if="isTopUsers" class="position">{{ 1 + index }}</div>
 				<div class="user-name-container">
 					<div class="user-name">
 						<span :style="isPunished ? 'color: var(--red);' : isReset ? 'color: var(--green);' : ''">{{ item.user_name }}</span>
@@ -88,10 +95,11 @@ export default {
 					</div>
 					<div v-if="item.user_level_count" class="level-count">Levels: {{ item.user_level_count }}</div>
 				</div>
-				<div class="profile-icon" :style="profileGradient"></div>
+				<div v-if="!isTopUsers" class="profile-icon" :style="profileGradient"></div>
+				<div v-else class="score">{{ Math.floor(item.score * 10) / 10 }} Points</div>
 			</div>
 		</router-link>
-		<div v-if="isSuperModerator" class="moderation">
+		<div v-if="isSuperModerator && !isTopUsers" class="moderation">
 			<div class="user-id">
 				<span>{{ item.user_id }}</span>
 				<button class="copy" @click="copyId">
@@ -143,6 +151,16 @@ export default {
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: center;
+}
+.leaderboard-item .details {
+	justify-content: flex-start;
+	gap: 1rem;
+}
+.position {
+	font-size: 1.3rem;
+}
+.score {
+	margin-left: auto;
 }
 .actions {
 	justify-self: flex-end;
@@ -252,24 +270,26 @@ export default {
 	justify-content: center;
 }
 @media screen and (max-width: 600px) {
-	.user-card {
-		padding: 0.2rem 0.5rem;
-		border-radius: 10px;
-	}
-	.user-name {
-		font-size: 16px;
-	}
-	.profile-icon {
-		height: 40px;
-		width: 40px;
-		border-radius: 5px;
-	}
-	.user-id {
-		font-size: 10px;
-	}
-	.moderation {
-		margin-inline: 5px;
-		padding-inline: 5px;
+	.user-item {
+		.user-card {
+			padding: 0.2rem 0.5rem;
+			border-radius: 10px;
+		}
+		.user-name {
+			font-size: 16px;
+		}
+		.profile-icon {
+			height: 40px;
+			width: 40px;
+			border-radius: 5px;
+		}
+		.user-id {
+			font-size: 10px;
+		}
+		.moderation {
+			margin-inline: 5px;
+			padding-inline: 5px;
+		}
 	}
 }
 </style>

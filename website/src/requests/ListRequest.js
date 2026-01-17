@@ -22,7 +22,7 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
 		wantsAccessToken = true;
 	} else if (listType === 'tab_hidden') {
 		requestURL += '&type=hidden';
-		wantsAccessToken = true
+		wantsAccessToken = true;
 	} else if (listType === 'tab_reported_levels') {
 		requestURL = server + 'report_list?type=level&max_format_version=' + maxLevelFormatVersion;
 		wantsAccessToken = true;
@@ -47,6 +47,8 @@ export async function listRequest(server, accessToken, listType, difficulty, tag
 	} else if (listType === 'user_played') {
 		requestURL += '&type=user_played';
 		wantsAccessToken = true;
+	} else if (listType === 'tab_top_users') {
+		requestURL = server + 'get_top_users?limit=500';
 	} else if (listType) {
 		requestURL += '&type=' + listType;
 	}
