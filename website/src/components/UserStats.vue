@@ -29,11 +29,45 @@ export default {
 		finishes_tiers() {
 			return this.stats.levels_finished_by_difficulty_tier;
 		},
+		unrated_finishes() {
+			return (
+				(this.stats.levels_finished_unique ?? 0) -
+				(this.finishes_tiers.easy ?? 0) -
+				(this.finishes_tiers.medium ?? 0) -
+				(this.finishes_tiers.hard ?? 0) -
+				(this.finishes_tiers.veryhard ?? 0) -
+				(this.finishes_tiers.impossible ?? 0)
+			);
+		},
 		top_1_tiers() {
-			return this.stats.top1_by_difficulty_tier;
+			const tiers = this.stats.top1_by_difficulty_tier;
+			tiers.veryhard = (tiers.veryhard ?? 0) + (tiers.impossible ?? 0); // expected 0
+			return tiers;
+		},
+		unrated_top_1() {
+			return (
+				(this.stats.top1_total ?? 0) -
+				(this.top_1_tiers.easy ?? 0) -
+				(this.top_1_tiers.medium ?? 0) -
+				(this.top_1_tiers.hard ?? 0) -
+				(this.top_1_tiers.veryhard ?? 0) -
+				(this.top_1_tiers.impossible ?? 0)
+			);
 		},
 		top_10_tiers() {
-			return this.stats.top10_by_difficulty_tier;
+			const tiers = this.stats.top10_by_difficulty_tier;
+			tiers.veryhard = (tiers.veryhard ?? 0) + (tiers.impossible ?? 0); // expected 0
+			return tiers;
+		},
+		unrated_top_10() {
+			return (
+				(this.stats.top10_total ?? 0) -
+				(this.top_10_tiers.easy ?? 0) -
+				(this.top_10_tiers.medium ?? 0) -
+				(this.top_10_tiers.hard ?? 0) -
+				(this.top_10_tiers.veryhard ?? 0) -
+				(this.top_10_tiers.impossible ?? 0)
+			);
 		},
 		formatted_last_active() {
 			if (!this.stats.last_active_timestamp) return 'N/A';
@@ -43,6 +77,17 @@ export default {
 		finish_percentage() {
 			if (!this.stats.levels_played_unique || this.stats.levels_played_unique === 0) return 0;
 			return Math.round((this.stats.levels_finished_unique / this.stats.levels_played_unique) * 100);
+		},
+		finish_percentages() {
+			return {
+				...Object.fromEntries(
+					Object.entries(this.finishes_tiers).map(([key, value]) => {
+						const percentage = Math.round((value / this.stats.levels_played_unique) * 100);
+						return [key, percentage];
+					}),
+				),
+				unrated: Math.round((this.unrated_finishes / this.stats.levels_played_unique) * 100),
+			};
 		},
 	},
 	methods: {
@@ -102,12 +147,50 @@ export default {
 					<span class="total-num">{{ format_number(stats.levels_played_unique) }} Levels</span>
 				</div>
 				<div class="progress-bar-container">
-					<progress :value="stats.levels_finished_unique" :max="stats.levels_played_unique"></progress>
+					<div class="progress-segments">
+						<div
+							class="unrated"
+							:style="{
+								width: finish_percentages.unrated + '%',
+							}"
+						></div>
+						<div
+							class="easy"
+							:style="{
+								width: finish_percentages.easy + '%',
+							}"
+						></div>
+						<div
+							class="medium"
+							:style="{
+								width: finish_percentages.medium + '%',
+							}"
+						></div>
+						<div
+							class="hard"
+							:style="{
+								width: finish_percentages.hard + '%',
+							}"
+						></div>
+						<div
+							class="veryhard"
+							:style="{
+								width: finish_percentages.veryhard + '%',
+							}"
+						></div>
+						<div
+							class="impossible"
+							:style="{
+								width: finish_percentages.impossible + '%',
+							}"
+						></div>
+					</div>
 					<span class="progress-percent">{{ finish_percentage }}%</span>
 				</div>
 			</div>
 
 			<div class="tier-row">
+				<div class="unrated" title="Unrated">{{ format_number(unrated_finishes) }}</div>
 				<div class="easy" title="Easy">{{ format_number(finishes_tiers.easy) }}</div>
 				<div class="medium" title="Medium">{{ format_number(finishes_tiers.medium) }}</div>
 				<div class="hard" title="Hard">{{ format_number(finishes_tiers.hard) }}</div>
@@ -122,21 +205,21 @@ export default {
 				<div class="grid-label">World Records</div>
 				<div class="grid-total">{{ format_number(stats.top1_total) }}</div>
 				<div class="tier-row">
+					<div class="unrated">{{ format_number(unrated_top_1) }}</div>
 					<div class="easy">{{ format_number(top_1_tiers.easy) }}</div>
 					<div class="medium">{{ format_number(top_1_tiers.medium) }}</div>
 					<div class="hard">{{ format_number(top_1_tiers.hard) }}</div>
 					<div class="veryhard">{{ format_number(top_1_tiers.veryhard) }}</div>
-					<div class="impossible">{{ format_number(top_1_tiers.impossible) }}</div>
 				</div>
 
 				<div class="grid-label">Top 10s</div>
 				<div class="grid-total">{{ format_number(stats.top10_total) }}</div>
 				<div class="tier-row">
+					<div class="unrated">{{ format_number(unrated_top_10) }}</div>
 					<div class="easy">{{ format_number(top_10_tiers.easy) }}</div>
 					<div class="medium">{{ format_number(top_10_tiers.medium) }}</div>
 					<div class="hard">{{ format_number(top_10_tiers.hard) }}</div>
 					<div class="veryhard">{{ format_number(top_10_tiers.veryhard) }}</div>
-					<div class="impossible">{{ format_number(top_10_tiers.impossible) }}</div>
 				</div>
 			</div>
 		</div>
@@ -219,6 +302,7 @@ export default {
 <style scoped>
 /* layout */
 .stats-container {
+	--unrated: #969696;
 	--easy: #2bba84;
 	--medium: #e1c800;
 	--hard: #f19400;
@@ -257,7 +341,7 @@ h2 {
 .user-info {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	gap: 0.5rem;
 	font-size: 1.2em;
 }
 .user-name {
@@ -300,23 +384,21 @@ h2 {
 	align-items: center;
 	gap: 1rem;
 }
-.progress-percent {
-	font-weight: bold;
-}
-
-progress[value] {
+.progress-segments {
+	width: 100%;
 	flex-grow: 1;
 	height: 12px;
-	appearance: none;
-	border: none;
 	border-radius: 12px;
 	overflow: hidden;
+	background-color: var(--hover);
+	display: flex;
+	> div {
+		height: 100%;
+		background-color: var(--difficulty);
+	}
 }
-progress[value]::-webkit-progress-bar {
-	background-color: var(--red);
-}
-progress[value]::-webkit-progress-value {
-	background-color: var(--green);
+.progress-percent {
+	font-weight: bold;
 }
 
 .tier-row {
@@ -333,34 +415,38 @@ progress[value]::-webkit-progress-value {
 		color: #fff;
 		height: 2.5rem;
 		font-size: 1.1rem;
+		background-color: var(--difficulty);
 	}
 }
 
+.unrated {
+	--difficulty: var(--unrated);
+}
 .easy {
-	background-color: var(--easy);
+	--difficulty: var(--easy);
 }
 .medium {
-	background-color: var(--medium);
+	--difficulty: var(--medium);
 }
 .hard {
-	background-color: var(--hard);
+	--difficulty: var(--hard);
 }
 .veryhard {
-	background-color: var(--veryhard);
+	--difficulty: var(--veryhard);
 }
 .impossible {
-	background-color: var(--impossible);
+	--difficulty: var(--impossible);
 }
 
 .records-grid {
 	display: grid;
 	grid-template-columns: 120px 50px 1fr;
-	gap: 0.5rem;
+	gap: 0.75rem;
 	row-gap: 1.5rem;
 	align-items: center;
 }
 .grid-label {
-	font-weight: 700;
+	font-weight: 500;
 	font-size: 1.2rem;
 }
 .grid-total {
@@ -449,5 +535,33 @@ progress[value]::-webkit-progress-value {
 	color: white;
 	border-radius: 30px;
 	cursor: pointer;
+}
+
+@media screen and (max-width: 620px) {
+	.records-grid {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		.tier-row {
+			width: 100%;
+		}
+	}
+}
+@media screen and (max-width: 600px) {
+	.activity-grid {
+		flex-wrap: wrap;
+		gap: 1em;
+		column-gap: 0;
+	}
+	.activity-item {
+		width: 50%;
+	}
+}
+@media screen and (max-width: 510px) {
+	.two-col-grid {
+		grid-template-columns: 1fr;
+	}
 }
 </style>
