@@ -130,15 +130,12 @@ export default {
 				<span v-if="is_developer" title="Developer" class="developer-icon">D</span>
 				<span class="user-score">{{ format_number(Math.floor(stats.rating.total * 10) / 10) }}</span>
 			</div>
-			<a class="profile-button" :href="'levels?tab=tab_other_user&user_id=' + info.user_id"> View Levels </a>
+			<a class="profile-button" :href="'levels?tab=tab_other_user&user_id=' + info.user_id"> Levels </a>
 		</div>
 
 		<div class="stat-card finishes-card">
 			<div class="card-header">
 				<h2>Finishes</h2>
-				<span class="sub-stat"
-					>Firsts: <strong>{{ format_number(stats.first_finisher_count) }}</strong></span
-				>
 			</div>
 			<div class="main-progress-area">
 				<div class="progress-numbers">
@@ -354,9 +351,6 @@ h2 {
 	justify-content: space-between;
 	align-items: baseline;
 }
-.sub-stat {
-	opacity: 0.8;
-}
 
 .main-progress-area {
 	margin-bottom: 1.5rem;
@@ -529,7 +523,7 @@ h2 {
 	justify-content: center;
 }
 .profile-button {
-	padding: 0.6rem 1rem;
+	padding: 0.2rem 0.6rem;
 	font-weight: bold;
 	background-color: var(--blue);
 	color: white;
