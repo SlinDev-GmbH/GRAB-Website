@@ -997,7 +997,7 @@ function pointerLockChanged() {
 function backButtonPressed() {
 	let newURL = new URL(window.location);
 	newURL.pathname = '/levels';
-	if (userID !== undefined) newURL.search = '?tab=user&user_id=' + userID;
+	if (userID !== undefined) newURL.search = '?tab=tab_other_user&user_id=' + userID;
 	else newURL.search = '';
 	window.location.href = newURL.href;
 }
