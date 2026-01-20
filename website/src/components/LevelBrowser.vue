@@ -130,7 +130,7 @@ export default {
 					search,
 				};
 
-				this.tabChanged(query);
+				this.$router.push({ query });
 			}
 		},
 	},
