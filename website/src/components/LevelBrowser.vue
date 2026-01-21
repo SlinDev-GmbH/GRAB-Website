@@ -150,7 +150,8 @@ export default {
 		const user_id = query.user_id;
 		const search = query.search;
 		const list = query.list;
-		const tab = query.tab ?? 'tab_newest';
+		let tab = query.tab ?? 'tab_newest';
+		if (tab === 'user') tab = 'tab_other_user';
 		const new_query = { tab };
 		if (search) new_query.search = search;
 		if (user_id) new_query.user_id = user_id;
