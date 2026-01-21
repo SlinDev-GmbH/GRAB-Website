@@ -9,7 +9,7 @@ import LegalTerms from './LegalTerms.vue';
 import DropDown from './DropDown.vue';
 import LoginButton from './LoginButton.vue';
 
-import { GetCuratedListsRequest } from '../requests/GetCuratedListsRequest';
+import { GetCuratedListsRequest } from '../requests/curation/GetCuratedListsRequest';
 
 export default {
 	components: {
@@ -33,7 +33,7 @@ export default {
 	},
 
 	async created() {
-		const result = await GetCuratedListsRequest(this.$api_server_url);
+		const result = await GetCuratedListsRequest();
 		if (result) {
 			this.typesList = result;
 			this.type = this.typesList[0] || 'Error';

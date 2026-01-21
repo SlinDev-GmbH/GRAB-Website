@@ -5,8 +5,8 @@ import * as THREE from 'three';
 import { OrbitControls } from '../src/assets/OrbitContols.js';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 
-import { getShopItemsRequest } from '../src/requests/GetShopItemsRequest.js';
-import { getUserInfoRequest } from '../src/requests/GetUserInfoRequest.js';
+import { GetShopItemsRequest } from '../src/requests/shop/GetShopItemsRequest.js';
+import { GetUserInfoRequest } from '../src/requests/users/GetUserInfoRequest.js';
 import { Player } from '../src/assets/Player.js';
 import PlayerToolsContent from './components/PlayerToolsContent.vue';
 import MeshUtils from '../src/assets/MeshUtils.js';
@@ -58,11 +58,11 @@ export default {
 		this.ToolsButtons[0].href = `${window.location.origin}/levels?tab=tab_other_user&user_id=${user_id}`;
 	},
 	async mounted() {
-		const items = await getShopItemsRequest(this.$api_server_url);
+		const items = await GetShopItemsRequest();
 		this.itemsList = items;
 
 		if (this.$route.query.user_id) {
-			const userData = await getUserInfoRequest(this.$api_server_url);
+			const userData = await GetUserInfoRequest(this.$route.query.user_id);
 			this.playerInfo = userData;
 			this.playerItems = userData.active_customizations.items;
 		}

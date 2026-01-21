@@ -1,5 +1,5 @@
 <script>
-import { getLevelCountRequest } from '../requests/GetLevelCountRequest.js';
+import { GetLevelCountRequest } from '../requests/lists/GetLevelCountRequest.js';
 import { useUserStore } from '@/stores/user';
 
 export default {
@@ -28,7 +28,7 @@ export default {
 				this.count = userStore.favoriteLevels.length;
 			} else {
 				const currentTab = this.tagString;
-				const result = await getLevelCountRequest(this.$api_server_url, this.tagString);
+				const result = await GetLevelCountRequest(this.tagString);
 				if (result !== false && currentTab === this.tagString) this.count = result;
 			}
 		},

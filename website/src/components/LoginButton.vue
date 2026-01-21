@@ -28,7 +28,7 @@ export default {
 
 		const userStore = useUserStore();
 		await userStore.fetchUser(this.$api_server_url, authInfo);
-		await userStore.fetchUsersFavorites(this.$api_server_url, this.$max_level_format_version);
+		await userStore.fetchUsersFavorites();
 	},
 
 	computed: {

@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { unhideLevelRequest } from '../requests/UnhideLevelRequest';
+import { UnhideLevelRequest } from '../requests/levels/UnhideLevelRequest';
 
 export default {
 	emits: ['hide'],
@@ -16,7 +16,7 @@ export default {
 
 	methods: {
 		async doModerationAction() {
-			if (await unhideLevelRequest(this.$api_server_url, this.accessToken, this.level_id)) {
+			if (await UnhideLevelRequest(this.level_id)) {
 				this.$emit('hide');
 			}
 			return;

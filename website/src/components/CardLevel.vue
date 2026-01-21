@@ -1,6 +1,6 @@
 <script>
-import { GetLevelReportInfoRequest } from '../requests/GetLevelReportInfoRequest.js';
-import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js';
+import { GetLevelReportInfoRequest } from '../requests/levels/GetLevelReportInfoRequest.js';
+import { GetLevelDetailsRequest } from '../requests/levels/GetLevelDetailsRequest.js';
 
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
@@ -158,7 +158,7 @@ export default {
 		async getAllReportImages() {
 			if (this.thumbLoaded == true) return;
 			this.thumbLoaded = true;
-			const report_info = await GetLevelReportInfoRequest(this.$api_server_url, this.item.identifier, this.accessToken);
+			const report_info = await GetLevelReportInfoRequest(this.item.identifier);
 			const keys = [];
 			if ('images' in report_info) {
 				for (let i in report_info.images) {
@@ -171,7 +171,7 @@ export default {
 		},
 		async fetchFallbackThumbnail(levelIdentifier) {
 			try {
-				const response = await GetLevelDetailsRequest(this.$api_server_url, levelIdentifier.replace(':', '/'));
+				const response = await GetLevelDetailsRequest(levelIdentifier.replace(':', '/'));
 				if (response.images?.thumb) {
 					this.images = response.images;
 					return true;

@@ -12,7 +12,7 @@ import SetDeveloperButton from './SetDeveloperButton.vue';
 import GiftCosmeticButton from './GiftCosmeticButton.vue';
 import SetComplexityOverrideButton from './SetComplexityOverrideButton.vue';
 
-import { removeModerationActionRequest } from '../requests/RemoveModerationActionRequest';
+import { RemoveModerationActionRequest } from '../requests/users/RemoveModerationActionRequest';
 
 export default {
 	components: {
@@ -55,7 +55,7 @@ export default {
 
 		async removeModerationAction() {
 			const userID = this.userInfo.user_id;
-			if (!(await removeModerationActionRequest(this.$api_server_url, this.accessToken, userID))) return;
+			if (!(await RemoveModerationActionRequest(userID))) return;
 			this.$emit('handled', false);
 		},
 	},

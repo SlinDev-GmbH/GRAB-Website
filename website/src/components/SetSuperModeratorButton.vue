@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setSuperModerator } from '../requests/SetSuperModerator.js';
+import { SetIsSuperModeratorRequest } from '../requests/roles/SetIsSuperModeratorRequest.js';
 
 export default {
 	emits: ['change'],
@@ -17,7 +17,7 @@ export default {
 
 	methods: {
 		async toggleSuperModerator() {
-			if (!(await setSuperModerator(this.$api_server_url, this.accessToken, this.userID, !this.isSuperModerator))) return;
+			if (!(await SetIsSuperModeratorRequest(this.userID, !this.isSuperModerator))) return;
 			this.$emit('change');
 		},
 	},

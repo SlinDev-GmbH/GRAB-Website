@@ -4,11 +4,11 @@ import { useUserStore } from '@/stores/user';
 
 import DropDown from './DropDown.vue';
 
-import { reportLevelRequest } from '../requests/ReportLevelRequest';
-import { hideLevelRequest } from '../requests/HideLevelRequest';
-import { resetReportsRequest } from '../requests/ResetReportsRequest';
-import { moderationActionRequest } from '../requests/ModerationActionRequest';
-import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest';
+import { ReportLevelRequest } from '../requests/levels/ReportLevelRequest';
+import { HideLevelRequest } from '../requests/levels/HideLevelRequest';
+import { ResetReportsRequest } from '../requests/users/ResetReportsRequest';
+import { ModerationActionRequest } from '../requests/users/ModerationActionRequest';
+import { GetLevelDetailsRequest } from '../requests/levels/GetLevelDetailsRequest';
 
 export default {
 	components: {
@@ -73,11 +73,11 @@ export default {
 			const reason = this.options.find((o) => o.title == this.currentSelection)?.reason || '';
 			this.$emit('close');
 			if (this.config === 'level_hide') {
-				if (!(await hideLevelRequest(this.$api_server_url, this.accessToken, this.identifier))) return; //Hide the level and reset reports on it
+				if (!(await HideLevelRequest(this.identifier))) return; //Hide the level and reset reports on it
 
 				let noPunish = reason === 'no_punish';
 				if (reason === 'level_tips') {
-					const result = await GetLevelDetailsRequest(this.$api_server_url, this.identifier);
+					const result = await GetLevelDetailsRequest(this.identifier);
 					if (result) {
 						if ('levellist_newest_key' in result) {
 							const reverseTimestamp = result.levellist_newest_key.split(':')[0];
@@ -93,20 +93,18 @@ export default {
 				const userID = this.identifier.split(':')[0];
 
 				if (!noPunish || this.message) {
-					if (!(await moderationActionRequest(this.$api_server_url, this.accessToken, userID, reason, 0, this.message))) return;
+					if (!(await ModerationActionRequest(userID, reason, 0, this.message))) return;
 				}
 
-				if (!(await resetReportsRequest(this.$api_server_url, this.accessToken, userID))) return; //This just resets reports on the user (since a moderation action is being taken on them alread)
+				if (!(await ResetReportsRequest(userID))) return; //This just resets reports on the user (since a moderation action is being taken on them alread)
 			} else if (this.config === 'level_report') {
-				if (!(await reportLevelRequest(this.$api_server_url, this.accessToken, this.identifier, reason.replace('level_', ''))))
-					return;
+				if (!(await ReportLevelRequest(this.identifier, reason.replace('level_', '')))) return;
 			} else if (this.config === 'user_ban') {
 				const duration = this.banDuration * 24 * 60 * 60;
-				if (!(await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, reason, duration))) return;
-				if (!(await resetReportsRequest(this.$api_server_url, this.accessToken, this.identifier))) return;
+				if (!(await ModerationActionRequest(this.identifier, reason, duration))) return;
+				if (!(await ResetReportsRequest(this.identifier))) return;
 			} else if (this.config === 'user_message') {
-				if (!(await moderationActionRequest(this.$api_server_url, this.accessToken, this.identifier, 'no_punish', 0, this.message)))
-					return;
+				if (!(await ModerationActionRequest(this.identifier, 'no_punish', 0, this.message))) return;
 			}
 			this.$emit('handled', true);
 		},

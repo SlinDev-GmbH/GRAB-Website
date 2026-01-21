@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { GetLevelBrowserRequest } from '../requests/GetLevelBrowserRequest';
+import { GetLevelBrowserRequest } from '../requests/lists/GetLevelBrowserRequest';
 import ScrollList from './ScrollList.vue';
 
 export default {
@@ -34,7 +34,7 @@ export default {
 
 	methods: {
 		async loadFeatured() {
-			const result = await GetLevelBrowserRequest(this.$api_server_url);
+			const result = await GetLevelBrowserRequest();
 			if (result !== false) {
 				return result;
 			}

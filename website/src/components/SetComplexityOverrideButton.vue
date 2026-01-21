@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setComplexityOverride } from '../requests/SetComplexityOverride.js';
+import { SetComplexityOverrideRequest } from '../requests/users/SetComplexityOverrideRequest.js';
 
 export default {
 	props: {
@@ -22,7 +22,7 @@ export default {
 
 	methods: {
 		async setComplexity(complexity) {
-			await setComplexityOverride(this.$api_server_url, this.accessToken, this.userID, complexity);
+			await SetComplexityOverrideRequest(this.userID, complexity);
 			this.showPopup = false;
 		},
 	},

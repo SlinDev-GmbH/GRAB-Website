@@ -1,7 +1,7 @@
 <script>
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { RemoveCuratedListRequest } from '../requests/RemoveCuratedListRequest.js';
+import { RemoveCuratedListRequest } from '../requests/curation/RemoveCuratedListRequest.js';
 
 export default {
 	computed: {
@@ -18,7 +18,7 @@ export default {
 			}
 			const name = prompt('Please enter the name of the list to remove:');
 			if (name) {
-				const result = await RemoveCuratedListRequest(this.$api_server_url, this.accessToken, name);
+				const result = await RemoveCuratedListRequest(name);
 				if (result) {
 					this.$emit('handled', result);
 				}

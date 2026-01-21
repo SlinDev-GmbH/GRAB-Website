@@ -6,9 +6,9 @@ import PurchaseHistory from './PurchaseHistory.vue';
 import ModerationHistory from './ModerationHistory.vue';
 import PrefabsList from './PrefabsList.vue';
 
-import { getUserInfoRequest } from '../requests/GetUserInfoRequest.js';
-import { getUserInfoAdminRequest } from '../requests/GetUserInfoAdminRequest.js';
-import { getPrefabListRequest } from '../requests/GetPrefabListRequest.js';
+import { GetUserInfoRequest } from '../requests/users/GetUserInfoRequest.js';
+import { GetUserInfoAdminRequest } from '../requests/users/GetUserInfoAdminRequest.js';
+import { GetPrefabListRequest } from '../requests/prefabs/GetPrefabListRequest.js';
 
 export default {
 	components: {
@@ -65,7 +65,7 @@ export default {
 
 			const currentUserID = this.otherUserID ? this.otherUserID : this.userID;
 			if (!currentUserID) return;
-			const userInfo = await getUserInfoRequest(this.$api_server_url, currentUserID);
+			const userInfo = await GetUserInfoRequest(currentUserID);
 			if (userInfo === false || currentUserID !== (this.otherUserID ? this.otherUserID : this.userID)) return;
 			console.log(userInfo);
 			this.userInfo = userInfo;
@@ -85,7 +85,7 @@ export default {
 
 		async getUserInfoAdmin() {
 			if (!this.userInfoAdmin) {
-				this.userInfoAdmin = await getUserInfoAdminRequest(this.$api_server_url, this.accessToken, this.identifier);
+				this.userInfoAdmin = await GetUserInfoAdminRequest(this.identifier);
 			}
 		},
 
@@ -106,14 +106,7 @@ export default {
 
 		async getPrefabsList(keys_only) {
 			if (!this.prefabsList || this.keys_only !== keys_only) {
-				this.prefabsList = await getPrefabListRequest(
-					this.$api_server_url,
-					this.accessToken,
-					this.identifier,
-					this.$max_level_format_version,
-					undefined,
-					keys_only,
-				);
+				this.prefabsList = await GetPrefabListRequest(this.identifier, undefined, keys_only);
 			}
 			this.keys_only = keys_only;
 		},
@@ -121,14 +114,7 @@ export default {
 		async getRestOfPrefabs(keys_only) {
 			while (this.prefabsList[this.prefabsList.length - 1]?.cursor) {
 				const cursor = this.prefabsList[this.prefabsList.length - 1].cursor;
-				const nextList = await getPrefabListRequest(
-					this.$api_server_url,
-					this.accessToken,
-					this.identifier,
-					this.$max_level_format_version,
-					cursor,
-					keys_only,
-				);
+				const nextList = await GetPrefabListRequest(this.identifier, cursor, keys_only);
 				this.prefabsList = this.prefabsList.concat(nextList);
 			}
 		},

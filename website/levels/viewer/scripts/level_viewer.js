@@ -14,26 +14,25 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 
 import ToastNotifier from '../../../src/components/ToastNotifier.vue';
 
-// TODO: fix inconsistent naming
-import { setCreator } from '../../../src/requests/SetCreator.js';
-import { GetLevelDetailsRequest } from '../../../src/requests/GetLevelDetailsRequest.js';
-import { GetLevelBrowserRequest } from '../../../src/requests/GetLevelBrowserRequest.js';
-import { setLevelTagsRequest } from '../../../src/requests/SetLevelTagsRequest.js';
-import { removeLevelFromVerificationQueueRequest } from '../../../src/requests/RemoveLevelFromVerificationQueueRequest.js';
-import { hideLevelRequest } from '../../../src/requests/HideLevelRequest.js';
-import { moderationActionRequest } from '../../../src/requests/ModerationActionRequest.js';
-import { resetReportsRequest } from '../../../src/requests/ResetReportsRequest.js';
-import { approveLevelRequest } from '../../../src/requests/ApproveLevelRequest.js';
-import { GetLevelReportInfoRequest } from '../../../src/requests/GetLevelReportInfoRequest.js';
-import { getLevelStatisticsRequest } from '../../../src/requests/GetLevelStatisticsRequest.js';
-import { setUserFavorites } from '../../../src/requests/SetUserFavoritesRequest.js';
-import { removeUserFavorites } from '../../../src/requests/RemoveUserFavoritesRequest.js';
-import { reportLevelRequest } from '../../../src/requests/ReportLevelRequest.js';
-import { getLevelLeaderboardRequest } from '../../../src/requests/GetLevelLeaderboardRequest.js';
-import { getLevelReplayRequest } from '../../../src/requests/GetLevelReplayRequest.js';
-import { removeLevelRecordRequest } from '../../../src/requests/RemoveLevelRecordRequest.js';
-import { downloadLevelRequest } from '../../../src/requests/DownloadLevelRequest.js';
-import { getBestTimeReplayRequest } from '../../../src/requests/GetBestTimeReplayRequest.js';
+import { SetIsCreatorRequest } from '../../../src/requests/roles/SetIsCreatorRequest.js';
+import { GetLevelDetailsRequest } from '../../../src/requests/levels/GetLevelDetailsRequest.js';
+import { GetLevelBrowserRequest } from '../../../src/requests/lists/GetLevelBrowserRequest.js';
+import { SetLevelTagsRequest } from '../../../src/requests/levels/SetLevelTagsRequest.js';
+import { RemoveLevelFromVerificationQueueRequest } from '../../../src/requests/levels/RemoveLevelFromVerificationQueueRequest.js';
+import { HideLevelRequest } from '../../../src/requests/levels/HideLevelRequest.js';
+import { ModerationActionRequest } from '../../../src/requests/users/ModerationActionRequest.js';
+import { ResetReportsRequest } from '../../../src/requests/users/ResetReportsRequest.js';
+import { ApproveLevelRequest } from '../../../src/requests/levels/ApproveLevelRequest.js';
+import { GetLevelReportInfoRequest } from '../../../src/requests/levels/GetLevelReportInfoRequest.js';
+import { GetLevelStatisticsRequest } from '../../../src/requests/levels/GetLevelStatisticsRequest.js';
+import { SetUserFavoritesRequest } from '../../../src/requests/users/SetUserFavoritesRequest.js';
+import { RemoveUserFavoritesRequest } from '../../../src/requests/users/RemoveUserFavoritesRequest.js';
+import { ReportLevelRequest } from '../../../src/requests/levels/ReportLevelRequest.js';
+import { GetLevelLeaderboardRequest } from '../../../src/requests/levels/GetLevelLeaderboardRequest.js';
+import { GetLevelReplayRequest } from '../../../src/requests/levels/GetLevelReplayRequest.js';
+import { RemoveLevelRecordRequest } from '../../../src/requests/levels/RemoveLevelRecordRequest.js';
+import { DownloadLevelRequest } from '../../../src/requests/levels/DownloadLevelRequest.js';
+import { GetBestTimeReplayRequest } from '../../../src/requests/levels/GetBestTimeReplayRequest.js';
 
 import imageStampOk from '../../../src/assets/icons/checkmark.svg';
 import imageReport from '../../../src/assets/icons/report.svg';
@@ -121,7 +120,7 @@ async function init() {
 	let levelIdentifierParts = levelIdentifier.split(':');
 	let hasIteration = levelIdentifierParts.length === 3;
 
-	let detailResponseBody = await GetLevelDetailsRequest(config.SERVER_URL, levelIdentifier);
+	let detailResponseBody = await GetLevelDetailsRequest(levelIdentifier);
 	userID = levelIdentifierParts[0];
 	console.log(userID);
 	let is_verified = detailResponseBody?.tags?.includes?.('ok');
@@ -151,7 +150,7 @@ async function init() {
 		levelIdentifier = identifier_parts.join(':');
 	}
 
-	let responseBody = await downloadLevelRequest(config.SERVER_URL, levelIdentifier);
+	let responseBody = await DownloadLevelRequest(levelIdentifier);
 	let formattedBuffer = new Uint8Array(responseBody);
 	window._levelLoader.config({
 		sky: true,
@@ -230,7 +229,7 @@ async function init() {
 		tagButton.style.display = 'block';
 		tagButton.addEventListener('click', async () => {
 			tagMenuInner.innerHTML = '';
-			const levelBrowser = await GetLevelBrowserRequest(config.SERVER_URL);
+			const levelBrowser = await GetLevelBrowserRequest();
 			const tags = levelBrowser.tags;
 			const tagCheckboxes = [];
 			for (const tag of tags) {
@@ -290,13 +289,7 @@ async function init() {
 			tagMenuInner.appendChild(submitTagsButton);
 			submitTagsButton.addEventListener('click', async () => {
 				levelUserTags = tagCheckboxes.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.name.split('-')[1]);
-				let success = await setLevelTagsRequest(
-					config.SERVER_URL,
-					accessToken,
-					levelIdentifier,
-					is_verified ? ['ok'] : [],
-					levelUserTags,
-				);
+				let success = await SetLevelTagsRequest(levelIdentifier, is_verified ? ['ok'] : [], levelUserTags);
 				if (success) {
 					tagMenu.style.display = 'none';
 				}
@@ -352,13 +345,13 @@ async function init() {
 			if (isLoadingVerification) return;
 			isLoadingVerification = true;
 
-			let success = await setLevelTagsRequest(config.SERVER_URL, accessToken, levelIdentifier, ['ok'], null);
+			let success = await SetLevelTagsRequest(levelIdentifier, ['ok'], null);
 			if (success) {
 				verifyButton.style.display = 'none';
 				unverifyButton.style.display = 'block';
 				is_verified = true;
 
-				let queueSuccess = await removeLevelFromVerificationQueueRequest(config.SERVER_URL, accessToken, levelIdentifier);
+				let queueSuccess = await RemoveLevelFromVerificationQueueRequest(levelIdentifier);
 				if (queueSuccess) {
 					verifySkipSuccessButton.style.display = 'block';
 					verifySkipButton.style.display = 'none';
@@ -371,7 +364,7 @@ async function init() {
 			if (isLoadingVerification) return;
 			isLoadingVerification = true;
 
-			let success = await setLevelTagsRequest(config.SERVER_URL, accessToken, levelIdentifier, [], null);
+			let success = await SetLevelTagsRequest(levelIdentifier, [], null);
 			if (success) {
 				verifyButton.style.display = 'block';
 				unverifyButton.style.display = 'none';
@@ -384,7 +377,7 @@ async function init() {
 		verifySkipButton.addEventListener('click', async () => {
 			if (wasSkipped) return;
 			wasSkipped = true;
-			let queueSuccess = await removeLevelFromVerificationQueueRequest(config.SERVER_URL, accessToken, levelIdentifier);
+			let queueSuccess = await RemoveLevelFromVerificationQueueRequest(levelIdentifier);
 			if (queueSuccess) {
 				verifySkipSuccessButton.style.display = 'block';
 				verifySkipButton.style.display = 'none';
@@ -411,29 +404,29 @@ async function init() {
 				}
 			}
 
-			let success = await hideLevelRequest(config.SERVER_URL, accessToken, levelIdentifier);
+			let success = await HideLevelRequest(levelIdentifier);
 			if (success) {
 				if (noPunish) {
 					hideContainer.style.display = 'none';
 				} else {
-					let actionSuccess = await moderationActionRequest(config.SERVER_URL, accessToken, levelIdentifierParts[0], reason);
+					let actionSuccess = await ModerationActionRequest(levelIdentifierParts[0], reason);
 					if (actionSuccess) {
 						hideContainer.style.display = 'none';
 					}
-					await resetReportsRequest(config.SERVER_URL, accessToken, levelIdentifierParts[0]);
+					await ResetReportsRequest(levelIdentifierParts[0]);
 				}
 			}
 		});
 
 		const approveButton = document.getElementById('approveButton');
 		approveButton.addEventListener('click', async () => {
-			let success = await approveLevelRequest(config.SERVER_URL, accessToken, levelIdentifier);
+			let success = await ApproveLevelRequest(levelIdentifier);
 			if (success) {
 				hideContainer.style.display = 'none';
 			}
 		});
 
-		let reports_data = await GetLevelReportInfoRequest(config.SERVER_URL, levelIdentifier, accessToken);
+		let reports_data = await GetLevelReportInfoRequest(accessToken);
 		if (reports_data?.object_info) {
 			const reportElement = document.getElementById('reports');
 			reportElement.style.display = 'block';
@@ -474,7 +467,7 @@ async function init() {
 		let creatorButton = document.getElementById('make-creator-button');
 		creatorButton.style.display = 'block';
 		creatorButton.addEventListener('click', async () => {
-			await setCreator(config.SERVER_URL, accessToken, levelIdentifierParts[0], true);
+			await SetIsCreatorRequest(levelIdentifierParts[0], true);
 		});
 	}
 
@@ -697,7 +690,7 @@ async function init() {
 	difficultyLabel.classList.add('difficulty-' + difficulty.replaceAll(' ', '_'));
 
 	// get level statistics
-	let statisticsData = await getLevelStatisticsRequest(config.SERVER_URL, levelIdentifier);
+	let statisticsData = await GetLevelStatisticsRequest(levelIdentifier);
 	if (statisticsData) {
 		var totalFinishedLabel = document.getElementById('total finished count');
 		totalFinishedLabel.innerHTML =
@@ -735,7 +728,7 @@ async function init() {
 		}
 
 		favoriteButton.addEventListener('click', async () => {
-			let success = await setUserFavorites(config.SERVER_URL, levelIdentifier, accessToken);
+			let success = await SetUserFavoritesRequest(levelIdentifier);
 			if (success) {
 				favoriteButton.style.display = 'none';
 				unfavoriteButton.style.display = 'flex';
@@ -744,7 +737,7 @@ async function init() {
 		});
 
 		unfavoriteButton.addEventListener('click', async () => {
-			let success = await removeUserFavorites(config.SERVER_URL, levelIdentifier, accessToken);
+			let success = await RemoveUserFavoritesRequest(levelIdentifier);
 			if (success) {
 				favoriteButton.style.display = 'flex';
 				unfavoriteButton.style.display = 'none';
@@ -765,12 +758,11 @@ async function init() {
 				violence: 'Detailed Violence',
 				hatespeech: 'Offensive Language',
 				loweffort: 'Very low effort level',
-				glitch: 'Requires to use a Glitch to finish',
 				tips: 'Asking for Tips',
 				other: 'Other',
 			};
 			let onOk = async (value, image) => {
-				await reportLevelRequest(config.SERVER_URL, accessToken, levelIdentifier, value, image);
+				await ReportLevelRequest(levelIdentifier, value, image);
 			};
 			showOptionsDialog('Report Level', 'Why should this level be removed?', reasonMapping, onOk);
 		});
@@ -1086,7 +1078,7 @@ async function handleLeaderboardQuery(e) {
 	const params = new URLSearchParams(window.location.search);
 	const id = params.get('level');
 
-	const entry = await getBestTimeReplayRequest(config.SERVER_URL, id, query);
+	const entry = await GetBestTimeReplayRequest(id, query);
 	if (!entry) return;
 
 	const row = buildLeaderboardCell(
@@ -1127,7 +1119,7 @@ function closeLeaderboard() {
 async function loadLeaderboardData() {
 	const urlParams = new URLSearchParams(window.location.search);
 	let levelIdentifier = urlParams.get('level');
-	let leardeboard = await getLevelLeaderboardRequest(config.SERVER_URL, levelIdentifier);
+	let leardeboard = await GetLevelLeaderboardRequest(levelIdentifier);
 	if (leardeboard) {
 		displayLeaderboardData(leardeboard);
 	}
@@ -1258,7 +1250,7 @@ async function playReplay(replayKey) {
 
 			let replay = replayCache[replayKey];
 			if (!replay) {
-				const responseBody = await getLevelReplayRequest(config.DATA_URL, replayKey);
+				const responseBody = await GetLevelReplayRequest(replayKey);
 				const formattedBuffer = new Uint8Array(responseBody);
 				const inflated = inflate(formattedBuffer);
 				replay = ReplayMessage.decode(inflated);
@@ -1339,11 +1331,10 @@ async function removeLeaderboardTimes() {
 	pinia.use(piniaPluginPersistedstate);
 	const app = createApp(App);
 	app.use(pinia);
-	const userStore = useUserStore(pinia);
 	const urlParams = new URLSearchParams(window.location.search);
 	let levelIdentifier = urlParams.get('level');
 	for (let i = 0; i < removedTimes.length; i++) {
-		let success = await removeLevelRecordRequest(config.SERVER_URL, userStore.accessToken, levelIdentifier, removedTimes[i][0]);
+		let success = await RemoveLevelRecordRequest(levelIdentifier, removedTimes[i][0]);
 		if (success) {
 			removedTimes[i][1].remove();
 		} else {

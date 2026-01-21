@@ -1,7 +1,7 @@
 <script>
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { AddCuratedListRequest } from '../requests/AddCuratedListRequest.js';
+import { AddCuratedListRequest } from '../requests/curation/AddCuratedListRequest.js';
 
 export default {
 	computed: {
@@ -18,7 +18,7 @@ export default {
 			}
 			const name = prompt('Please enter the name of the new list:');
 			if (name) {
-				const result = await AddCuratedListRequest(this.$api_server_url, this.accessToken, name);
+				const result = await AddCuratedListRequest(name);
 				if (result) {
 					this.$emit('handled', result);
 				}

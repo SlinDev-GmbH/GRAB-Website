@@ -2,8 +2,8 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setLevelTagsRequest } from '../requests/SetLevelTagsRequest.js';
-import { removeLevelFromVerificationQueueRequest } from '../requests/RemoveLevelFromVerificationQueueRequest.js';
+import { SetLevelTagsRequest } from '../requests/levels/SetLevelTagsRequest.js';
+import { RemoveLevelFromVerificationQueueRequest } from '../requests/levels/RemoveLevelFromVerificationQueueRequest.js';
 
 export default {
 	props: {
@@ -36,14 +36,14 @@ export default {
 
 			const oldState = this.isVerified;
 			this.isVerified = !this.isVerified;
-			if (!(await setLevelTagsRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier, newModTags, undefined))) {
+			if (!(await SetLevelTagsRequest(this.levelInfo.identifier, newModTags, undefined))) {
 				//Reset to previous state if an error was encountered
 				this.isVerified = oldState;
 				return;
 			}
 			this.isLoading = false;
 
-			if (await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier)) {
+			if (await RemoveLevelFromVerificationQueueRequest(this.levelInfo.identifier)) {
 				this.$emit('skipped');
 			}
 		},

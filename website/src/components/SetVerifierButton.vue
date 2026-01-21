@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setVerifier } from '../requests/SetVerifier.js';
+import { SetIsVerifierRequest } from '../requests/roles/SetIsVerifierRequest.js';
 
 export default {
 	emits: ['change'],
@@ -17,7 +17,7 @@ export default {
 
 	methods: {
 		async toggleVerifier() {
-			if (!(await setVerifier(this.$api_server_url, this.accessToken, this.userID, !this.isVerifier))) return;
+			if (!(await SetIsVerifierRequest(this.userID, !this.isVerifier))) return;
 			this.$emit('change');
 		},
 	},

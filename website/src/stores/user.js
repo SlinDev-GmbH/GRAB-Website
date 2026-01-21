@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { listRequest } from '../requests/ListRequest';
+import { ListRequest } from '../requests/lists/ListRequest';
 
 export const useUserStore = defineStore('user', {
 	state: () => ({
@@ -95,17 +95,9 @@ export const useUserStore = defineStore('user', {
 				}
 			}
 		},
-		async fetchUsersFavorites(serverURL, maxLevelFormatVersion) {
+		async fetchUsersFavorites() {
 			if (this.accessToken) {
-				const favoriteLevels = await listRequest(
-					serverURL,
-					this.accessToken,
-					'tab_favorite_levels',
-					null,
-					maxLevelFormatVersion,
-					null,
-					null,
-				);
+				const favoriteLevels = await ListRequest('tab_favorite_levels');
 				if (favoriteLevels !== false) {
 					this.favoriteLevels = favoriteLevels.map((level) => level.identifier);
 				}

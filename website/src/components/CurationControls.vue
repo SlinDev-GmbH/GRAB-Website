@@ -1,10 +1,10 @@
 <script>
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { AddToCuratedListRequest } from '../requests/AddToCuratedListRequest.js';
-import { RemoveFromCuratedListRequest } from '../requests/RemoveFromCuratedListRequest.js';
-import { GetLevelDetailsRequest } from '../requests/GetLevelDetailsRequest.js';
-import { listRequest } from '../requests/ListRequest';
+import { AddToCuratedListRequest } from '../requests/curation/AddToCuratedListRequest.js';
+import { RemoveFromCuratedListRequest } from '../requests/curation/RemoveFromCuratedListRequest.js';
+import { GetLevelDetailsRequest } from '../requests/levels/GetLevelDetailsRequest.js';
+import { ListRequest } from '../requests/lists/ListRequest';
 import CurationLevelCard from './CurationLevelCard.vue';
 
 export default {
@@ -42,15 +42,7 @@ export default {
 	methods: {
 		async updateType() {
 			if (this.type) {
-				const result = await listRequest(
-					this.$api_server_url,
-					this.accessToken,
-					`curated_${this.type}`,
-					false,
-					this.$max_level_format_version,
-					false,
-					false,
-				);
+				const result = await ListRequest(`curated_${this.type}`);
 				if (result) {
 					this.oldLevelList = result;
 					this.levelList = this.oldLevelList.slice();
@@ -65,7 +57,7 @@ export default {
 				for (const id of ids) {
 					let parts = id.split('level=');
 					let levelId = parts[1];
-					const results = await GetLevelDetailsRequest(this.$api_server_url, levelId);
+					const results = await GetLevelDetailsRequest(levelId);
 					if (results) {
 						this.levelList.push(results);
 					}
@@ -123,16 +115,14 @@ export default {
 				let levelId = this.levelList[i]['identifier'];
 				let position = this.oldLevelList.findIndex((obj) => obj.identifier === levelId);
 				if (position !== i) {
-					requests.push(
-						AddToCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type, i.toString().padStart(8, '0')),
-					);
+					requests.push(AddToCuratedListRequest(levelId, this.type, i.toString().padStart(8, '0')));
 				}
 			}
 			for (let i = 0; i < this.oldLevelList.length; i++) {
 				let levelId = this.oldLevelList[i]['identifier'];
 				let position = this.levelList.findIndex((obj) => obj.identifier === levelId);
 				if (position === -1) {
-					requests.push(RemoveFromCuratedListRequest(this.$api_server_url, this.accessToken, levelId, this.type));
+					requests.push(RemoveFromCuratedListRequest(levelId, this.type));
 				}
 			}
 

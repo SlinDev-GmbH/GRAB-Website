@@ -1,8 +1,8 @@
 <script>
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
-import { setUserFavorites } from '../requests/SetUserFavoritesRequest.js';
-import { removeUserFavorites } from '../requests/RemoveUserFavoritesRequest.js';
+import { SetUserFavoritesRequest } from '../requests/users/SetUserFavoritesRequest.js';
+import { RemoveUserFavoritesRequest } from '../requests/users/RemoveUserFavoritesRequest.js';
 
 export default {
 	props: {
@@ -21,7 +21,7 @@ export default {
 		async addFavoriteLevel() {
 			if (this.accessToken) {
 				const userStore = useUserStore();
-				const result = await setUserFavorites(this.$api_server_url, this.level_id, this.accessToken);
+				const result = await SetUserFavoritesRequest(this.level_id);
 				if (result === true) {
 					userStore.addFavoriteLevel(this.level_id);
 				}
@@ -30,7 +30,7 @@ export default {
 		async removeFavoriteLevel() {
 			if (this.accessToken) {
 				const userStore = useUserStore();
-				const result = await removeUserFavorites(this.$api_server_url, this.level_id, this.accessToken);
+				const result = await RemoveUserFavoritesRequest(this.level_id);
 				if (result === true) {
 					userStore.removeFavoriteLevel(this.level_id);
 				}

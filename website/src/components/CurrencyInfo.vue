@@ -2,7 +2,7 @@
 import { useUserStore } from '@/stores/user';
 import { mapState } from 'pinia';
 
-import { getUserCurrencyRequest } from '../requests/GetUserCurrencyRequest.js';
+import { GetUserCurrencyRequest } from '../requests/users/GetUserCurrencyRequest.js';
 
 export default {
 	data() {
@@ -35,7 +35,7 @@ export default {
 	},
 
 	async mounted() {
-		this.currencyData = await getUserCurrencyRequest(this.$api_server_url, this.accessToken);
+		this.currencyData = await GetUserCurrencyRequest();
 	},
 };
 </script>

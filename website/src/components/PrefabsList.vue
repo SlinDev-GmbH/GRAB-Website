@@ -5,12 +5,12 @@ import { mapState } from 'pinia';
 import { LevelLoader } from '../assets/LevelLoader.js';
 import * as THREE from 'three';
 
-import { prefabBlockRequest } from '../requests/PrefabBlockRequest.js';
-import { moderationActionRequest } from '../requests/ModerationActionRequest.js';
-import { prefabDeleteRequest } from '../requests/PrefabDeleteRequest.js';
+import { PrefabBlockRequest } from '../requests/prefabs/PrefabBlockRequest.js';
+import { ModerationActionRequest } from '../requests/users/ModerationActionRequest.js';
+import { PrefabDeleteRequest } from '../requests/prefabs/PrefabDeleteRequest.js';
+import { DownloadPrefabRequest } from '../requests/prefabs/DownloadPrefabRequest.js';
 
 import CopyButton from './CopyButton.vue';
-import { downloadPrefabRequest } from '../requests/DownloadPrefabRequest.js';
 
 export default {
 	components: {
@@ -237,7 +237,7 @@ export default {
 				a.click();
 			} else {
 				const prefabID = this.prefabsList[index].customMetadata.identifier;
-				const data = await downloadPrefabRequest(this.$api_server_url, this.accessToken, this.userID, prefabID);
+				const data = await DownloadPrefabRequest(this.userID, prefabID);
 				if (data) {
 					const formattedBuffer = new Uint8Array(data);
 					const fileBlob = new Blob([formattedBuffer], { type: 'application/x-protobuf' });
@@ -254,7 +254,7 @@ export default {
 			if (this.currentlyDeleting === index) {
 				const prefabID = this.prefabsList[index]?.identifier ?? this.prefabsList[index].customMetadata.identifier;
 				if (prefabID) {
-					if (await prefabDeleteRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
+					if (await PrefabDeleteRequest(this.userID, prefabID)) {
 						this.prefabs[index].blocked = true;
 					}
 				}
@@ -267,8 +267,8 @@ export default {
 			if (this.currentlyBlocking === index) {
 				const prefabID = this.prefabsList[index]?.identifier ?? this.prefabsList[index].customMetadata.identifier;
 				if (prefabID) {
-					if (await prefabBlockRequest(this.$api_server_url, this.accessToken, this.userID, prefabID)) {
-						await moderationActionRequest(this.$api_server_url, this.accessToken, this.userID, 'user_editor');
+					if (await PrefabBlockRequest(this.userID, prefabID)) {
+						await ModerationActionRequest(this.userID, 'user_editor');
 						this.prefabs[index].blocked = true;
 					}
 				}

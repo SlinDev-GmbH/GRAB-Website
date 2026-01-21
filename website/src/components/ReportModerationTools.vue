@@ -5,10 +5,10 @@ import { useUserStore } from '@/stores/user';
 import ModerationInfo from './ModerationInfo.vue';
 import ModerationPopup from './ModerationPopup.vue';
 
-import { approveLevelRequest } from '../requests/ApproveLevelRequest';
-import { resetReportsRequest } from '../requests/ResetReportsRequest';
-import { moderationActionRequest } from '../requests/ModerationActionRequest';
-import { unhideLevelRequest } from '../requests/UnhideLevelRequest';
+import { ApproveLevelRequest } from '../requests/levels/ApproveLevelRequest';
+import { ResetReportsRequest } from '../requests/users/ResetReportsRequest';
+import { ModerationActionRequest } from '../requests/users/ModerationActionRequest';
+import { UnhideLevelRequest } from '../requests/levels/UnhideLevelRequest';
 
 export default {
 	components: {
@@ -71,28 +71,28 @@ export default {
 		},
 
 		async approveLevel() {
-			if (!(await approveLevelRequest(this.$api_server_url, this.accessToken, this.moderationItem.object_info.identifier))) return;
+			if (!(await ApproveLevelRequest(this.moderationItem.object_info.identifier))) return;
 			this.$emit('approve');
 		},
 
 		async punishUser() {
 			const userID = this.moderationItem.object_info.user_id;
 			if (!userID) return;
-			if (!(await moderationActionRequest(this.$api_server_url, this.accessToken, userID, 'user_' + this.bestReason))) return;
-			if (!(await resetReportsRequest(this.$api_server_url, this.accessToken, userID))) return;
+			if (!(await ModerationActionRequest(userID, 'user_' + this.bestReason))) return;
+			if (!(await ResetReportsRequest(userID))) return;
 			this.isPunished = true;
 			this.$emit('handled', true);
 		},
 
 		async resetUserReports() {
 			const userID = this.moderationItem.object_info.user_id;
-			if (!(await resetReportsRequest(this.$api_server_url, this.accessToken, userID))) return;
+			if (!(await ResetReportsRequest(userID))) return;
 			this.isReset = true;
 			this.$emit('handled', false);
 		},
 
 		async unhideLevel() {
-			if (!(await unhideLevelRequest(this.$api_server_url, this.accessToken, this.moderationItem.object_info.identifier))) return;
+			if (!(await UnhideLevelRequest(this.moderationItem.object_info.identifier))) return;
 			this.isHidden = false;
 			this.$emit('unhide');
 		},

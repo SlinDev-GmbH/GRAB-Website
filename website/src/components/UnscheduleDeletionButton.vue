@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { unscheduleDeletionRequest } from '../requests/UnscheduleDeletionRequest';
+import { UnscheduleDeletionRequest } from '../requests/levels/UnscheduleDeletionRequest';
 
 export default {
 	props: {
@@ -17,7 +17,7 @@ export default {
 
 	methods: {
 		async unscheduleDeletion() {
-			if (!(await unscheduleDeletionRequest(this.$api_server_url, this.accessToken, this.level_id))) {
+			if (!(await UnscheduleDeletionRequest(this.level_id))) {
 				this.$emit('recovered');
 			}
 		},

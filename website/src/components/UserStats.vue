@@ -1,6 +1,6 @@
 <script>
-import { getUserInfoRequest } from '../requests/GetUserInfoRequest';
-import { getUserStatsRequest } from '../requests/GetUserStatsRequest';
+import { GetUserInfoRequest } from '../requests/users/GetUserInfoRequest';
+import { GetUserStatsRequest } from '../requests/users/GetUserStatsRequest';
 
 export default {
 	props: {
@@ -96,8 +96,8 @@ export default {
 			this.stats = {};
 			this.info = {};
 
-			const stats_promise = getUserStatsRequest(this.$api_server_url, this.user_id);
-			const info_promise = getUserInfoRequest(this.$api_server_url, this.user_id);
+			const stats_promise = GetUserStatsRequest(this.user_id);
+			const info_promise = GetUserInfoRequest(this.user_id);
 			const [stats, info] = await Promise.all([stats_promise, info_promise]);
 
 			if (!stats) window.toast('Failed to load user stats', 'error');

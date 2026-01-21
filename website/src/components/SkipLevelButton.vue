@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { removeLevelFromVerificationQueueRequest } from '../requests/RemoveLevelFromVerificationQueueRequest.js';
+import { RemoveLevelFromVerificationQueueRequest } from '../requests/levels/RemoveLevelFromVerificationQueueRequest.js';
 
 export default {
 	props: {
@@ -26,7 +26,7 @@ export default {
 		async skipLevel() {
 			if (this.isLoading) return;
 			this.isLoading = true;
-			await removeLevelFromVerificationQueueRequest(this.$api_server_url, this.accessToken, this.levelInfo.identifier);
+			await RemoveLevelFromVerificationQueueRequest(this.levelInfo.identifier);
 			this.isSkipped = true;
 			this.isLoading = false;
 			this.$emit('skipped');

@@ -1,5 +1,5 @@
 <script>
-import { GetLevelBrowserRequest } from '../requests/GetLevelBrowserRequest';
+import { GetLevelBrowserRequest } from '../requests/lists/GetLevelBrowserRequest';
 import DropDown from './DropDown.vue';
 
 export default {
@@ -31,7 +31,7 @@ export default {
 		},
 
 		async loadFeatured() {
-			const result = await GetLevelBrowserRequest(this.$api_server_url);
+			const result = await GetLevelBrowserRequest();
 			if (result !== false) {
 				return result;
 			}

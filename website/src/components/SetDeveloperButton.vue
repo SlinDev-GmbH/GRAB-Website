@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setDeveloper } from '../requests/SetDeveloper.js';
+import { SetIsDeveloperRequest } from '../requests/roles/SetIsDeveloperRequest.js';
 
 export default {
 	emits: ['change'],
@@ -17,7 +17,7 @@ export default {
 
 	methods: {
 		async toggleDeveloper() {
-			if (!(await setDeveloper(this.$api_server_url, this.accessToken, this.userID, !this.isDeveloper))) return;
+			if (!(await SetIsDeveloperRequest(this.userID, !this.isDeveloper))) return;
 			this.$emit('change');
 		},
 	},

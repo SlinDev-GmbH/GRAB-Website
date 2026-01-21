@@ -4,9 +4,9 @@ import CardUser from './CardUser.vue';
 import CardLog from './CardLog.vue';
 import DropDown from './DropDown.vue';
 
-import { listRequest } from '../requests/ListRequest.js';
-import { resetReportsRequest } from '../requests/ResetReportsRequest';
-import { moderationActionRequest } from '../requests/ModerationActionRequest';
+import { ListRequest } from '../requests/lists/ListRequest.js';
+import { ResetReportsRequest } from '../requests/users/ResetReportsRequest';
+import { ModerationActionRequest } from '../requests/users/ModerationActionRequest';
 
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
@@ -141,14 +141,11 @@ export default {
 		},
 
 		async loadLevels() {
-			const result = await listRequest(
-				this.$api_server_url,
-				this.accessToken,
+			const result = await ListRequest(
 				this.listType,
 				this.difficulty,
 				this.tag,
 				this.searchTerm,
-				this.$max_level_format_version,
 				this.otherUserID ? this.otherUserID : this.userID,
 				this.nextPage,
 			);
@@ -240,8 +237,8 @@ export default {
 				if (!userID) return { success: 0 };
 
 				const [actionSuccess, reportsSuccess] = await Promise.all([
-					moderationActionRequest(this.$api_server_url, this.accessToken, userID, 'user_' + reason),
-					resetReportsRequest(this.$api_server_url, this.accessToken, userID),
+					ModerationActionRequest(userID, 'user_' + reason),
+					ResetReportsRequest(userID),
 				]);
 
 				if (actionSuccess && reportsSuccess) {

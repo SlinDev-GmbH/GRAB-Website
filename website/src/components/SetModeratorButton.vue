@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setModerator } from '../requests/SetModerator.js';
+import { SetIsModeratorRequest } from '../requests/roles/SetIsModeratorRequest.js';
 
 export default {
 	emits: ['change'],
@@ -17,7 +17,7 @@ export default {
 
 	methods: {
 		async toggleModerator() {
-			if (!(await setModerator(this.$api_server_url, this.accessToken, this.userID, !this.isModerator))) return;
+			if (!(await SetIsModeratorRequest(this.userID, !this.isModerator))) return;
 			this.$emit('change');
 		},
 	},

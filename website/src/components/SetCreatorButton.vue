@@ -2,7 +2,7 @@
 import { mapState } from 'pinia';
 import { useUserStore } from '@/stores/user';
 
-import { setCreator } from '../requests/SetCreator.js';
+import { SetIsCreatorRequest } from '../requests/roles/SetIsCreatorRequest.js';
 
 export default {
 	emits: ['change'],
@@ -17,7 +17,7 @@ export default {
 
 	methods: {
 		async toggleCreator() {
-			if (!(await setCreator(this.$api_server_url, this.accessToken, this.userID, !this.isCreator))) return;
+			if (!(await SetIsCreatorRequest(this.userID, !this.isCreator))) return;
 			this.$emit('change');
 		},
 	},

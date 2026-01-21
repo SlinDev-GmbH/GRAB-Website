@@ -4,8 +4,8 @@ import { useUserStore } from '@/stores/user';
 
 import DropDown from './DropDown.vue';
 
-import { giftCosmeticRequest } from '../requests/GiftCosmeticRequest.js';
-import { getShopProductsRequest } from '../requests/GetShopProductsRequest.js';
+import { GiftCosmeticRequest } from '../requests/users/GiftCosmeticRequest.js';
+import { GetShopProductsRequest } from '../requests/shop/GetShopProductsRequest.js';
 
 export default {
 	components: {
@@ -29,12 +29,12 @@ export default {
 
 	methods: {
 		async giftCosmetic() {
-			await giftCosmeticRequest(this.$api_server_url, this.accessToken, this.userID, this.cosmeticID);
+			await GiftCosmeticRequest(this.userID, this.cosmeticID);
 			this.close();
 		},
 
 		async getCosmeticPacks() {
-			const shop = await getShopProductsRequest(this.$api_server_url);
+			const shop = await GetShopProductsRequest();
 			this.cosmeticPacks = Object.keys(shop);
 		},
 
