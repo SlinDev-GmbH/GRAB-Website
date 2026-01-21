@@ -21,6 +21,17 @@ export default defineConfig({
 				main: resolve(__dirname, 'index.html'),
 				'levels/viewer': resolve(__dirname, 'levels/viewer/index.html'),
 			},
+			output: {
+				manualChunks(path) {
+					if (!path.includes('node_modules')) return;
+					const name = path.toString().split('node_modules/')[1].split('/')[0].toString();
+
+					if (name.includes('three')) return 'three';
+				},
+				entryFileNames: 'assets/[name]-[hash].js',
+				chunkFileNames: 'assets/[name]-[hash].js',
+				assetFileNames: 'assets/[name]-[hash][extname]',
+			},
 		},
 		outDir: resolve(__dirname, '../public'),
 		emptyOutDir: true,

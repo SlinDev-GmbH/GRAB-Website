@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import StartPage from './components/StartPage.vue';
-import LevelBrowser from './components/LevelBrowser.vue';
-import PlayerViewer from '../player-viewer/PlayerViewer.vue';
-import CurationPage from './components/CurationPage.vue';
+const StartPage = () => import('./components/StartPage.vue');
+const LevelBrowser = () => import('./components/LevelBrowser.vue');
+const PlayerViewer = () => import('../player-viewer/PlayerViewer.vue');
+const CurationPage = () => import('./components/CurationPage.vue');
 
 const routes = [
 	{ path: '/', component: StartPage },
