@@ -35,6 +35,7 @@ export default defineConfig({
 		},
 		outDir: resolve(__dirname, '../public'),
 		emptyOutDir: true,
+		target: 'es2020',
 	},
 	server: {
 		https: true,
