@@ -10,13 +10,23 @@ export function build_url(base, params = {}) {
 	return url.toString();
 }
 
-export async function safe_fetch(input, init) {
+export async function safe_fetch(input, init, error_callback) {
 	try {
 		const res = await fetch(input, init);
-		if (!res.ok) return null;
+
+		if (!res.ok) {
+			const text = await res.text();
+			window.toast(`Error: ${text}`, 'error');
+			if (error_callback) error_callback(text);
+			return null;
+		}
 
 		return res;
-	} catch {
+	} catch (e) {
+		if (e instanceof Error) {
+			window.toast(`Error: ${e.message}`, 'error');
+			if (error_callback) error_callback(e.message);
+		}
 		return null;
 	}
 }
@@ -25,7 +35,7 @@ export async function safe_json(response) {
 	if (!response) return null;
 
 	try {
-		return JSON.parse(await response.text());
+		return await response.json();
 	} catch {
 		return null;
 	}
@@ -34,22 +44,17 @@ export async function safe_json(response) {
 export async function request(base_url, params = {}, auth = false, error_callback) {
 	const url = build_url(base_url, params);
 
-	const response = await safe_fetch(url, {
-		...(auth && {
-			headers: {
-				Authorization: `Bearer ${useUserStore().accessToken}`,
-			},
-		}),
-	});
-
-	if (!response) return null;
-
-	if (!response.ok) {
-		const text = await response.text();
-		window.toast(`Error: ${text}`, 'error');
-		if (error_callback) error_callback(text);
-		return null;
-	}
+	const response = await safe_fetch(
+		url,
+		{
+			...(auth && {
+				headers: {
+					Authorization: `Bearer ${useUserStore().accessToken}`,
+				},
+			}),
+		},
+		error_callback,
+	);
 
 	return response;
 }

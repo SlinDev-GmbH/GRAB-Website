@@ -203,7 +203,7 @@ export default {
 			<LevelTitle v-if="showLevelTitle" :tagString="tagString" />
 		</header>
 		<main>
-			<UserStats v-if="tabActive === 'tab_user_stats'" :user-id="userID" />
+			<UserStats v-if="tabActive === 'tab_user_stats'" :user_id="userID" />
 			<UserTitle v-if="showUserTitle" :other-user-i-d="userID" />
 			<FeaturedLevels v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)" />
 			<ScrollList

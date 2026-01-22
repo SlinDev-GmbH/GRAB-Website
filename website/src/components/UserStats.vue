@@ -117,6 +117,11 @@ export default {
 	created() {
 		this.get_details();
 	},
+	watch: {
+		user_id(new_value, old_value) {
+			if (new_value !== old_value) this.get_details();
+		},
+	},
 };
 </script>
 

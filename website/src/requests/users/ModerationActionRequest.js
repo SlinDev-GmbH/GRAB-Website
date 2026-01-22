@@ -3,7 +3,7 @@ import { request } from '../RequestUtils';
 
 export async function ModerationActionRequest(user_id, reason, duration, message) {
 	const params = {
-		...(message ? { message } : { reason }),
+		...(message ? { message, reason: 'message' } : { reason }),
 		...(duration && { duration, type: 'ban' }),
 	};
 

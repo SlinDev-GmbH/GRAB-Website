@@ -426,7 +426,7 @@ async function init() {
 			}
 		});
 
-		let reports_data = await GetLevelReportInfoRequest(accessToken);
+		let reports_data = await GetLevelReportInfoRequest(levelIdentifier);
 		if (reports_data?.object_info) {
 			const reportElement = document.getElementById('reports');
 			reportElement.style.display = 'block';
