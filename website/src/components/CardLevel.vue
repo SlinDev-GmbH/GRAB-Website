@@ -131,6 +131,10 @@ export default {
 			return 'N/a';
 		},
 
+		hasModerationButtons() {
+			return !(this.listType.startsWith('curated_') || ['popular_recent', 'user_played', 'accelerating'].includes(this.listType));
+		},
+
 		...mapState(useUserStore, ['isVerifier', 'isSuperModerator', 'isLoggedIn', 'accessToken']),
 	},
 
@@ -298,7 +302,7 @@ export default {
 				<a :href="'/levels?tab=tab_other_user&user_id=' + item.identifier.split(':')[0]">{{ creators ? creators : '..' }}</a>
 			</div>
 		</div>
-		<div v-if="!listType.startsWith('curated_')" class="privileged-buttons">
+		<div v-if="hasModerationButtons" class="privileged-buttons">
 			<VerifyLevelButton
 				v-if="isVerifier && this.listType !== 'tab_deletion_queue' && !isModerationCell"
 				:level-info="item"
