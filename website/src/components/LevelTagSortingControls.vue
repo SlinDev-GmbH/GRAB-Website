@@ -32,10 +32,7 @@ export default {
 
 		async loadFeatured() {
 			const result = await GetLevelBrowserRequest();
-			if (result !== false) {
-				return result;
-			}
-			return [];
+			return result ?? [];
 		},
 	},
 

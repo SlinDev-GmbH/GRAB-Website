@@ -29,7 +29,7 @@ export default {
 			} else {
 				const currentTab = this.tagString;
 				const result = await GetLevelCountRequest(this.tagString);
-				if (result !== false && currentTab === this.tagString) this.count = result;
+				if (result !== null && currentTab === this.tagString) this.count = result;
 			}
 		},
 	},

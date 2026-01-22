@@ -22,7 +22,7 @@ export default {
 			if (this.accessToken) {
 				const userStore = useUserStore();
 				const result = await SetUserFavoritesRequest(this.level_id);
-				if (result === true) {
+				if (result) {
 					userStore.addFavoriteLevel(this.level_id);
 				}
 			}
@@ -31,7 +31,7 @@ export default {
 			if (this.accessToken) {
 				const userStore = useUserStore();
 				const result = await RemoveUserFavoritesRequest(this.level_id);
-				if (result === true) {
+				if (result) {
 					userStore.removeFavoriteLevel(this.level_id);
 				}
 			}

@@ -66,7 +66,7 @@ export default {
 			const currentUserID = this.otherUserID ? this.otherUserID : this.userID;
 			if (!currentUserID) return;
 			const userInfo = await GetUserInfoRequest(currentUserID);
-			if (userInfo === false || currentUserID !== (this.otherUserID ? this.otherUserID : this.userID)) return;
+			if (!userInfo || currentUserID !== (this.otherUserID ? this.otherUserID : this.userID)) return;
 			console.log(userInfo);
 			this.userInfo = userInfo;
 			this.identifier = userInfo.user_id;

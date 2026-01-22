@@ -98,7 +98,7 @@ export const useUserStore = defineStore('user', {
 		async fetchUsersFavorites() {
 			if (this.accessToken) {
 				const favoriteLevels = await ListRequest('tab_favorite_levels');
-				if (favoriteLevels !== false) {
+				if (favoriteLevels) {
 					this.favoriteLevels = favoriteLevels.map((level) => level.identifier);
 				}
 			}

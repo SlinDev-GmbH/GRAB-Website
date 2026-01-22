@@ -149,7 +149,7 @@ export default {
 				this.otherUserID ? this.otherUserID : this.userID,
 				this.nextPage,
 			);
-			if (result !== false) {
+			if (result) {
 				if (result && result.length > 0) this.nextPage = result[result.length - 1].page_timestamp;
 				else this.nextPage = null;
 				if (this.listType === 'tab_favorite_levels') return result.reverse();
@@ -205,7 +205,7 @@ export default {
 			const scrollY = window.scrollY;
 			const visibleHeight = window.innerHeight;
 			const totalHeight = document.documentElement.getBoundingClientRect().height;
-			if (totalHeight - (scrollY + visibleHeight) < 1 && !this.loading && this.nextPage !== undefined) {
+			if (totalHeight - (scrollY + visibleHeight) < 1 && !this.loading && this.nextPage) {
 				this.loadMore();
 			}
 		},

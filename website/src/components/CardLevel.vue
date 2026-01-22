@@ -156,7 +156,7 @@ export default {
 			return keys;
 		},
 		async getAllReportImages() {
-			if (this.thumbLoaded == true) return;
+			if (this.thumbLoaded) return;
 			this.thumbLoaded = true;
 			const report_info = await GetLevelReportInfoRequest(this.item.identifier);
 			const keys = [];
