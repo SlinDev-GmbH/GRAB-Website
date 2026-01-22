@@ -159,7 +159,7 @@ export default {
 		},
 
 		async loadMore() {
-			this.activeLoad = {
+			const newLoad = {
 				listType: this.listType,
 				difficulty: this.difficulty,
 				tag: this.tag,
@@ -171,23 +171,25 @@ export default {
 
 			if (
 				this.loading &&
-				this.listType === this.activeLoad?.listType &&
-				this.difficulty === this.activeLoad?.difficulty &&
-				this.tag === this.activeLoad?.tag &&
-				this.searchTerm === this.activeLoad?.searchTerm &&
-				this.otherUserID === this.activeLoad?.otherUserID
+				this.activeLoad &&
+				newLoad.listType === this.activeLoad.listType &&
+				newLoad.difficulty === this.activeLoad.difficulty &&
+				newLoad.tag === this.activeLoad.tag &&
+				newLoad.searchTerm === this.activeLoad.searchTerm &&
+				newLoad.otherUserID === this.activeLoad.otherUserID
 			)
 				return;
 
+			this.activeLoad = newLoad;
 			this.loading = true;
 
 			let levels = await this.loadLevels();
 			if (
-				this.activeLoad.searchTerm !== this.searchTerm ||
-				this.activeLoad.listType !== this.listType ||
-				this.activeLoad.difficulty !== this.difficulty ||
-				this.activeLoad.tag !== this.tag ||
-				this.activeLoad.otherUserID !== this.otherUserID
+				newLoad.searchTerm !== this.searchTerm ||
+				newLoad.listType !== this.listType ||
+				newLoad.difficulty !== this.difficulty ||
+				newLoad.tag !== this.tag ||
+				newLoad.otherUserID !== this.otherUserID
 			)
 				return;
 
