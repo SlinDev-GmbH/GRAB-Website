@@ -89,6 +89,20 @@ export default {
 				unrated: Math.round((this.unrated_finishes / this.stats.levels_played_unique) * 100),
 			};
 		},
+		user_id_timestamp() {
+			let user_id_int = [...this.user_id.toString()].reduce((r, v) => r * BigInt(36) + BigInt(parseInt(v, 36)), 0n);
+			user_id_int >>= BigInt(32);
+			user_id_int >>= BigInt(32);
+
+			const join_date = new Date(Number(user_id_int));
+			const unix_time = Math.floor(join_date.getTime() / 1000);
+
+			return unix_time;
+		},
+		formatted_join_date() {
+			const date = new Date(this.user_id_timestamp * 1000);
+			return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+		},
 	},
 	methods: {
 		async get_details() {
@@ -230,9 +244,16 @@ export default {
 			<h2>Activity</h2>
 			<div class="activity-grid">
 				<div class="activity-item">
+					<span class="act-label">Joined</span>
+					<span class="act-value">{{ formatted_join_date }}</span>
+				</div>
+				<div class="activity-item">
 					<span class="act-label">Last Active</span>
 					<span class="act-value">{{ formatted_last_active }}</span>
 				</div>
+			</div>
+			<hr class="divider" />
+			<div class="activity-grid">
 				<div class="activity-item">
 					<span class="act-label">Days Active</span>
 					<span class="act-value">{{ stats.days_active_unique }} Days</span>
@@ -456,10 +477,12 @@ h2 {
 
 .activity-grid {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-around;
 	background: #fff1;
 	border-radius: 15px;
 	padding: 1rem;
+	gap: 1em;
 }
 .activity-item {
 	display: flex;
@@ -546,16 +569,6 @@ h2 {
 		.tier-row {
 			width: 100%;
 		}
-	}
-}
-@media screen and (max-width: 600px) {
-	.activity-grid {
-		flex-wrap: wrap;
-		gap: 1em;
-		column-gap: 0;
-	}
-	.activity-item {
-		width: 50%;
 	}
 }
 @media screen and (max-width: 510px) {
