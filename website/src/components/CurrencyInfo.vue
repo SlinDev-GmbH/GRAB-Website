@@ -36,6 +36,11 @@ export default {
 
 	async mounted() {
 		this.currencyData = await GetUserCurrencyRequest();
+		// this always runs so when it fails we assume the token is expired
+		if (!this.currencyData) {
+			useUserStore().$reset();
+			window.toast('Session expired. Please log in again.');
+		}
 	},
 };
 </script>
