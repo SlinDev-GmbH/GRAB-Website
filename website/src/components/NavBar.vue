@@ -156,6 +156,7 @@ export default {
 				id="search_field"
 				placeholder="Search.."
 				@input="(event) => changedSearchTerm(event.target.value)"
+				@keyup.enter="(event) => $emit('searchChanged', event.target.value)"
 			/>
 		</span>
 	</div>
