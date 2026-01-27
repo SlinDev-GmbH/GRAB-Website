@@ -91,6 +91,8 @@ export default {
 }
 
 .dropdown-content {
+	overflow-y: auto;
+	max-height: min(300px, 30vh);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
