@@ -51,6 +51,7 @@ message InstructionData
 		InSin = 21;
 		InCos = 22;
 		InSqrt = 23;
+		InAtan2 = 24;
 	}
 	Type type = 1;
 	repeated OperandData operands = 2;
@@ -86,7 +87,23 @@ message ProgrammableRotationData
 {
 }
 
+message ProgrammableScaleData
+{
+}
+
 message ProgrammableTriggerActive
+{
+}
+
+message ProgrammablePlayerData
+{
+}
+
+message ProgrammableSignData
+{
+}
+
+message ProgrammableColorData
 {
 }
 
@@ -107,6 +124,25 @@ message ProgrammablePropertyData
 		ProgrammablePositionData position = 3;
 		ProgrammableTriggerActive triggerActive = 4;
 		ProgrammableRotationData rotation = 5;
+		ProgrammablePlayerData player = 6;
+		ProgrammableSignData sign = 7;
+		ProgrammableColorData color = 8;
+		ProgrammableScaleData scale = 9;
+	}
+}
+
+message ProgrammableSignUpdateData
+{
+	string text = 1;
+}
+
+message ProgrammablePropertyUpdateData
+{
+	repeated float components = 1;
+
+	oneof content
+	{
+		ProgrammableSignUpdateData sign = 2;
 	}
 }
 

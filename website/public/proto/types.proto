@@ -135,6 +135,7 @@ message LevelNodeStart
 	Quaternion rotation = 2; //Should always be upright and is meant to be used for the player rotation on spawn
 	float radius = 3;
 	string name = 4;
+	bool isHidden = 5;
 }
 
 message LevelNodeFinish
@@ -174,6 +175,8 @@ message LevelNodeCrumbling
 
 	float stableTime = 6;
 	float respawnTime = 7;
+	
+	bool isLocal = 8;
 }
 
 message LevelNodeSign
@@ -441,6 +444,13 @@ message LevelNodeGASM
 {
 	message Connection
 	{
+		enum Type
+		{
+			NODE = 0;
+			PLAYER = 1;
+		}
+	
+		Type type = 4;
 		uint64 objectID = 1;
 		string name = 2;
 		repeated GASM.ProgrammablePropertyData properties = 3;
@@ -455,6 +465,8 @@ message LevelNodeGASM
 	repeated Connection connections = 3;
 	
 	bool startActive = 4;
+	bool isShared = 7;
+	bool lateUpdate = 8;
 }
 
 message AnimationFrame
