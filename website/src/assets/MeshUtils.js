@@ -5,6 +5,12 @@ class MeshUtils {
 		return color.multiplyScalar(0.5);
 	}
 
+	static visorBright(color) {
+		 const hsl = {}; 
+		 color.getHSL(hsl); 
+   		 return new THREE.Color().setHSL(hsl.h, Math.min(hsl.s, 0.3), Math.min(Math.max(hsl.l, 0.6), 0.8));
+	}
+
 	static getColorFromInput(colorInput) {
 		return colorInput instanceof THREE.Color ? colorInput : new THREE.Color(...(Array.isArray(colorInput) ? colorInput : [colorInput]));
 	}
@@ -17,10 +23,12 @@ class MeshUtils {
 			default_color: (index) => new THREE.Color(...item.materials[index].diffuseColor),
 			default_primary_color: () => primaryColor,
 			default_secondary_color: () => secondaryColor,
-			default_secondary_color_visor: () => MeshUtils.halfColor(secondaryColor.clone()),
-			default_secondary_color_darkened: () => MeshUtils.halfColor(secondaryColor.clone()),
-			default_primary_color_darkened: () => MeshUtils.halfColor(primaryColor.clone()),
 			default_primary_color_visor: () => MeshUtils.halfColor(primaryColor.clone()),
+			default_secondary_color_visor: () => MeshUtils.halfColor(secondaryColor.clone()),
+			default_primary_color_darkened: () => MeshUtils.halfColor(primaryColor.clone()),
+			default_secondary_color_darkened: () => MeshUtils.halfColor(secondaryColor.clone()),
+			default_primary_color_visor_bright: () => MeshUtils.visorBright(primaryColor.clone()),
+			default_secondary_color_visor_bright: () => MeshUtils.visorBright(secondaryColor.clone()),
 		};
 
 		group.traverse((obj) => {
@@ -39,10 +47,12 @@ class MeshUtils {
 		const colorMap = {
 			default_primary_color: () => primaryColor,
 			default_secondary_color: () => secondaryColor,
-			default_secondary_color_visor: () => MeshUtils.halfColor(secondaryColor.clone()),
-			default_secondary_color_darkened: () => MeshUtils.halfColor(secondaryColor.clone()),
-			default_primary_color_darkened: () => MeshUtils.halfColor(primaryColor.clone()),
 			default_primary_color_visor: () => MeshUtils.halfColor(primaryColor.clone()),
+			default_secondary_color_visor: () => MeshUtils.halfColor(secondaryColor.clone()),
+			default_primary_color_darkened: () => MeshUtils.halfColor(primaryColor.clone()),
+			default_secondary_color_darkened: () => MeshUtils.halfColor(secondaryColor.clone()),
+			default_primary_color_visor_bright: () => MeshUtils.visorBright(primaryColor.clone()),
+			default_secondary_color_visor_bright: () => MeshUtils.visorBright(secondaryColor.clone()),
 		};
 
 		scene.traverse((obj) => {
