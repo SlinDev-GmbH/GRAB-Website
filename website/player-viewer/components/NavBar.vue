@@ -11,6 +11,7 @@ export default {
 			],
 			active: 'items',
 			isCompact: false,
+			dropdownKey: 0,
 		};
 	},
 	components: {
@@ -35,6 +36,10 @@ export default {
 			this.active = event.target.id;
 			this.$emit('UpdateNav', event.target.id);
 		},
+		handleFilterChange(value) {
+			this.dropdownKey += 1;
+			this.$emit('changeSelection', value);
+		},
 		updateCompact() {
 			this.isCompact = window.innerWidth <= 1001;
 		},
@@ -54,9 +59,10 @@ export default {
 		</button>
 		<DropDown
 			v-show="isItemsSelected"
+			:key="dropdownKey"
 			:options="['All', 'Heads', 'Hats', 'Face', 'Bodies', 'Backpack', 'Neck', 'Waist', 'Badge', 'Hands', 'Grapples', 'Checkpoint']"
 			:defaultChoice="'All'"
-			@changeSelection="$emit('changeSelection', $event)"
+			@changeSelection="handleFilterChange($event)"
 		/>
 	</nav>
 </template>
@@ -96,5 +102,10 @@ export default {
 
 .navbar button.active {
 	background: #0000004f;
+}
+
+.navbar :deep(.dropdown),
+.navbar :deep(.dropdown-content) {
+	z-index: 2000;
 }
 </style>

@@ -148,6 +148,7 @@ export default {
 			<div class="card-list" id="card-list" v-show="isItemsSelected">
 				<CosmeticCard
 					v-if="player"
+					:key="itemName"
 					v-for="(item, itemName) in itemsList"
 					:itemName="itemName"
 					:itemObject="item"

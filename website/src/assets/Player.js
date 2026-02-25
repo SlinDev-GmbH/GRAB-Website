@@ -8,9 +8,9 @@ class Player {
 		this.scene = scene;
 		this.activeModels = {};
 		this.itemsList = itemsList;
-		this.pendingAttachments = {};
 		this.ropeOverrides = {};
 		this.onModelLoaded = onModelLoaded;
+		this.subscribers = new Set();
 		this.defaults = {
 			head: {
 				file: 'player/head',
@@ -50,6 +50,22 @@ class Player {
 		});
 	}
 
+	subscribe(callback) {
+		if (callback) {
+			this.subscribers.add(callback);
+		}
+	}
+
+	unsubscribe(callback) {
+		this.subscribers.delete(callback);
+	}
+
+	notifyChange() {
+		this.subscribers.forEach((callback) => {
+			callback();
+		});
+	}
+
 	loadDefaults() {
 		const loadPromises = [];
 
@@ -76,6 +92,7 @@ class Player {
 
 		this.activeModels[itemType] = model;
 		model ? this.scene.add(model) : undefined;
+		this.notifyChange();
 	}
 
 	loadModel(targetname, itemtype) {
@@ -91,7 +108,7 @@ class Player {
 			model = MeshUtils.applyColors(this.scene, item, model);
 			model = MeshUtils.adjustGroupForCategory(model, itemtype);
 			this.applyAttachmentOffset(model, item);
-			this.updateRopePresentation(model, itemtype);
+			this.updateRopePresentation(model, itemtype, item);
 
 			model.name = targetname;
 			model.grab_type = itemtype;
@@ -100,16 +117,15 @@ class Player {
 
 			this.HandleModelToScene(model, itemtype);
 
-			this.applyPendingAttachments(model, itemtype);
-
-			this.adjustAsChildModel(itemtype);
+			this.refreshAllAttachments();
 			if (this.onModelLoaded) {
 				this.onModelLoaded(model, itemtype);
 			}
+			this.notifyChange();
 		});
 	}
 
-	updateRopePresentation(model, itemtype) {
+	updateRopePresentation(model, itemtype, item = null) {
 		if (itemtype.startsWith('rope/')) {
 			this.applyRopeOverridesFromItemType(model, itemtype);
 			this.applyRopeTextureTiling(model);
@@ -117,7 +133,7 @@ class Player {
 		}
 
 		if (itemtype.includes('grapple/hook')) {
-			this.applyGrappleOffsetToRope(itemtype, this.itemsList[model.name] || this.defaults[itemtype]);
+			this.applyGrappleOffsetToRope(itemtype, item || this.itemsList[model.name] || this.defaults[itemtype]);
 		}
 	}
 
@@ -129,20 +145,12 @@ class Player {
 		});
 	}
 
-	applyPendingAttachments(model, itemtype) {
-		if (this.pendingAttachments[itemtype]) {
-			this.adjustAttachments(model, this.itemsList[model.name]);
-			delete this.pendingAttachments[itemtype];
-		}
-	}
-
-	adjustAsChildModel(itemtype) {
+	refreshAllAttachments() {
 		for (let parentType in this.activeModels) {
 			const parentModel = this.activeModels[parentType];
-			const parentItem = this.itemsList[parentModel.name];
-			if (parentItem && parentItem.attachment_points && parentItem.attachment_points[itemtype.split('/').pop()]) {
-				this.adjustAttachments(parentModel, parentItem);
-				break;
+			const parentItem = parentModel ? this.itemsList[parentModel.name] || this.defaults[parentType] : null;
+			if (parentModel && parentItem) {
+				this.adjustAttachments(parentModel, parentItem, parentType);
 			}
 		}
 	}
@@ -155,50 +163,152 @@ class Player {
 		}
 	}
 
-	adjustAttachments(parentModel, item) {
-		if (item.attachment_points) {
-			for (let [attachmentType, point] of Object.entries(item.attachment_points)) {
-				const fullAttachmentType = `${item.type}/${attachmentType}`;
-				const childModel = this.activeModels[fullAttachmentType];
-
-				if (childModel) {
-					this.applyAttachment(childModel, parentModel, point);
-				} else {
-					// Queue the attachment for later
-					this.pendingAttachments[fullAttachmentType] = { parentModel, point, attachmentType };
-				}
+	adjustAttachments(parentModel, item, parentType) {
+		const parentItemType = item?.type || parentType;
+		if (!parentModel || !parentItemType) {
+			return;
+		}
+		const hasAttachmentPoints = !!item?.attachment_points;
+		const allowsDefaultPoints = parentItemType === 'head' || parentItemType === 'body';
+		if (!hasAttachmentPoints && !allowsDefaultPoints) {
+			return;
+		}
+		Object.entries(this.activeModels).forEach(([childType, childModel]) => {
+			if (childType === parentType) {
+				return;
 			}
-		}
-		const parentOffset = this.getAttachmentOffset(item);
-		if (parentOffset) {
-			parentModel.position.z -= parentOffset;
-		}
+			if (!childModel || !childType.startsWith(`${parentItemType}/`)) {
+				return;
+			}
+			const childItem = this.itemsList[childModel.name] || this.defaults[childType];
+			const attachmentPoint = this.getAttachmentPointData(childType, childItem, parentModel, item);
+			if (!attachmentPoint) {
+				return;
+			}
+			this.applyAttachment(childModel, parentModel, attachmentPoint);
+		});
 	}
 	applyAttachment(childModel, parentModel, point) {
 		childModel.restore();
-		const childItem = this.itemsList[childModel.name] || this.defaults[childModel.grab_type];
-		const override = childItem?.attachment_point_overrides?.[parentModel.name];
-		if (override) {
-			if (override.position) childModel.position.copy(new THREE.Vector3(...override.position));
-			if (override.scale) childModel.scale.set(override.scale, override.scale, override.scale);
-		} else {
-			if (point.position) {
-				childModel.position.copy(new THREE.Vector3(...point.position));
-				if (childModel.grab_type.includes('body')) {
-					childModel.position.y += -0.2;
-				}
-			}
-			if (point.rotation) {
-				this.applyRotationYawPitchRollDegrees(childModel, point.rotation);
-			}
-			if (point.scale) childModel.scale.set(point.scale, point.scale, point.scale);
+		const basePosition = childModel.position.clone();
+		const baseRotation = childModel.rotation.clone();
+
+		let localPosition = basePosition.clone();
+		if (point.position) {
+			localPosition.add(new THREE.Vector3(...point.position));
 		}
 
-		this.applyAttachmentOffset(childModel, childItem);
+		childModel.rotation.copy(baseRotation);
+		if (point.rotation) {
+			this.applyRotationYawPitchRollDegrees(childModel, point.rotation, false);
+		}
 
-		this.updateRopePresentation(childModel, childModel.grab_type || '');
+		if (point.scale) {
+			childModel.scale.set(point.scale, point.scale, point.scale);
+		}
+
+		childModel.position.copy(localPosition);
+		const childItem = this.itemsList[childModel.name] || this.defaults[childModel.grab_type];
+		this.applyAttachmentOffset(childModel, childItem);
+		const localAdjustedPosition = childModel.position.clone();
+
+		const parentWorldPosition = new THREE.Vector3();
+		const parentWorldQuaternion = new THREE.Quaternion();
+		parentModel.updateMatrixWorld(true);
+		parentModel.getWorldPosition(parentWorldPosition);
+		parentModel.getWorldQuaternion(parentWorldQuaternion);
+
+		childModel.position.copy(localAdjustedPosition);
+		childModel.position.applyQuaternion(parentWorldQuaternion);
+		childModel.position.add(parentWorldPosition);
+
+		childModel.quaternion.multiplyQuaternions(parentWorldQuaternion, childModel.quaternion);
+
+		this.updateRopePresentation(childModel, childModel.grab_type || '', childItem);
 	}
 
+	getAttachmentPointData(childType, childItem, parentModel, parentItem) {
+		const parts = childType.split('/');
+		if (parts.length < 2 || !parentModel) {
+			return null;
+		}
+
+		let attachmentPointDict = {};
+		const overrides = childItem?.attachment_point_overrides;
+		if (overrides) {
+			const overrideEntry = overrides[parentModel.name] || overrides.default;
+			if (overrideEntry) {
+				attachmentPointDict = { ...overrideEntry };
+			}
+		}
+
+		let attachmentPointDefaultInfo = null;
+		if (parentItem?.attachment_points) {
+			let partsWithoutRoot = parts.slice(1);
+			if (childItem?.attachment_point) {
+				partsWithoutRoot = partsWithoutRoot.concat(childItem.attachment_point);
+			}
+			const attachmentPointName = partsWithoutRoot.join('/');
+			attachmentPointDefaultInfo = parentItem.attachment_points[attachmentPointName] || null;
+		}
+
+		if (!attachmentPointDefaultInfo) {
+			attachmentPointDefaultInfo = this.getDefaultAttachmentPointData(childType, childItem);
+		}
+
+		if (!attachmentPointDict.position && attachmentPointDefaultInfo?.position) {
+			attachmentPointDict.position = attachmentPointDefaultInfo.position;
+		}
+		if (!attachmentPointDict.rotation && attachmentPointDefaultInfo?.rotation) {
+			attachmentPointDict.rotation = attachmentPointDefaultInfo.rotation;
+		}
+		if (!attachmentPointDict.scale && attachmentPointDefaultInfo?.scale) {
+			attachmentPointDict.scale = attachmentPointDefaultInfo.scale;
+		}
+
+		let scale = attachmentPointDict.scale ?? 1;
+		if (childItem?.scale) {
+			scale *= childItem.scale;
+		}
+
+		return {
+			position: attachmentPointDict.position || null,
+			rotation: attachmentPointDict.rotation || null,
+			scale,
+		};
+	}
+
+	getDefaultAttachmentPointData(childType, childItem) {
+		const parts = childType.split('/');
+		let attachmentPointNameParts = parts.slice(0);
+		if (childItem?.attachment_point) {
+			attachmentPointNameParts = attachmentPointNameParts.concat(childItem.attachment_point);
+		}
+		const attachmentPointName = attachmentPointNameParts.join('/');
+
+		const positions = {
+			'head/hat': [0.0, 0.190766, 0.0],
+			'head/glasses': [0.0, 0.008302, -0.203441],
+			'head/glasses/mouth': [0.0, -0.192385, -0.291841],
+			'head/glasses/emoji': [0.0, -0.192385, -0.294],
+			'body/backpack': [0.0, -0.311955, 0.278574],
+			'body/neck/chest': [0.0, -0.300416, -0.124705],
+			'body/badge/left': [-0.134673, -0.267122, -0.088314],
+			'body/badge/right': [0.134673, -0.267122, -0.088314],
+			'body/lower': [0.0, -0.55, 0.1],
+		};
+
+		const rotations = {
+			'body/badge/left': [15.4997, -1.23764, 0.0],
+			'body/badge/right': [-15.4997, -1.23764, 0.0],
+		};
+
+		return {
+			position: positions[attachmentPointName] || null,
+			rotation: rotations[attachmentPointName] || null,
+			scale: 1,
+		};
+	}
 	getAttachmentOffset(item) {
 		if (!item) {
 			return 0;
@@ -213,14 +323,16 @@ class Player {
 		return 0;
 	}
 
-	applyRotationYawPitchRollDegrees(model, rotation) {
+	applyRotationYawPitchRollDegrees(model, rotation, reset = true) {
 		if (!rotation) {
 			return;
 		}
 
 		const [yaw, pitch, roll] = Array.isArray(rotation) ? rotation : [rotation.yaw, rotation.pitch, rotation.roll];
 		const degToRad = Math.PI / 180;
-		model.rotation.set(0, 0, 0);
+		if (reset) {
+			model.rotation.set(0, 0, 0);
+		}
 		model.rotateZ(roll * degToRad);
 		model.rotateY(yaw * degToRad);
 		model.rotateX(pitch * degToRad);
@@ -390,6 +502,9 @@ class Player {
 	}
 
 	handleAttachments(type) {
+		if (type.includes('/')) {
+			return { position: null, rotation: null };
+		}
 		const positions = {
 			'head/hat': [0.0, 0.190766, 0.0],
 			'head/glasses': [0.0, 0.008302, -0.203441],

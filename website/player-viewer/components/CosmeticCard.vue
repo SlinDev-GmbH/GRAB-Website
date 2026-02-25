@@ -7,6 +7,7 @@ export default {
 	data() {
 		return {
 			fileExists: false,
+			updateTick: 0,
 		};
 	},
 	props: {
@@ -50,9 +51,21 @@ export default {
 		if (!this.itemObject.type.includes('currency') && !this.itemName.includes('consumable')) {
 			this.setupThreeScene();
 		}
+		if (this.player) {
+			this.updateHandler = () => {
+				this.updateTick++;
+			};
+			this.player.subscribe(this.updateHandler);
+		}
+	},
+	beforeUnmount() {
+		if (this.player && this.updateHandler) {
+			this.player.unsubscribe(this.updateHandler);
+		}
 	},
 	methods: {
 		isEquipped(side = null) {
+			this.updateTick;
 			const activeModels = this.player.activeModels;
 
 			if (side) {

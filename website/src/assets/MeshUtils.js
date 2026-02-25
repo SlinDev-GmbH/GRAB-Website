@@ -60,7 +60,7 @@ class MeshUtils {
 	}
 
 	static adjustGroupForCategory(group, itemtype) {
-		if (itemtype.includes('body')) {
+		if (itemtype === 'body') {
 			group.position.copy(new THREE.Vector3(0, -0.2, 0));
 		} else if (itemtype === 'hand') {
 			const handsGroup = new THREE.Group();
