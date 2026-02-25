@@ -3,13 +3,14 @@ import MeshUtils from './MeshUtils';
 import { SGMLoader } from './sgmLoader';
 
 class Player {
-	constructor(baseUrl, scene, itemsList, playerItems) {
+	constructor(baseUrl, scene, itemsList, playerItems, onModelLoaded = null) {
 		this.baseUrl = baseUrl;
 		this.scene = scene;
 		this.activeModels = {};
 		this.itemsList = itemsList;
 		this.pendingAttachments = {};
 		this.ropeOverrides = {};
+		this.onModelLoaded = onModelLoaded;
 		this.defaults = {
 			head: {
 				file: 'player/head',
@@ -102,6 +103,9 @@ class Player {
 			this.applyPendingAttachments(model, itemtype);
 
 			this.adjustAsChildModel(itemtype);
+			if (this.onModelLoaded) {
+				this.onModelLoaded(model, itemtype);
+			}
 		});
 	}
 
