@@ -9,6 +9,7 @@ class Player {
 		this.activeModels = {};
 		this.itemsList = itemsList;
 		this.pendingAttachments = {};
+		this.ropeOverrides = {};
 		this.defaults = {
 			head: {
 				file: 'player/head',
@@ -25,6 +26,10 @@ class Player {
 			hand: {
 				file: 'player/hand_claw',
 				materials: [{ type: 'default_primary_color' }, { type: 'default_secondary_color' }],
+			},
+			feet: {
+				file: 'player/feet',
+				materials: [{ type: 'default_secondary_color' }],
 			},
 			'rope/left': {
 				file: 'player/grapple_rope',
@@ -79,8 +84,13 @@ class Player {
 
 		loader.load(this.baseUrl, file, (model) => {
 			model = MeshUtils.applyMaterialIndices(model, item);
+			if (itemtype === 'feet') {
+				this.applyFeetMaterialNames(model);
+			}
 			model = MeshUtils.applyColors(this.scene, item, model);
 			model = MeshUtils.adjustGroupForCategory(model, itemtype);
+			this.applyAttachmentOffset(model, item);
+			this.updateRopePresentation(model, itemtype);
 
 			model.name = targetname;
 			model.grab_type = itemtype;
@@ -92,6 +102,26 @@ class Player {
 			this.applyPendingAttachments(model, itemtype);
 
 			this.adjustAsChildModel(itemtype);
+		});
+	}
+
+	updateRopePresentation(model, itemtype) {
+		if (itemtype.startsWith('rope/')) {
+			this.applyRopeOverridesFromItemType(model, itemtype);
+			this.applyRopeTextureTiling(model);
+			return;
+		}
+
+		if (itemtype.includes('grapple/hook')) {
+			this.applyGrappleOffsetToRope(itemtype, this.itemsList[model.name] || this.defaults[itemtype]);
+		}
+	}
+
+	applyFeetMaterialNames(model) {
+		model.traverse((obj) => {
+			if (obj.material) {
+				obj.name = 'default_secondary_color';
+			}
 		});
 	}
 
@@ -135,13 +165,15 @@ class Player {
 				}
 			}
 		}
-		if (item.attachment_offset_v2) {
-			parentModel.position.z -= item.attachment_offset_v2;
+		const parentOffset = this.getAttachmentOffset(item);
+		if (parentOffset) {
+			parentModel.position.z -= parentOffset;
 		}
 	}
 	applyAttachment(childModel, parentModel, point) {
 		childModel.restore();
-		const override = this.itemsList[childModel.name].attachment_point_overrides?.[parentModel.name];
+		const childItem = this.itemsList[childModel.name] || this.defaults[childModel.grab_type];
+		const override = childItem?.attachment_point_overrides?.[parentModel.name];
 		if (override) {
 			if (override.position) childModel.position.copy(new THREE.Vector3(...override.position));
 			if (override.scale) childModel.scale.set(override.scale, override.scale, override.scale);
@@ -152,9 +184,172 @@ class Player {
 					childModel.position.y += -0.2;
 				}
 			}
-			if (point.rotation) childModel.rotation.copy(new THREE.Euler(...point.rotation));
+			if (point.rotation) {
+				this.applyRotationYawPitchRollDegrees(childModel, point.rotation);
+			}
 			if (point.scale) childModel.scale.set(point.scale, point.scale, point.scale);
 		}
+
+		this.applyAttachmentOffset(childModel, childItem);
+
+		this.updateRopePresentation(childModel, childModel.grab_type || '');
+	}
+
+	getAttachmentOffset(item) {
+		if (!item) {
+			return 0;
+		}
+
+		if (item.attachment_offset_v2 !== undefined) {
+			return item.attachment_offset_v2;
+		}
+		if (item.attachment_offset !== undefined) {
+			return item.attachment_offset;
+		}
+		return 0;
+	}
+
+	applyRotationYawPitchRollDegrees(model, rotation) {
+		if (!rotation) {
+			return;
+		}
+
+		const [yaw, pitch, roll] = Array.isArray(rotation) ? rotation : [rotation.yaw, rotation.pitch, rotation.roll];
+		const degToRad = Math.PI / 180;
+		model.rotation.set(0, 0, 0);
+		model.rotateZ(roll * degToRad);
+		model.rotateY(yaw * degToRad);
+		model.rotateX(pitch * degToRad);
+	}
+
+	applyAttachmentOffset(model, item) {
+		const offset = this.getAttachmentOffset(item);
+		if (!offset) {
+			return;
+		}
+
+		const prevOffset = model.userData.attachmentOffsetValue || 0;
+		if (prevOffset === offset) {
+			return;
+		}
+
+		model.translateZ(-(offset - prevOffset));
+		model.userData.attachmentOffsetValue = offset;
+	}
+
+	applyGrappleOffsetToRope(itemtype, item) {
+		if (!item || !itemtype.includes('grapple/hook')) {
+			return;
+		}
+
+		let ropeTypes = [];
+		if (itemtype.endsWith('/left')) {
+			ropeTypes = ['rope/left'];
+		} else if (itemtype.endsWith('/right')) {
+			ropeTypes = ['rope/right'];
+		} else {
+			ropeTypes = ['rope/left', 'rope/right'];
+		}
+
+		ropeTypes.forEach((ropeType) => {
+			const ropeModel = this.activeModels[ropeType];
+			if (!ropeModel) {
+				return;
+			}
+			this.applyRopeOverrides(ropeModel, ropeType, item);
+			this.applyRopeTextureTiling(ropeModel);
+		});
+	}
+
+	applyRopeOverridesFromItemType(model, itemtype) {
+		if (!itemtype.startsWith('rope/')) {
+			return;
+		}
+
+		const ropeSpec = this.ropeOverrides[itemtype];
+		if (!ropeSpec) {
+			return;
+		}
+
+		this.applyRopeOverridesToModel(model, ropeSpec);
+	}
+
+	applyRopeOverrides(ropeModel, ropeType, grappleItem) {
+		const ropeSpec = grappleItem?.rope;
+		if (!ropeSpec) {
+			return;
+		}
+
+		this.ropeOverrides[ropeType] = ropeSpec;
+		this.applyRopeOverridesToModel(ropeModel, ropeSpec);
+	}
+
+	applyRopeOverridesToModel(ropeModel, ropeSpec) {
+		if (ropeSpec.materials) {
+			const ropeItem = { materials: ropeSpec.materials };
+			MeshUtils.applyMaterialIndices(ropeModel, ropeItem);
+			MeshUtils.applyColors(this.scene, ropeItem, ropeModel);
+			this.applyRopeMaterialOverrides(ropeModel);
+		}
+
+		if (ropeSpec.thickness) {
+			this.applyRopeThickness(ropeModel, ropeSpec.thickness);
+		}
+	}
+
+	applyRopeMaterialOverrides(ropeModel) {
+		ropeModel.traverse((obj) => {
+			if (!obj.material) {
+				return;
+			}
+			if (obj.name === 'default_color') {
+				obj.material.map = null;
+				obj.material.needsUpdate = true;
+			}
+		});
+	}
+
+	applyRopeThickness(ropeModel, thickness) {
+		const prevThickness = ropeModel.userData.ropeThicknessApplied || 1;
+		if (prevThickness === thickness) {
+			return;
+		}
+
+		const factor = thickness / prevThickness;
+		ropeModel.scale.x *= factor;
+		ropeModel.scale.y *= factor;
+		ropeModel.userData.ropeThicknessApplied = thickness;
+	}
+
+	getRopeLengthScale(ropeModel) {
+		return Math.max(1, Math.abs(ropeModel.scale.x), Math.abs(ropeModel.scale.y), Math.abs(ropeModel.scale.z));
+	}
+
+	ensureRopeTextureInstance(material) {
+		if (!material.map) {
+			return;
+		}
+
+		if (!material.userData.ropeTextureIsolated) {
+			material.map = material.map.clone();
+			material.userData.ropeTextureIsolated = true;
+		}
+	}
+
+	applyRopeTextureTiling(ropeModel) {
+		const lengthScale = this.getRopeLengthScale(ropeModel);
+		ropeModel.traverse((obj) => {
+			if (!obj.material || !obj.material.map) {
+				return;
+			}
+
+			this.ensureRopeTextureInstance(obj.material);
+			obj.material.map.wrapS = THREE.RepeatWrapping;
+			obj.material.map.wrapT = THREE.RepeatWrapping;
+			obj.material.map.repeat.y = lengthScale;
+			obj.material.map.needsUpdate = true;
+			obj.material.needsUpdate = true;
+		});
 	}
 
 	setupAttachments(model, type) {
@@ -162,12 +357,7 @@ class Player {
 		let initialPosition, initialRotation;
 
 		if (rotation) {
-			rotation = new THREE.Euler(
-				(rotation.x * Math.PI) / 180, // Convert to radians
-				(rotation.y * Math.PI) / 180,
-				(rotation.z * Math.PI) / 180,
-			);
-			model.rotation.copy(rotation);
+			this.applyRotationYawPitchRollDegrees(model, rotation);
 		}
 		initialRotation = model.rotation.clone();
 

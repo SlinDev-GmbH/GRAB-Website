@@ -184,7 +184,7 @@ class LevelLoader {
 		};
 
 		if (this.options.lights) {
-			const ambientLight = new THREE.AmbientLight(0x404040);
+			const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 			level.scene.add(ambientLight);
 
 			const sunLight = new THREE.DirectionalLight(0xffffff, 0.5);

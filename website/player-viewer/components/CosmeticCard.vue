@@ -104,7 +104,11 @@ export default {
 						model = MeshUtils.applyMaterialIndices(model, this.itemObject);
 						model = MeshUtils.applyColors(scene, this.itemObject, model);
 						model = this.applyPreviewRotation(model);
-						scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+						this.fitModelToCamera(model, camera);
+						scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+						const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+						directionalLight.position.set(0, 1, 2);
+						scene.add(directionalLight);
 						scene.add(model);
 
 						this.fileExists = true;
@@ -125,6 +129,26 @@ export default {
 				model.rotation.copy(rotation);
 			}
 			return model;
+		},
+		fitModelToCamera(model, camera) {
+			const box = new THREE.Box3().setFromObject(model);
+			const size = box.getSize(new THREE.Vector3());
+			const center = box.getCenter(new THREE.Vector3());
+
+			if (size.lengthSq() === 0) {
+				return;
+			}
+
+			const sphere = box.getBoundingSphere(new THREE.Sphere());
+			const radius = Math.max(0.001, sphere.radius);
+			const fov = THREE.MathUtils.degToRad(camera.fov);
+			const distance = radius / Math.sin(fov / 2);
+
+			camera.position.copy(center).add(new THREE.Vector3(0, 0, distance * 1.1));
+			camera.lookAt(center);
+			camera.near = Math.max(0.01, distance / 100);
+			camera.far = Math.max(1000, distance * 10);
+			camera.updateProjectionMatrix();
 		},
 	},
 };

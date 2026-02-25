@@ -77,7 +77,12 @@ class MeshUtils {
 			handsGroup.add(leftHand, rightHand);
 			return handsGroup;
 		} else if (itemtype === 'checkpoint') {
-			group.position.set(-0.5, -1.5, 0);
+			const bounds = new THREE.Box3().setFromObject(group);
+			const size = bounds.getSize(new THREE.Vector3());
+			const offsetX = -0.5 - size.x * 0.5;
+			group.position.set(offsetX, -1.5, 0);
+		} else if (itemtype === 'feet') {
+			group.position.set(0, -1.5, 0);
 		} else if (itemtype == 'rope/left' || itemtype === 'grapple/hook/left') {
 			group.position.set(0.3, -0.5, -0.4);
 			group.rotation.z = 170 * (Math.PI / 180);

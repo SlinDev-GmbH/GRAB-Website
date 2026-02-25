@@ -12,10 +12,10 @@ class SGMLoader extends THREE.Loader {
 		loader.setRequestHeader(this.requestHeader);
 		loader.setWithCredentials(this.withCredentials);
 
-		loader.load(baseUrl + file + '.sgm', (data) => {
+		loader.load(baseUrl + file + '.sgm', async (data) => {
 			try {
 				const result = this.parse(data);
-				const group = this.createGroupFromMeshes(result[0], result[1], file, scene);
+				const group = await this.createGroupFromMeshes(result[0], result[1], baseUrl, file);
 				onLoad(group);
 			} catch (error) {
 				if (onError) {
@@ -167,18 +167,84 @@ class SGMLoader extends THREE.Loader {
 		return [meshes, materials];
 	}
 
-	createGroupFromMeshes(meshes, materials) {
-		let group = new THREE.Group();
+	loadTexture(textureLoader, textureUrl) {
+		return new Promise((resolve, reject) => {
+			textureLoader.load(textureUrl, resolve, undefined, reject);
+		});
+	}
 
-		const threeMaterials = materials.map((material) => {
+	getTextureName(material) {
+		if (!material.uv_data || material.uv_data.length === 0) {
+			return null;
+		}
+
+		for (const uvSet of material.uv_data) {
+			for (const imageData of uvSet) {
+				if (imageData && imageData[0]) {
+					return imageData[0].replace('*', 'png').replace(/\\/g, '/');
+				}
+			}
+		}
+
+		return null;
+	}
+
+	async loadMaterialTexture(textureLoader, baseUrl, file, material) {
+		const textureName = this.getTextureName(material);
+		if (!textureName) {
+			return null;
+		}
+
+		const normalizedBase = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
+		const modelFolder = file.includes('/') ? file.substring(0, file.lastIndexOf('/') + 1) : '';
+		const textureNames = [textureName];
+		if (textureName.toLowerCase().endsWith('.dds')) {
+			textureNames.push(textureName.slice(0, -4) + '.png');
+		}
+
+		const candidates = [];
+		for (const name of textureNames) {
+			candidates.push(`${normalizedBase}${modelFolder}${name}`, `${normalizedBase}${name}`);
+		}
+
+		const attempted = new Set();
+		for (const url of candidates) {
+			if (attempted.has(url)) {
+				continue;
+			}
+			attempted.add(url);
+			try {
+				const texture = await this.loadTexture(textureLoader, url);
+				texture.colorSpace = THREE.SRGBColorSpace;
+				texture.needsUpdate = true;
+				return texture;
+			} catch (error) {
+				// Try the next candidate path.
+			}
+		}
+
+		return null;
+	}
+
+	async createGroupFromMeshes(meshes, materials, baseUrl, file) {
+		let group = new THREE.Group();
+		const textureLoader = new THREE.TextureLoader(this.manager);
+
+		const threeMaterials = await Promise.all(materials.map(async (material) => {
 			// Check if colors array is defined and has at least one element
 			let color = material.colors && material.colors.length > 0 ? material.colors[0][0] : [1, 1, 1]; // Default to white
+			const texture = await this.loadMaterialTexture(textureLoader, baseUrl, file, material);
 
 			const matOptions = {
-				color: new THREE.Color(color[0], color[1], color[2]),
+				color: texture ? new THREE.Color(1, 1, 1) : new THREE.Color(color[0], color[1], color[2]),
 			};
+			if (texture) {
+				matOptions.map = texture;
+				matOptions.transparent = true;
+			}
+
 			return new THREE.MeshStandardMaterial(matOptions);
-		});
+		}));
 
 		meshes.forEach((mesh) => {
 			const geometry = new THREE.BufferGeometry();
@@ -203,7 +269,9 @@ class SGMLoader extends THREE.Loader {
 			geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 4));
 			geometry.setIndex(new THREE.Uint32BufferAttribute(mesh.indices, 1));
 
-			if (colors.length > 0) threeMaterials[mesh.material_id].vertexColors = true;
+			if (colors.length > 0 && !threeMaterials[mesh.material_id].map) {
+				threeMaterials[mesh.material_id].vertexColors = true;
+			}
 			const threeMesh = new THREE.Mesh(geometry, threeMaterials[mesh.material_id]);
 			group.add(threeMesh);
 		});

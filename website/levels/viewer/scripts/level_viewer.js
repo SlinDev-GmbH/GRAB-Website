@@ -777,7 +777,7 @@ function setupEvents() {
 	document.getElementById('back-button').addEventListener('click', backButtonPressed);
 	document.getElementById('copy-button').addEventListener('click', copyLevelURLPressed);
 	document.getElementById('location-button').addEventListener('click', copyLocationURLPressed);
-	document.getElementById('download-button').addEventListener('click', exportLevelAsGLTF);
+	document.getElementById('download-button').addEventListener('click', exportLevelAsGLB);
 	document.getElementById('fog-button').addEventListener('click', toggleFog);
 
 	window.addEventListener('resize', onWindowResize);
@@ -1013,8 +1013,8 @@ function copyLocationURLPressed() {
 	navigator.clipboard.writeText(newUrl);
 }
 
-function saveDataAsFile(filename, data) {
-	const blob = new Blob([data], { type: 'text/json' });
+function saveDataAsFile(filename, data, contentType = 'application/octet-stream') {
+	const blob = new Blob([data], { type: contentType });
 	if (window.navigator.msSaveOrOpenBlob) {
 		window.navigator.msSaveBlob(blob, filename);
 	} else {
@@ -1027,18 +1027,19 @@ function saveDataAsFile(filename, data) {
 	}
 }
 
-function exportLevelAsGLTF() {
+function exportLevelAsGLB() {
 	const exporter = new GLTFExporter();
 	exporter.parse(
 		scene,
-		(gltf) => {
-			console.log(gltf);
-			saveDataAsFile('test.gltf', JSON.stringify(gltf));
+		(glb) => {
+			const levelID = new URLSearchParams(window.location.search).get('level') || 'level';
+			const sanitizedLevelID = levelID.replace(/[\\/:*?"<>|]/g, '_');
+			saveDataAsFile(`${sanitizedLevelID}.glb`, glb, 'model/gltf-binary');
 		},
 		(err) => {
 			console.error(err);
 		},
-		{},
+		{ binary: true },
 	);
 }
 

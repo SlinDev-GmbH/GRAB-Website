@@ -18,6 +18,7 @@ export default {
 	created() {
 		this.scenes = [];
 		this.divRenderer = null;
+		this.boundSetupUI = this.setupUI.bind(this);
 	},
 	async mounted() {
 		this.setupUI();
@@ -26,6 +27,10 @@ export default {
 
 		const divRenderer = await this.initScene();
 		this.divRenderer = divRenderer;
+		window.addEventListener('resize', this.boundSetupUI);
+	},
+	beforeUnmount() {
+		window.removeEventListener('resize', this.boundSetupUI);
 	},
 	components: {
 		CosmeticCard,
@@ -78,8 +83,8 @@ export default {
 			let positionInfo = page.getBoundingClientRect();
 			let height2 = positionInfo.height;
 			let width2 = positionInfo.width;
-			this.canvas.style.height = height2;
-			this.canvas.style.width = width2;
+			this.canvas.style.height = `${height2}px`;
+			this.canvas.style.width = `${width2}px`;
 		},
 		updateSize() {
 			let width = this.canvas.clientWidth;
@@ -91,19 +96,16 @@ export default {
 
 		divRenderLoop() {
 			this.updateSize();
-			this.canvas.style.transform = `translateY(${window.scrollY}px), translateX(${window.scrollX})`;
 			this.divRenderer.clear();
 			this.divRenderer.setScissorTest(true);
 			this.scenes.forEach((scene) => {
 				let element = scene.userData.element;
 				let rect = element.getBoundingClientRect();
 
-				let content = document.getElementById('categories-content');
-				let contentRect = content.getBoundingClientRect();
 				let cardList = document.getElementById('card-list');
 				let cardListRect = cardList.getBoundingClientRect();
 
-				if (rect.bottom > contentRect.bottom || rect.top < contentRect.top - 50) {
+				if (rect.bottom <= cardListRect.top || rect.top >= cardListRect.bottom) {
 					return;
 				}
 
@@ -167,41 +169,46 @@ export default {
 </template>
 <style scoped>
 #customizations {
-	width: 572px;
-	padding: 3px;
+	width: min(620px, 38vw);
+	min-width: 420px;
+	height: 100%;
+	min-height: 0;
+	padding: 0;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+	align-items: stretch;
+	justify-content: flex-start;
 }
 
 @media screen and (max-width: 1001px) {
-	/* when the menu wraps */
 	#customizations {
-		height: 60svh !important;
+		width: 100%;
+		min-width: 0;
+		height: 52svh !important;
 	}
 }
 
 #categories-content {
 	display: flex;
 	flex-direction: column;
-	/* outline: 2px solid green; */
 	width: 100%;
-	height: 500px;
-	padding: 3px;
+	flex: 1 1 auto;
+	min-height: 0;
+	padding: 0;
 	position: relative;
 }
 
 .card-list {
 	width: 100%;
-	height: 100%;
-	margin-bottom: auto;
+	flex: 1 1 auto;
+	min-height: 0;
+	height: auto;
+	margin-bottom: 0;
 	overflow-y: scroll;
 	display: grid;
 	gap: 1rem;
 	padding: 1rem;
 	grid-template-columns: 1fr 1fr;
-	height: fit-content;
 	scrollbar-width: none;
 }
 </style>
