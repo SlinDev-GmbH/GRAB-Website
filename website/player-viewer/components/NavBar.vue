@@ -6,10 +6,11 @@ export default {
 		return {
 			NavBar: [
 				{ id: 'items', text: 'Cosmetics', onClick: this.handleNavBarInput },
-				{ id: 'primary', text: 'Main Color', onClick: this.handleNavBarInput },
-				{ id: 'secondary', text: 'Second Color', onClick: this.handleNavBarInput },
+				{ id: 'primary', text: 'Main Color', shortText: 'Main', onClick: this.handleNavBarInput },
+				{ id: 'secondary', text: 'Detail Color', shortText: 'Detail', onClick: this.handleNavBarInput },
 			],
 			active: 'items',
+			isCompact: false,
 		};
 	},
 	components: {
@@ -21,11 +22,21 @@ export default {
 			require: true,
 		},
 	},
+	mounted() {
+		this.updateCompact();
+		window.addEventListener('resize', this.updateCompact);
+	},
+	beforeUnmount() {
+		window.removeEventListener('resize', this.updateCompact);
+	},
 
 	methods: {
 		handleNavBarInput(event) {
 			this.active = event.target.id;
 			this.$emit('UpdateNav', event.target.id);
+		},
+		updateCompact() {
+			this.isCompact = window.innerWidth <= 1001;
 		},
 	},
 };
@@ -39,7 +50,7 @@ export default {
 			@click="option.onClick"
 			:class="active == option.id ? 'active' : ''"
 		>
-			{{ option.text }}
+			{{ isCompact && option.shortText ? option.shortText : option.text }}
 		</button>
 		<DropDown
 			v-show="isItemsSelected"

@@ -344,17 +344,31 @@ export default {
 
 @media screen and (max-width: 1001px) {
 	#player-viewer {
-		padding: 56px 12px 0;
+		padding: 12px 12px 0;
 		flex-direction: column;
 		align-items: center;
 		overflow-y: auto;
+	}
+
+	.user-tools {
+		position: static;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		padding: 8px 12px 0;
+		width: 100%;
+		z-index: 2;
+	}
+
+	.user-tools button {
+		width: 120px;
 	}
 
 	#player-container {
 		width: 100%;
 		max-width: 700px;
 		min-width: 0;
-		height: 42svh;
+		height: 36svh;
 		flex: 0 0 auto;
 	}
 
@@ -366,7 +380,8 @@ export default {
 
 #canvas {
 	position: fixed;
-	left: 0px;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
 	z-index: 1;

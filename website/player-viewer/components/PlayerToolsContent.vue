@@ -85,6 +85,8 @@ export default {
 			let width2 = positionInfo.width;
 			this.canvas.style.height = `${height2}px`;
 			this.canvas.style.width = `${width2}px`;
+			this.canvas.style.top = `${positionInfo.top}px`;
+			this.canvas.style.left = `${positionInfo.left}px`;
 		},
 		updateSize() {
 			let width = this.canvas.clientWidth;
@@ -184,7 +186,7 @@ export default {
 	#customizations {
 		width: 100%;
 		min-width: 0;
-		height: 52svh !important;
+		height: 58svh !important;
 	}
 }
 
@@ -210,5 +212,11 @@ export default {
 	padding: 1rem;
 	grid-template-columns: 1fr 1fr;
 	scrollbar-width: none;
+}
+
+@media screen and (max-width: 1001px) {
+	.card-list {
+		grid-template-columns: 1fr;
+	}
 }
 </style>
