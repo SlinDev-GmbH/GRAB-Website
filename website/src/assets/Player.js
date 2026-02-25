@@ -106,6 +106,9 @@ class Player {
 				this.applyFeetMaterialNames(model);
 			}
 			model = MeshUtils.applyColors(this.scene, item, model);
+			if (itemtype === 'checkpoint') {
+				this.applyRotationYawPitchRollDegrees(model, [180, 0, 0]);
+			}
 			model = MeshUtils.adjustGroupForCategory(model, itemtype);
 			this.applyAttachmentOffset(model, item);
 			this.updateRopePresentation(model, itemtype, item);

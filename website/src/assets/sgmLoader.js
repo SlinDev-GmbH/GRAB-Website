@@ -215,6 +215,7 @@ class SGMLoader extends THREE.Loader {
 			attempted.add(url);
 			try {
 				const texture = await this.loadTexture(textureLoader, url);
+				texture.flipY = false;
 				texture.colorSpace = THREE.SRGBColorSpace;
 				texture.needsUpdate = true;
 				return texture;
