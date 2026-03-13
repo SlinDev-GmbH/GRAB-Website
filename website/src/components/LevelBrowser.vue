@@ -33,7 +33,7 @@ export default {
 
 	data() {
 		return {
-			tabActive: this.$route.query?.tab === 'tab_featured' ? 'tab_featured' : 'tab_newest',
+			tabActive: this.$route.query?.tab ?? 'tab_newest',
 			searchTerm: '',
 			userID: null,
 			difficultyFilter: '',
@@ -79,11 +79,12 @@ export default {
 
 	methods: {
 		tabChanged(query) {
+			console.log('tab changed: ' + query.tab);
 			this.tabActive = query.tab;
 			if ('search' in query) this.searchTerm = query['search'];
 			if ('user_id' in query) this.userID = query['user_id'];
 			else this.userID = null;
-			this.$router.push({ query: query });
+			this.$router.push({ query });
 		},
 
 		searchChanged(value) {
@@ -114,29 +115,19 @@ export default {
 			this.isLoading = false;
 		},
 
-		restoreLoginLocation() {
-			let currentLocation = localStorage.getItem('currentLocation');
-			localStorage.removeItem('currentLocation');
-			if (currentLocation) {
-				currentLocation = JSON.parse(currentLocation);
+		getLoginQuery() {
+			let loginLocation = localStorage.getItem('loginLocation');
+			localStorage.removeItem('loginLocation');
 
-				const user_id = currentLocation['user_id'];
-				const search = currentLocation['search'];
-				const tab = currentLocation['tab'] || 'tab_newest';
+			if (loginLocation) return JSON.parse(loginLocation);
 
-				const query = {
-					tab,
-					user_id,
-					search,
-				};
-
-				this.$router.push({ query });
-			}
+			return undefined;
 		},
 	},
 	watch: {
 		'$route.query': {
 			handler(newQuery) {
+				console.log('watcher update: ' + newQuery.tab);
 				this.tabActive = newQuery.tab || 'tab_newest';
 				this.searchTerm = newQuery.search || '';
 				this.userID = newQuery.user_id || null;
@@ -146,19 +137,30 @@ export default {
 	created() {
 		document.title = 'GRAB Levels';
 
-		const query = this.$route.query;
+		const query = this.getLoginQuery() ?? this.$route.query;
+
 		const user_id = query.user_id;
 		const search = query.search;
 		const list = query.list;
 		let tab = query.tab ?? 'tab_newest';
-		if (tab === 'user') tab = 'tab_other_user';
+
+		if (tab === 'user') tab = 'tab_other_user'; // legacy
+
 		const new_query = { tab };
 		if (search) new_query.search = search;
 		if (user_id) new_query.user_id = user_id;
 		if (list) new_query.list = list;
-		this.tabChanged(new_query);
 
-		this.restoreLoginLocation();
+		this.tabActive = tab;
+		this.searchTerm = search || '';
+		this.userID = user_id || null;
+
+		console.log('loading initial page: ' + new_query.tab);
+
+		// avoid triggering route watchers. hopefully doesnt break anything
+		const params = new URLSearchParams(new_query).toString();
+		window.history.replaceState({}, '', `${this.$route.path}?${params}`);
+		// this.$router.replace({ query: new_query });
 	},
 };
 </script>
