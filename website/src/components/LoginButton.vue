@@ -22,8 +22,6 @@ export default {
 			let hash = this.$route.hash.substring(1);
 			let data = atob(hash);
 			authInfo = JSON.parse(data);
-
-			this.$router.replace({ path: this.$route.path });
 		}
 
 		const userStore = useUserStore();

@@ -157,10 +157,7 @@ export default {
 
 		console.log('loading initial page: ' + new_query.tab);
 
-		// avoid triggering route watchers. hopefully doesnt break anything
-		const params = new URLSearchParams(new_query).toString();
-		window.history.replaceState({}, '', `${this.$route.path}?${params}`);
-		// this.$router.replace({ query: new_query });
+		this.$router.replace({ query: new_query });
 	},
 };
 </script>
