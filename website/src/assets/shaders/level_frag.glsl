@@ -13,6 +13,7 @@ uniform float isLava;
 uniform float isColoredLava;
 
 uniform float isGradient;
+uniform float isAdditive;
 uniform vec3 diffuseColor2;
 uniform vec3 gradientDirection;
 
@@ -65,7 +66,7 @@ void main()
     float distanceToCamera = length(cameraToVertex);
     cameraToVertex = normalize(cameraToVertex);
 
-    if (neonEnabled < 0.5)
+    if (neonEnabled < 0.5 && isAdditive < 0.5)
     {
         //Apply sun light
         vec3 lightDirection = normalize(-sunDirection);

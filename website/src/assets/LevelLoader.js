@@ -723,6 +723,13 @@ class LevelLoader {
 						newMaterial.uniforms.specularColor.value = specularColor;
 					}
 
+					if (node.levelNodeStatic.isAdditive) {
+						newMaterial.transparent = true;
+						newMaterial.blending = THREE.AdditiveBlending;
+						newMaterial.depthWrite = false;
+						newMaterial.uniforms.isAdditive.value = 1.0;
+					}
+
 					object = new THREE.Mesh(shapes[node.levelNodeStatic.shape - 1000], newMaterial);
 					parentNode.add(object);
 					object.position.x = -node.levelNodeStatic.position.x;
@@ -1154,6 +1161,7 @@ function getMaterialForTexture(
 		isLava: { value: isLava },
 		isColoredLava: { value: 0.0 },
 		isGradient: { value: 0.0 },
+		isAdditive: { value: 0.0 },
 		diffuseColor2: { value: [1.0, 1.0, 1.0] },
 		gradientDirection: { value: [0.0, 1.0, 0.0] },
 	};
