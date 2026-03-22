@@ -43,6 +43,24 @@ message AmbienceSettings
 	float sunSize = 5;
 
 	float fogDensity = 6;
+
+	oneof _useAdvancedSunSettings
+	{
+		bool useAdvancedSunSettings = 7;
+	}
+
+	oneof _sunBrightness
+	{
+		float sunBrightness = 9;
+	}
+
+	oneof _ambientBrightness
+	{
+		float ambientBrightness = 11;
+	}
+
+	Color sunColor = 8;
+	Color ambientColor = 10;
 }
 
 enum LevelNodeShape
@@ -55,8 +73,9 @@ enum LevelNodeShape
 	PARTICLE_EMITTER = 5;
 	SOUND = 6;
 	GASM = 7;
+	LIGHT = 8;
 
-	__END_OF_SPECIAL_PARTS__ = 8;
+	__END_OF_SPECIAL_PARTS__ = 9;
 
 	CUBE = 1000;
 	SPHERE = 1001;
@@ -162,6 +181,14 @@ message LevelNodeStatic
 	bool isGrabbable = 10; //Used for DEFAULT_COLORED material to allow grabbing it or not
 	bool isGrapplable = 11; //Used for DEFAULT_COLORED material to allow grappling it or not
 	bool isPassable = 12;
+
+	Vector gradientDirection = 14;
+	bool isGradient = 13;
+	bool isAdditive = 16;
+
+	oneof _specularBrightness {
+		float specularBrightness = 15;
+	}
 }
 
 message LevelNodeCrumbling
@@ -197,6 +224,10 @@ message LevelNodeSign
 	Color color = 5;
 	SignFontWeight weight = 7;
 	bool hideModel = 6;
+
+	oneof _isNeon {
+		bool isNeon = 8;
+	}
 }
 
 message LevelNodeGravity
@@ -344,6 +375,21 @@ message TriggerTargetAmbience
 	
 	float changeDuration = 7;
 	InterpolationType interpolationType = 8;
+
+	Color sunColor = 10;
+	Color ambientColor = 12;
+
+	oneof _useAdvancedSunSettings {
+		bool useAdvancedSunSettings = 9;
+	}
+
+	oneof _sunBrightness {
+		float sunBrightness = 11;
+	}
+
+	oneof _ambientBrightness {
+		float ambientBrightness = 13;
+	}
 }
 
 message TriggerTarget
@@ -469,6 +515,30 @@ message LevelNodeGASM
 	bool lateUpdate = 8;
 }
 
+message LevelNodeLight {
+    Vector position = 1;
+    Quaternion rotation = 2;
+
+    Type type = 3;
+    enum Type {
+        POINT = 0;
+        SPOT = 1;
+    }
+
+    Color color = 4;
+    float intensity = 5;
+    float range = 6;
+    float angle = 7;
+
+    oneof _distanceFalloffShape {
+        float distanceFalloffShape = 8;
+    }
+
+    oneof _coneFalloffShape {
+        float coneFalloffShape = 9;
+    }
+}
+
 message AnimationFrame
 {
 	float time = 1;
@@ -515,6 +585,7 @@ message LevelNode
 		LevelNodeParticleEmitter levelNodeParticleEmitter = 11;
 		LevelNodeSound levelNodeSound = 12;
 		LevelNodeGASM levelNodeGASM = 13;
+		LevelNodeLight levelNodeLight = 14;
 	}
 
 	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations
