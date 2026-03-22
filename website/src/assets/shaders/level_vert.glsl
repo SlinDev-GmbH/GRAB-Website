@@ -1,5 +1,6 @@
 varying vec3 vWorldPosition;
 varying vec3 vInitialWorldPosition;
+varying vec3 vLocalPosition;
 varying vec3 vNormal;
 
 uniform mat4 worldMatrix;
@@ -11,6 +12,7 @@ void main()
     vec4 initialWorldPosition = worldMatrix * vec4(position, 1.0);
     vWorldPosition = worldPosition.xyz;
     vInitialWorldPosition = initialWorldPosition.xyz;
+    vLocalPosition = position;
 
     vNormal = worldNormalMatrix * normal;
 

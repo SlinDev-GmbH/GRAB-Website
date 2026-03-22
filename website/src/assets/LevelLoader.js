@@ -177,7 +177,7 @@ class LevelLoader {
 			},
 			complexity: 0,
 			scene: new THREE.Scene(),
-			update: () => {},
+			update: () => { },
 			meta: {
 				time: 0.0,
 			},
@@ -687,14 +687,29 @@ class LevelLoader {
 							node.levelNodeStatic.color1.b,
 						];
 
+						if (node.levelNodeStatic.isGradient && node.levelNodeStatic.color2) {
+							newMaterial.uniforms.isGradient.value = 1.0;
+							newMaterial.uniforms.diffuseColor2.value = [
+								node.levelNodeStatic.color2.r,
+								node.levelNodeStatic.color2.g,
+								node.levelNodeStatic.color2.b,
+							];
+							if (node.levelNodeStatic.gradientDirection) {
+								newMaterial.uniforms.gradientDirection.value = [
+									-node.levelNodeStatic.gradientDirection.x,
+									node.levelNodeStatic.gradientDirection.y,
+									-node.levelNodeStatic.gradientDirection.z,
+								];
+							}
+						}
 						let specularFactor =
 							Math.sqrt(
 								node.levelNodeStatic.color1.r * node.levelNodeStatic.color1.r +
-									node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g +
-									node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b,
+								node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g +
+								node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b,
 							) * 0.15;
 						let specularColor = [specularFactor, specularFactor, specularFactor, 16.0];
-						if (node.levelNodeStatic.color2) {
+						if (node.levelNodeStatic.color2 && !node.levelNodeStatic.isGradient) {
 							specularColor = [
 								node.levelNodeStatic.color2.r,
 								node.levelNodeStatic.color2.g,
@@ -1138,6 +1153,9 @@ function getMaterialForTexture(
 		specularColor: { value: specularColor },
 		isLava: { value: isLava },
 		isColoredLava: { value: 0.0 },
+		isGradient: { value: 0.0 },
+		diffuseColor2: { value: [1.0, 1.0, 1.0] },
+		gradientDirection: { value: [0.0, 1.0, 0.0] },
 	};
 
 	material.uniforms.colorTexture.value = textureLoader.load(name);
