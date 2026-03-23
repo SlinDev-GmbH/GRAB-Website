@@ -43,6 +43,13 @@ message AmbienceSettings
 	float sunSize = 5;
 
 	float fogDensity = 6;
+
+	optional bool useAdvancedSunSettings = 7;
+	Color sunColor = 8;
+	optional float sunBrightness = 9;
+
+	Color ambientColor = 10;
+	optional float ambientBrightness = 11;
 }
 
 enum LevelNodeShape
@@ -55,8 +62,9 @@ enum LevelNodeShape
 	PARTICLE_EMITTER = 5;
 	SOUND = 6;
 	GASM = 7;
+	LIGHT = 8;
 
-	__END_OF_SPECIAL_PARTS__ = 8;
+	__END_OF_SPECIAL_PARTS__ = 9;
 
 	CUBE = 1000;
 	SPHERE = 1001;
@@ -155,9 +163,14 @@ message LevelNodeStatic
 
 	Color color1 = 6;
 	Color color2 = 9; //Used for colored lava blocks, blending between the two colors, but also used for specularity on colored default blocks!
+	Vector gradientDirection = 14;
+
+	optional float specularBrightness = 15;
 
 	bool isNeon = 7;
 	bool isTransparent = 8;
+	bool isGradient = 13;
+	bool isAdditive = 16;
 
 	bool isGrabbable = 10; //Used for DEFAULT_COLORED material to allow grabbing it or not
 	bool isGrapplable = 11; //Used for DEFAULT_COLORED material to allow grappling it or not
@@ -197,6 +210,8 @@ message LevelNodeSign
 	Color color = 5;
 	SignFontWeight weight = 7;
 	bool hideModel = 6;
+
+	optional bool isNeon = 8;
 }
 
 message LevelNodeGravity
@@ -344,6 +359,13 @@ message TriggerTargetAmbience
 	
 	float changeDuration = 7;
 	InterpolationType interpolationType = 8;
+
+	optional bool useAdvancedSunSettings = 9;
+	Color sunColor = 10;
+	optional float sunBrightness = 11;
+
+	Color ambientColor = 12;
+	optional float ambientBrightness = 13;
 }
 
 message TriggerTarget
@@ -469,6 +491,25 @@ message LevelNodeGASM
 	bool lateUpdate = 8;
 }
 
+message LevelNodeLight {
+	enum Type {
+		POINT = 0;
+		SPOT = 1;
+	}
+
+	Vector position = 1;
+	Quaternion rotation = 2;
+
+	Type type = 3;
+	Color color = 4;
+	float intensity = 5;
+	float range = 6;
+	float angle = 7;
+
+	optional float distanceFalloffShape = 8;
+	optional float coneFalloffShape = 9;
+}
+
 message AnimationFrame
 {
 	float time = 1;
@@ -515,6 +556,7 @@ message LevelNode
 		LevelNodeParticleEmitter levelNodeParticleEmitter = 11;
 		LevelNodeSound levelNodeSound = 12;
 		LevelNodeGASM levelNodeGASM = 13;
+		LevelNodeLight levelNodeLight = 14;
 	}
 
 	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations
