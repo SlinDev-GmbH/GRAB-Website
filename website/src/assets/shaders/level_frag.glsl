@@ -48,9 +48,9 @@ void main()
     if (isGradient > 0.5)
     {
         float gradient = dot(vLocalPosition, gradientDirection);
-        baseColor = mix(diffuseColor, diffuseColor2, clamp(gradient + 0.5, 0.0, 1.0));
+        float extent = 0.5 * dot(abs(gradientDirection), vec3(1.0));
+        baseColor = mix(diffuseColor, diffuseColor2, clamp((gradient + extent) / (2.0 * extent), 0.0, 1.0));
     }
-
 
     color.rgb = texColor.rgb * baseColor;
 
