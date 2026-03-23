@@ -217,7 +217,7 @@ async function init() {
 		}
 	}
 
-	if (userStore.isLoggedIn && (userStore.isVerifier || userStore.userID === userID)) {
+	if (userStore.isLoggedIn && userStore.isVerifier) {
 		const tagButton = document.getElementById('tagButton');
 		const tagMenu = document.getElementById('tagMenu');
 		const tagMenuInner = document.getElementById('tagMenuInner');
