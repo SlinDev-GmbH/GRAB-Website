@@ -44,23 +44,12 @@ message AmbienceSettings
 
 	float fogDensity = 6;
 
-	oneof _useAdvancedSunSettings
-	{
-		bool useAdvancedSunSettings = 7;
-	}
-
-	oneof _sunBrightness
-	{
-		float sunBrightness = 9;
-	}
-
-	oneof _ambientBrightness
-	{
-		float ambientBrightness = 11;
-	}
-
+	optional bool useAdvancedSunSettings = 7;
 	Color sunColor = 8;
+	optional float sunBrightness = 9;
+
 	Color ambientColor = 10;
+	optional float ambientBrightness = 11;
 }
 
 enum LevelNodeShape
@@ -174,21 +163,18 @@ message LevelNodeStatic
 
 	Color color1 = 6;
 	Color color2 = 9; //Used for colored lava blocks, blending between the two colors, but also used for specularity on colored default blocks!
+	Vector gradientDirection = 14;
+
+	optional float specularBrightness = 15;
 
 	bool isNeon = 7;
 	bool isTransparent = 8;
+	bool isGradient = 13;
+	bool isAdditive = 16;
 
 	bool isGrabbable = 10; //Used for DEFAULT_COLORED material to allow grabbing it or not
 	bool isGrapplable = 11; //Used for DEFAULT_COLORED material to allow grappling it or not
 	bool isPassable = 12;
-
-	Vector gradientDirection = 14;
-	bool isGradient = 13;
-	bool isAdditive = 16;
-
-	oneof _specularBrightness {
-		float specularBrightness = 15;
-	}
 }
 
 message LevelNodeCrumbling
@@ -225,9 +211,7 @@ message LevelNodeSign
 	SignFontWeight weight = 7;
 	bool hideModel = 6;
 
-	oneof _isNeon {
-		bool isNeon = 8;
-	}
+	optional bool isNeon = 8;
 }
 
 message LevelNodeGravity
@@ -376,20 +360,12 @@ message TriggerTargetAmbience
 	float changeDuration = 7;
 	InterpolationType interpolationType = 8;
 
+	optional bool useAdvancedSunSettings = 9;
 	Color sunColor = 10;
+	optional float sunBrightness = 11;
+
 	Color ambientColor = 12;
-
-	oneof _useAdvancedSunSettings {
-		bool useAdvancedSunSettings = 9;
-	}
-
-	oneof _sunBrightness {
-		float sunBrightness = 11;
-	}
-
-	oneof _ambientBrightness {
-		float ambientBrightness = 13;
-	}
+	optional float ambientBrightness = 13;
 }
 
 message TriggerTarget
@@ -516,27 +492,22 @@ message LevelNodeGASM
 }
 
 message LevelNodeLight {
-    Vector position = 1;
-    Quaternion rotation = 2;
+	enum Type {
+		POINT = 0;
+		SPOT = 1;
+	}
 
-    Type type = 3;
-    enum Type {
-        POINT = 0;
-        SPOT = 1;
-    }
+	Vector position = 1;
+	Quaternion rotation = 2;
 
-    Color color = 4;
-    float intensity = 5;
-    float range = 6;
-    float angle = 7;
+	Type type = 3;
+	Color color = 4;
+	float intensity = 5;
+	float range = 6;
+	float angle = 7;
 
-    oneof _distanceFalloffShape {
-        float distanceFalloffShape = 8;
-    }
-
-    oneof _coneFalloffShape {
-        float coneFalloffShape = 9;
-    }
+	optional float distanceFalloffShape = 8;
+	optional float coneFalloffShape = 9;
 }
 
 message AnimationFrame
