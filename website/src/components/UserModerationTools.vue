@@ -7,6 +7,7 @@ import ModerationPopup from './ModerationPopup.vue';
 import SetCreatorButton from './SetCreatorButton.vue';
 import SetVerifierButton from './SetVerifierButton.vue';
 import SetModeratorButton from './SetModeratorButton.vue';
+import SetAttestationExemptButton from './SetAttestationExemptButton.vue';
 import SetSuperModeratorButton from './SetSuperModeratorButton.vue';
 import SetDeveloperButton from './SetDeveloperButton.vue';
 import GiftCosmeticButton from './GiftCosmeticButton.vue';
@@ -21,6 +22,7 @@ export default {
 		SetCreatorButton,
 		SetVerifierButton,
 		SetModeratorButton,
+		SetAttestationExemptButton,
 		SetSuperModeratorButton,
 		SetDeveloperButton,
 		GiftCosmeticButton,
@@ -130,6 +132,11 @@ export default {
 						:userID="this.userInfo.user_id"
 						:isDeveloper="this.userInfo.is_developer"
 						@change="this.$emit('toggle_role', 'is_developer')"
+					/>
+					<SetAttestationExemptButton
+						:userID="this.userInfo.user_id"
+						:isAttestationExempt="this.userInfo.is_attestation_exempt"
+						@change="this.$emit('toggle_role', 'is_attestation_exempt')"
 					/>
 				</div>
 				<h2>Other</h2>
