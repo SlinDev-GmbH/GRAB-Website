@@ -107,6 +107,14 @@ message ProgrammableColorData
 {
 }
 
+message ProgrammablePhysicsData
+{
+}
+
+message ProgrammableLightData
+{
+}
+
 message ProgrammablePropertyData
 {
 	message Component
@@ -128,6 +136,8 @@ message ProgrammablePropertyData
 		ProgrammableSignData sign = 7;
 		ProgrammableColorData color = 8;
 		ProgrammableScaleData scale = 9;
+		ProgrammablePhysicsData physics = 10;
+		ProgrammableLightData light = 11;
 	}
 }
 
