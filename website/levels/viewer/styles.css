@@ -189,6 +189,7 @@ body {
 #unverifyButton,
 #verifySkipSuccessButton,
 #startButton,
+#sublevelStartButton,
 #triggersButton,
 #finishButton {
 	width: fit-content;
@@ -230,6 +231,9 @@ body {
 
 #startButton {
 	background-color: #00bc87;
+}
+#sublevelStartButton {
+	background-color: #e4c023;
 }
 #finishButton {
 	background-color: #fa8072;

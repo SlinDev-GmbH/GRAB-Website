@@ -530,6 +530,23 @@ async function init() {
 		};
 	}
 
+	// sublevel spawn point
+	if (requestedSpawnPoint && namedSpawns[requestedSpawnPoint]) {
+		const spawnData = namedSpawns[requestedSpawnPoint];
+		const spawnButton = document.createElement('button');
+		spawnButton.id = 'sublevelStartButton';
+		spawnButton.innerHTML = 'To ' + requestedSpawnPoint;
+		spawnButton.onclick = function () {
+			camera.position.set(spawnData.position.x, spawnData.position.y + 2.0, spawnData.position.z);
+			let euler = new THREE.Euler().setFromQuaternion(spawnData.quaternion, 'YXZ');
+			controls.eulerVector.x = 0;
+			controls.eulerVector.y = euler.y + Math.PI;
+			controls.updateRotationVector();
+		};
+		var goToStartLabel = document.getElementById('startButton');
+		goToStartLabel.after(' ', spawnButton);
+	}
+
 	// finish
 	if (level.nodes.levelNodeFinish[0]) {
 		let object = level.nodes.levelNodeFinish[0];
