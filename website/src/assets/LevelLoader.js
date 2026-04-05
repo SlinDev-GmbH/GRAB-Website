@@ -228,7 +228,8 @@ class LevelLoader {
 
 		let { shapes, objects, materials, objectMaterials } = this;
 		let scene = level.scene;
-		let namedSpawns = [];
+		level.nodes.namedSpawns = {};
+		let namedSpawns = level.nodes.namedSpawns;
 
 		let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(315), 0.0);
 		let sunAltitude = 45.0;

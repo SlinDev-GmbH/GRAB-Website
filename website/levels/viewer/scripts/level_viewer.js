@@ -162,6 +162,7 @@ async function init() {
 		static: false,
 	});
 	level = await window._levelLoader.load(formattedBuffer);
+	namedSpawns = level.nodes.namedSpawns || {};
 	scene.add(level.scene);
 
 	var fullscreenButton = document.getElementById('fullscreen');
