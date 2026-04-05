@@ -46,6 +46,7 @@ export default {
 			isHidden: this.item.hidden,
 			isApproved: false,
 			isSkipped: false,
+			isVerified: false,
 			isRecovered: false,
 			currentModerationImage: 0,
 			imageInterval: undefined,
@@ -284,7 +285,7 @@ export default {
 			<div
 				class="title"
 				:style="
-					this.isApproved || this.isRecovered
+					this.isApproved || this.isRecovered || this.isVerified
 						? 'color: var(--green)'
 						: this.isHidden || this.isSkipped || (this.listType === 'tab_deletion_queue' && !isRecovered)
 						? 'color: var(--red);'
@@ -293,6 +294,7 @@ export default {
 			>
 				{{ item.title || '' }}
 				<span v-if="this.isHidden" class="hidden-tag">Hidden</span>
+				<span v-else-if="this.isVerified" class="approved-tag">Verified</span>
 				<span v-else-if="this.isSkipped" class="hidden-tag">Skipped</span>
 				<span v-else-if="this.isApproved" class="approved-tag">Approved</span>
 				<span v-if="this.listType === 'tab_deletion_queue' && !isRecovered" class="hidden-tag">Deleted</span>
@@ -306,7 +308,10 @@ export default {
 			<VerifyLevelButton
 				v-if="isVerifier && this.listType !== 'tab_deletion_queue' && !isModerationCell"
 				:level-info="item"
-				@skipped="isSkipped = true"
+				@skipped="
+					isSkipped = true;
+					isVerified = true;
+				"
 			/>
 			<SkipLevelButton v-if="isVerifier && this.listType === 'tab_verify_queue'" :level-info="item" @skipped="isSkipped = true" />
 
