@@ -331,9 +331,11 @@ class LevelLoader {
 		}
 
 		level.complexity = 0;
+		let nodeIndexCounter = 0;
 
 		const loadLevelNodes = (nodes, parentNode) => {
 			for (let node of nodes) {
+				let currentNodeIndex = nodeIndexCounter++;
 				let object = undefined;
 				if (node.levelNodeGroup) {
 					object = new THREE.Object3D();
@@ -954,10 +956,10 @@ class LevelLoader {
 					level.nodes.levelNodeSound.push(object);
 					level.complexity += 8;
 				} else if (node.levelNodeStart) {
-					console.log(decoded.defaultSpawnPointID, level.nodes.all.length);
+					console.log(decoded.defaultSpawnPointID, currentNodeIndex);
 					const isDefaultSpawn =
 						(decoded.defaultSpawnPointID == 0 && level.nodes.levelNodeStart.length == 0) ||
-						decoded.defaultSpawnPointID - 1 == level.nodes.all.length;
+						decoded.defaultSpawnPointID - 1 == currentNodeIndex;
 					if (isDefaultSpawn) {
 						object = new THREE.Mesh(objects[0], objectMaterials[0]);
 					} else {
