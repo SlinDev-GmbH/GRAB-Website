@@ -1225,7 +1225,10 @@ async function getGeometryForModel(name) {
 	return new Promise((resolve) => {
 		gltfLoader.load(name, resolve);
 	}).then(function (gltf) {
-		return gltf.scene.children[0].geometry;
+		let geometry = gltf.scene.children[0].geometry;
+		geometry = geometry.toNonIndexed();
+		geometry.computeVertexNormals();
+		return geometry;
 	});
 }
 
