@@ -158,6 +158,8 @@ async function init() {
 		text: userStore.isVerifier,
 		triggers: false, // false by default even with perms
 		sound: false,
+		code: false,
+		light: false,
 		sublevels: userStore.isVerifier,
 		static: false,
 	});
@@ -312,7 +314,8 @@ async function init() {
 		triggersButton.style.display = 'block';
 		triggersButton.addEventListener('click', () => {
 			showTriggers = !showTriggers;
-			showCode = !showCode;
+			showCode = showTriggers;
+			triggersButton.innerHTML = showTriggers ? 'Hide Triggers' : 'Show Triggers';
 
 			scene.traverse((node) => {
 				if (node instanceof THREE.Mesh) {
@@ -320,7 +323,13 @@ async function init() {
 						node.visible = showTriggers;
 					}
 					if (node.isCode) {
-						node.visible = showCode;
+						node.visible = showTriggers;
+					}
+					if (node.isLightNode) {
+						node.visible = showTriggers;
+					}
+					if (node.isSound) {
+						node.visible = showTriggers;
 					}
 				}
 			});
