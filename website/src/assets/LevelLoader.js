@@ -32,6 +32,7 @@ import textureTriggerURL from './textures/trigger.png';
 import textureCodeURL from './textures/code.png';
 import textureSublevelTriggerURL from './textures/sublevel_trigger.png';
 import textureSoundURL from './textures/sound.png';
+import textureLightURL from './textures/light.png';
 
 let textureLoader, gltfLoader, fontLoader;
 
@@ -127,6 +128,7 @@ class LevelLoader {
 			particleMaterial,
 			getMaterialForTexture(textureSoundURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
 			getMaterialForTexture(textureCodeURL, 3.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
+			getMaterialForTexture(textureLightURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0], 1.0),
 		];
 
 		let skyMaterial = new THREE.ShaderMaterial();
@@ -154,6 +156,7 @@ class LevelLoader {
 			triggers: false,
 			code: false,
 			sound: false,
+			light: false,
 			sublevels: false,
 			static: false,
 		};
@@ -174,10 +177,11 @@ class LevelLoader {
 				material: {},
 				shape: {},
 				defaultSpawn: undefined,
+				namedSpawns: {},
 			},
 			complexity: 0,
 			scene: new THREE.Scene(),
-			update: () => { },
+			update: () => {},
 			meta: {
 				time: 0.0,
 			},
@@ -228,7 +232,7 @@ class LevelLoader {
 
 		let { shapes, objects, materials, objectMaterials } = this;
 		let scene = level.scene;
-		let namedSpawns = [];
+		level.nodes.namedSpawns = {};
 
 		let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(315), 0.0);
 		let sunAltitude = 45.0;
@@ -355,6 +359,7 @@ class LevelLoader {
 					object.initialRotation = object.quaternion.clone();
 					object.isGroup = true;
 
+					level.nodes.all.push(object); // before children
 					loadLevelNodes(node.levelNodeGroup.childNodes, object);
 
 					level.nodes.levelNodeGroup.push(object);
@@ -705,8 +710,8 @@ class LevelLoader {
 						let specularFactor =
 							Math.sqrt(
 								node.levelNodeStatic.color1.r * node.levelNodeStatic.color1.r +
-								node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g +
-								node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b,
+									node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g +
+									node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b,
 							) * 0.15;
 						let specularColor = [specularFactor, specularFactor, specularFactor, 16.0];
 						if (node.levelNodeStatic.color2 && !node.levelNodeStatic.isGradient) {
@@ -953,6 +958,47 @@ class LevelLoader {
 					level.nodes.shape[1001].push(object);
 					level.nodes.levelNodeSound.push(object);
 					level.complexity += 8;
+				} else if (node.levelNodeLight) {
+					let material = objectMaterials[10];
+
+					let newMaterial = material.clone();
+					newMaterial.uniforms.colorTexture = material.uniforms.colorTexture;
+
+					newMaterial.transparent = true;
+					newMaterial.uniforms.transparentEnabled.value = 1.0;
+					object = new THREE.Mesh(shapes[1], newMaterial);
+
+					parentNode.add(object);
+					object.position.x = -node.levelNodeLight.position.x;
+					object.position.y = node.levelNodeLight.position.y;
+					object.position.z = -node.levelNodeLight.position.z;
+
+					object.scale.x = 1;
+					object.scale.y = 1;
+					object.scale.z = 1;
+
+					object.initialPosition = object.position.clone();
+					object.initialRotation = object.quaternion.clone();
+
+					let targetVector = new THREE.Vector3();
+					let targetQuaternion = new THREE.Quaternion();
+					let worldMatrix = new THREE.Matrix4();
+					worldMatrix.compose(
+						object.getWorldPosition(targetVector),
+						object.getWorldQuaternion(targetQuaternion),
+						object.getWorldScale(targetVector),
+					);
+
+					let normalMatrix = new THREE.Matrix3();
+					normalMatrix.getNormalMatrix(worldMatrix);
+					newMaterial.uniforms.worldNormalMatrix.value = normalMatrix;
+
+					object.isLightNode = true;
+					object.visible = this.options.light;
+
+					level.nodes.shape[1001].push(object);
+					level.nodes.levelNodeLight.push(object);
+					level.complexity += 10;
 				} else if (node.levelNodeStart) {
 					console.log(decoded.defaultSpawnPointID, level.nodes.all.length);
 					const isDefaultSpawn =
@@ -988,7 +1034,7 @@ class LevelLoader {
 
 					const spawnName = node.levelNodeStart.name;
 					if (spawnName && spawnName.length > 0) {
-						namedSpawns[spawnName] = {
+						level.nodes.namedSpawns[spawnName] = {
 							position: object.position.clone(),
 							quaternion: object.quaternion.clone(),
 						};
@@ -1108,7 +1154,9 @@ class LevelLoader {
 				}
 
 				if (object !== undefined) {
-					level.nodes.all.push(object);
+					if (!object.isGroup) {
+						level.nodes.all.push(object);
+					}
 					object.userData.node = node;
 					if (object.material?.uniforms)
 						object.material.uniforms.worldMatrix = { value: new THREE.Matrix4().copy(object.matrixWorld) };

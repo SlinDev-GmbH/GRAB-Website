@@ -71,6 +71,7 @@ export default {
 					triggers: true,
 					code: true,
 					sound: true,
+					light: true,
 					sublevels: true,
 					static: true,
 				});
