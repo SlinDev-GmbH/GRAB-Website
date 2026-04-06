@@ -174,10 +174,11 @@ class LevelLoader {
 				material: {},
 				shape: {},
 				defaultSpawn: undefined,
+				namedSpawns: {},
 			},
 			complexity: 0,
 			scene: new THREE.Scene(),
-			update: () => { },
+			update: () => {},
 			meta: {
 				time: 0.0,
 			},
@@ -229,7 +230,6 @@ class LevelLoader {
 		let { shapes, objects, materials, objectMaterials } = this;
 		let scene = level.scene;
 		level.nodes.namedSpawns = {};
-		let namedSpawns = level.nodes.namedSpawns;
 
 		let sunAngle = new THREE.Euler(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(315), 0.0);
 		let sunAltitude = 45.0;
@@ -332,11 +332,9 @@ class LevelLoader {
 		}
 
 		level.complexity = 0;
-		let nodeIndexCounter = 0;
 
 		const loadLevelNodes = (nodes, parentNode) => {
 			for (let node of nodes) {
-				let currentNodeIndex = nodeIndexCounter++;
 				let object = undefined;
 				if (node.levelNodeGroup) {
 					object = new THREE.Object3D();
@@ -358,6 +356,7 @@ class LevelLoader {
 					object.initialRotation = object.quaternion.clone();
 					object.isGroup = true;
 
+					level.nodes.all.push(object); // before children
 					loadLevelNodes(node.levelNodeGroup.childNodes, object);
 
 					level.nodes.levelNodeGroup.push(object);
@@ -708,8 +707,8 @@ class LevelLoader {
 						let specularFactor =
 							Math.sqrt(
 								node.levelNodeStatic.color1.r * node.levelNodeStatic.color1.r +
-								node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g +
-								node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b,
+									node.levelNodeStatic.color1.g * node.levelNodeStatic.color1.g +
+									node.levelNodeStatic.color1.b * node.levelNodeStatic.color1.b,
 							) * 0.15;
 						let specularColor = [specularFactor, specularFactor, specularFactor, 16.0];
 						if (node.levelNodeStatic.color2 && !node.levelNodeStatic.isGradient) {
@@ -957,10 +956,10 @@ class LevelLoader {
 					level.nodes.levelNodeSound.push(object);
 					level.complexity += 8;
 				} else if (node.levelNodeStart) {
-					console.log(decoded.defaultSpawnPointID, currentNodeIndex);
+					console.log(decoded.defaultSpawnPointID, level.nodes.all.length);
 					const isDefaultSpawn =
 						(decoded.defaultSpawnPointID == 0 && level.nodes.levelNodeStart.length == 0) ||
-						decoded.defaultSpawnPointID - 1 == currentNodeIndex;
+						decoded.defaultSpawnPointID - 1 == level.nodes.all.length;
 					if (isDefaultSpawn) {
 						object = new THREE.Mesh(objects[0], objectMaterials[0]);
 					} else {
@@ -991,7 +990,7 @@ class LevelLoader {
 
 					const spawnName = node.levelNodeStart.name;
 					if (spawnName && spawnName.length > 0) {
-						namedSpawns[spawnName] = {
+						level.nodes.namedSpawns[spawnName] = {
 							position: object.position.clone(),
 							quaternion: object.quaternion.clone(),
 						};
@@ -1111,7 +1110,9 @@ class LevelLoader {
 				}
 
 				if (object !== undefined) {
-					level.nodes.all.push(object);
+					if (!object.isGroup) {
+						level.nodes.all.push(object);
+					}
 					object.userData.node = node;
 					if (object.material?.uniforms)
 						object.material.uniforms.worldMatrix = { value: new THREE.Matrix4().copy(object.matrixWorld) };
