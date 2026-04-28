@@ -41,7 +41,7 @@ export async function safe_json(response) {
 	}
 }
 
-export async function request(base_url, params = {}, auth = false, error_callback) {
+export async function request(base_url, params = {}, auth = false, error_callback, init) {
 	const url = build_url(base_url, params);
 
 	const response = await safe_fetch(
@@ -52,6 +52,7 @@ export async function request(base_url, params = {}, auth = false, error_callbac
 					Authorization: `Bearer ${useUserStore().accessToken}`,
 				},
 			}),
+			...(init ? init : {}),
 		},
 		error_callback,
 	);
