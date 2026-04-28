@@ -1,7 +1,7 @@
 <script>
 import CardLevel from './CardLevel.vue';
 import CardUser from './CardUser.vue';
-import CardLog from './CardLog.vue';
+import CardLogAudit from './CardLogAudit.vue';
 import DropDown from './DropDown.vue';
 
 import { ListRequest } from '../requests/lists/ListRequest.js';
@@ -15,7 +15,7 @@ export default {
 	components: {
 		CardLevel,
 		CardUser,
-		CardLog,
+		CardLogAudit,
 		DropDown,
 	},
 
@@ -313,7 +313,7 @@ export default {
 				:index="index"
 				@toggle_role="item[$event] = !item[$event]"
 			/>
-			<CardLog v-else-if="listType == 'tab_audit'" :item="item" />
+			<CardLogAudit v-else-if="listType == 'tab_audit'" :item="item" />
 			<CardLevel
 				v-else
 				:item="'object_info' in item ? item.object_info : item"
