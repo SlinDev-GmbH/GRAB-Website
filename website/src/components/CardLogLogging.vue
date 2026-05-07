@@ -10,6 +10,9 @@ export default {
 		return {
 			deleting: false,
 			copied: false,
+			showViewer: false,
+			viewContent: null,
+			viewLoading: false,
 		};
 	},
 	methods: {
@@ -45,9 +48,21 @@ export default {
 			const response = await DeleteLogRequest(this.log.key);
 			console.log(response);
 		},
+		async view_log() {
+			this.viewLoading = true;
+			this.showViewer = true;
+			const log = await GetLogRequest(this.log.key);
+			this.viewContent = log || 'Failed to load log';
+			this.viewLoading = false;
+		},
 		closeViewer() {
 			this.showViewer = false;
 			this.viewContent = null;
+		},
+		closeOnEscape(event) {
+			if (event.key === 'Escape') {
+				this.closeViewer();
+			}
 		},
 		formatDate(ts) {
 			const d = new Date(ts);
@@ -56,6 +71,12 @@ export default {
 		formatSize(bytes) {
 			return (bytes / 1024).toFixed(1) + 'kb';
 		},
+	},
+	mounted() {
+		document.addEventListener('keydown', this.closeOnEscape);
+	},
+	unmounted() {
+		document.removeEventListener('keydown', this.closeOnEscape);
 	},
 };
 </script>
@@ -77,12 +98,26 @@ export default {
 		</div>
 		<span class="ts">{{ formatDate(log.ts) }}</span>
 		<div class="log-buttons">
-			<button class="download" @click="download_log(log.key)">Download</button>
-			<button class="delete" @click="delete_log(log.key)">
+			<button class="view" @click="view_log">View</button>
+			<button class="download" @click="download_log">Download</button>
+			<button class="delete" @click="delete_log">
 				{{ deleting ? 'Confirm?' : 'Delete' }}
 			</button>
 		</div>
 	</div>
+
+	<Teleport v-if="showViewer" to="body">
+		<div class="log-viewer-overlay" @click.self="closeViewer">
+			<div class="log-viewer-popup">
+				<div class="log-viewer-header">
+					<span>{{ log.key }}</span>
+					<button class="close-btn" @click="closeViewer">&times;</button>
+				</div>
+				<pre class="log-viewer-content" v-if="!viewLoading">{{ viewContent }}</pre>
+				<div v-else class="log-viewer-loading">Loading...</div>
+			</div>
+		</div>
+	</Teleport>
 </template>
 
 <style scoped>
@@ -115,6 +150,9 @@ export default {
 	padding: 2px 10px;
 	border-radius: 15px;
 	cursor: pointer;
+}
+.view {
+	background: var(--green);
 }
 .download {
 	background: var(--blue);
@@ -165,5 +203,72 @@ export default {
 }
 .ts {
 	color: rgba(255, 255, 255, 0.3);
+}
+
+.log-viewer-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: #0008;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+.log-viewer-popup {
+	background: var(--background);
+	border-radius: 12px;
+	width: min(90vw, 900px);
+	height: min(80vh, 600px);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+.log-viewer-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px 16px;
+	background: rgba(255, 255, 255, 0.05);
+	font-size: 12px;
+	color: rgba(255, 255, 255, 0.5);
+	font-family: monospace;
+	gap: 12px;
+}
+.log-viewer-header span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.close-btn {
+	background: none;
+	border: none;
+	color: #fff;
+	font-size: 22px;
+	cursor: pointer;
+	padding: 0 4px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+.log-viewer-content {
+	margin: 0;
+	padding: 16px;
+	overflow: auto;
+	flex: 1;
+	font-family: monospace;
+	font-size: 12px;
+	color: #fff;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+.log-viewer-loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	color: rgba(255, 255, 255, 0.5);
 }
 </style>
