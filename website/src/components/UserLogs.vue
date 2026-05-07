@@ -1,4 +1,7 @@
 <script>
+import { mapState } from 'pinia';
+import { useUserStore } from '@/stores/user';
+
 import { GetUserLogsRequest } from '../requests/logging/GetUserLogsRequest';
 import { DeleteUserLogsRequest } from '../requests/logging/DeleteUserLogsRequest';
 
@@ -19,6 +22,9 @@ export default {
 			loaded: false,
 			deletingAll: false,
 		};
+	},
+	computed: {
+		...mapState(useUserStore, ['isAdmin']),
 	},
 	methods: {
 		async deleteAll() {
@@ -104,7 +110,7 @@ export default {
 
 <template>
 	<div class="user-logs" v-if="loaded">
-		<div class="toolbar" v-if="logs.length > 0">
+		<div class="toolbar" v-if="isAdmin && logs.length > 0">
 			<button class="delete-all" @click="deleteAll">
 				{{ deletingAll ? 'Confirm delete all?' : 'Delete All' }}
 			</button>

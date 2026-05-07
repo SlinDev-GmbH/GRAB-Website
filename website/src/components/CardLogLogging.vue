@@ -1,4 +1,7 @@
 <script>
+import { mapState } from 'pinia';
+import { useUserStore } from '@/stores/user';
+
 import { GetLogRequest } from '../requests/logging/GetLogRequest';
 import { DeleteLogRequest } from '../requests/logging/DeleteLogRequest';
 
@@ -15,6 +18,9 @@ export default {
 			viewLoading: false,
 			contentCopied: false,
 		};
+	},
+	computed: {
+		...mapState(useUserStore, ['isAdmin']),
 	},
 	methods: {
 		copyId() {
@@ -119,7 +125,7 @@ export default {
 		<div class="log-buttons">
 			<button class="view" @click="view_log">View</button>
 			<button class="download" @click="download_log">Download</button>
-			<button class="delete" @click="delete_log">
+			<button v-if="isAdmin" class="delete" @click="delete_log">
 				{{ deleting ? 'Confirm?' : 'Delete' }}
 			</button>
 		</div>
