@@ -1,5 +1,6 @@
 <script>
 import { GetUserLogsRequest } from '../requests/logging/GetUserLogsRequest';
+import { DeleteUserLogsRequest } from '../requests/logging/DeleteUserLogsRequest';
 
 import CardLogLogging from './CardLogLogging.vue';
 
@@ -16,9 +17,28 @@ export default {
 			cursor: null,
 			loading: false,
 			loaded: false,
+			deletingAll: false,
 		};
 	},
 	methods: {
+		async deleteAll() {
+			if (!this.deletingAll) {
+				this.deletingAll = true;
+				return;
+			}
+
+			const response = await DeleteUserLogsRequest(this.user_id);
+
+			if (response) {
+				window.toast('All logs deleted', 'message');
+				this.logs = [];
+				this.cursor = null;
+			} else {
+				window.toast('Failed to delete logs', 'error');
+			}
+
+			this.deletingAll = false;
+		},
 		async get_logs() {
 			this.loading = true;
 			this.logs = [];
@@ -83,15 +103,41 @@ export default {
 </script>
 
 <template>
-	<div class="logs" v-if="loaded">
-		<CardLogLogging v-for="log in logs" :key="log.key" :log="log" />
+	<div class="user-logs" v-if="loaded">
+		<div class="toolbar" v-if="logs.length > 0">
+			<button class="delete-all" @click="deleteAll">
+				{{ deletingAll ? 'Confirm delete all?' : 'Delete All' }}
+			</button>
+		</div>
+		<div class="logs">
+			<CardLogLogging v-for="log in logs" :key="log.key" :log="log" />
+		</div>
 		<div v-if="loading" class="loading">Loading more...</div>
 	</div>
 </template>
 
 <style scoped>
-.logs {
+.user-logs {
 	font-family: var(--font-mono, monospace);
+}
+.toolbar {
+	display: flex;
+	justify-content: flex-end;
+	padding: 0.75rem 0 0 0;
+}
+.delete-all {
+	color: #fff;
+	background: var(--red);
+	border: none;
+	padding: 6px 14px;
+	border-radius: 15px;
+	cursor: pointer;
+	font-size: 13px;
+}
+.logs {
 	padding: 0.75rem 0;
+}
+.loading {
+	margin: 20px 0;
 }
 </style>
