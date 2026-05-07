@@ -148,6 +148,14 @@ export default {
 		>
 			Audit Log
 		</button>
+		<button
+			v-if="isSuperModerator"
+			:class="tabActive === 'tab_logging' ? 'tablinks active' : 'tablinks'"
+			@click="setTabActive('tab_logging')"
+			id="tab_logging"
+		>
+			Logs
+		</button>
 		<span class="search">
 			<input
 				v-if="wantsSearch"

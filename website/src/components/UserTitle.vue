@@ -185,6 +185,9 @@ export default {
 					<div class="user-buttons">
 						<a v-if="loaded" class="player-button" :href="'player?user_id=' + identifier">View</a>
 						<a v-if="loaded" class="player-button" :href="'levels?tab=tab_user_stats&user_id=' + identifier">Stats</a>
+						<a v-if="loaded && isSuperModerator" class="player-button" :href="'levels?tab=tab_user_logs&user_id=' + identifier"
+							>Logs</a
+						>
 					</div>
 				</div>
 				<div v-if="count" class="user-tab-count">{{ count }} level{{ count > 1 ? 's' : '' }}</div>

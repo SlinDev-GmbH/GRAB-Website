@@ -14,6 +14,8 @@ import LevelTagSortingControls from './LevelTagSortingControls.vue';
 import LegalTerms from './LegalTerms.vue';
 import ScrollToTop from './ScrollToTop.vue';
 import UserStats from './UserStats.vue';
+import UserLogs from './UserLogs.vue';
+import LogViewer from './LogViewer.vue';
 
 export default {
 	components: {
@@ -29,6 +31,8 @@ export default {
 		LegalTerms,
 		ScrollToTop,
 		UserStats,
+		UserLogs,
+		LogViewer,
 	},
 
 	data() {
@@ -60,7 +64,7 @@ export default {
 			return options.includes(this.tabActive);
 		},
 		showUserTitle() {
-			const options = ['tab_my_levels', 'tab_other_user'];
+			const options = ['tab_my_levels', 'tab_other_user', 'tab_user_logs'];
 			return options.includes(this.tabActive);
 		},
 		tagString() {
@@ -202,11 +206,13 @@ export default {
 			<LevelTitle v-if="showLevelTitle" :tagString="tagString" />
 		</header>
 		<main>
-			<UserStats v-if="tabActive === 'tab_user_stats'" :user_id="userID" />
 			<UserTitle v-if="showUserTitle" :other-user-i-d="userID" />
+			<UserStats v-if="tabActive === 'tab_user_stats'" :user_id="userID" />
+			<UserLogs v-if="isSuperModerator && tabActive === 'tab_user_logs'" :user_id="userID" />
 			<FeaturedLevels v-if="tabActive === 'tab_featured'" @tab-changed="(query) => this.tabChanged(query)" />
+			<LogViewer v-else-if="isSuperModerator && tabActive === 'tab_logging'" />
 			<ScrollList
-				v-else-if="tabActive !== 'tab_user_stats'"
+				v-else-if="tabActive !== 'tab_user_stats' && tabActive !== 'tab_user_logs'"
 				:list-type="tabActive"
 				:difficulty="difficultyFilter"
 				:tag="tagFilter"
