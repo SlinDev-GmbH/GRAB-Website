@@ -9,9 +9,17 @@ export default {
 	data() {
 		return {
 			deleting: false,
+			copied: false,
 		};
 	},
 	methods: {
+		copyId() {
+			navigator.clipboard.writeText(this.log.user_id);
+			this.copied = true;
+			setTimeout(() => {
+				this.copied = false;
+			}, 2000);
+		},
 		async download_log() {
 			const log = await GetLogRequest(this.log.key);
 			if (!log) {
@@ -37,6 +45,10 @@ export default {
 			const response = await DeleteLogRequest(this.log.key);
 			console.log(response);
 		},
+		closeViewer() {
+			this.showViewer = false;
+			this.viewContent = null;
+		},
 		formatDate(ts) {
 			const d = new Date(ts);
 			return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
@@ -52,6 +64,10 @@ export default {
 	<div class="log-card">
 		<div class="log-main">
 			<span class="username">{{ log.user_name }}</span>
+			<button class="copy" @click="copyId" :title="log.user_id">
+				<img v-show="!copied" src="./../assets/icons/copy.svg" />
+				<img v-show="copied" src="./../assets/icons/copied.svg" />
+			</button>
 			<span class="context">{{ log.context }}</span>
 		</div>
 		<div class="log-meta">
@@ -105,6 +121,23 @@ export default {
 }
 .delete {
 	background: var(--red);
+}
+.copy {
+	cursor: pointer;
+	background-color: transparent;
+	transition: transform 0.2s ease-in-out;
+	display: grid;
+	place-content: center;
+	padding: 3px;
+	border-radius: 5px;
+	border: none;
+}
+.copy:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+.copy img {
+	height: 0.85rem;
+	width: 0.85rem;
 }
 .log-meta {
 	display: flex;
