@@ -13,6 +13,7 @@ export default {
 			showViewer: false,
 			viewContent: null,
 			viewLoading: false,
+			contentCopied: false,
 		};
 	},
 	methods: {
@@ -21,6 +22,13 @@ export default {
 			this.copied = true;
 			setTimeout(() => {
 				this.copied = false;
+			}, 2000);
+		},
+		copyContent() {
+			navigator.clipboard.writeText(this.viewContent);
+			this.contentCopied = true;
+			setTimeout(() => {
+				this.contentCopied = false;
 			}, 2000);
 		},
 		async download_log() {
@@ -59,9 +67,20 @@ export default {
 			this.showViewer = false;
 			this.viewContent = null;
 		},
-		closeOnEscape(event) {
+		handleEvents(event) {
 			if (event.key === 'Escape') {
 				this.closeViewer();
+			}
+			if (event.key === 'a' && (event.ctrlKey || event.metaKey) && this.showViewer) {
+				const el = this.$refs.content;
+				if (el) {
+					event.preventDefault();
+					const range = document.createRange();
+					range.selectNodeContents(el);
+					const sel = window.getSelection();
+					sel.removeAllRanges();
+					sel.addRange(range);
+				}
 			}
 		},
 		formatDate(ts) {
@@ -73,10 +92,10 @@ export default {
 		},
 	},
 	mounted() {
-		document.addEventListener('keydown', this.closeOnEscape);
+		document.addEventListener('keydown', this.handleEvents);
 	},
 	unmounted() {
-		document.removeEventListener('keydown', this.closeOnEscape);
+		document.removeEventListener('keydown', this.handleEvents);
 	},
 };
 </script>
@@ -113,8 +132,12 @@ export default {
 					<span>{{ log.key }}</span>
 					<button class="close-btn" @click="closeViewer">&times;</button>
 				</div>
-				<pre class="log-viewer-content" v-if="!viewLoading">{{ viewContent }}</pre>
+				<pre class="log-viewer-content" v-if="!viewLoading" ref="content">{{ viewContent }}</pre>
 				<div v-else class="log-viewer-loading">Loading...</div>
+				<div class="log-viewer-footer" v-if="!viewLoading">
+					<button class="view-copy" @click="copyContent">{{ contentCopied ? 'Copied!' : 'Copy' }}</button>
+					<button class="view-download" @click="download_log">Download</button>
+				</div>
 			</div>
 		</div>
 	</Teleport>
@@ -270,5 +293,26 @@ export default {
 	justify-content: center;
 	flex: 1;
 	color: rgba(255, 255, 255, 0.5);
+}
+.log-viewer-footer {
+	display: flex;
+	gap: 8px;
+	padding: 10px 16px;
+	background: rgba(255, 255, 255, 0.05);
+	justify-content: flex-end;
+}
+.log-viewer-footer button {
+	color: #fff;
+	border: none;
+	padding: 4px 14px;
+	border-radius: 15px;
+	cursor: pointer;
+	font-size: 13px;
+}
+.view-copy {
+	background: var(--green);
+}
+.view-download {
+	background: var(--blue);
 }
 </style>
