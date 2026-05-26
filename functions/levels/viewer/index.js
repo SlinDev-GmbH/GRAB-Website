@@ -81,7 +81,7 @@ export async function onRequest(context)
 				const verifiedStatus = getVerifiedStatus(levelInfo)
 				if(verifiedStatus) metaDescription += "verified: " + verifiedStatus + "\n"
 				const verificationTime = formatTime(levelInfo.verification_time)
-				if(verificationTime) metaDescription += "verification time: " + verificationTime + "\n"
+				if(verificationTime) metaDescription += "publish time: " + verificationTime + "\n"
 				const averageTime = formatTime(levelInfo.statistics?.time)
 				if(averageTime) metaDescription += "average time: " + averageTime + "\n"
 
