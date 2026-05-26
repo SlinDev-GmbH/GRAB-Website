@@ -32,6 +32,14 @@ function getVerifiedStatus(levelInfo)
 	return null
 }
 
+function formatTime(value)
+{
+	const time = Number(value)
+	if(!Number.isFinite(time)) return null
+
+	return (Math.round(time * 100) / 100) + "s"
+}
+
 export async function onRequest(context)
 {
 	const { url } = context.request
@@ -72,6 +80,10 @@ export async function onRequest(context)
 				if(creationDate.toDateString() !== updatedDate.toDateString()) metaDescription += "Last Updated: " + updatedDate.toDateString() + "\n"
 				const verifiedStatus = getVerifiedStatus(levelInfo)
 				if(verifiedStatus) metaDescription += "verified: " + verifiedStatus + "\n"
+				const verificationTime = formatTime(levelInfo.verification_time)
+				if(verificationTime) metaDescription += "verification time: " + verificationTime + "\n"
+				const averageTime = formatTime(levelInfo.statistics?.time)
+				if(averageTime) metaDescription += "average time: " + averageTime + "\n"
 
 				if(statsInfoResponseJson)
 				{
