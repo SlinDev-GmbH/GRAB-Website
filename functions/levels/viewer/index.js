@@ -1,11 +1,33 @@
 function escapeHTML(unsafe)
 {
-	return unsafe.replace(/[\u0000-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u00FF]/g, c => '&#' + ('000' + c.charCodeAt(0)).slice(-4) + ';')
+	return String(unsafe ?? '').replace(/[\u0000-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u00FF]/g, c => '&#' + ('000' + c.charCodeAt(0)).slice(-4) + ';')
+}
+
+async function getLevelStatsInfo(context, levelInfo)
+{
+	if(!levelInfo.identifier) return null
+
+	try
+	{
+		let levelStatsObjectID = context.env.LEVEL_STATISTICS.idFromName("level_stats:" + levelInfo.identifier)
+		let statsObject = await context.env.LEVEL_STATISTICS.get(levelStatsObjectID);
+
+		let statsInfoRequest = new Request("https://durableobject/get_info", {method: "GET"})
+		let statsInfoResponse = await statsObject.fetch(statsInfoRequest)
+		if(!statsInfoResponse.ok) return null
+
+		return await statsInfoResponse.json()
+	}
+	catch(error)
+	{
+		console.warn("Failed to fetch level stats info", error)
+		return null
+	}
 }
 
 export async function onRequest(context)
 {
-	const { method, url } = context.request
+	const { url } = context.request
 	const finalURL = new URL(url)
 
 	let levelID = finalURL.searchParams.get("level")
@@ -16,18 +38,13 @@ export async function onRequest(context)
 		{
 			const lookupString = 'level_info:' + levelIDComponents[0] + ':' + levelIDComponents[1]
 			const levelInfo = await context.env.LEVEL_DB.get(lookupString, { type: "json" })
-
-			let levelStatsObjectID = context.env.LEVEL_STATISTICS.idFromName("level_stats:" + levelInfo.identifier)
-			let statsObject = await context.env.LEVEL_STATISTICS.get(levelStatsObjectID);
-
-			let statsInfoRequest = new Request("https://durableobject/get_info", {method: "GET"})
-			let statsInfoResponse = await statsObject.fetch(statsInfoRequest)
-			let statsInfoResponseJson = await statsInfoResponse.json()
 			
 			if(levelInfo)
 			{
+				let statsInfoResponseJson = await getLevelStatsInfo(context, levelInfo)
+
 				const lookupFile = new URL(context.request.url)
-				lookupFile.pathname = './levels/viewer/'
+				lookupFile.pathname = '/levels/viewer/'
 				const lookupReq = new Request(lookupFile.toString(), {
 					cf: context.request.cf
 				})
@@ -81,11 +98,12 @@ export async function onRequest(context)
 				let levelThumbUrl = ""
 				let levelThumbWidth = "0"
 				let levelThumbHeight = "0"
-				if("images" in levelInfo && "thumb" in levelInfo.images && "key" in levelInfo.images.thumb)
+				const levelThumb = levelInfo.images?.thumb
+				if(levelThumb?.key)
 				{
-					levelThumbUrl = context.env.GRAB_IMAGES_SERVER_URL + levelInfo.images.thumb.key
-					levelThumbWidth = "" + levelInfo.images.thumb.width
-					levelThumbHeight = "" + levelInfo.images.thumb.height
+					levelThumbUrl = context.env.GRAB_IMAGES_SERVER_URL + levelThumb.key
+					levelThumbWidth = "" + levelThumb.width
+					levelThumbHeight = "" + levelThumb.height
 				}
 
 				assetText = assetText.replace("__PAGE_TITLE__", escapeHTML(levelInfo.title))
