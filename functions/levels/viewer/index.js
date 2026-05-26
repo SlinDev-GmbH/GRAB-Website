@@ -25,6 +25,13 @@ async function getLevelStatsInfo(context, levelInfo)
 	}
 }
 
+function getVerifiedStatus(levelInfo)
+{
+	if(levelInfo.tags?.includes?.("ok")) return "yes"
+	if(levelInfo.queued_for_verification === true) return "queued"
+	return null
+}
+
 export async function onRequest(context)
 {
 	const { url } = context.request
@@ -63,6 +70,8 @@ export async function onRequest(context)
 				const updatedDate = new Date(levelInfo.update_timestamp);
 				metaDescription += "Created: " + creationDate.toDateString() + "\n"
 				if(creationDate.toDateString() !== updatedDate.toDateString()) metaDescription += "Last Updated: " + updatedDate.toDateString() + "\n"
+				const verifiedStatus = getVerifiedStatus(levelInfo)
+				if(verifiedStatus) metaDescription += "verified: " + verifiedStatus + "\n"
 
 				if(statsInfoResponseJson)
 				{
