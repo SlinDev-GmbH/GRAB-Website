@@ -71,6 +71,13 @@ class LevelLoader {
 			}
 		});
 
+		this.fontPromise = new Promise((resolve, reject) => {
+			fontLoader.load('/fonts/Roboto_Regular.json', (font) => {
+				this.font = font;
+				resolve(font);
+			}, undefined, reject);
+		});
+
 		this.materials = [
 			getMaterialForTexture(textureDefaultURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.4, 0.4, 0.4, 64.0]),
 			getMaterialForTexture(textureGrabbableURL, 1.0, SHADERS.levelVS, SHADERS.levelFS, [0.2, 0.2, 0.2, 16.0]),
@@ -141,10 +148,6 @@ class LevelLoader {
 
 		this.rootPromise = Promise.all([protobuf.load('/proto/level.proto')]).then((result) => {
 			this.root = result[0];
-		});
-
-		fontLoader.load('/fonts/Roboto_Regular.json', (font) => {
-			this.font = font;
 		});
 	}
 
@@ -229,6 +232,7 @@ class LevelLoader {
 
 		await this.shapePromise;
 		await this.objectPromise;
+		await this.fontPromise;
 
 		let { shapes, objects, materials, objectMaterials } = this;
 		let scene = level.scene;
@@ -1083,7 +1087,7 @@ class LevelLoader {
 
 					let signText = node.levelNodeSign.text;
 
-					if (signText && this.options.text) {
+					if (signText && this.options.text && this.font) {
 						let letterSize = 0.059; //Size of the text characters
 						const processString = (inputStr) => {
 							let words = inputStr.split(/\s+/);
