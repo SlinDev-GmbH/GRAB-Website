@@ -11,7 +11,7 @@ import modelCubeURL from './models/cube.gltf';
 import modelSphereURL from './models/sphere.gltf';
 import modelCylinderURL from './models/cylinder.gltf';
 import modelPyramidURL from './models/pyramid.gltf';
-import modelPyramid4URL from './models/pyramid4.glb';
+import modelPyramid4URL from './models/pyramid4.gltf';
 import modelPrismURL from './models/prism.gltf';
 import modelConeURL from './models/cone.gltf';
 import modelStartEndURL from './models/start_end.gltf';
