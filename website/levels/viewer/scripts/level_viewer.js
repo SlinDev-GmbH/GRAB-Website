@@ -51,6 +51,7 @@ let isSliderDragging = false;
 let isSliderPlaying = true;
 let showTriggers = false;
 let showCode = false;
+let showSound = false;
 // leaderboard
 let removedTimes = [];
 // image upload
@@ -313,6 +314,7 @@ async function init() {
 		triggersButton.addEventListener('click', () => {
 			showTriggers = !showTriggers;
 			showCode = !showCode;
+			showSound = !showSound;
 
 			scene.traverse((node) => {
 				if (node instanceof THREE.Mesh) {
@@ -321,6 +323,9 @@ async function init() {
 					}
 					if (node.isCode) {
 						node.visible = showCode;
+					}
+					if (node.isSound) {
+						node.visible = showSound;
 					}
 				}
 			});
