@@ -52,6 +52,7 @@ let isSliderPlaying = true;
 let showTriggers = false;
 let showCode = false;
 let showSound = false;
+let showLight = false;
 // leaderboard
 let removedTimes = [];
 // image upload
@@ -315,6 +316,7 @@ async function init() {
 			showTriggers = !showTriggers;
 			showCode = !showCode;
 			showSound = !showSound;
+			showLight = !showLight;
 
 			scene.traverse((node) => {
 				if (node instanceof THREE.Mesh) {
@@ -326,6 +328,9 @@ async function init() {
 					}
 					if (node.isSound) {
 						node.visible = showSound;
+					}
+					if (node.isLightNode) {
+						node.visible = showLight;
 					}
 				}
 			});
