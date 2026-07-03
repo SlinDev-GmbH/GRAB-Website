@@ -52,6 +52,15 @@ message InstructionData
 		InCos = 22;
 		InSqrt = 23;
 		InAtan2 = 24;
+		InPow = 25;
+		InAbs = 26;
+		InVecSet = 27;
+		InVecAdd = 28;
+		InVecSub = 29;
+		InVecMul = 30;
+		InVecScl = 31;
+		InVecLen = 32;
+		InVecDot = 33;
 	}
 	Type type = 1;
 	repeated OperandData operands = 2;
@@ -115,6 +124,14 @@ message ProgrammableLightData
 {
 }
 
+message ProgrammablePlayerVariablesData
+{
+}
+
+message ProgrammableLobbyVariablesData
+{
+}
+
 message ProgrammablePropertyData
 {
 	message Component
@@ -138,6 +155,8 @@ message ProgrammablePropertyData
 		ProgrammableScaleData scale = 9;
 		ProgrammablePhysicsData physics = 10;
 		ProgrammableLightData light = 11;
+		ProgrammablePlayerVariablesData playerVariables = 12;
+		ProgrammableLobbyVariablesData lobbyVariables = 13;
 	}
 }
 
@@ -150,6 +169,7 @@ message ProgrammablePropertyUpdateData
 {
 	repeated float components = 1;
 
+	// NOTE: simple properties (position, rotation, etc.) are serialized via their components alone
 	oneof content
 	{
 		ProgrammableSignUpdateData sign = 2;
