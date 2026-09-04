@@ -96,7 +96,7 @@ enum LevelNodeMaterial
 	BOUNCING = 9;
 	SNOW = 10;
 
-	TRIGGER = 11; //Not actually written into files and the number on this could be changed without issues. Only used as enum value internally.
+	TRIGGER = 11;
 }
 
 enum InterpolationType
@@ -131,10 +131,6 @@ message LevelNodeGroup
 	Vector scale = 2;
 	Quaternion rotation = 3;
 
-	//This is where level nodes that are part of the group are stored when saving to file / loading
-	//It is ok to be empty when networking a groups transform
-	//There is an additional message for networking grouping and ungrouping (LevelNodeGroupRequest, LevelNodeGroupResponse)
-	//When sending the full level on a new player joining the editor, first the level nodes are sent on their own and then a group response to group them
 	repeated LevelNode childNodes = 4;
 	
 	string name = 5;
@@ -146,7 +142,7 @@ message LevelNodeGroup
 message LevelNodeStart
 {
 	Vector position = 1;
-	Quaternion rotation = 2; //Should always be upright and is meant to be used for the player rotation on spawn
+	Quaternion rotation = 2;
 	float radius = 3;
 	string name = 4;
 	bool isHidden = 5;
@@ -160,15 +156,15 @@ message LevelNodeFinish
 
 message LevelNodeStatic
 {
-	LevelNodeShape shape = 1; //Must be one of CUBE, SPHERE, CYLINDER, PYRAMID, PRISM
-	LevelNodeMaterial material = 2; //Can not be GRABBABLE_CRUMBLING
+	LevelNodeShape shape = 1;
+	LevelNodeMaterial material = 2;
 
 	Vector position = 3;
 	Vector scale = 4;
 	Quaternion rotation = 5;
 
 	Color color1 = 6;
-	Color color2 = 9; //Used for colored lava blocks, blending between the two colors, but also used for specularity on colored default blocks!
+	Color color2 = 9;
 	Vector gradientDirection = 14;
 
 	optional float specularBrightness = 15;
@@ -178,15 +174,15 @@ message LevelNodeStatic
 	bool isGradient = 13;
 	bool isAdditive = 16;
 
-	bool isGrabbable = 10; //Used for DEFAULT_COLORED material to allow grabbing it or not
-	bool isGrapplable = 11; //Used for DEFAULT_COLORED material to allow grappling it or not
+	bool isGrabbable = 10;
+	bool isGrapplable = 11;
 	bool isPassable = 12;
 }
 
 message LevelNodeCrumbling
 {
-	LevelNodeShape shape = 1; //Must be one of CUBE, SPHERE, CYLINDER, PYRAMID, PRISM
-	LevelNodeMaterial material = 2; //Must be GRABBABLE_CRUMBLING
+	LevelNodeShape shape = 1;
+	LevelNodeMaterial material = 2;
 
 	Vector position = 3;
 	Vector scale = 4;
@@ -225,7 +221,7 @@ message LevelNodeGravity
 	enum Mode
 	{
 		DEFAULT = 0;
-		NOLEGS = 1; //gtag like movement with the head on the ground, also no leg collisions with lava
+		NOLEGS = 1;
 		MONKEY = 2;
 	}
 
@@ -300,17 +296,17 @@ message TriggerTargetAnimation
 	{
 		STOP = 0;
 		START = 1;
-		TOGGLE = 2; //Toggles between start and stop
-		TOGGLE_REVERSE = 3; //Toggles between playing the animation forwards and backwards
-		RESTART = 4; //Like start, but will always play from the beginning (or end if reverse is on)
-		RESET = 5; //Reset to the initial state, playing looped default animation if there is one
+		TOGGLE = 2;
+		TOGGLE_REVERSE = 3;
+		RESTART = 4;
+		RESET = 5;
 	}
 
 	uint64 objectID = 1;
 	string animationName = 2;
 
-	bool loop = 3; //Make the animation repeat endlessly until it is stopped
-	bool reverse = 4; //Make the animation play backwards
+	bool loop = 3;
+	bool reverse = 4;
 
 	Mode mode = 10;
 }
@@ -321,9 +317,9 @@ message TriggerTargetSound
 	{
 		STOP = 0;
 		START = 1;
-		TOGGLE = 2; //Toggles between start and stop
-		RESTART = 3; //Like start, but will always play from the beginning (or end if reverse is on)
-		RESET = 4; //Reset to the initial state, playing looped default animation if there is one
+		TOGGLE = 2;
+		RESTART = 3;
+		RESET = 4;
 	}
 
 	uint64 objectID = 1;
@@ -395,7 +391,7 @@ message TriggerTarget
 {
 	enum Mode
 	{
-		ONENTER = 0; //Needs to be 0 for backwards compatibility
+		ONENTER = 0;
 		ONLEAVE = 1;
 		ONENTERONLEAVE = 2;
 		NONE = 3;
@@ -416,7 +412,7 @@ message TriggerTarget
 
 message LevelNodeTrigger
 {
-	LevelNodeShape shape = 1; //Must be one of CUBE, SPHERE, CYLINDER, PYRAMID, PRISM
+	LevelNodeShape shape = 1;
 
 	Vector position = 2;
 	Vector scale = 3;
@@ -547,8 +543,8 @@ message Animation
 {
 	enum Direction
 	{
-		RESTART = 0; //After the last frame, jump back to the first frame
-		PINGPONG = 1; //After the last frame, play the animation backwards
+		RESTART = 0;
+		PINGPONG = 1;
 	}
 
 	enum Interpolation
@@ -585,7 +581,7 @@ message LevelNode
 		LevelNodeLight levelNodeLight = 14;
 	}
 
-	repeated Animation animations = 15; //A level node can have any number (might limit it in the UI) of named animations
-	int32 activeAnimation = 16; //Index into animations, -1 if it is not playing an animation at the start, ignored if there are no animations (so will default to 0 in that case)
-	bool wantsCreationHistory = 17; //Player still dragging this from the menu and creation is yet to be added to the undo history.
+	repeated Animation animations = 15;
+	int32 activeAnimation = 16;
+	bool wantsCreationHistory = 17;
 }
