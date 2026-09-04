@@ -385,70 +385,23 @@ class LevelLoader {
 					object.initialPosition = object.position.clone();
 					object.initialRotation = object.quaternion.clone();
 
-					let particleGeometry = new THREE.BufferGeometry();
+					if (!node.levelNodeGravity.hideParticles) {
+						let particleGeometry = new THREE.BufferGeometry();
 
-					let particleColor = new THREE.Color(1.0, 1.0, 1.0);
-					if (node.levelNodeGravity?.mode == 1) {
-						particleColor = new THREE.Color(1.0, 0.6, 0.6);
-					}
+						let particleColor = new THREE.Color(1.0, 1.0, 1.0);
+						if (node.levelNodeGravity?.mode == 1) {
+							particleColor = new THREE.Color(1.0, 0.6, 0.6);
+						}
 
-					let lifeSpan = 1;
-					let particleCount = Math.min(Math.floor(object.scale.x * object.scale.y * object.scale.z * 10), 2000);
+						let lifeSpan = 1;
+						let particleCount = Math.min(Math.floor(object.scale.x * object.scale.y * object.scale.z * 10), 2000);
 
-					let size = 0.1;
+						let size = 0.1;
 
-					const positions = new Float32Array(particleCount * 3);
-					const colors = new Float32Array(particleCount * 3);
-					const scales = new Float32Array(particleCount);
-					const lifeSpans = new Float32Array(particleCount);
-
-					let worldPosition = new THREE.Vector3();
-					let worldScale = new THREE.Vector3();
-					let worldQuaternion = new THREE.Quaternion();
-					object.getWorldPosition(worldPosition);
-					object.getWorldScale(worldScale);
-					object.getWorldQuaternion(worldQuaternion);
-
-					let velocity = new THREE.Vector3(
-						node.levelNodeGravity.direction.x,
-						node.levelNodeGravity.direction.y,
-						node.levelNodeGravity.direction.z,
-					);
-					velocity.applyQuaternion(worldQuaternion);
-
-					for (let i = 0; i < particleCount; i++) {
-						lifeSpans[i] = Math.random() * lifeSpan;
-
-						scales[i] = size;
-
-						let particlePosition = new THREE.Vector3(
-							(Math.random() - 0.5) * worldScale.x,
-							(Math.random() - 0.5) * worldScale.y,
-							(Math.random() - 0.5) * worldScale.z,
-						);
-						particlePosition.applyQuaternion(worldQuaternion);
-
-						positions[i * 3] = worldPosition.x + particlePosition.x;
-						positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
-						positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
-
-						colors[i * 3] = particleColor.r;
-						colors[i * 3 + 1] = particleColor.g;
-						colors[i * 3 + 2] = particleColor.b;
-					}
-
-					particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-					particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-					particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
-
-					let particleMaterial = objectMaterials[7].clone();
-
-					let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
-
-					scene.add(particlePoints);
-					parentNode.add(object);
-					object.userData.update = (delta) => {
-						const positions = particleGeometry.attributes.position.array;
+						const positions = new Float32Array(particleCount * 3);
+						const colors = new Float32Array(particleCount * 3);
+						const scales = new Float32Array(particleCount);
+						const lifeSpans = new Float32Array(particleCount);
 
 						let worldPosition = new THREE.Vector3();
 						let worldScale = new THREE.Vector3();
@@ -465,28 +418,78 @@ class LevelLoader {
 						velocity.applyQuaternion(worldQuaternion);
 
 						for (let i = 0; i < particleCount; i++) {
-							lifeSpans[i] -= delta;
-							if (lifeSpans[i] <= 0) {
-								lifeSpans[i] = lifeSpan;
+							lifeSpans[i] = Math.random() * lifeSpan;
 
-								let particlePosition = new THREE.Vector3(
-									(Math.random() - 0.5) * worldScale.x,
-									(Math.random() - 0.5) * worldScale.y,
-									(Math.random() - 0.5) * worldScale.z,
-								);
-								particlePosition.applyQuaternion(worldQuaternion);
+							scales[i] = size;
 
-								positions[i * 3] = worldPosition.x + particlePosition.x;
-								positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
-								positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
-							}
-							positions[i * 3] += velocity.x * delta;
-							positions[i * 3 + 1] += velocity.y * delta;
-							positions[i * 3 + 2] += velocity.z * delta;
+							let particlePosition = new THREE.Vector3(
+								(Math.random() - 0.5) * worldScale.x,
+								(Math.random() - 0.5) * worldScale.y,
+								(Math.random() - 0.5) * worldScale.z,
+							);
+							particlePosition.applyQuaternion(worldQuaternion);
+
+							positions[i * 3] = worldPosition.x + particlePosition.x;
+							positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
+							positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
+
+							colors[i * 3] = particleColor.r;
+							colors[i * 3 + 1] = particleColor.g;
+							colors[i * 3 + 2] = particleColor.b;
 						}
 
-						particleGeometry.attributes.position.needsUpdate = true;
-					};
+						particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+						particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+						particleGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
+
+						let particleMaterial = objectMaterials[7].clone();
+
+						let particlePoints = new THREE.Points(particleGeometry, particleMaterial);
+
+						scene.add(particlePoints);
+						object.userData.update = (delta) => {
+							const positions = particleGeometry.attributes.position.array;
+
+							let worldPosition = new THREE.Vector3();
+							let worldScale = new THREE.Vector3();
+							let worldQuaternion = new THREE.Quaternion();
+							object.getWorldPosition(worldPosition);
+							object.getWorldScale(worldScale);
+							object.getWorldQuaternion(worldQuaternion);
+
+							let velocity = new THREE.Vector3(
+								node.levelNodeGravity.direction.x,
+								node.levelNodeGravity.direction.y,
+								node.levelNodeGravity.direction.z,
+							);
+							velocity.applyQuaternion(worldQuaternion);
+
+							for (let i = 0; i < particleCount; i++) {
+								lifeSpans[i] -= delta;
+								if (lifeSpans[i] <= 0) {
+									lifeSpans[i] = lifeSpan;
+
+									let particlePosition = new THREE.Vector3(
+										(Math.random() - 0.5) * worldScale.x,
+										(Math.random() - 0.5) * worldScale.y,
+										(Math.random() - 0.5) * worldScale.z,
+									);
+									particlePosition.applyQuaternion(worldQuaternion);
+
+									positions[i * 3] = worldPosition.x + particlePosition.x;
+									positions[i * 3 + 1] = worldPosition.y + particlePosition.y;
+									positions[i * 3 + 2] = worldPosition.z + particlePosition.z;
+								}
+								positions[i * 3] += velocity.x * delta;
+								positions[i * 3 + 1] += velocity.y * delta;
+								positions[i * 3 + 2] += velocity.z * delta;
+							}
+
+							particleGeometry.attributes.position.needsUpdate = true;
+						};
+					}
+
+					parentNode.add(object);
 
 					level.nodes.levelNodeGravity.push(object);
 					level.complexity += 10;
@@ -1280,7 +1283,7 @@ function updateObjectAnimation(object, time) {
 }
 
 function updateObjectParticles(object, delta) {
-	object.userData.update(delta); // TODO: actually move the logic here
+	object.userData.update?.(delta); // TODO: actually move the logic here
 }
 
 export { LevelLoader };
