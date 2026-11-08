@@ -23,4 +23,5 @@ message Level
 
 	bool unlisted = 11;
 	bool showReplays = 12;
+	bool disablePracticeMode = 13;
 }
