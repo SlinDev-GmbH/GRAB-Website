@@ -1305,6 +1305,13 @@ async function playReplay(replayKey) {
 				let x = 0,
 					y = 0,
 					z = 0;
+				let r = 0.5,
+					g = 0.5,
+					b = 1;
+
+				points.push(x, y, z);
+				colors.push(r, g, b);
+
 				for (const frame of replay.frames) {
 					const checkpoint = frame.checkpoint;
 					if (checkpoint) {
@@ -1321,9 +1328,7 @@ async function playReplay(replayKey) {
 						const ny = position.y || y;
 						const nz = -position.z || z;
 
-						let r = 0.5,
-							g = 0.5,
-							b = 1;
+						(r = 0.5), (g = 0.5), (b = 1);
 						const nd = new THREE.Vector3(x, y, z).distanceTo({ x: nx, y: ny, z: nz });
 						const cd = new THREE.Vector3(nx, ny, nz).distanceTo({ x: cx, y: cy, z: cz });
 						if (didRespawn || (nd > 1 && cd < 2)) {
@@ -1332,7 +1337,7 @@ async function playReplay(replayKey) {
 							attemptStart = colors.length;
 						}
 
-						points.push(x, y, z);
+						points.push(nx, ny, nz);
 						colors.push(r, g, b);
 						(x = nx), (y = ny), (z = nz);
 					}
